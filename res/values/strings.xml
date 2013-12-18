@@ -1,0 +1,18 @@
+<resources>
+
+    <string name="app_name">FOSDEM Companion</string>
+    <string name="other">Other</string>
+    <string name="keynote">Keynote</string>
+    <string name="main_track">Main track</string>
+    <string name="developer_room">Developer room</string>
+    <string name="lightning_talk">Lightning talk</string>
+    <string name="certification_exam">Certification Exam</string>
+    <string name="search_events">Search events</string>
+    <string name="search_settings_description">Events</string>
+    <string name="search_hint">Event, track, person</string>
+    <string name="refresh_events_db">Refresh events database</string>
+    <string name="events_download_completed">Completed downloading %1$d events</string>
+    <string name="error_title">Error</string>
+    <string name="schedule_loading_error">An error occurred while updating the schedule. Please try again later.</string>
+
+</resources>
