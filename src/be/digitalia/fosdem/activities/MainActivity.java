@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
@@ -17,6 +18,7 @@ import android.view.Window;
 import android.widget.Toast;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemApi;
+import be.digitalia.fosdem.fragments.MapFragment;
 import be.digitalia.fosdem.fragments.MessageDialogFragment;
 import be.digitalia.fosdem.loaders.AbstractAsyncTaskLoader;
 
@@ -45,6 +47,12 @@ public class MainActivity extends ActionBarActivity implements Handler.Callback 
 		setContentView(R.layout.content);
 
 		LocalBroadcastManager.getInstance(this).registerReceiver(scheduleLoadingProgressReceiver, new IntentFilter(FosdemApi.SCHEDULE_PROGRESS_ACTION));
+
+		// Set the map as main content
+		if (savedInstanceState == null) {
+			Fragment f = MapFragment.newInstance();
+			getSupportFragmentManager().beginTransaction().add(R.id.content, f).commit();
+		}
 
 		if (getSupportLoaderManager().getLoader(DOWNLOAD_SCHEDULE_LOADER_ID) != null) {
 			// Reconnect to running loader

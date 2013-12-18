@@ -12,6 +12,7 @@
     <string name="search_hint">Event, track, person</string>
     <string name="refresh_events_db">Refresh events database</string>
     <string name="events_download_completed">Completed downloading %1$d events</string>
+    <string name="directions">Directions to ULB</string>
     <string name="error_title">Error</string>
     <string name="schedule_loading_error">An error occurred while updating the schedule. Please try again later.</string>
 
