@@ -24,10 +24,6 @@ public class MapFragment extends Fragment {
 	private static final String DESTINATION_NAME = "ULB";
 	private static final String GOOGLE_MAPS_PACKAGE_NAME = "com.google.android.apps.maps";
 
-	public static MapFragment newInstance() {
-		return new MapFragment();
-	}
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

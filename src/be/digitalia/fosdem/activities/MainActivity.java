@@ -32,14 +32,15 @@ import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemApi;
 import be.digitalia.fosdem.fragments.MapFragment;
 import be.digitalia.fosdem.fragments.MessageDialogFragment;
+import be.digitalia.fosdem.fragments.PersonsListFragment;
 import be.digitalia.fosdem.loaders.AbstractAsyncTaskLoader;
 
 public class MainActivity extends ActionBarActivity implements ListView.OnItemClickListener, Handler.Callback {
 
 	private enum Section {
 		TRACKS(MapFragment.class, R.string.menu_tracks, R.drawable.ic_action_event), BOOKMARKS(MapFragment.class, R.string.menu_bookmarks,
-				R.drawable.ic_action_important), SPEAKERS(MapFragment.class, R.string.menu_speakers, R.drawable.ic_action_group), MAP(MapFragment.class,
-				R.string.menu_map, R.drawable.ic_action_map);
+				R.drawable.ic_action_important), SPEAKERS(PersonsListFragment.class, R.string.menu_speakers, R.drawable.ic_action_group), MAP(
+				MapFragment.class, R.string.menu_map, R.drawable.ic_action_map);
 
 		private Class<? extends Fragment> fragmentClass;
 		private int titleResId;
