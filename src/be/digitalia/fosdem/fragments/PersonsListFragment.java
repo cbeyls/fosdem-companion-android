@@ -10,7 +10,9 @@ import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AlphabetIndexer;
 import android.widget.ListView;
+import android.widget.SectionIndexer;
 import android.widget.TextView;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.db.DatabaseManager;
@@ -34,15 +36,16 @@ public class PersonsListFragment extends ListFragment implements LoaderCallbacks
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
+		getListView().setFastScrollEnabled(true);
 		setEmptyText(getString(R.string.no_data));
 		setListShown(false);
 
 		getLoaderManager().initLoader(PERSONS_LOADER_ID, null, this);
 	}
 
-	private static class HistoryLoader extends SimpleCursorLoader {
+	private static class PersonsLoader extends SimpleCursorLoader {
 
-		public HistoryLoader(Context context) {
+		public PersonsLoader(Context context) {
 			super(context);
 		}
 
@@ -54,7 +57,7 @@ public class PersonsListFragment extends ListFragment implements LoaderCallbacks
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		return new HistoryLoader(getActivity());
+		return new PersonsLoader(getActivity());
 	}
 
 	@Override
@@ -81,13 +84,17 @@ public class PersonsListFragment extends ListFragment implements LoaderCallbacks
 		// TODO
 	}
 
-	private static class PersonsAdapter extends CursorAdapter {
+	private static class PersonsAdapter extends CursorAdapter implements SectionIndexer {
+
+		private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 		private final LayoutInflater inflater;
+		private final AlphabetIndexer indexer;
 
 		public PersonsAdapter(Context context) {
 			super(context, null, 0);
 			inflater = LayoutInflater.from(context);
+			indexer = new AlphabetIndexer(null, DatabaseManager.PERSON_NAME_COLUMN_INDEX, ALPHABET);
 		}
 
 		@Override
@@ -111,6 +118,27 @@ public class PersonsListFragment extends ListFragment implements LoaderCallbacks
 			ViewHolder holder = (ViewHolder) view.getTag();
 			holder.person = DatabaseManager.toPerson(cursor, holder.person);
 			holder.textView.setText(holder.person.getName());
+		}
+
+		@Override
+		public Cursor swapCursor(Cursor newCursor) {
+			indexer.setCursor(newCursor);
+			return super.swapCursor(newCursor);
+		}
+
+		@Override
+		public int getPositionForSection(int sectionIndex) {
+			return indexer.getPositionForSection(sectionIndex);
+		}
+
+		@Override
+		public int getSectionForPosition(int position) {
+			return indexer.getSectionForPosition(position);
+		}
+
+		@Override
+		public Object[] getSections() {
+			return indexer.getSections();
 		}
 
 		private static class ViewHolder {

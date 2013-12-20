@@ -553,10 +553,13 @@ public class DatabaseManager {
 	 * Returns all persons in alphabetical order.
 	 */
 	public Cursor getPersons() {
-		Cursor cursor = helper.getReadableDatabase().rawQuery("SELECT rowid AS _id, name" + " FROM " + DatabaseHelper.PERSONS_TABLE_NAME + " ORDER BY name ASC", null);
+		Cursor cursor = helper.getReadableDatabase().rawQuery(
+				"SELECT rowid AS _id, name" + " FROM " + DatabaseHelper.PERSONS_TABLE_NAME + " ORDER BY name COLLATE NOCASE", null);
 		cursor.setNotificationUri(context.getContentResolver(), URI_SCHEDULE);
 		return cursor;
 	}
+
+	public static final int PERSON_NAME_COLUMN_INDEX = 1;
 
 	/**
 	 * Returns persons presenting the specified event.
