@@ -278,7 +278,7 @@ public class DatabaseManager {
 	public Cursor getTracks(Day day) {
 		String[] selectionArgs = new String[] { String.valueOf(day.getIndex()) };
 		Cursor cursor = helper.getReadableDatabase().rawQuery(
-				"SELECT t.name, t.type" + " FROM " + DatabaseHelper.TRACKS_TABLE_NAME + " t" + " JOIN " + DatabaseHelper.EVENTS_TABLE_NAME
+				"SELECT t.id AS _id, t.name, t.type" + " FROM " + DatabaseHelper.TRACKS_TABLE_NAME + " t" + " JOIN " + DatabaseHelper.EVENTS_TABLE_NAME
 						+ " e ON t.id = e.track_id" + " WHERE e.day_index = ?" + " GROUP BY t.id" + " ORDER BY t.id ASC", selectionArgs);
 		cursor.setNotificationUri(context.getContentResolver(), URI_SCHEDULE);
 		return cursor;
@@ -288,8 +288,8 @@ public class DatabaseManager {
 		if (track == null) {
 			track = new Track();
 		}
-		track.setName(cursor.getString(0));
-		track.setType(Enum.valueOf(Track.Type.class, cursor.getString(1)));
+		track.setName(cursor.getString(1));
+		track.setType(Enum.valueOf(Track.Type.class, cursor.getString(2)));
 
 		return track;
 	}
@@ -313,7 +313,7 @@ public class DatabaseManager {
 		Cursor cursor = helper
 				.getReadableDatabase()
 				.rawQuery(
-						"SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type"
+						"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type"
 								+ " FROM "
 								+ DatabaseHelper.EVENTS_TABLE_NAME
 								+ " e"
@@ -348,7 +348,7 @@ public class DatabaseManager {
 		Cursor cursor = helper
 				.getReadableDatabase()
 				.rawQuery(
-						"SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type"
+						"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type"
 								+ " FROM "
 								+ DatabaseHelper.EVENTS_TABLE_NAME
 								+ " e"
@@ -375,6 +375,7 @@ public class DatabaseManager {
 	}
 
 	/**
+	 * Returns the bookmarks.
 	 * 
 	 * @param futureOnly
 	 *            When true, only return the events that are not over yet.
@@ -394,7 +395,7 @@ public class DatabaseManager {
 		Cursor cursor = helper
 				.getReadableDatabase()
 				.rawQuery(
-						"SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type"
+						"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type"
 								+ " FROM "
 								+ DatabaseHelper.BOOKMARKS_TABLE_NAME
 								+ " b"
@@ -433,7 +434,7 @@ public class DatabaseManager {
 		Cursor cursor = helper
 				.getReadableDatabase()
 				.rawQuery(
-						"SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type"
+						"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type"
 								+ " FROM "
 								+ DatabaseHelper.EVENTS_TABLE_NAME
 								+ " e"
@@ -552,7 +553,7 @@ public class DatabaseManager {
 	 * Returns all persons in alphabetical order.
 	 */
 	public Cursor getPersons() {
-		Cursor cursor = helper.getReadableDatabase().rawQuery("SELECT rowid, name" + " FROM " + DatabaseHelper.PERSONS_TABLE_NAME + " ORDER BY name ASC", null);
+		Cursor cursor = helper.getReadableDatabase().rawQuery("SELECT rowid AS _id, name" + " FROM " + DatabaseHelper.PERSONS_TABLE_NAME + " ORDER BY name ASC", null);
 		cursor.setNotificationUri(context.getContentResolver(), URI_SCHEDULE);
 		return cursor;
 	}
@@ -563,7 +564,7 @@ public class DatabaseManager {
 	public List<Person> getPersons(Event event) {
 		String[] selectionArgs = new String[] { String.valueOf(event.getId()) };
 		Cursor cursor = helper.getReadableDatabase().rawQuery(
-				"SELECT p.rowid, p.name" + " FROM " + DatabaseHelper.PERSONS_TABLE_NAME + " p" + " JOIN " + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
+				"SELECT p.rowid AS _id, p.name" + " FROM " + DatabaseHelper.PERSONS_TABLE_NAME + " p" + " JOIN " + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
 						+ " ep ON p.rowid = ep.person_id" + " WHERE ep.event_id = ?" + " ORDER BY p.name ASC", selectionArgs);
 		try {
 			List<Person> result = new ArrayList<Person>(cursor.getCount());
