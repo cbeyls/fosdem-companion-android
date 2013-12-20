@@ -1,6 +1,12 @@
 <resources>
 
     <string name="app_name">FOSDEM Companion</string>
+    <string name="main_menu">Main menu</string>
+    <string name="close_menu">Close menu</string>
+    <string name="menu_tracks">Tracks</string>
+    <string name="menu_bookmarks">Starred</string>
+    <string name="menu_speakers">Speakers</string>
+    <string name="menu_map">Map</string>
     <string name="other">Other</string>
     <string name="keynote">Keynote</string>
     <string name="main_track">Main track</string>
@@ -10,7 +16,7 @@
     <string name="search_events">Search events</string>
     <string name="search_settings_description">Events</string>
     <string name="search_hint">Event, track, person</string>
-    <string name="refresh_events_db">Refresh events database</string>
+    <string name="update_events_db">Update events database</string>
     <string name="events_download_completed">Completed downloading %1$d events</string>
     <string name="directions">Directions to ULB</string>
     <string name="error_title">Error</string>

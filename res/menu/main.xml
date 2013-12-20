@@ -12,7 +12,7 @@
         android:id="@+id/refresh"
         android:icon="@drawable/ic_action_refresh"
         android:menuCategory="secondary"
-        android:title="@string/refresh_events_db"
+        android:title="@string/update_events_db"
         app:showAsAction="ifRoom"/>
 
 </menu>
