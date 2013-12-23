@@ -3,5 +3,6 @@
 
     <color name="main_menu_background">#fafafa</color>
     <color name="current_section_background">#29000000</color>
+    <color name="background_tab_pressed">#6633B5E5</color>
 
 </resources>

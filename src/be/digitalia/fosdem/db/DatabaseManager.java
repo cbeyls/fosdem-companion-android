@@ -11,6 +11,7 @@ import java.util.Set;
 import android.app.SearchManager;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
@@ -18,6 +19,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.support.v4.content.LocalBroadcastManager;
 import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Link;
@@ -31,6 +33,8 @@ import be.digitalia.fosdem.model.Track;
  * 
  */
 public class DatabaseManager {
+
+	public static final String ACTION_SCHEDULE_REFRESHED = "be.digitalia.fosdem.SCHEDULE_REFRESHED";
 
 	private static final Uri URI_SCHEDULE = Uri.parse("sqlite://be.digitalia.fosdem/schedule");
 	private static final Uri URI_BOOKMARKS = Uri.parse("sqlite://be.digitalia.fosdem/bookmarks");
@@ -220,6 +224,8 @@ public class DatabaseManager {
 
 			db.setTransactionSuccessful();
 
+			// Clear cache
+			cachedDays = null;
 			// Set last update time
 			getSharedPreferences().edit().putLong(LAST_UPDATE_TIME_PREF, System.currentTimeMillis()).commit();
 
@@ -228,6 +234,7 @@ public class DatabaseManager {
 			db.endTransaction();
 			context.getContentResolver().notifyChange(URI_SCHEDULE, null);
 			context.getContentResolver().notifyChange(URI_BOOKMARKS, null);
+			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ACTION_SCHEDULE_REFRESHED));
 		}
 	}
 
@@ -239,9 +246,13 @@ public class DatabaseManager {
 
 			db.setTransactionSuccessful();
 
+			cachedDays = null;
 			getSharedPreferences().edit().remove(LAST_UPDATE_TIME_PREF).commit();
 		} finally {
 			db.endTransaction();
+			context.getContentResolver().notifyChange(URI_SCHEDULE, null);
+			context.getContentResolver().notifyChange(URI_BOOKMARKS, null);
+			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ACTION_SCHEDULE_REFRESHED));
 		}
 	}
 
@@ -253,6 +264,17 @@ public class DatabaseManager {
 		db.delete(DatabaseHelper.LINKS_TABLE_NAME, null, null);
 		db.delete(DatabaseHelper.TRACKS_TABLE_NAME, null, null);
 		db.delete(DatabaseHelper.DAYS_TABLE_NAME, null, null);
+	}
+
+	private List<Day> cachedDays;
+
+	/**
+	 * Returns the cached days list or null. Can be safely called on the main thread without blocking it.
+	 * 
+	 * @return
+	 */
+	public List<Day> getCachedDays() {
+		return cachedDays;
 	}
 
 	/**
@@ -269,6 +291,7 @@ public class DatabaseManager {
 				day.setDate(new Date(cursor.getLong(1)));
 				result.add(day);
 			}
+			cachedDays = result;
 			return result;
 		} finally {
 			cursor.close();

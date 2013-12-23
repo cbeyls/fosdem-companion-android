@@ -33,27 +33,28 @@ import be.digitalia.fosdem.api.FosdemApi;
 import be.digitalia.fosdem.fragments.MapFragment;
 import be.digitalia.fosdem.fragments.MessageDialogFragment;
 import be.digitalia.fosdem.fragments.PersonsListFragment;
+import be.digitalia.fosdem.fragments.TracksFragment;
 import be.digitalia.fosdem.loaders.AbstractAsyncTaskLoader;
 
 public class MainActivity extends ActionBarActivity implements ListView.OnItemClickListener, Handler.Callback {
 
 	private enum Section {
-		TRACKS(MapFragment.class, R.string.menu_tracks, R.drawable.ic_action_event), BOOKMARKS(MapFragment.class, R.string.menu_bookmarks,
+		TRACKS(TracksFragment.class, R.string.menu_tracks, R.drawable.ic_action_event), BOOKMARKS(MapFragment.class, R.string.menu_bookmarks,
 				R.drawable.ic_action_important), SPEAKERS(PersonsListFragment.class, R.string.menu_speakers, R.drawable.ic_action_group), MAP(
 				MapFragment.class, R.string.menu_map, R.drawable.ic_action_map);
 
-		private Class<? extends Fragment> fragmentClass;
+		private String fragmentClassName;
 		private int titleResId;
 		private int iconResId;
 
 		private Section(Class<? extends Fragment> fragmentClass, int titleResId, int iconResId) {
-			this.fragmentClass = fragmentClass;
+			this.fragmentClassName = fragmentClass.getName();
 			this.titleResId = titleResId;
 			this.iconResId = iconResId;
 		}
 
-		public Class<? extends Fragment> getFragmentClass() {
-			return fragmentClass;
+		public String getFragmentClassName() {
+			return fragmentClassName;
 		}
 
 		public int getTitleResId() {
@@ -132,7 +133,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		// Restore current section
 		if (savedInstanceState == null) {
 			currentSection = Section.TRACKS;
-			Fragment f = Fragment.instantiate(this, currentSection.getFragmentClass().getName());
+			Fragment f = Fragment.instantiate(this, currentSection.getFragmentClassName());
 			getSupportFragmentManager().beginTransaction().add(R.id.content, f).commit();
 		} else {
 			currentSection = Section.values()[savedInstanceState.getInt(STATE_CURRENT_SECTION)];
@@ -326,7 +327,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 			currentSection = section;
 			menuAdapter.notifyDataSetChanged();
 
-			Fragment f = Fragment.instantiate(this, section.getFragmentClass().getName());
+			Fragment f = Fragment.instantiate(this, section.getFragmentClassName());
 			getSupportFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).replace(R.id.content, f).commit();
 		}
 
