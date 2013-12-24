@@ -40,7 +40,7 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 
 	private DaysAdapter daysAdapter;
 	private ViewHolder holder;
-	private int pendingCurrentPage;
+	private int savedCurrentPage = -1;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -49,9 +49,7 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 
 		if (savedInstanceState == null) {
 			// Restore the current page from preferences
-			pendingCurrentPage = getActivity().getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE).getInt(CURRENT_PAGE_KEY, -1);
-		} else {
-			pendingCurrentPage = savedInstanceState.getInt(CURRENT_PAGE_KEY, -1);
+			savedCurrentPage = getActivity().getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE).getInt(CURRENT_PAGE_KEY, -1);
 		}
 	}
 
@@ -63,7 +61,6 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 		holder.contentView = view.findViewById(R.id.content);
 		holder.emptyView = view.findViewById(android.R.id.empty);
 		holder.pager = (ViewPager) view.findViewById(R.id.pager);
-		holder.pager.setAdapter(daysAdapter);
 		holder.indicator = (PagerSlidingTabStrip) view.findViewById(R.id.indicator);
 
 		return view;
@@ -80,12 +77,6 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 		super.onActivityCreated(savedInstanceState);
 
 		getLoaderManager().initLoader(DAYS_LOADER_ID, null, this);
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putInt(CURRENT_PAGE_KEY, holder.pager.getCurrentItem());
 	}
 
 	@Override
@@ -149,10 +140,13 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 		} else {
 			holder.contentView.setVisibility(View.VISIBLE);
 			holder.emptyView.setVisibility(View.GONE);
+			if (holder.pager.getAdapter() == null) {
+				holder.pager.setAdapter(daysAdapter);
+			}
 			holder.indicator.setViewPager(holder.pager);
-			if (pendingCurrentPage != -1) {
-				holder.pager.setCurrentItem(Math.min(pendingCurrentPage, totalPages - 1), false);
-				pendingCurrentPage = -1;
+			if (savedCurrentPage != -1) {
+				holder.pager.setCurrentItem(Math.min(savedCurrentPage, totalPages - 1), false);
+				savedCurrentPage = -1;
 			}
 		}
 	}
