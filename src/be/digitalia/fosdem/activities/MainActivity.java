@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
@@ -39,18 +40,20 @@ import be.digitalia.fosdem.loaders.AbstractAsyncTaskLoader;
 public class MainActivity extends ActionBarActivity implements ListView.OnItemClickListener, Handler.Callback {
 
 	private enum Section {
-		TRACKS(TracksFragment.class, R.string.menu_tracks, R.drawable.ic_action_event), BOOKMARKS(MapFragment.class, R.string.menu_bookmarks,
-				R.drawable.ic_action_important), SPEAKERS(PersonsListFragment.class, R.string.menu_speakers, R.drawable.ic_action_group), MAP(
-				MapFragment.class, R.string.menu_map, R.drawable.ic_action_map);
+		TRACKS(TracksFragment.class, R.string.menu_tracks, R.drawable.ic_action_event, true), BOOKMARKS(MapFragment.class, R.string.menu_bookmarks,
+				R.drawable.ic_action_important, false), SPEAKERS(PersonsListFragment.class, R.string.menu_speakers, R.drawable.ic_action_group, false), MAP(
+				MapFragment.class, R.string.menu_map, R.drawable.ic_action_map, false);
 
-		private String fragmentClassName;
-		private int titleResId;
-		private int iconResId;
+		private final String fragmentClassName;
+		private final int titleResId;
+		private final int iconResId;
+		private final boolean keep;
 
-		private Section(Class<? extends Fragment> fragmentClass, int titleResId, int iconResId) {
+		private Section(Class<? extends Fragment> fragmentClass, int titleResId, int iconResId, boolean keep) {
 			this.fragmentClassName = fragmentClass.getName();
 			this.titleResId = titleResId;
 			this.iconResId = iconResId;
+			this.keep = keep;
 		}
 
 		public String getFragmentClassName() {
@@ -63,6 +66,10 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 
 		public int getIconResId() {
 			return iconResId;
+		}
+
+		public boolean shouldKeep() {
+			return keep;
 		}
 	}
 
@@ -324,11 +331,28 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		// Decrease position by 1 since the listView has a header view.
 		Section section = menuAdapter.getItem(position - 1);
 		if (section != currentSection) {
+			// Switch to new section
+			FragmentManager fm = getSupportFragmentManager();
+			FragmentTransaction ft = fm.beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+			Fragment f = fm.findFragmentById(R.id.content);
+			if (f != null) {
+				if (currentSection.shouldKeep()) {
+					ft.detach(f);
+				} else {
+					ft.remove(f);
+				}
+			}
+			String fragmentClassName = section.getFragmentClassName();
+			if (section.shouldKeep() && ((f = fm.findFragmentByTag(fragmentClassName)) != null)) {
+				ft.attach(f);
+			} else {
+				f = Fragment.instantiate(this, fragmentClassName);
+				ft.add(R.id.content, f, fragmentClassName);
+			}
+			ft.commit();
+
 			currentSection = section;
 			menuAdapter.notifyDataSetChanged();
-
-			Fragment f = Fragment.instantiate(this, section.getFragmentClassName());
-			getSupportFragmentManager().beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).replace(R.id.content, f).commit();
 		}
 
 		drawerLayout.closeDrawer(menuListView);
