@@ -1,5 +1,9 @@
 package be.digitalia.fosdem.activities;
 
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -31,6 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemApi;
+import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.fragments.MapFragment;
 import be.digitalia.fosdem.fragments.MessageDialogFragment;
 import be.digitalia.fosdem.fragments.PersonsListFragment;
@@ -77,13 +82,16 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 	private static final int DOWNLOAD_SCHEDULE_RESULT_WHAT = 1;
 	private static final String STATE_CURRENT_SECTION = "current_section";
 
+	private static final DateFormat LAST_UPDATE_DATE_FORMAT = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, Locale.getDefault());
+
 	private Handler handler;
 
 	private Section currentSection;
 
 	private DrawerLayout drawerLayout;
 	private ActionBarDrawerToggle drawerToggle;
-	private ListView menuListView;
+	private View mainMenu;
+	private TextView lastUpdateTextView;
 	private MainMenuAdapter menuAdapter;
 
 	private final BroadcastReceiver scheduleLoadingProgressReceiver = new BroadcastReceiver() {
@@ -91,7 +99,15 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			setSupportProgressBarIndeterminate(false);
-			setSupportProgress(intent.getIntExtra(FosdemApi.PROGRESS_EXTRA, 0) * 100);
+			setSupportProgress(intent.getIntExtra(FosdemApi.EXTRA_PROGRESS, 0) * 100);
+		}
+	};
+
+	private final BroadcastReceiver scheduleRefreshedReceiver = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			updateLastUpdateTime();
 		}
 	};
 
@@ -103,7 +119,8 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		setContentView(R.layout.main);
 
 		// Connect the main progress bar
-		LocalBroadcastManager.getInstance(this).registerReceiver(scheduleLoadingProgressReceiver, new IntentFilter(FosdemApi.SCHEDULE_PROGRESS_ACTION));
+		LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
+		lbm.registerReceiver(scheduleLoadingProgressReceiver, new IntentFilter(FosdemApi.ACTION_SCHEDULE_PROGRESS));
 
 		// Setup drawer layout
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -129,13 +146,19 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		drawerLayout.setFocusable(false);
 
 		// Setup Main menu
-		menuListView = (ListView) findViewById(R.id.main_menu);
+		mainMenu = findViewById(R.id.main_menu);
+		ListView menuListView = (ListView) findViewById(R.id.main_menu_list);
 		LayoutInflater inflater = LayoutInflater.from(this);
 		View menuHeaderView = inflater.inflate(R.layout.header_main_menu, null);
 		menuListView.addHeaderView(menuHeaderView, null, false);
+		lbm.registerReceiver(scheduleRefreshedReceiver, new IntentFilter(DatabaseManager.ACTION_SCHEDULE_REFRESHED));
 		menuAdapter = new MainMenuAdapter(inflater);
 		menuListView.setAdapter(menuAdapter);
 		menuListView.setOnItemClickListener(this);
+
+		// Last update date, below the menu
+		lastUpdateTextView = (TextView) findViewById(R.id.last_update);
+		updateLastUpdateTime();
 
 		// Restore current section
 		if (savedInstanceState == null) {
@@ -145,6 +168,8 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		} else {
 			currentSection = Section.values()[savedInstanceState.getInt(STATE_CURRENT_SECTION)];
 		}
+		// Ensure the current section is visible in the menu
+		menuListView.setSelection(currentSection.ordinal());
 		updateActionBar();
 
 		// Loaders
@@ -155,14 +180,20 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 	}
 
 	private void updateActionBar() {
-		getSupportActionBar().setTitle(drawerLayout.isDrawerOpen(menuListView) ? R.string.app_name : currentSection.getTitleResId());
+		getSupportActionBar().setTitle(drawerLayout.isDrawerOpen(mainMenu) ? R.string.app_name : currentSection.getTitleResId());
+	}
+
+	private void updateLastUpdateTime() {
+		Date lastUpdateTime = DatabaseManager.getInstance().getLastUpdateTime();
+		lastUpdateTextView.setText(getString(R.string.last_update,
+				(lastUpdateTime == null) ? getString(R.string.never) : LAST_UPDATE_DATE_FORMAT.format(lastUpdateTime)));
 	}
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
 
-		if (drawerLayout.isDrawerOpen(menuListView)) {
+		if (drawerLayout.isDrawerOpen(mainMenu)) {
 			updateActionBar();
 		}
 		drawerToggle.syncState();
@@ -170,8 +201,8 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 
 	@Override
 	public void onBackPressed() {
-		if (drawerLayout.isDrawerOpen(menuListView)) {
-			drawerLayout.closeDrawer(menuListView);
+		if (drawerLayout.isDrawerOpen(mainMenu)) {
+			drawerLayout.closeDrawer(mainMenu);
 		} else {
 			super.onBackPressed();
 		}
@@ -186,7 +217,9 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		LocalBroadcastManager.getInstance(this).unregisterReceiver(scheduleLoadingProgressReceiver);
+		LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
+		lbm.unregisterReceiver(scheduleLoadingProgressReceiver);
+		lbm.unregisterReceiver(scheduleRefreshedReceiver);
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -197,7 +230,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		// Hide & disable primary (contextual) action items when the main menu is opened
-		if (drawerLayout.isDrawerOpen(menuListView)) {
+		if (drawerLayout.isDrawerOpen(mainMenu)) {
 			final int size = menu.size();
 			for (int i = 0; i < size; ++i) {
 				MenuItem item = menu.getItem(i);
@@ -355,6 +388,6 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 			menuAdapter.notifyDataSetChanged();
 		}
 
-		drawerLayout.closeDrawer(menuListView);
+		drawerLayout.closeDrawer(mainMenu);
 	}
 }

@@ -19,8 +19,8 @@ import be.digitalia.fosdem.utils.HttpUtils;
 public class FosdemApi {
 
 	// Local broadcasts parameters
-	public static final String SCHEDULE_PROGRESS_ACTION = "SCHEDULE_PROGRESS_ACTION";
-	public static final String PROGRESS_EXTRA = "PROGRESS_EXTRA";
+	public static final String ACTION_SCHEDULE_PROGRESS = "ACTION_SCHEDULE_PROGRESS";
+	public static final String EXTRA_PROGRESS = "EXTRA_PROGRESS";
 
 	public static final int RESULT_ERROR = -1;
 	private static final int RESULT_IN_PROGRESS = -2;
@@ -52,7 +52,7 @@ public class FosdemApi {
 
 		int result;
 		try {
-			InputStream is = HttpUtils.get(context, FosdemUrls.getSchedule(), SCHEDULE_PROGRESS_ACTION, PROGRESS_EXTRA);
+			InputStream is = HttpUtils.get(context, FosdemUrls.getSchedule(), ACTION_SCHEDULE_PROGRESS, EXTRA_PROGRESS);
 			try {
 				Iterable<Event> events = new EventsParser().parse(is);
 				result = DatabaseManager.getInstance().storeSchedule(events);
@@ -65,7 +65,7 @@ public class FosdemApi {
 		} catch (Exception e) {
 			e.printStackTrace();
 			// Report completion in case of error to ensure a consistent UI
-			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(SCHEDULE_PROGRESS_ACTION).putExtra(PROGRESS_EXTRA, 100));
+			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ACTION_SCHEDULE_PROGRESS).putExtra(EXTRA_PROGRESS, 100));
 			result = RESULT_ERROR;
 		}
 

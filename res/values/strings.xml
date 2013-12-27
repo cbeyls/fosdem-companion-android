@@ -3,6 +3,8 @@
     <string name="app_name">FOSDEM Companion</string>
     <string name="main_menu">Main menu</string>
     <string name="close_menu">Close menu</string>
+    <string name="last_update">DB last updated: %1$s</string>
+    <string name="never">Never</string>
     <string name="menu_tracks">Tracks</string>
     <string name="menu_bookmarks">Starred</string>
     <string name="menu_speakers">Speakers</string>

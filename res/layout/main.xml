@@ -13,12 +13,29 @@
 
     <!-- Left drawer -->
 
-    <ListView
+    <LinearLayout
         android:id="@+id/main_menu"
         android:layout_width="260dp"
         android:layout_height="match_parent"
         android:layout_gravity="left"
         android:background="@color/main_menu_background"
-        android:cacheColorHint="@color/main_menu_background" />
+        android:orientation="vertical" >
+
+        <ListView
+            android:id="@+id/main_menu_list"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:cacheColorHint="@android:color/transparent" />
+
+        <TextView
+            android:id="@+id/last_update"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#10000000"
+            android:gravity="center"
+            android:padding="4dp"
+            android:textSize="12sp" />
+    </LinearLayout>
 
 </android.support.v4.widget.DrawerLayout>
