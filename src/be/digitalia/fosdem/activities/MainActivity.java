@@ -4,15 +4,20 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -80,6 +85,10 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 
 	private static final int DOWNLOAD_SCHEDULE_LOADER_ID = 1;
 	private static final int DOWNLOAD_SCHEDULE_RESULT_WHAT = 1;
+
+	private static final long DATABASE_VALIDITY_DURATION = 24L * 60L * 60L * 1000L; // 24h
+	private static final long DOWNLOAD_REMINDER_SNOOZE_DURATION = 24L * 60L * 60L * 1000L; // 24h
+	private static final String PREF_LAST_DOWNLOAD_REMINDER_TIME = "last_download_reminder_time";
 	private static final String STATE_CURRENT_SECTION = "current_section";
 
 	private static final DateFormat LAST_UPDATE_DATE_FORMAT = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, Locale.getDefault());
@@ -111,6 +120,22 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		}
 	};
 
+	public static class DownloadScheduleReminderDialogFragment extends DialogFragment {
+
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			return new AlertDialog.Builder(getActivity()).setTitle(R.string.download_reminder_title).setMessage(R.string.download_reminder_message)
+					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							((MainActivity) getActivity()).startDownloadSchedule();
+						}
+
+					}).setNegativeButton(android.R.string.cancel, null).create();
+		}
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -127,6 +152,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		drawerLayout.setDrawerShadow(getResources().getDrawable(R.drawable.drawer_shadow), Gravity.LEFT);
 		drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.drawable.ic_drawer, R.string.main_menu, R.string.close_menu) {
+
 			@Override
 			public void onDrawerOpened(View drawerView) {
 				updateActionBar();
@@ -172,7 +198,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		menuListView.setSelection(currentSection.ordinal());
 		updateActionBar();
 
-		// Loaders
+		// Loader
 		if (getSupportLoaderManager().getLoader(DOWNLOAD_SCHEDULE_LOADER_ID) != null) {
 			// Reconnect to running loader
 			startDownloadSchedule();
@@ -184,9 +210,9 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 	}
 
 	private void updateLastUpdateTime() {
-		Date lastUpdateTime = DatabaseManager.getInstance().getLastUpdateTime();
+		long lastUpdateTime = DatabaseManager.getInstance().getLastUpdateTime();
 		lastUpdateTextView.setText(getString(R.string.last_update,
-				(lastUpdateTime == null) ? getString(R.string.never) : LAST_UPDATE_DATE_FORMAT.format(lastUpdateTime)));
+				(lastUpdateTime == -1L) ? getString(R.string.never) : LAST_UPDATE_DATE_FORMAT.format(new Date(lastUpdateTime))));
 	}
 
 	@Override
@@ -212,6 +238,27 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putInt(STATE_CURRENT_SECTION, currentSection.ordinal());
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+
+		// Download reminder
+		long now = System.currentTimeMillis();
+		long time = DatabaseManager.getInstance().getLastUpdateTime();
+		if ((time == -1L) || (time < (now - DATABASE_VALIDITY_DURATION))) {
+			SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+			time = prefs.getLong(PREF_LAST_DOWNLOAD_REMINDER_TIME, -1L);
+			if ((time == -1L) || (time < (now - DOWNLOAD_REMINDER_SNOOZE_DURATION))) {
+				prefs.edit().putLong(PREF_LAST_DOWNLOAD_REMINDER_TIME, now).commit();
+
+				FragmentManager fm = getSupportFragmentManager();
+				if (fm.findFragmentByTag("download_reminder") == null) {
+					new DownloadScheduleReminderDialogFragment().show(fm, "download_reminder");
+				}
+			}
+		}
 	}
 
 	@Override
@@ -261,7 +308,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		return false;
 	}
 
-	private void startDownloadSchedule() {
+	public void startDownloadSchedule() {
 		// Start by displaying indeterminate progress, determinate will come later
 		setSupportProgressBarIndeterminate(true);
 		setSupportProgressBarVisibility(true);

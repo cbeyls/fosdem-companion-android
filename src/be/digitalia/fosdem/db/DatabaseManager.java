@@ -97,9 +97,12 @@ public class DatabaseManager {
 		return context.getSharedPreferences(DB_PREFS_FILE, Context.MODE_PRIVATE);
 	}
 
-	public Date getLastUpdateTime() {
-		long time = getSharedPreferences().getLong(LAST_UPDATE_TIME_PREF, -1L);
-		return (time == -1L) ? null : new Date(time);
+	/**
+	 * 
+	 * @return The last update time in milliseconds since EPOCH, or -1 if not available.
+	 */
+	public long getLastUpdateTime() {
+		return getSharedPreferences().getLong(LAST_UPDATE_TIME_PREF, -1L);
 	}
 
 	/**

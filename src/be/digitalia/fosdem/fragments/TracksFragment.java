@@ -35,8 +35,7 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 	}
 
 	private static final int DAYS_LOADER_ID = 1;
-	private static final String PREFERENCES_FILE = "tracks";
-	private static final String CURRENT_PAGE_KEY = "current_page";
+	private static final String CURRENT_PAGE_KEY = "tracks_current_page";
 
 	private DaysAdapter daysAdapter;
 	private ViewHolder holder;
@@ -49,7 +48,7 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 
 		if (savedInstanceState == null) {
 			// Restore the current page from preferences
-			savedCurrentPage = getActivity().getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE).getInt(CURRENT_PAGE_KEY, -1);
+			savedCurrentPage = getActivity().getPreferences(Context.MODE_PRIVATE).getInt(CURRENT_PAGE_KEY, -1);
 		}
 	}
 
@@ -84,7 +83,7 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 		super.onStop();
 		// Save the current page to preferences if it has changed
 		final int page = holder.pager.getCurrentItem();
-		SharedPreferences prefs = getActivity().getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE);
+		SharedPreferences prefs = getActivity().getPreferences(Context.MODE_PRIVATE);
 		if (prefs.getInt(CURRENT_PAGE_KEY, -1) != page) {
 			prefs.edit().putInt(CURRENT_PAGE_KEY, page).commit();
 		}
