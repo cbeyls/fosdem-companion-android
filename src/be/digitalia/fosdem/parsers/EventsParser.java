@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import org.xmlpull.v1.XmlPullParser;
 
@@ -16,6 +15,7 @@ import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Link;
 import be.digitalia.fosdem.model.Person;
 import be.digitalia.fosdem.model.Track;
+import be.digitalia.fosdem.utils.DateUtils;
 
 /**
  * Main parser for FOSDEM schedule data in pentabarf XML format.
@@ -25,23 +25,14 @@ import be.digitalia.fosdem.model.Track;
  */
 public class EventsParser extends IterableAbstractPullParser<Event> {
 
-	private static final String BELGIUM_TIMEZONE = "GMT+1";
-	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-
-	{
-		// All dates and times are in Belgium timezone
-		DATE_FORMAT.setTimeZone(TimeZone.getTimeZone(BELGIUM_TIMEZONE));
-	}
+	private static final DateFormat DATE_FORMAT = DateUtils.withBelgiumTimeZone(new SimpleDateFormat("yyyy-MM-dd", Locale.US));
 
 	// Calendar used to compute the events time, according to Belgium timezone
-	private final Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(BELGIUM_TIMEZONE), Locale.US);
+	private final Calendar calendar = Calendar.getInstance(DateUtils.getBelgiumTimeZone(), Locale.US);
 
 	private Day currentDay;
 	private String currentRoom;
 	private Track currentTrack;
-	// Recycled objects (improving parser performance)
-	private List<Person> persons = new ArrayList<Person>();
-	private List<Link> links = new ArrayList<Link>();
 
 	/**
 	 * Returns the hours portion of a time string in the "hh:mm" format, without allocating objects.
@@ -92,11 +83,12 @@ public class EventsParser extends IterableAbstractPullParser<Event> {
 					event.setId(Integer.parseInt(parser.getAttributeValue(null, "id")));
 					event.setDay(currentDay);
 					event.setRoomName(currentRoom);
+					// Initialize empty lists
+					List<Person> persons = new ArrayList<Person>();
 					event.setPersons(persons);
+					List<Link> links = new ArrayList<Link>();
 					event.setLinks(links);
-					// reset persons and links list
-					persons.clear();
-					links.clear();
+
 					String duration = null;
 					String trackName = "";
 					Track.Type trackType = Track.Type.other;

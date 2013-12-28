@@ -1,6 +1,7 @@
 package be.digitalia.fosdem.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -13,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 import be.digitalia.fosdem.R;
+import be.digitalia.fosdem.activities.TrackScheduleActivity;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.loaders.SimpleCursorLoader;
 import be.digitalia.fosdem.model.Day;
@@ -23,6 +25,7 @@ public class TracksListFragment extends ListFragment implements LoaderCallbacks<
 	private static final int TRACKS_LOADER_ID = 1;
 	private static final String ARG_DAY = "day";
 
+	private Day day;
 	private TracksAdapter adapter;
 
 	public static TracksListFragment newInstance(Day day) {
@@ -37,6 +40,7 @@ public class TracksListFragment extends ListFragment implements LoaderCallbacks<
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		adapter = new TracksAdapter(getActivity());
+		day = getArguments().getParcelable(ARG_DAY);
 		setListAdapter(adapter);
 	}
 
@@ -67,7 +71,6 @@ public class TracksListFragment extends ListFragment implements LoaderCallbacks<
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		Day day = getArguments().getParcelable(ARG_DAY);
 		return new TracksLoader(getActivity(), day);
 	}
 
@@ -92,7 +95,10 @@ public class TracksListFragment extends ListFragment implements LoaderCallbacks<
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		// TODO
+		Track track = adapter.getItem(position);
+		Intent intent = new Intent(getActivity(), TrackScheduleActivity.class).putExtra(TrackScheduleActivity.ARG_DAY, day).putExtra(
+				TrackScheduleActivity.ARG_TRACK, track);
+		startActivity(intent);
 	}
 
 	private static class TracksAdapter extends CursorAdapter {
@@ -130,9 +136,9 @@ public class TracksListFragment extends ListFragment implements LoaderCallbacks<
 		}
 
 		private static class ViewHolder {
-			public TextView name;
-			public TextView type;
-			public Track track;
+			TextView name;
+			TextView type;
+			Track track;
 		}
 	}
 }
