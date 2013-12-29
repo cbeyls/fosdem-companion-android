@@ -1,6 +1,7 @@
 package be.digitalia.fosdem.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -15,6 +16,7 @@ import android.widget.ListView;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
 import be.digitalia.fosdem.R;
+import be.digitalia.fosdem.activities.PersonInfoActivity;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.loaders.SimpleCursorLoader;
 import be.digitalia.fosdem.model.Person;
@@ -81,7 +83,9 @@ public class PersonsListFragment extends ListFragment implements LoaderCallbacks
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		// TODO
+		Person person = adapter.getItem(position);
+		Intent intent = new Intent(getActivity(), PersonInfoActivity.class).putExtra(PersonInfoActivity.EXTRA_PERSON, person);
+		startActivity(intent);
 	}
 
 	private static class PersonsAdapter extends CursorAdapter implements SectionIndexer {

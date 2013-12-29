@@ -6,11 +6,11 @@
 
     <TextView
         android:id="@+id/time"
-        android:layout_width="75dp"
+        android:layout_width="76dp"
         android:layout_height="match_parent"
         android:background="@color/translucent_grey"
-        android:padding="5dp"
-        android:textSize="14sp"
+        android:padding="@dimen/list_item_padding"
+        android:textSize="@dimen/list_item_small_text_size"
         android:textStyle="bold" />
 
     <TextView
@@ -18,7 +18,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:padding="5dp"
-        android:textSize="12sp" />
+        android:padding="@dimen/list_item_padding"
+        android:textSize="@dimen/list_item_small_text_size" />
 
 </LinearLayout>

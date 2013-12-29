@@ -28,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import be.digitalia.fosdem.R;
+import be.digitalia.fosdem.activities.PersonInfoActivity;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.loaders.LocalCacheLoader;
 import be.digitalia.fosdem.model.Event;
@@ -91,9 +92,12 @@ public class EventDetailsFragment extends Fragment {
 			textView.setText(text);
 		}
 
+		MovementMethod linkMovementMethod = LinkMovementMethod.getInstance();
+
 		// Set the persons summary text first; replace it with the clickable text when the loader completes
 		holder.personsTextView = (TextView) view.findViewById(R.id.persons);
 		holder.personsTextView.setText(event.getPersonsSummary());
+		holder.personsTextView.setMovementMethod(linkMovementMethod);
 
 		((TextView) view.findViewById(R.id.track)).setText(event.getTrack().getName());
 		Date startTime = event.getStartTime();
@@ -103,14 +107,13 @@ public class EventDetailsFragment extends Fragment {
 		((TextView) view.findViewById(R.id.time)).setText(text);
 		((TextView) view.findViewById(R.id.room)).setText(event.getRoomName());
 
-		MovementMethod movementMethod = LinkMovementMethod.getInstance();
 		textView = (TextView) view.findViewById(R.id.abstract_text);
 		text = event.getAbstractText();
 		if (TextUtils.isEmpty(text)) {
 			textView.setVisibility(View.GONE);
 		} else {
 			textView.setText(StringUtils.trimEnd(Html.fromHtml(text)));
-			textView.setMovementMethod(movementMethod);
+			textView.setMovementMethod(linkMovementMethod);
 		}
 		textView = (TextView) view.findViewById(R.id.description);
 		text = event.getDescription();
@@ -118,7 +121,7 @@ public class EventDetailsFragment extends Fragment {
 			textView.setVisibility(View.GONE);
 		} else {
 			textView.setText(StringUtils.trimEnd(Html.fromHtml(text)));
-			textView.setMovementMethod(movementMethod);
+			textView.setMovementMethod(linkMovementMethod);
 		}
 
 		holder.linksContainer = (ViewGroup) view.findViewById(R.id.links_container);
@@ -240,8 +243,7 @@ public class EventDetailsFragment extends Fragment {
 					view.setOnClickListener(new LinkClickListener(link));
 					holder.linksContainer.addView(view);
 					// Add a list divider
-					view = holder.inflater.inflate(R.layout.list_divider, holder.linksContainer, false);
-					holder.linksContainer.addView(view);
+					holder.inflater.inflate(R.layout.list_divider, holder.linksContainer, true);
 				}
 			} else {
 				holder.linksContainer.setVisibility(View.GONE);
@@ -263,7 +265,9 @@ public class EventDetailsFragment extends Fragment {
 
 		@Override
 		public void onClick(View v) {
-			// TODO Launch the person details activity
+			Context context = v.getContext();
+			Intent intent = new Intent(context, PersonInfoActivity.class).putExtra(PersonInfoActivity.EXTRA_PERSON, person);
+			context.startActivity(intent);
 		}
 	}
 

@@ -123,7 +123,7 @@ public class TrackScheduleListFragment extends ListFragment implements LoaderCal
 		public TrackScheduleAdapter(Context context) {
 			super(context, null, 0);
 			inflater = LayoutInflater.from(context);
-			titleTextSize = context.getResources().getDimensionPixelSize(R.dimen.list_title_text_size);
+			titleTextSize = context.getResources().getDimensionPixelSize(R.dimen.list_item_title_text_size);
 		}
 
 		@Override

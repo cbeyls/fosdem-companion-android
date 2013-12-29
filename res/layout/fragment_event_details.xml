@@ -9,7 +9,7 @@
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:orientation="vertical"
-        android:padding="10dp" >
+        android:padding="@dimen/content_margin" >
 
         <TextView
             android:id="@+id/title"
@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-light"
             android:textIsSelectable="true"
-            android:textSize="22sp" />
+            android:textSize="@dimen/title_text_size" />
 
         <TextView
             android:id="@+id/subtitle"
@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-light"
             android:textIsSelectable="true"
-            android:textSize="16sp" />
+            android:textSize="@dimen/subtitle_text_size" />
 
         <TextView
             android:id="@+id/persons"
@@ -43,7 +43,7 @@
             android:layout_marginBottom="16dp"
             android:background="@color/fosdem_purple"
             android:orientation="vertical"
-            android:padding="5dp" >
+            android:padding="6dp" >
 
             <TextView
                 android:id="@+id/track"
@@ -80,15 +80,15 @@
             android:id="@+id/abstract_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
             android:background="@color/translucent_grey"
-            android:padding="5dp"
+            android:padding="6dp"
             android:textIsSelectable="true" />
 
         <TextView
             android:id="@+id/description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:textIsSelectable="true" />
 
         <LinearLayout
@@ -99,14 +99,11 @@
             android:visibility="gone" >
 
             <TextView
-                android:id="@+id/links_label"
                 style="@style/HeaderStyle"
                 android:layout_marginTop="16dp"
                 android:text="@string/related_links_header" />
 
-            <View
-                android:id="@+id/links_label_line"
-                style="@style/HeaderLineStyle" />
+            <View style="@style/HeaderLineStyle" />
         </LinearLayout>
     </LinearLayout>
 

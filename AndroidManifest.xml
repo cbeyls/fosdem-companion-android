@@ -36,6 +36,7 @@
         </activity>
         <activity android:name=".activities.TrackScheduleActivity" />
         <activity android:name=".activities.EventDetailsActivity" />
+        <activity android:name=".activities.PersonInfoActivity" />
         <activity
             android:name=".activities.TextSearchResultActivity"
             android:launchMode="singleTop" >

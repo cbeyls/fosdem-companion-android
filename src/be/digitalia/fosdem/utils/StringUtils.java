@@ -1,6 +1,12 @@
 package be.digitalia.fosdem.utils;
 
+import java.util.Locale;
 
+/**
+ * Various methods to transform strings
+ * 
+ * @author Christophe Beyls
+ */
 public class StringUtils {
 	/**
 	 * Mirror of the unicode table from 00c0 to 017f without diacritics.
@@ -17,9 +23,10 @@ public class StringUtils {
 	 * @return corresponding string without diacritics
 	 */
 	public static String removeDiacritics(String source) {
-		char[] result = new char[source.length()];
+		final int length = source.length();
+		char[] result = new char[length];
 		char c;
-		for (int i = 0; i < source.length(); i++) {
+		for (int i = 0; i < length; i++) {
 			c = source.charAt(i);
 			if (c >= '\u00c0' && c <= '\u017f') {
 				c = tab00c0.charAt((int) c - '\u00c0');
@@ -29,8 +36,32 @@ public class StringUtils {
 		return new String(result);
 	}
 
+	/**
+	 * Replaces all groups of non-alphanumeric chars in source with a single replacement char.
+	 */
+	private static String replaceNonAlphaGroups(String source, char replacement) {
+		final int length = source.length();
+		char[] result = new char[length];
+		char c;
+		boolean replaced = false;
+		int size = 0;
+		for (int i = 0; i < length; i++) {
+			c = source.charAt(i);
+			if (Character.isLetterOrDigit(c)) {
+				result[size++] = c;
+				replaced = false;
+			} else {
+				if (!replaced) {
+					result[size++] = replacement;
+					replaced = true;
+				}
+			}
+		}
+		return new String(result, 0, size);
+	}
+
 	public static String toSlug(String source) {
-		return removeDiacritics(source).replace(" ", "");
+		return replaceNonAlphaGroups(removeDiacritics(source), '_').toLowerCase(Locale.US);
 	}
 
 	public static CharSequence trimEnd(CharSequence source) {

@@ -2,6 +2,6 @@
 <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="15dp"
+    android:padding="@dimen/main_menu_padding"
     android:scaleType="centerInside"
     android:src="@drawable/fosdem_title" />

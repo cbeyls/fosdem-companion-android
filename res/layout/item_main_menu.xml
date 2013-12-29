@@ -6,5 +6,5 @@
     android:drawablePadding="10dp"
     android:fontFamily="sans-serif-light"
     android:gravity="left"
-    android:padding="15dp"
+    android:padding="@dimen/main_menu_padding"
     android:textSize="21sp" />

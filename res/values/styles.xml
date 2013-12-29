@@ -17,7 +17,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginBottom">5dp</item>
-        <item name="android:paddingLeft">5dp</item>
+        <item name="android:paddingLeft">@dimen/list_item_padding</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/fosdem_purple</item>
@@ -25,8 +25,7 @@
 
     <style name="HeaderLineStyle">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">1dp</item>
-        <item name="android:layout_marginBottom">5dp</item>
+        <item name="android:layout_height">2dp</item>
         <item name="android:background">@color/fosdem_purple</item>
     </style>
 

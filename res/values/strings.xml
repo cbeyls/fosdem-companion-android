@@ -27,6 +27,9 @@
         <item quantity="other">Speakers</item>
     </plurals>
 
+    <string name="person_info">Speaker info</string>
+    <string name="talks_header">TALKS</string>
+    <string name="more_info">More info</string>
     <string name="search_events">Search events</string>
     <string name="search_settings_description">Events</string>
     <string name="search_hint">Event, track, person</string>
