@@ -2,7 +2,7 @@
 <resources>
 
     <color name="fosdem_purple">#a91991</color>
-    <color name="translucent_fosdem_purple">#cca91991</color>
+    <color name="translucent_fosdem_purple">#bba91991</color>
     <color name="main_menu_background">#f0fafafa</color>
     <color name="translucent_grey">#29000000</color>
 

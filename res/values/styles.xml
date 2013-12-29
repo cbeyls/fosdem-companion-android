@@ -1,6 +1,17 @@
 <resources>
 
-    <style name="AppTheme" parent="@style/Theme.AppCompat.Light"></style>
+    <style name="AppTheme" parent="@style/Theme.AppCompat.Light">
+        <item name="android:textViewStyle">@style/Fosdem.TextView</item>
+        <item name="android:listViewStyle">@style/Fosdem.ListView</item>
+    </style>
+
+    <style name="Fosdem.TextView" parent="android:Widget.TextView">
+        <item name="android:textColorLink">#3679c4</item>
+    </style>
+
+    <style name="Fosdem.ListView" parent="@android:style/Widget.ListView.White">
+        <item name="android:listSelector">@drawable/selectable_background</item>
+    </style>
 
     <style name="HeaderStyle">
         <item name="android:layout_width">match_parent</item>
