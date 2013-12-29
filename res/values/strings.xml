@@ -20,6 +20,13 @@
     <string name="event_details">Event details</string>
     <string name="related_links_header">RELATED LINKS</string>
     <string name="share">Share</string>
+    <string name="add_to_agenda">Add to agenda</string>
+
+    <plurals name="speakers">
+        <item quantity="one">Speaker</item>
+        <item quantity="other">Speakers</item>
+    </plurals>
+
     <string name="search_events">Search events</string>
     <string name="search_settings_description">Events</string>
     <string name="search_hint">Event, track, person</string>

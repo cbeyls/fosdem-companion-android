@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.ShareCompat;
@@ -22,6 +23,7 @@ import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -54,6 +56,7 @@ public class EventDetailsFragment extends Fragment {
 	private static final DateFormat TIME_DATE_FORMAT = DateUtils.getTimeDateFormat();
 
 	private Event event;
+	private int personsCount = 1;
 	private ViewHolder holder;
 
 	public static EventDetailsFragment newInstance(Event event) {
@@ -135,9 +138,39 @@ public class EventDetailsFragment extends Fragment {
 		ShareCompat.configureMenuItem(menu, R.id.share, getShareIntentBuilder());
 	}
 
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.add_to_agenda:
+			addToAgenda();
+			return true;
+		}
+		return false;
+	}
+
 	private ShareCompat.IntentBuilder getShareIntentBuilder() {
 		return ShareCompat.IntentBuilder.from(getActivity()).setSubject(String.format("%1$s (FOSDEM)", event.getTitle())).setType("text/plain")
 				.setText(String.format("%1$s %2$s #fosdem", event.getTitle(), event.getUrl())).setChooserTitle(R.string.share);
+	}
+
+	private void addToAgenda() {
+		Intent intent = new Intent(Intent.ACTION_EDIT);
+		intent.setType("vnd.android.cursor.item/event");
+		intent.putExtra(CalendarContract.Events.TITLE, event.getTitle());
+		intent.putExtra(CalendarContract.Events.EVENT_LOCATION, "ULB - " + event.getRoomName());
+		String description = event.getAbstractText();
+		if (TextUtils.isEmpty(description)) {
+			description = event.getDescription();
+		}
+		// Strip HTML
+		description = StringUtils.trimEnd(Html.fromHtml(description)).toString();
+		// Add speaker info
+		description = String.format("%1$s: %2$s\n\n%3$s", getResources().getQuantityString(R.plurals.speakers, personsCount), event.getPersonsSummary(),
+				description);
+		intent.putExtra(CalendarContract.Events.DESCRIPTION, description);
+		intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, event.getStartTime().getTime());
+		intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, event.getEndTime().getTime());
+		startActivity(intent);
 	}
 
 	@Override
@@ -176,6 +209,7 @@ public class EventDetailsFragment extends Fragment {
 		public void onLoadFinished(Loader<EventDetails> loader, EventDetails data) {
 			// 1. Persons
 			if (data.persons != null) {
+				personsCount = data.persons.size();
 				// Build a list of clickable persons
 				SpannableStringBuilder sb = new SpannableStringBuilder();
 				int length = 0;

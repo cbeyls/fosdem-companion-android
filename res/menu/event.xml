@@ -7,5 +7,10 @@
         android:icon="@drawable/ic_action_share"
         android:title="@string/share"
         app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/add_to_agenda"
+        android:icon="@drawable/ic_action_new_event"
+        android:title="@string/add_to_agenda"
+        app:showAsAction="ifRoom"/>
 
 </menu>

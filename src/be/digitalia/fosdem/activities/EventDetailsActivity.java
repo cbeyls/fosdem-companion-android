@@ -23,7 +23,6 @@ public class EventDetailsActivity extends ActionBarActivity {
 		ActionBar bar = getSupportActionBar();
 		bar.setDisplayHomeAsUpEnabled(true);
 		bar.setTitle(R.string.event_details);
-		bar.setSubtitle(event.getTrack().toString());
 
 		if (savedInstanceState == null) {
 			Fragment f = EventDetailsFragment.newInstance(event);
