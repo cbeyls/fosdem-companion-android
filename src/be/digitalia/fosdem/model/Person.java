@@ -1,6 +1,7 @@
 package be.digitalia.fosdem.model;
 
 import be.digitalia.fosdem.api.FosdemUrls;
+import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.utils.StringUtils;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -30,7 +31,7 @@ public class Person implements Parcelable {
 	}
 
 	public String getUrl() {
-		return FosdemUrls.getPerson(StringUtils.toSlug(name));
+		return FosdemUrls.getPerson(StringUtils.toSlug(name), DatabaseManager.getInstance().getYear());
 	}
 
 	@Override

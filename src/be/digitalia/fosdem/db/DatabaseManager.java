@@ -1,10 +1,12 @@
 package be.digitalia.fosdem.db;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,6 +27,7 @@ import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Link;
 import be.digitalia.fosdem.model.Person;
 import be.digitalia.fosdem.model.Track;
+import be.digitalia.fosdem.utils.DateUtils;
 
 /**
  * Here comes the badass SQL.
@@ -47,6 +50,9 @@ public class DatabaseManager {
 	private Context context;
 	private DatabaseHelper helper;
 
+	private List<Day> cachedDays;
+	private int year = -1;
+
 	public static void init(Context context) {
 		if (instance == null) {
 			instance = new DatabaseManager(context);
@@ -62,10 +68,10 @@ public class DatabaseManager {
 		helper = new DatabaseHelper(context);
 	}
 
-	private static final String[] countProjection = new String[] { "count(*)" };
+	private static final String[] COUNT_PROJECTION = new String[] { "count(*)" };
 
 	private static long queryNumEntries(SQLiteDatabase db, String table, String selection, String[] selectionArgs) {
-		Cursor cursor = db.query(table, countProjection, selection, selectionArgs, null, null, null);
+		Cursor cursor = db.query(table, COUNT_PROJECTION, selection, selectionArgs, null, null, null);
 		try {
 			cursor.moveToFirst();
 			return cursor.getLong(0);
@@ -229,6 +235,7 @@ public class DatabaseManager {
 
 			// Clear cache
 			cachedDays = null;
+			year = -1;
 			// Set last update time
 			getSharedPreferences().edit().putLong(LAST_UPDATE_TIME_PREF, System.currentTimeMillis()).commit();
 
@@ -250,6 +257,7 @@ public class DatabaseManager {
 			db.setTransactionSuccessful();
 
 			cachedDays = null;
+			year = -1;
 			getSharedPreferences().edit().remove(LAST_UPDATE_TIME_PREF).commit();
 		} finally {
 			db.endTransaction();
@@ -269,8 +277,6 @@ public class DatabaseManager {
 		db.delete(DatabaseHelper.DAYS_TABLE_NAME, null, null);
 	}
 
-	private List<Day> cachedDays;
-
 	/**
 	 * Returns the cached days list or null. Can be safely called on the main thread without blocking it.
 	 * 
@@ -285,7 +291,8 @@ public class DatabaseManager {
 	 * @return The Days the events span to.
 	 */
 	public List<Day> getDays() {
-		Cursor cursor = helper.getReadableDatabase().rawQuery("SELECT _index, date" + " FROM " + DatabaseHelper.DAYS_TABLE_NAME + " ORDER BY _index ASC", null);
+		Cursor cursor = helper.getReadableDatabase().query(DatabaseHelper.DAYS_TABLE_NAME, new String[] { "_index", "date" }, null, null, null, null,
+				"_index ASC");
 		try {
 			List<Day> result = new ArrayList<Day>(cursor.getCount());
 			while (cursor.moveToNext()) {
@@ -299,6 +306,37 @@ public class DatabaseManager {
 		} finally {
 			cursor.close();
 		}
+	}
+
+	public int getYear() {
+		// Try to get the cached value first
+		if (year != -1) {
+			return year;
+		}
+
+		Calendar cal = Calendar.getInstance(DateUtils.getBelgiumTimeZone(), Locale.US);
+
+		// Compute from cachedDays if available
+		if (cachedDays != null) {
+			if (cachedDays.size() > 0) {
+				cal.setTime(cachedDays.get(0).getDate());
+			}
+		} else {
+			// Perform a quick DB query to retrieve the time of the first day
+			Cursor cursor = helper.getReadableDatabase().query(DatabaseHelper.DAYS_TABLE_NAME, new String[] { "date" }, null, null, null, null,
+					"_index ASC LIMIT 1");
+			try {
+				if (cursor.moveToFirst()) {
+					cal.setTimeInMillis(cursor.getLong(0));
+				}
+			} finally {
+				cursor.close();
+			}
+		}
+
+		// If the calendar has not been set at this point, it will simply return the current year
+		year = cal.get(Calendar.YEAR);
+		return year;
 	}
 
 	public Cursor getTracks(Day day) {

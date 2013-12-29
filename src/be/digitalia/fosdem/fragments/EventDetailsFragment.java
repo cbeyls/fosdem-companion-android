@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.app.ShareCompat;
 import android.support.v4.content.Loader;
 import android.text.Html;
 import android.text.Spannable;
@@ -19,6 +20,8 @@ import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -64,6 +67,8 @@ public class EventDetailsFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+
 		event = getArguments().getParcelable(ARG_EVENT);
 	}
 
@@ -122,6 +127,17 @@ public class EventDetailsFragment extends Fragment {
 	public void onDestroyView() {
 		super.onDestroyView();
 		holder = null;
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.event, menu);
+		ShareCompat.configureMenuItem(menu, R.id.share, getShareIntentBuilder());
+	}
+
+	private ShareCompat.IntentBuilder getShareIntentBuilder() {
+		return ShareCompat.IntentBuilder.from(getActivity()).setSubject(String.format("%1$s (FOSDEM)", event.getTitle())).setType("text/plain")
+				.setText(String.format("%1$s %2$s #fosdem", event.getTitle(), event.getUrl())).setChooserTitle(R.string.share);
 	}
 
 	@Override

@@ -7,6 +7,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import be.digitalia.fosdem.api.FosdemUrls;
+import be.digitalia.fosdem.db.DatabaseManager;
 
 public class Event implements Parcelable {
 
@@ -88,7 +89,7 @@ public class Event implements Parcelable {
 	}
 
 	public String getUrl() {
-		return FosdemUrls.getEvent(slug);
+		return FosdemUrls.getEvent(slug, DatabaseManager.getInstance().getYear());
 	}
 
 	public String getTitle() {
