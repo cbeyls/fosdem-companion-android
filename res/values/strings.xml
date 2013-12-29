@@ -17,6 +17,8 @@
     <string name="developer_room">Developer room</string>
     <string name="lightning_talk">Lightning talk</string>
     <string name="certification_exam">Certification Exam</string>
+    <string name="event_details">Event details</string>
+    <string name="related_links_header">RELATED LINKS</string>
     <string name="search_events">Search events</string>
     <string name="search_settings_description">Events</string>
     <string name="search_hint">Event, track, person</string>

@@ -45,7 +45,7 @@ import be.digitalia.fosdem.fragments.MapFragment;
 import be.digitalia.fosdem.fragments.MessageDialogFragment;
 import be.digitalia.fosdem.fragments.PersonsListFragment;
 import be.digitalia.fosdem.fragments.TracksFragment;
-import be.digitalia.fosdem.loaders.AbstractAsyncTaskLoader;
+import be.digitalia.fosdem.loaders.LocalCacheLoader;
 
 public class MainActivity extends ActionBarActivity implements ListView.OnItemClickListener, Handler.Callback {
 
@@ -315,7 +315,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		getSupportLoaderManager().initLoader(DOWNLOAD_SCHEDULE_LOADER_ID, null, downloadScheduleLoaderCallbacks);
 	}
 
-	private static class DownloadScheduleLoader extends AbstractAsyncTaskLoader<Integer> {
+	private static class DownloadScheduleLoader extends LocalCacheLoader<Integer> {
 
 		public DownloadScheduleLoader(Context context) {
 			super(context);
@@ -370,7 +370,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 
 		public MainMenuAdapter(LayoutInflater inflater) {
 			this.inflater = inflater;
-			currentSectionBackgroundColor = getResources().getColor(R.color.current_section_background);
+			currentSectionBackgroundColor = getResources().getColor(R.color.translucent_grey);
 		}
 
 		@Override

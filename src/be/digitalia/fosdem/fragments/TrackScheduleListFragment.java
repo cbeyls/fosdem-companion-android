@@ -1,10 +1,9 @@
 package be.digitalia.fosdem.fragments;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -22,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 import be.digitalia.fosdem.R;
+import be.digitalia.fosdem.activities.EventDetailsActivity;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.loaders.SimpleCursorLoader;
 import be.digitalia.fosdem.model.Day;
@@ -108,13 +108,14 @@ public class TrackScheduleListFragment extends ListFragment implements LoaderCal
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		// TODO
+		Event event = adapter.getItem(position);
+		Intent intent = new Intent(getActivity(), EventDetailsActivity.class).putExtra(EventDetailsActivity.EXTRA_EVENT, event);
+		startActivity(intent);
 	}
 
 	private static class TrackScheduleAdapter extends CursorAdapter {
 
-		private static final DateFormat START_TIME_DATE_FORMAT = DateUtils.withBelgiumTimeZone(SimpleDateFormat.getTimeInstance(SimpleDateFormat.SHORT,
-				Locale.getDefault()));
+		private static final DateFormat TIME_DATE_FORMAT = DateUtils.getTimeDateFormat();
 
 		private final LayoutInflater inflater;
 		private final int titleTextSize;
@@ -149,7 +150,7 @@ public class TrackScheduleListFragment extends ListFragment implements LoaderCal
 			ViewHolder holder = (ViewHolder) view.getTag();
 			Event event = DatabaseManager.toEvent(cursor, holder.event);
 			holder.event = event;
-			holder.time.setText(START_TIME_DATE_FORMAT.format(event.getStartTime()));
+			holder.time.setText(TIME_DATE_FORMAT.format(event.getStartTime()));
 
 			String eventTitle = event.getTitle();
 			String personsSummary = event.getPersonsSummary();

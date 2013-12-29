@@ -3,11 +3,11 @@ package be.digitalia.fosdem.loaders;
 import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 
-public abstract class AbstractAsyncTaskLoader<T> extends AsyncTaskLoader<T> {
+public abstract class LocalCacheLoader<T> extends AsyncTaskLoader<T> {
 
 	private T mResult;
 
-	public AbstractAsyncTaskLoader(Context context) {
+	public LocalCacheLoader(Context context) {
 		super(context);
 	}
 

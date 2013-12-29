@@ -6,31 +6,27 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 import be.digitalia.fosdem.R;
-import be.digitalia.fosdem.fragments.TrackScheduleListFragment;
-import be.digitalia.fosdem.model.Day;
-import be.digitalia.fosdem.model.Track;
+import be.digitalia.fosdem.fragments.EventDetailsFragment;
+import be.digitalia.fosdem.model.Event;
 
-public class TrackScheduleActivity extends ActionBarActivity {
+public class EventDetailsActivity extends ActionBarActivity {
 
-	public static final String EXTRA_DAY = "day";
-	public static final String EXTRA_TRACK = "track";
+	public static final String EXTRA_EVENT = "event";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.content);
 
-		Bundle extras = getIntent().getExtras();
-		Day day = extras.getParcelable(EXTRA_DAY);
-		Track track = extras.getParcelable(EXTRA_TRACK);
+		Event event = getIntent().getParcelableExtra(EXTRA_EVENT);
 
 		ActionBar bar = getSupportActionBar();
 		bar.setDisplayHomeAsUpEnabled(true);
-		bar.setTitle(track.toString());
-		bar.setSubtitle(day.toString());
+		bar.setTitle(R.string.event_details);
+		bar.setSubtitle(event.getTrack().toString());
 
 		if (savedInstanceState == null) {
-			Fragment f = TrackScheduleListFragment.newInstance(day, track);
+			Fragment f = EventDetailsFragment.newInstance(event);
 			getSupportFragmentManager().beginTransaction().add(R.id.content, f).commit();
 		}
 	}

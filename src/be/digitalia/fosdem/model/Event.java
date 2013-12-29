@@ -88,7 +88,7 @@ public class Event implements Parcelable {
 	}
 
 	public String getUrl() {
-		return FosdemUrls.getPerson(slug);
+		return FosdemUrls.getEvent(slug);
 	}
 
 	public String getTitle() {

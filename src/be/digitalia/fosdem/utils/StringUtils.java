@@ -1,5 +1,6 @@
 package be.digitalia.fosdem.utils;
 
+
 public class StringUtils {
 	/**
 	 * Mirror of the unicode table from 00c0 to 017f without diacritics.
@@ -30,5 +31,19 @@ public class StringUtils {
 
 	public static String toSlug(String source) {
 		return removeDiacritics(source).replace(" ", "");
+	}
+
+	public static CharSequence trimEnd(CharSequence source) {
+		final int length = source.length();
+		int pos = length - 1;
+		while (Character.isWhitespace(source.charAt(pos))) {
+			pos--;
+		}
+		pos++;
+		if (pos == length) {
+			// No whitespace found at the end
+			return source;
+		}
+		return source.subSequence(0, pos);
 	}
 }

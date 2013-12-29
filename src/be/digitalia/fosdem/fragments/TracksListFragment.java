@@ -96,8 +96,8 @@ public class TracksListFragment extends ListFragment implements LoaderCallbacks<
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		Track track = adapter.getItem(position);
-		Intent intent = new Intent(getActivity(), TrackScheduleActivity.class).putExtra(TrackScheduleActivity.ARG_DAY, day).putExtra(
-				TrackScheduleActivity.ARG_TRACK, track);
+		Intent intent = new Intent(getActivity(), TrackScheduleActivity.class).putExtra(TrackScheduleActivity.EXTRA_DAY, day).putExtra(
+				TrackScheduleActivity.EXTRA_TRACK, track);
 		startActivity(intent);
 	}
 
