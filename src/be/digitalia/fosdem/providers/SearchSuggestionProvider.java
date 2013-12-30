@@ -1,11 +1,12 @@
 package be.digitalia.fosdem.providers;
 
-import be.digitalia.fosdem.db.DatabaseManager;
 import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.text.TextUtils;
+import be.digitalia.fosdem.db.DatabaseManager;
 
 public class SearchSuggestionProvider extends ContentProvider {
 
@@ -44,10 +45,13 @@ public class SearchSuggestionProvider extends ContentProvider {
 			return null;
 		}
 		query = query.trim();
-		if (query.length() < MIN_QUERY_LENGTH) {
+		if ((query.length() < MIN_QUERY_LENGTH) || ("search_suggest_query".equals(query))) {
 			return null;
 		}
 
-		return DatabaseManager.getInstance().getSearchSuggestionResults(query);
+		String limitParam = uri.getQueryParameter("limit");
+		int limit = TextUtils.isEmpty(limitParam) ? 5 : Integer.parseInt(limitParam);
+
+		return DatabaseManager.getInstance().getSearchSuggestionResults(query, limit);
 	}
 }

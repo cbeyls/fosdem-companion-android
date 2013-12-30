@@ -51,7 +51,8 @@
 
         <provider
             android:name=".providers.SearchSuggestionProvider"
-            android:authorities="be.digitalia.fosdem.search" />
+            android:authorities="be.digitalia.fosdem.search"
+            android:exported="true" />
     </application>
 
 </manifest>

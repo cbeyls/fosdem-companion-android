@@ -25,34 +25,48 @@ public class SearchResultActivity extends ActionBarActivity {
 		bar.setTitle(R.string.search_events);
 
 		if (savedInstanceState == null) {
-			handleIntent(getIntent());
+			handleIntent(getIntent(), false);
 		}
 	}
 
 	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
-		handleIntent(intent);
+		handleIntent(intent, true);
 	}
 
-	private void handleIntent(Intent intent) {
-		if (!Intent.ACTION_SEARCH.equals(intent.getAction())) {
-			return;
-		}
+	private void handleIntent(Intent intent, boolean isNewIntent) {
+		String intentAction = intent.getAction();
+		if (Intent.ACTION_SEARCH.equals(intentAction)) {
+			// Normal search, results are displayed here
+			String query = intent.getStringExtra(SearchManager.QUERY);
+			if (query != null) {
+				query = query.trim();
+			}
+			if ((query == null) || (query.length() < MIN_SEARCH_LENGTH)) {
+				MessageDialogFragment.newInstance(R.string.error_title, R.string.search_length_error).show(getSupportFragmentManager());
+				return;
+			}
 
-		String query = intent.getStringExtra(SearchManager.QUERY);
-		if (query != null) {
-			query = query.trim();
-		}
-		if ((query == null) || (query.length() < MIN_SEARCH_LENGTH)) {
-			MessageDialogFragment.newInstance(R.string.error_title, R.string.search_length_error).show(getSupportFragmentManager());
-			return;
-		}
+			getSupportActionBar().setSubtitle(query);
 
-		getSupportActionBar().setSubtitle(query);
+			SearchResultListFragment f = SearchResultListFragment.newInstance(query);
+			getSupportFragmentManager().beginTransaction().replace(R.id.content, f).commit();
 
-		SearchResultListFragment f = SearchResultListFragment.newInstance(query);
-		getSupportFragmentManager().beginTransaction().replace(R.id.content, f).commit();
+		} else if (Intent.ACTION_VIEW.equals(intentAction)) {
+			// Search suggestion, dispatch to EventDetailsActivity
+			String eventId = intent.getDataString();
+			try {
+				Intent dispatchIntent = new Intent(this, EventDetailsActivity.class).putExtra(EventDetailsActivity.EXTRA_EVENT_ID, Integer.parseInt(eventId));
+				startActivity(dispatchIntent);
+			} catch (NumberFormatException e) {
+				// Ignore invalid data
+			}
+
+			if (!isNewIntent) {
+				finish();
+			}
+		}
 	}
 
 	@Override
