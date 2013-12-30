@@ -19,6 +19,7 @@ import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.utils.DateUtils;
 
 public class EventsAdapter extends CursorAdapter {
+
 	private static final DateFormat TIME_DATE_FORMAT = DateUtils.getTimeDateFormat();
 
 	private final LayoutInflater inflater;
@@ -59,7 +60,7 @@ public class EventsAdapter extends CursorAdapter {
 		SpannableString spannableString = new SpannableString(String.format("%1$s\n%2$s", eventTitle, event.getPersonsSummary()));
 		spannableString.setSpan(holder.titleSizeSpan, 0, eventTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		holder.title.setText(spannableString);
-;
+
 		Date startTime = event.getStartTime();
 		holder.trackName.setText(event.getTrack().getName());
 

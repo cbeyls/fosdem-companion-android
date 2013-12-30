@@ -41,6 +41,7 @@ import android.widget.Toast;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemApi;
 import be.digitalia.fosdem.db.DatabaseManager;
+import be.digitalia.fosdem.fragments.BookmarksListFragment;
 import be.digitalia.fosdem.fragments.MapFragment;
 import be.digitalia.fosdem.fragments.MessageDialogFragment;
 import be.digitalia.fosdem.fragments.PersonsListFragment;
@@ -50,7 +51,7 @@ import be.digitalia.fosdem.loaders.LocalCacheLoader;
 public class MainActivity extends ActionBarActivity implements ListView.OnItemClickListener, Handler.Callback {
 
 	private enum Section {
-		TRACKS(TracksFragment.class, R.string.menu_tracks, R.drawable.ic_action_event, true), BOOKMARKS(MapFragment.class, R.string.menu_bookmarks,
+		TRACKS(TracksFragment.class, R.string.menu_tracks, R.drawable.ic_action_event, true), BOOKMARKS(BookmarksListFragment.class, R.string.menu_bookmarks,
 				R.drawable.ic_action_important, false), SPEAKERS(PersonsListFragment.class, R.string.menu_speakers, R.drawable.ic_action_group, false), MAP(
 				MapFragment.class, R.string.menu_map, R.drawable.ic_action_map, false);
 

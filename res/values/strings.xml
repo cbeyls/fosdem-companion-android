@@ -19,6 +19,8 @@
     <string name="certification_exam">Certification Exam</string>
     <string name="event_details">Event details</string>
     <string name="related_links_header">RELATED LINKS</string>
+    <string name="add_bookmark">Add to bookmarks</string>
+    <string name="remove_bookmark">Remove from bookmarks</string>
     <string name="share">Share</string>
     <string name="add_to_agenda">Add to agenda</string>
 
@@ -37,6 +39,7 @@
     <string name="events_download_completed">Completed downloading %1$d events</string>
     <string name="directions">Directions to ULB</string>
     <string name="no_data">No data available.</string>
+    <string name="no_bookmark">No bookmark.</string>
     <string name="error_title">Error</string>
     <string name="schedule_loading_error">An error occurred while updating the schedule. Please try again later.</string>
 

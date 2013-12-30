@@ -13,6 +13,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.Loader;
+import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -58,6 +59,7 @@ public class EventDetailsFragment extends Fragment {
 
 	private Event event;
 	private int personsCount = 1;
+	private boolean isBookmarked = false;
 	private ViewHolder holder;
 
 	public static EventDetailsFragment newInstance(Event event) {
@@ -125,7 +127,6 @@ public class EventDetailsFragment extends Fragment {
 		}
 
 		holder.linksContainer = (ViewGroup) view.findViewById(R.id.links_container);
-
 		return view;
 	}
 
@@ -138,12 +139,39 @@ public class EventDetailsFragment extends Fragment {
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.event, menu);
+
 		ShareCompat.configureMenuItem(menu, R.id.share, getShareIntentBuilder());
+
+		MenuItem item = menu.findItem(R.id.bookmark);
+		if (isBookmarked) {
+			item.setTitle(R.string.remove_bookmark);
+			item.setIcon(R.drawable.ic_action_important);
+		} else {
+			item.setTitle(R.string.add_bookmark);
+			item.setIcon(R.drawable.ic_action_not_important);
+		}
+	}
+
+	private void invalidateOptionsMenu() {
+		((ActionBarActivity) getActivity()).supportInvalidateOptionsMenu();
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+		case R.id.bookmark:
+			if (!isBookmarked) {
+				if (DatabaseManager.getInstance().addBookmark(event)) {
+					isBookmarked = true;
+					invalidateOptionsMenu();
+				}
+			} else {
+				if (DatabaseManager.getInstance().removeBookmark(event)) {
+					isBookmarked = false;
+					invalidateOptionsMenu();
+				}
+			}
+			break;
 		case R.id.add_to_agenda:
 			addToAgenda();
 			return true;
@@ -181,6 +209,16 @@ public class EventDetailsFragment extends Fragment {
 		super.onActivityCreated(savedInstanceState);
 
 		getLoaderManager().initLoader(EVENT_DETAILS_LOADER_ID, null, eventDetailsLoaderCallbacks);
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		boolean result = DatabaseManager.getInstance().isBookmarked(event);
+		if (result != isBookmarked) {
+			isBookmarked = result;
+			invalidateOptionsMenu();
+		}
 	}
 
 	private static class EventDetailsLoader extends LocalCacheLoader<EventDetails> {
