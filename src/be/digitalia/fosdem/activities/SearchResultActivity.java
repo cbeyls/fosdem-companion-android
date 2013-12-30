@@ -1,6 +1,5 @@
 package be.digitalia.fosdem.activities;
 
-import be.digitalia.fosdem.R;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,8 +7,11 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import be.digitalia.fosdem.R;
+import be.digitalia.fosdem.fragments.MessageDialogFragment;
+import be.digitalia.fosdem.fragments.SearchResultListFragment;
 
-public class TextSearchResultActivity extends ActionBarActivity {
+public class SearchResultActivity extends ActionBarActivity {
 
 	public static final int MIN_SEARCH_LENGTH = 3;
 
@@ -43,19 +45,19 @@ public class TextSearchResultActivity extends ActionBarActivity {
 			query = query.trim();
 		}
 		if ((query == null) || (query.length() < MIN_SEARCH_LENGTH)) {
-			// MessageDialogFragment.newInstance(R.string.error_title, R.string.search_length_error).show(getSupportFragmentManager());
+			MessageDialogFragment.newInstance(R.string.error_title, R.string.search_length_error).show(getSupportFragmentManager());
 			return;
 		}
 
 		getSupportActionBar().setSubtitle(query);
 
-		// TextSearchResultFragment f = TextSearchResultFragment.newInstance(query);
-		// getSupportFragmentManager().beginTransaction().replace(R.id.content, f).commit();
+		SearchResultListFragment f = SearchResultListFragment.newInstance(query);
+		getSupportFragmentManager().beginTransaction().replace(R.id.content, f).commit();
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.main, menu);
+		getMenuInflater().inflate(R.menu.search, menu);
 		return true;
 	}
 

@@ -40,7 +40,9 @@
     <string name="directions">Directions to ULB</string>
     <string name="no_data">No data available.</string>
     <string name="no_bookmark">No bookmark.</string>
+    <string name="no_search_result">No result.</string>
     <string name="error_title">Error</string>
     <string name="schedule_loading_error">An error occurred while updating the schedule. Please try again later.</string>
+    <string name="search_length_error">The minimum search text length is 3 chars.</string>
 
 </resources>
