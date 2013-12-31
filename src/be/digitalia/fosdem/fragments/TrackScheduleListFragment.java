@@ -21,9 +21,9 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 import be.digitalia.fosdem.R;
-import be.digitalia.fosdem.activities.EventDetailsActivity;
+import be.digitalia.fosdem.activities.TrackScheduleEventActivity;
 import be.digitalia.fosdem.db.DatabaseManager;
-import be.digitalia.fosdem.loaders.SimpleCursorLoader;
+import be.digitalia.fosdem.loaders.TrackScheduleLoader;
 import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Track;
@@ -35,6 +35,8 @@ public class TrackScheduleListFragment extends ListFragment implements LoaderCal
 	private static final String ARG_DAY = "day";
 	private static final String ARG_TRACK = "track";
 
+	private Day day;
+	private Track track;
 	private TrackScheduleAdapter adapter;
 
 	public static TrackScheduleListFragment newInstance(Day day, Track track) {
@@ -49,6 +51,11 @@ public class TrackScheduleListFragment extends ListFragment implements LoaderCal
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		Bundle args = getArguments();
+		day = args.getParcelable(ARG_DAY);
+		track = args.getParcelable(ARG_TRACK);
+
 		adapter = new TrackScheduleAdapter(getActivity());
 		setListAdapter(adapter);
 	}
@@ -63,27 +70,8 @@ public class TrackScheduleListFragment extends ListFragment implements LoaderCal
 		getLoaderManager().initLoader(EVENTS_LOADER_ID, null, this);
 	}
 
-	private static class TrackScheduleLoader extends SimpleCursorLoader {
-
-		private final Day day;
-		private final Track track;
-
-		public TrackScheduleLoader(Context context, Day day, Track track) {
-			super(context);
-			this.day = day;
-			this.track = track;
-		}
-
-		@Override
-		protected Cursor getCursor() {
-			return DatabaseManager.getInstance().getEvents(day, track);
-		}
-	}
-
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		Day day = getArguments().getParcelable(ARG_DAY);
-		Track track = getArguments().getParcelable(ARG_TRACK);
 		return new TrackScheduleLoader(getActivity(), day, track);
 	}
 
@@ -108,8 +96,10 @@ public class TrackScheduleListFragment extends ListFragment implements LoaderCal
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		Event event = adapter.getItem(position);
-		Intent intent = new Intent(getActivity(), EventDetailsActivity.class).putExtra(EventDetailsActivity.EXTRA_EVENT, event);
+		Intent intent = new Intent(getActivity(), TrackScheduleEventActivity.class);
+		intent.putExtra(TrackScheduleEventActivity.EXTRA_DAY, day);
+		intent.putExtra(TrackScheduleEventActivity.EXTRA_TRACK, track);
+		intent.putExtra(TrackScheduleEventActivity.EXTRA_POSITION, position);
 		startActivity(intent);
 	}
 

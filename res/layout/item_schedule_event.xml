@@ -6,7 +6,7 @@
 
     <TextView
         android:id="@+id/time"
-        android:layout_width="76dp"
+        android:layout_width="80dp"
         android:layout_height="match_parent"
         android:background="@color/translucent_grey"
         android:padding="@dimen/list_item_padding"

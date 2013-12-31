@@ -35,6 +35,7 @@
                 android:value=".activities.SearchResultActivity" />
         </activity>
         <activity android:name=".activities.TrackScheduleActivity" />
+        <activity android:name=".activities.TrackScheduleEventActivity" />
         <activity android:name=".activities.EventDetailsActivity" />
         <activity android:name=".activities.PersonInfoActivity" />
         <activity
