@@ -11,7 +11,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
-import android.view.Window;
+import android.view.View;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.fragments.EventDetailsFragment;
@@ -38,16 +38,19 @@ public class TrackScheduleEventActivity extends ActionBarActivity implements Loa
 	private Day day;
 	private Track track;
 	private int initialPosition = -1;
+	private View progress;
+	private View content;
 	private ViewPager pager;
 	private TrackScheduleEventAdapter adapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
 		setContentView(R.layout.track_schedule_event);
 
+		progress = findViewById(R.id.progress);
+		content = findViewById(R.id.content);
 		pager = (ViewPager) findViewById(R.id.pager);
 		adapter = new TrackScheduleEventAdapter(getSupportFragmentManager());
 
@@ -63,8 +66,18 @@ public class TrackScheduleEventActivity extends ActionBarActivity implements Loa
 		bar.setTitle(R.string.event_details);
 		bar.setSubtitle(track.getName());
 
-		setSupportProgressBarIndeterminateVisibility(true);
+		setCustomProgressVisibility(true);
 		getSupportLoaderManager().initLoader(EVENTS_LOADER_ID, null, this);
+	}
+
+	private void setCustomProgressVisibility(boolean isVisible) {
+		if (isVisible) {
+			progress.setVisibility(View.VISIBLE);
+			content.setVisibility(View.GONE);
+		} else {
+			progress.setVisibility(View.GONE);
+			content.setVisibility(View.VISIBLE);
+		}
 	}
 
 	@Override
@@ -84,7 +97,7 @@ public class TrackScheduleEventActivity extends ActionBarActivity implements Loa
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-		setSupportProgressBarIndeterminateVisibility(false);
+		setCustomProgressVisibility(false);
 
 		if (data != null) {
 			adapter.setCursor(data);
