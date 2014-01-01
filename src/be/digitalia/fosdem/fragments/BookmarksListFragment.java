@@ -4,9 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import be.digitalia.fosdem.R;
@@ -19,14 +23,20 @@ import be.digitalia.fosdem.model.Event;
 public class BookmarksListFragment extends ListFragment implements LoaderCallbacks<Cursor> {
 
 	private static final int BOOKMARKS_LOADER_ID = 1;
+	private static final String PREF_UPCOMING_ONLY = "bookmarks_upcoming_only";
 
 	private EventsAdapter adapter;
+	private boolean upcomingOnly;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+
 		adapter = new EventsAdapter(getActivity());
 		setListAdapter(adapter);
+
+		upcomingOnly = getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean(PREF_UPCOMING_ONLY, false);
 	}
 
 	@Override
@@ -39,21 +49,45 @@ public class BookmarksListFragment extends ListFragment implements LoaderCallbac
 		getLoaderManager().initLoader(BOOKMARKS_LOADER_ID, null, this);
 	}
 
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.bookmarks, menu);
+		menu.findItem(R.id.filter).setIcon(upcomingOnly ? R.drawable.ic_action_filter_selected : R.drawable.ic_action_filter);
+		menu.findItem(R.id.upcoming_only).setChecked(upcomingOnly);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.upcoming_only:
+			upcomingOnly = !upcomingOnly;
+			FragmentActivity activity = getActivity();
+			activity.supportInvalidateOptionsMenu();
+			activity.getPreferences(Context.MODE_PRIVATE).edit().putBoolean(PREF_UPCOMING_ONLY, upcomingOnly).commit();
+			getLoaderManager().restartLoader(BOOKMARKS_LOADER_ID, null, this);
+			return true;
+		}
+		return false;
+	}
+
 	private static class BookmarksLoader extends SimpleCursorLoader {
 
-		public BookmarksLoader(Context context) {
+		private final boolean upcomingOnly;
+
+		public BookmarksLoader(Context context, boolean upcomingOnly) {
 			super(context);
+			this.upcomingOnly = upcomingOnly;
 		}
 
 		@Override
 		protected Cursor getCursor() {
-			return DatabaseManager.getInstance().getBookmarks(false);
+			return DatabaseManager.getInstance().getBookmarks(upcomingOnly);
 		}
 	}
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		return new BookmarksLoader(getActivity());
+		return new BookmarksLoader(getActivity(), upcomingOnly);
 	}
 
 	@Override

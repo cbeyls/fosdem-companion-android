@@ -13,7 +13,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.Loader;
-import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -157,7 +156,7 @@ public class EventDetailsFragment extends Fragment {
 	}
 
 	private void invalidateOptionsMenu() {
-		((ActionBarActivity) getActivity()).supportInvalidateOptionsMenu();
+		getActivity().supportInvalidateOptionsMenu();
 	}
 
 	@Override
