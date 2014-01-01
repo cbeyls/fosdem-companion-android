@@ -51,7 +51,8 @@ public class StringUtils {
 				result[size++] = c;
 				replaced = false;
 			} else {
-				if (!replaced) {
+				// Skip quote
+				if ((c != '’') && !replaced) {
 					result[size++] = replacement;
 					replaced = true;
 				}
@@ -60,21 +61,41 @@ public class StringUtils {
 		return new String(result, 0, size);
 	}
 
+	/**
+	 * Removes all non-alphanumeric chars at the beginning and end of source.
+	 * 
+	 * @param source
+	 * @return
+	 */
+	private static String trimNonAlpha(String source) {
+		int st = 0;
+		int len = source.length();
+
+		while ((st < len) && !Character.isLetterOrDigit(source.charAt(st))) {
+			st++;
+		}
+		while ((st < len) && !Character.isLetterOrDigit(source.charAt(len - 1))) {
+			len--;
+		}
+		return ((st > 0) || (len < source.length())) ? source.substring(st, len) : source;
+	}
+
+	/**
+	 * Transforms a name to a slug identifier to be used in a FOSDEM URL.
+	 * 
+	 * @param source
+	 * @return
+	 */
 	public static String toSlug(String source) {
-		return replaceNonAlphaGroups(removeDiacritics(source), '_').toLowerCase(Locale.US);
+		return replaceNonAlphaGroups(trimNonAlpha(removeDiacritics(source)), '_').toLowerCase(Locale.US);
 	}
 
 	public static CharSequence trimEnd(CharSequence source) {
-		final int length = source.length();
-		int pos = length - 1;
-		while (Character.isWhitespace(source.charAt(pos))) {
+		int pos = source.length() - 1;
+		while ((pos >= 0) && Character.isWhitespace(source.charAt(pos))) {
 			pos--;
 		}
 		pos++;
-		if (pos == length) {
-			// No whitespace found at the end
-			return source;
-		}
-		return source.subSequence(0, pos);
+		return (pos < source.length()) ? source.subSequence(0, pos) : source;
 	}
 }
