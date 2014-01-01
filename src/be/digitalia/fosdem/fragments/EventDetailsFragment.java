@@ -78,6 +78,10 @@ public class EventDetailsFragment extends Fragment {
 		event = getArguments().getParcelable(ARG_EVENT);
 	}
 
+	public Event getEvent() {
+		return event;
+	}
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_event_details, container, false);

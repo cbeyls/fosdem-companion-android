@@ -2,8 +2,8 @@ package be.digitalia.fosdem.fragments;
 
 import java.text.DateFormat;
 
+import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -21,7 +21,6 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 import be.digitalia.fosdem.R;
-import be.digitalia.fosdem.activities.TrackScheduleEventActivity;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.loaders.TrackScheduleLoader;
 import be.digitalia.fosdem.model.Day;
@@ -31,13 +30,20 @@ import be.digitalia.fosdem.utils.DateUtils;
 
 public class TrackScheduleListFragment extends ListFragment implements LoaderCallbacks<Cursor> {
 
+	/**
+	 * Interface implemented by container activities
+	 */
+	public interface Callbacks {
+		void onEventSelected(int position, Event event);
+	}
+
 	private static final int EVENTS_LOADER_ID = 1;
 	private static final String ARG_DAY = "day";
 	private static final String ARG_TRACK = "track";
 
-	private Day day;
-	private Track track;
 	private TrackScheduleAdapter adapter;
+	private Callbacks listener;
+	private boolean selectionEnabled = false;
 
 	public static TrackScheduleListFragment newInstance(Day day, Track track) {
 		TrackScheduleListFragment f = new TrackScheduleListFragment();
@@ -52,18 +58,39 @@ public class TrackScheduleListFragment extends ListFragment implements LoaderCal
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		Bundle args = getArguments();
-		day = args.getParcelable(ARG_DAY);
-		track = args.getParcelable(ARG_TRACK);
-
 		adapter = new TrackScheduleAdapter(getActivity());
 		setListAdapter(adapter);
+	}
+
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		if (activity instanceof Callbacks) {
+			listener = (Callbacks) activity;
+		}
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		listener = null;
+	}
+
+	private void notifyEventSelected(int position) {
+		if (listener != null) {
+			listener.onEventSelected(position, (position == -1) ? null : adapter.getItem(position));
+		}
+	}
+
+	public void setSelectionEnabled(boolean selectionEnabled) {
+		this.selectionEnabled = selectionEnabled;
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
+		getListView().setChoiceMode(selectionEnabled ? ListView.CHOICE_MODE_SINGLE : ListView.CHOICE_MODE_NONE);
 		setEmptyText(getString(R.string.no_data));
 		setListShown(false);
 
@@ -72,6 +99,8 @@ public class TrackScheduleListFragment extends ListFragment implements LoaderCal
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		Day day = getArguments().getParcelable(ARG_DAY);
+		Track track = getArguments().getParcelable(ARG_TRACK);
 		return new TrackScheduleLoader(getActivity(), day, track);
 	}
 
@@ -79,6 +108,28 @@ public class TrackScheduleListFragment extends ListFragment implements LoaderCal
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 		if (data != null) {
 			adapter.swapCursor(data);
+
+			if (selectionEnabled) {
+				final int count = adapter.getCount();
+				int checkedPosition = getListView().getCheckedItemPosition();
+				if ((checkedPosition == ListView.INVALID_POSITION) || (checkedPosition >= count)) {
+					if (count > 0) {
+						// Select the first item if any
+						getListView().setItemChecked(0, true);
+						checkedPosition = 0;
+					} else {
+						// No result, nothing selected
+						checkedPosition = -1;
+					}
+				}
+
+				// Ensure the current selection is visible
+				if (checkedPosition != -1) {
+					setSelection(checkedPosition);
+				}
+				// Notify the parent of the current selection to synchronize its state
+				notifyEventSelected(checkedPosition);
+			}
 		}
 
 		// The list should now be shown.
@@ -96,11 +147,7 @@ public class TrackScheduleListFragment extends ListFragment implements LoaderCal
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		Intent intent = new Intent(getActivity(), TrackScheduleEventActivity.class);
-		intent.putExtra(TrackScheduleEventActivity.EXTRA_DAY, day);
-		intent.putExtra(TrackScheduleEventActivity.EXTRA_TRACK, track);
-		intent.putExtra(TrackScheduleEventActivity.EXTRA_POSITION, position);
-		startActivity(intent);
+		notifyEventSelected(position);
 	}
 
 	private static class TrackScheduleAdapter extends CursorAdapter {
