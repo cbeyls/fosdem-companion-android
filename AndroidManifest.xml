@@ -34,7 +34,11 @@
                 android:name="android.app.default_searchable"
                 android:value=".activities.SearchResultActivity" />
         </activity>
-        <activity android:name=".activities.TrackScheduleActivity" />
+        <activity android:name=".activities.TrackScheduleActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity" />
+        </activity>
         <activity android:name=".activities.TrackScheduleEventActivity" />
         <activity android:name=".activities.EventDetailsActivity" />
         <activity android:name=".activities.PersonInfoActivity" />

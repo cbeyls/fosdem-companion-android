@@ -1,11 +1,14 @@
 package be.digitalia.fosdem.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.app.NavUtils;
 import android.support.v4.content.Loader;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 import be.digitalia.fosdem.R;
@@ -14,6 +17,12 @@ import be.digitalia.fosdem.fragments.EventDetailsFragment;
 import be.digitalia.fosdem.loaders.LocalCacheLoader;
 import be.digitalia.fosdem.model.Event;
 
+/**
+ * Displays a single event passed either as a complete Parcelable object or as an id.
+ * 
+ * @author Christophe Beyls
+ * 
+ */
 public class EventDetailsActivity extends ActionBarActivity implements LoaderCallbacks<Event> {
 
 	public static final String EXTRA_EVENT = "event";
@@ -21,36 +30,54 @@ public class EventDetailsActivity extends ActionBarActivity implements LoaderCal
 
 	private static final int EVENT_LOADER_ID = 1;
 
+	private Event event;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.content);
 
-		ActionBar bar = getSupportActionBar();
-		bar.setDisplayHomeAsUpEnabled(true);
-		bar.setTitle(R.string.event_details);
+		getSupportActionBar().setTitle(R.string.event_details);
 
-		Event event = getIntent().getParcelableExtra(EXTRA_EVENT);
+		event = getIntent().getParcelableExtra(EXTRA_EVENT);
 
 		if (event != null) {
 			// The event has been passed as parameter, it can be displayed immediately
+			initActionBar();
 			if (savedInstanceState == null) {
 				Fragment f = EventDetailsFragment.newInstance(event);
 				getSupportFragmentManager().beginTransaction().add(R.id.content, f).commit();
 			}
 		} else {
-			// We need to load the event from the DB using its id
-			if ((savedInstanceState == null) || (getSupportFragmentManager().findFragmentById(R.id.content) == null)) {
-				getSupportLoaderManager().initLoader(EVENT_LOADER_ID, null, this);
-			}
+			// Load the event from the DB using its id
+			getSupportLoaderManager().initLoader(EVENT_LOADER_ID, null, this);
 		}
+	}
+
+	/**
+	 * Initialize event-related ActionBar configuration after the event has been loaded.
+	 */
+	private void initActionBar() {
+		// Enable up navigation only after getting the event details
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case android.R.id.home:
+			// Navigate up to the track associated to this event
+			Intent upIntent = new Intent(this, TrackScheduleActivity.class);
+			upIntent.putExtra(TrackScheduleActivity.EXTRA_DAY, event.getDay());
+			upIntent.putExtra(TrackScheduleActivity.EXTRA_TRACK, event.getTrack());
+			upIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
 			finish();
+			if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
+				TaskStackBuilder.create(this).addNextIntent(new Intent(this, MainActivity.class)).addNextIntent(upIntent).startActivities();
+			} else {
+				startActivity(upIntent);
+			}
 			return true;
 		}
 		return false;
@@ -77,14 +104,21 @@ public class EventDetailsActivity extends ActionBarActivity implements LoaderCal
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Event> loader, Event event) {
-		if (event == null) {
-			// Event not found
+	public void onLoadFinished(Loader<Event> loader, Event data) {
+		if (data == null) {
+			// Event not found, quit
 			finish();
 			return;
 		}
-		Fragment f = EventDetailsFragment.newInstance(event);
-		getSupportFragmentManager().beginTransaction().replace(R.id.content, f).commitAllowingStateLoss();
+
+		event = data;
+		initActionBar();
+
+		FragmentManager fm = getSupportFragmentManager();
+		if (fm.findFragmentById(R.id.content) == null) {
+			Fragment f = EventDetailsFragment.newInstance(event);
+			fm.beginTransaction().add(R.id.content, f).commitAllowingStateLoss();
+		}
 	}
 
 	@Override
