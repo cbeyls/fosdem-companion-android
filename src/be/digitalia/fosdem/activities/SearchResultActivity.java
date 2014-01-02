@@ -15,6 +15,10 @@ public class SearchResultActivity extends ActionBarActivity {
 
 	public static final int MIN_SEARCH_LENGTH = 3;
 
+	private static final String STATE_CURRENT_QUERY = "current_query";
+
+	private String currentQuery;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -26,7 +30,16 @@ public class SearchResultActivity extends ActionBarActivity {
 
 		if (savedInstanceState == null) {
 			handleIntent(getIntent(), false);
+		} else {
+			currentQuery = savedInstanceState.getString(STATE_CURRENT_QUERY);
+			getSupportActionBar().setSubtitle(currentQuery);
 		}
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putString(STATE_CURRENT_QUERY, currentQuery);
 	}
 
 	@Override
@@ -48,6 +61,7 @@ public class SearchResultActivity extends ActionBarActivity {
 				return;
 			}
 
+			currentQuery = query;
 			getSupportActionBar().setSubtitle(query);
 
 			SearchResultListFragment f = SearchResultListFragment.newInstance(query);
