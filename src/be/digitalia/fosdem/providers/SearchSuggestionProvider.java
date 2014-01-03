@@ -8,9 +8,15 @@ import android.net.Uri;
 import android.text.TextUtils;
 import be.digitalia.fosdem.db.DatabaseManager;
 
+/**
+ * Simple content provider responsible for search suggestions.
+ * 
+ * @author Christophe Beyls
+ */
 public class SearchSuggestionProvider extends ContentProvider {
 
 	private static final int MIN_QUERY_LENGTH = 3;
+	private static final int DEFAULT_MAX_RESULTS = 5;
 
 	@Override
 	public boolean onCreate() {
@@ -45,12 +51,12 @@ public class SearchSuggestionProvider extends ContentProvider {
 			return null;
 		}
 		query = query.trim();
-		if ((query.length() < MIN_QUERY_LENGTH) || ("search_suggest_query".equals(query))) {
+		if ((query.length() < MIN_QUERY_LENGTH) || "search_suggest_query".equals(query)) {
 			return null;
 		}
 
 		String limitParam = uri.getQueryParameter("limit");
-		int limit = TextUtils.isEmpty(limitParam) ? 5 : Integer.parseInt(limitParam);
+		int limit = TextUtils.isEmpty(limitParam) ? DEFAULT_MAX_RESULTS : Integer.parseInt(limitParam);
 
 		return DatabaseManager.getInstance().getSearchSuggestionResults(query, limit);
 	}
