@@ -4,5 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/selectable_background"
+    android:focusable="true"
     android:padding="@dimen/list_item_padding"
     android:textSize="@dimen/list_item_medium_text_size" />
