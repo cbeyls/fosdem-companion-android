@@ -48,6 +48,11 @@ import be.digitalia.fosdem.fragments.PersonsListFragment;
 import be.digitalia.fosdem.fragments.TracksFragment;
 import be.digitalia.fosdem.loaders.LocalCacheLoader;
 
+/**
+ * Main entry point of the application. Allows to switch between section fragments and update the database.
+ * 
+ * @author Christophe Beyls
+ */
 public class MainActivity extends ActionBarActivity implements ListView.OnItemClickListener, Handler.Callback {
 
 	private enum Section {
@@ -158,6 +163,8 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 			public void onDrawerOpened(View drawerView) {
 				updateActionBar();
 				supportInvalidateOptionsMenu();
+				// Make keypad navigation easier
+				mainMenu.requestFocus();
 			}
 
 			@Override
