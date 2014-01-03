@@ -1,16 +1,36 @@
 <resources>
 
     <style name="AppTheme" parent="@style/Theme.AppCompat.Light">
-        <item name="android:textViewStyle">@style/Fosdem.TextView</item>
-        <item name="android:listViewStyle">@style/Fosdem.ListView</item>
+        <item name="android:actionBarItemBackground">@drawable/selectable_background</item>
+        <item name="actionBarItemBackground">@drawable/selectable_background</item>
+        <item name="android:dropDownListViewStyle">@style/DropDownListView.Fosdem</item>
+        <item name="dropDownListViewStyle">@style/DropDownListView.Fosdem</item>
+        <item name="android:actionBarStyle">@style/ActionBar.Solid.Fosdem</item>
+        <item name="actionBarStyle">@style/ActionBar.Solid.Fosdem</item>
+        <item name="android:textViewStyle">@style/TextView.Fosdem</item>
+        <item name="android:listViewStyle">@style/ListView.Fosdem</item>
         <item name="activatedBackgroundIndicator">@drawable/activated_background</item>
     </style>
 
-    <style name="Fosdem.TextView" parent="android:Widget.TextView">
+    <style name="ActionBar.Solid.Fosdem" parent="@style/Widget.AppCompat.Light.ActionBar.Solid">
+
+        <!-- Only override the progress bar style for modern devices with Holo theme -->
+        <item name="android:progressBarStyle">@style/ProgressBar.Fosdem</item>
+    </style>
+
+    <style name="DropDownListView.Fosdem" parent="@style/Widget.AppCompat.Light.ListView.DropDown">
+        <item name="android:listSelector">@drawable/selectable_background</item>
+    </style>
+
+    <style name="ProgressBar.Fosdem" parent="@style/Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="android:progressDrawable">@drawable/progress_horizontal</item>
+    </style>
+
+    <style name="TextView.Fosdem" parent="android:Widget.TextView">
         <item name="android:textColorLink">#3679c4</item>
     </style>
 
-    <style name="Fosdem.ListView" parent="@android:style/Widget.ListView.White">
+    <style name="ListView.Fosdem" parent="@android:style/Widget.ListView.White">
         <item name="android:listSelector">@drawable/selectable_background</item>
     </style>
 
