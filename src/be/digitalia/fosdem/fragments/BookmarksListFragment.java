@@ -81,7 +81,7 @@ public class BookmarksListFragment extends ListFragment implements LoaderCallbac
 
 		@Override
 		protected Cursor getCursor() {
-			return DatabaseManager.getInstance().getBookmarks(upcomingOnly);
+			return DatabaseManager.getInstance().getBookmarks(upcomingOnly ? System.currentTimeMillis() : -1L);
 		}
 	}
 

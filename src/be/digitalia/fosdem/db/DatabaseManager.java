@@ -22,6 +22,7 @@ import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Link;
@@ -37,7 +38,11 @@ import be.digitalia.fosdem.utils.DateUtils;
  */
 public class DatabaseManager {
 
-	public static final String ACTION_SCHEDULE_REFRESHED = "be.digitalia.fosdem.SCHEDULE_REFRESHED";
+	public static final String ACTION_SCHEDULE_REFRESHED = "be.digitalia.fosdem.action.SCHEDULE_REFRESHED";
+	public static final String ACTION_ADD_BOOKMARK = "be.digitalia.fosdem.action.ADD_BOOKMARK";
+	public static final String EXTRA_EVENT = "event";
+	public static final String ACTION_REMOVE_BOOKMARKS = "be.digitalia.fosdem.action.REMOVE_BOOKMARKS";
+	public static final String EXTRA_EVENT_IDS = "event_ids";
 
 	private static final Uri URI_SCHEDULE = Uri.parse("sqlite://be.digitalia.fosdem/schedule");
 	private static final Uri URI_BOOKMARKS = Uri.parse("sqlite://be.digitalia.fosdem/bookmarks");
@@ -480,16 +485,16 @@ public class DatabaseManager {
 	/**
 	 * Returns the bookmarks.
 	 * 
-	 * @param futureOnly
-	 *            When true, only return the events that are not over yet.
+	 * @param minStartTime
+	 *            When positive, only return the events starting after this time.
 	 * @return A cursor to Events
 	 */
-	public Cursor getBookmarks(boolean futureOnly) {
+	public Cursor getBookmarks(long minStartTime) {
 		String whereCondition;
 		String[] selectionArgs;
-		if (futureOnly) {
-			whereCondition = " WHERE e.end_time > ?";
-			selectionArgs = new String[] { String.valueOf(System.currentTimeMillis()) };
+		if (minStartTime > 0L) {
+			whereCondition = " WHERE e.start_time > ?";
+			selectionArgs = new String[] { String.valueOf(minStartTime) };
 		} else {
 			whereCondition = "";
 			selectionArgs = null;
@@ -611,6 +616,8 @@ public class DatabaseManager {
 	public static Event toEvent(Cursor cursor, Event event) {
 		Day day;
 		Track track;
+		Date startTime;
+		Date endTime;
 		if (event == null) {
 			event = new Event();
 			day = new Day();
@@ -618,20 +625,39 @@ public class DatabaseManager {
 			track = new Track();
 			event.setTrack(track);
 
-			event.setStartTime(new Date(cursor.getLong(1)));
-			event.setEndTime(new Date(cursor.getLong(2)));
+			startTime = null;
+			endTime = null;
 
 			day.setDate(new Date(cursor.getLong(11)));
 		} else {
 			day = event.getDay();
 			track = event.getTrack();
 
-			event.getStartTime().setTime(cursor.getLong(1));
-			event.getEndTime().setTime(cursor.getLong(2));
+			startTime = event.getStartTime();
+			endTime = event.getEndTime();
 
 			day.getDate().setTime(cursor.getLong(11));
 		}
 		event.setId(cursor.getInt(0));
+		if (cursor.isNull(1)) {
+			event.setStartTime(null);
+		} else {
+			if (startTime == null) {
+				event.setStartTime(new Date(cursor.getLong(1)));
+			} else {
+				startTime.setTime(cursor.getLong(1));
+			}
+		}
+		if (cursor.isNull(2)) {
+			event.setEndTime(null);
+		} else {
+			if (endTime == null) {
+				event.setEndTime(new Date(cursor.getLong(2)));
+			} else {
+				endTime.setTime(cursor.getLong(2));
+			}
+		}
+
 		event.setRoomName(cursor.getString(3));
 		event.setSlug(cursor.getString(4));
 		event.setTitle(cursor.getString(5));
@@ -650,6 +676,14 @@ public class DatabaseManager {
 
 	public static Event toEvent(Cursor cursor) {
 		return toEvent(cursor, null);
+	}
+
+	public static int toEventId(Cursor cursor) {
+		return cursor.getInt(0);
+	}
+
+	public static long toEventStartTimeMillis(Cursor cursor) {
+		return cursor.isNull(1) ? -1L : cursor.getLong(1);
 	}
 
 	/**
@@ -738,15 +772,35 @@ public class DatabaseManager {
 		} finally {
 			db.endTransaction();
 			context.getContentResolver().notifyChange(URI_BOOKMARKS, null);
+
+			Intent intent = new Intent(ACTION_ADD_BOOKMARK).putExtra(EXTRA_EVENT, event);
+			LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 		}
 	}
 
 	public boolean removeBookmark(Event event) {
+		return removeBookmark(new int[] { event.getId() });
+	}
+
+	public boolean removeBookmark(int eventId) {
+		return removeBookmark(new int[] { eventId });
+	}
+
+	public boolean removeBookmark(int[] eventIds) {
+		int length = eventIds.length;
+		if (length == 0) {
+			throw new IllegalArgumentException("At least one bookmark id to remove must be passed");
+		}
+		String[] stringEventIds = new String[length];
+		for (int i = 0; i < length; ++i) {
+			stringEventIds[i] = String.valueOf(eventIds[i]);
+		}
+
 		SQLiteDatabase db = helper.getWritableDatabase();
 		db.beginTransaction();
 		try {
-			String[] whereArgs = new String[] { String.valueOf(event.getId()) };
-			int count = db.delete(DatabaseHelper.BOOKMARKS_TABLE_NAME, "event_id = ?", whereArgs);
+			String[] whereArgs = new String[] { TextUtils.join(",", stringEventIds) };
+			int count = db.delete(DatabaseHelper.BOOKMARKS_TABLE_NAME, "event_id IN (?)", whereArgs);
 
 			if (count == 0) {
 				return false;
@@ -757,6 +811,9 @@ public class DatabaseManager {
 		} finally {
 			db.endTransaction();
 			context.getContentResolver().notifyChange(URI_BOOKMARKS, null);
+
+			Intent intent = new Intent(ACTION_REMOVE_BOOKMARKS).putExtra(EXTRA_EVENT_IDS, eventIds);
+			LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 		}
 	}
 }
