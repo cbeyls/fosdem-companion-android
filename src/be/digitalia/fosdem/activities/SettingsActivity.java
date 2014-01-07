@@ -25,9 +25,15 @@ public class SettingsActivity extends ActionBarActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case android.R.id.home:
-			finish();
+			onBackPressed();
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		overridePendingTransition(R.anim.zoom_in, R.anim.slide_out_right);
 	}
 }
