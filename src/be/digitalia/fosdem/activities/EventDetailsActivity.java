@@ -18,7 +18,7 @@ import be.digitalia.fosdem.loaders.LocalCacheLoader;
 import be.digitalia.fosdem.model.Event;
 
 /**
- * Displays a single event passed either as a complete Parcelable object or as an id.
+ * Displays a single event passed either as a complete Parcelable object in extras or as an id in data.
  * 
  * @author Christophe Beyls
  * 
@@ -26,7 +26,6 @@ import be.digitalia.fosdem.model.Event;
 public class EventDetailsActivity extends ActionBarActivity implements LoaderCallbacks<Event> {
 
 	public static final String EXTRA_EVENT = "event";
-	public static final String EXTRA_EVENT_ID = "event_id";
 
 	private static final int EVENT_LOADER_ID = 1;
 
@@ -100,7 +99,7 @@ public class EventDetailsActivity extends ActionBarActivity implements LoaderCal
 
 	@Override
 	public Loader<Event> onCreateLoader(int id, Bundle args) {
-		return new EventLoader(this, getIntent().getIntExtra(EXTRA_EVENT_ID, -1));
+		return new EventLoader(this, Integer.parseInt(getIntent().getDataString()));
 	}
 
 	@Override

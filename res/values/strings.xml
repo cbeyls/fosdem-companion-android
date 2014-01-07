@@ -1,24 +1,76 @@
 <resources>
 
     <string name="app_name">FOSDEM Companion</string>
+
+    <!-- Main screen -->
     <string name="main_menu">Main menu</string>
     <string name="close_menu">Close menu</string>
     <string name="last_update">DB last updated: %1$s</string>
     <string name="download_reminder_title">Update</string>
     <string name="download_reminder_message">This will update the schedule database to the latest version. Make sure you are connected to the internet.</string>
     <string name="never">Never</string>
+    <string name="update_events_db">Update events database</string>
+    <string name="events_download_completed">Completed downloading %1$d events</string>
+
+    <!-- Main menu -->
     <string name="menu_tracks">Tracks</string>
     <string name="menu_bookmarks">Starred</string>
     <string name="menu_speakers">Speakers</string>
     <string name="menu_map">Map</string>
+
+    <!-- Bookmarks -->
     <string name="filter">Filter</string>
     <string name="upcoming_only">Upcoming only</string>
+    <string name="no_bookmark">No bookmark.</string>
+
+    <!-- Track types -->
     <string name="other">Other</string>
     <string name="keynote">Keynote</string>
     <string name="main_track">Main track</string>
     <string name="developer_room">Developer room</string>
     <string name="lightning_talk">Lightning talk</string>
     <string name="certification_exam">Certification Exam</string>
+
+    <!-- Search -->
+    <string name="search_events">Search events</string>
+    <string name="search_settings_description">Events</string>
+    <string name="search_hint">Event, track, person</string>
+    <string name="no_search_result">No result.</string>
+
+    <!-- Errors -->
+    <string name="error_title">Error</string>
+    <string name="schedule_loading_error">An error occurred while updating the schedule. Please try again later.</string>
+    <string name="search_length_error">The minimum search text length is 3 chars.</string>
+
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_notifications_enabled_title">Enable notifications</string>
+    <string name="settings_notifications_enabled_summary">If checked, this will notify you of starred upcoming events</string>
+    <string name="settings_notifications_vibrate_title">Vibrate</string>
+    <string name="settings_notifications_vibrate_summary">Vibrate on notification</string>
+    <string name="settings_notifications_led_title">Flash led</string>
+    <string name="settings_notifications_led_summary">Blink led on notification</string>
+    <string name="settings_notifications_delay_title">Notification time</string>
+
+    <string-array name="settings_notifications_delay_entries">
+        <item>5 minutes</item>
+        <item>10 minutes</item>
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+    </string-array>
+    <string-array name="settings_notifications_delay_entry_values">
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+    </string-array>
+
+    <string name="settings_notifications_delay_summary">Delay before getting notified of an upcoming starred event</string>
+
+    <!-- Event details -->
     <string name="event_details">Event details</string>
     <string name="related_links_header">RELATED LINKS</string>
     <string name="add_bookmark">Add to bookmarks</string>
@@ -31,20 +83,13 @@
         <item quantity="other">Speakers</item>
     </plurals>
 
+    <!-- Speaker info -->
     <string name="person_info">Speaker info</string>
     <string name="talks_header">TALKS</string>
     <string name="more_info">More info</string>
-    <string name="search_events">Search events</string>
-    <string name="search_settings_description">Events</string>
-    <string name="search_hint">Event, track, person</string>
-    <string name="update_events_db">Update events database</string>
-    <string name="events_download_completed">Completed downloading %1$d events</string>
+
+    <!-- Others -->
     <string name="directions">Directions to ULB</string>
     <string name="no_data">No data available.</string>
-    <string name="no_bookmark">No bookmark.</string>
-    <string name="no_search_result">No result.</string>
-    <string name="error_title">Error</string>
-    <string name="schedule_loading_error">An error occurred while updating the schedule. Please try again later.</string>
-    <string name="search_length_error">The minimum search text length is 3 chars.</string>
 
 </resources>

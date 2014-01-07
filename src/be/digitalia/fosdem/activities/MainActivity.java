@@ -312,6 +312,9 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		case R.id.refresh:
 			startDownloadSchedule();
 			return true;
+		case R.id.settings:
+			startActivity(new Intent(this, SettingsActivity.class));
+			return true;
 		}
 		return false;
 	}
