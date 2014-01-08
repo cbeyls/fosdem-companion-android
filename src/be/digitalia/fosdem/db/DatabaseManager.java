@@ -638,7 +638,7 @@ public class DatabaseManager {
 
 			day.getDate().setTime(cursor.getLong(11));
 		}
-		event.setId(cursor.getInt(0));
+		event.setId(cursor.getLong(0));
 		if (cursor.isNull(1)) {
 			event.setStartTime(null);
 		} else {
@@ -678,8 +678,8 @@ public class DatabaseManager {
 		return toEvent(cursor, null);
 	}
 
-	public static int toEventId(Cursor cursor) {
-		return cursor.getInt(0);
+	public static long toEventId(Cursor cursor) {
+		return cursor.getLong(0);
 	}
 
 	public static long toEventStartTimeMillis(Cursor cursor) {
@@ -721,7 +721,7 @@ public class DatabaseManager {
 		if (person == null) {
 			person = new Person();
 		}
-		person.setId(cursor.getInt(0));
+		person.setId(cursor.getLong(0));
 		person.setName(cursor.getString(1));
 
 		return person;
@@ -755,6 +755,8 @@ public class DatabaseManager {
 	}
 
 	public boolean addBookmark(Event event) {
+		boolean complete = false;
+
 		SQLiteDatabase db = helper.getWritableDatabase();
 		db.beginTransaction();
 		try {
@@ -768,25 +770,29 @@ public class DatabaseManager {
 			}
 
 			db.setTransactionSuccessful();
+			complete = true;
 			return true;
 		} finally {
 			db.endTransaction();
-			context.getContentResolver().notifyChange(URI_BOOKMARKS, null);
 
-			Intent intent = new Intent(ACTION_ADD_BOOKMARK).putExtra(EXTRA_EVENT, event);
-			LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+			if (complete) {
+				context.getContentResolver().notifyChange(URI_BOOKMARKS, null);
+
+				Intent intent = new Intent(ACTION_ADD_BOOKMARK).putExtra(EXTRA_EVENT, event);
+				LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+			}
 		}
 	}
 
 	public boolean removeBookmark(Event event) {
-		return removeBookmark(new int[] { event.getId() });
+		return removeBookmarks(new long[] { event.getId() });
 	}
 
-	public boolean removeBookmark(int eventId) {
-		return removeBookmark(new int[] { eventId });
+	public boolean removeBookmark(long eventId) {
+		return removeBookmarks(new long[] { eventId });
 	}
 
-	public boolean removeBookmark(int[] eventIds) {
+	public boolean removeBookmarks(long[] eventIds) {
 		int length = eventIds.length;
 		if (length == 0) {
 			throw new IllegalArgumentException("At least one bookmark id to remove must be passed");
@@ -795,6 +801,8 @@ public class DatabaseManager {
 		for (int i = 0; i < length; ++i) {
 			stringEventIds[i] = String.valueOf(eventIds[i]);
 		}
+
+		boolean complete = false;
 
 		SQLiteDatabase db = helper.getWritableDatabase();
 		db.beginTransaction();
@@ -807,13 +815,17 @@ public class DatabaseManager {
 			}
 
 			db.setTransactionSuccessful();
+			complete = true;
 			return true;
 		} finally {
 			db.endTransaction();
-			context.getContentResolver().notifyChange(URI_BOOKMARKS, null);
 
-			Intent intent = new Intent(ACTION_REMOVE_BOOKMARKS).putExtra(EXTRA_EVENT_IDS, eventIds);
-			LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+			if (complete) {
+				context.getContentResolver().notifyChange(URI_BOOKMARKS, null);
+
+				Intent intent = new Intent(ACTION_REMOVE_BOOKMARKS).putExtra(EXTRA_EVENT_IDS, eventIds);
+				LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+			}
 		}
 	}
 }

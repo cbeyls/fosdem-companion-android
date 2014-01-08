@@ -21,6 +21,12 @@ import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.loaders.SimpleCursorLoader;
 import be.digitalia.fosdem.model.Event;
 
+/**
+ * Bookmarks list, optionally filterable.
+ * 
+ * @author Christophe Beyls
+ * 
+ */
 public class BookmarksListFragment extends ListFragment implements LoaderCallbacks<Cursor> {
 
 	private static final int BOOKMARKS_LOADER_ID = 1;

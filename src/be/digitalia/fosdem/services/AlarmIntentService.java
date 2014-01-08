@@ -51,7 +51,7 @@ public class AlarmIntentService extends IntentService {
 		alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 	}
 
-	private PendingIntent getAlarmPendingIntent(int eventId) {
+	private PendingIntent getAlarmPendingIntent(long eventId) {
 		Intent intent = new Intent(this, AlarmReceiver.class).setAction(AlarmReceiver.ACTION_NOTIFY_EVENT).setData(Uri.parse(String.valueOf(eventId)));
 		return PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 	}
@@ -68,7 +68,7 @@ public class AlarmIntentService extends IntentService {
 			Cursor cursor = DatabaseManager.getInstance().getBookmarks(now);
 			try {
 				while (cursor.moveToNext()) {
-					int eventId = DatabaseManager.toEventId(cursor);
+					long eventId = DatabaseManager.toEventId(cursor);
 					long notificationTime = DatabaseManager.toEventStartTimeMillis(cursor) - delay;
 					PendingIntent pi = getAlarmPendingIntent(eventId);
 					if (notificationTime < now) {
@@ -93,7 +93,7 @@ public class AlarmIntentService extends IntentService {
 			Cursor cursor = DatabaseManager.getInstance().getBookmarks(System.currentTimeMillis());
 			try {
 				while (cursor.moveToNext()) {
-					int eventId = DatabaseManager.toEventId(cursor);
+					long eventId = DatabaseManager.toEventId(cursor);
 					alarmManager.cancel(getAlarmPendingIntent(eventId));
 				}
 			} finally {
@@ -114,8 +114,8 @@ public class AlarmIntentService extends IntentService {
 		} else if (DatabaseManager.ACTION_REMOVE_BOOKMARKS.equals(action)) {
 
 			// Cancel matching alarms, might they exist or not
-			int[] eventIds = intent.getIntArrayExtra(DatabaseManager.EXTRA_EVENT_IDS);
-			for (int eventId : eventIds) {
+			long[] eventIds = intent.getLongArrayExtra(DatabaseManager.EXTRA_EVENT_IDS);
+			for (long eventId : eventIds) {
 				alarmManager.cancel(getAlarmPendingIntent(eventId));
 			}
 		} else if (AlarmReceiver.ACTION_NOTIFY_EVENT.equals(action)) {

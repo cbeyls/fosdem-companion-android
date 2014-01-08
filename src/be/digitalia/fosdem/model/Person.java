@@ -8,17 +8,17 @@ import android.os.Parcelable;
 
 public class Person implements Parcelable {
 
-	private int id;
+	private long id;
 	private String name;
 
 	public Person() {
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
@@ -41,7 +41,7 @@ public class Person implements Parcelable {
 
 	@Override
 	public int hashCode() {
-		return id;
+		return (int) (id ^ (id >>> 32));
 	}
 
 	@Override
@@ -63,7 +63,7 @@ public class Person implements Parcelable {
 
 	@Override
 	public void writeToParcel(Parcel out, int flags) {
-		out.writeInt(id);
+		out.writeLong(id);
 		out.writeString(name);
 	}
 
@@ -78,7 +78,7 @@ public class Person implements Parcelable {
 	};
 
 	private Person(Parcel in) {
-		id = in.readInt();
+		id = in.readLong();
 		name = in.readString();
 	}
 }

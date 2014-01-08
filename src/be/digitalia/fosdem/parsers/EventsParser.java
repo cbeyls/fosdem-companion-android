@@ -80,7 +80,7 @@ public class EventsParser extends IterableAbstractPullParser<Event> {
 					currentRoom = parser.getAttributeValue(null, "name");
 				} else if ("event".equals(name)) {
 					Event event = new Event();
-					event.setId(Integer.parseInt(parser.getAttributeValue(null, "id")));
+					event.setId(Long.parseLong(parser.getAttributeValue(null, "id")));
 					event.setDay(currentDay);
 					event.setRoomName(currentRoom);
 					// Initialize empty lists
@@ -129,7 +129,7 @@ public class EventsParser extends IterableAbstractPullParser<Event> {
 								while (!isNextEndTag("persons")) {
 									if (isStartTag("person")) {
 										Person person = new Person();
-										person.setId(Integer.parseInt(parser.getAttributeValue(null, "id")));
+										person.setId(Long.parseLong(parser.getAttributeValue(null, "id")));
 										person.setName(parser.nextText());
 
 										persons.add(person);

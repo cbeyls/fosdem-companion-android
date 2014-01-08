@@ -11,7 +11,7 @@ import be.digitalia.fosdem.db.DatabaseManager;
 
 public class Event implements Parcelable {
 
-	private int id;
+	private long id;
 	private Day day;
 	private Date startTime;
 	private Date endTime;
@@ -29,11 +29,11 @@ public class Event implements Parcelable {
 	public Event() {
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
@@ -166,7 +166,7 @@ public class Event implements Parcelable {
 
 	@Override
 	public int hashCode() {
-		return id;
+		return (int) (id ^ (id >>> 32));
 	}
 
 	@Override
@@ -186,7 +186,7 @@ public class Event implements Parcelable {
 
 	@Override
 	public void writeToParcel(Parcel out, int flags) {
-		out.writeInt(id);
+		out.writeLong(id);
 		day.writeToParcel(out, flags);
 		out.writeLong((startTime == null) ? 0L : startTime.getTime());
 		out.writeLong((endTime == null) ? 0L : endTime.getTime());
@@ -223,7 +223,7 @@ public class Event implements Parcelable {
 	};
 
 	private Event(Parcel in) {
-		id = in.readInt();
+		id = in.readLong();
 		day = Day.CREATOR.createFromParcel(in);
 		long time = in.readLong();
 		if (time != 0L) {

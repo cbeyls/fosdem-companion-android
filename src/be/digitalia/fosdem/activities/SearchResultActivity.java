@@ -69,12 +69,8 @@ public class SearchResultActivity extends ActionBarActivity {
 
 		} else if (Intent.ACTION_VIEW.equals(intentAction)) {
 			// Search suggestion, dispatch to EventDetailsActivity
-			try {
-				Intent dispatchIntent = new Intent(this, EventDetailsActivity.class).setData(intent.getData());
-				startActivity(dispatchIntent);
-			} catch (NumberFormatException e) {
-				// Ignore invalid data
-			}
+			Intent dispatchIntent = new Intent(this, EventDetailsActivity.class).setData(intent.getData());
+			startActivity(dispatchIntent);
 
 			if (!isNewIntent) {
 				finish();
