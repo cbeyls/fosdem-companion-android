@@ -3,6 +3,7 @@ package be.digitalia.fosdem.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
@@ -20,6 +21,7 @@ import be.digitalia.fosdem.adapters.EventsAdapter;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.loaders.SimpleCursorLoader;
 import be.digitalia.fosdem.model.Event;
+import be.digitalia.fosdem.widgets.BookmarksMultiChoiceModeListener;
 
 /**
  * Bookmarks list, optionally filterable.
@@ -49,6 +51,10 @@ public class BookmarksListFragment extends ListFragment implements LoaderCallbac
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			BookmarksMultiChoiceModeListener.register(getListView());
+		}
 
 		setEmptyText(getString(R.string.no_bookmark));
 		setListShown(false);

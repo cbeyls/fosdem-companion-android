@@ -22,6 +22,11 @@
     <string name="filter">Filter</string>
     <string name="upcoming_only">Upcoming only</string>
     <string name="no_bookmark">No bookmark.</string>
+    <string name="remove_bookmarks">Remove bookmarks</string>
+
+    <plurals name="selected">
+        <item quantity="other">%1$d selected</item>
+    </plurals>
 
     <!-- Track types -->
     <string name="other">Other</string>
