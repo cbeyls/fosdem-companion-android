@@ -807,8 +807,8 @@ public class DatabaseManager {
 		SQLiteDatabase db = helper.getWritableDatabase();
 		db.beginTransaction();
 		try {
-			String[] whereArgs = new String[] { TextUtils.join(",", stringEventIds) };
-			int count = db.delete(DatabaseHelper.BOOKMARKS_TABLE_NAME, "event_id IN (?)", whereArgs);
+			String whereClause = "event_id IN (" + TextUtils.join(",", stringEventIds) + ")";
+			int count = db.delete(DatabaseHelper.BOOKMARKS_TABLE_NAME, whereClause, null);
 
 			if (count == 0) {
 				return false;
