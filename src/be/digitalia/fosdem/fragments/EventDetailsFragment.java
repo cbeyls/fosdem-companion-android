@@ -31,6 +31,7 @@ import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.PersonInfoActivity;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.loaders.LocalCacheLoader;
+import be.digitalia.fosdem.model.Building;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Link;
 import be.digitalia.fosdem.model.Person;
@@ -110,7 +111,8 @@ public class EventDetailsFragment extends Fragment {
 		text = String.format("%1$s, %2$s - %3$s", event.getDay().toString(), (startTime != null) ? TIME_DATE_FORMAT.format(startTime) : "?",
 				(endTime != null) ? TIME_DATE_FORMAT.format(endTime) : "?");
 		((TextView) view.findViewById(R.id.time)).setText(text);
-		((TextView) view.findViewById(R.id.room)).setText(event.getRoomName());
+		String roomName = event.getRoomName();
+		((TextView) view.findViewById(R.id.room)).setText(String.format("%1$s (Building %2$s)", roomName, Building.fromRoomName(roomName)));
 
 		textView = (TextView) view.findViewById(R.id.abstract_text);
 		text = event.getAbstractText();
