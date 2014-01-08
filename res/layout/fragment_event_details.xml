@@ -14,7 +14,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-light"
-            android:textIsSelectable="true"
             android:textSize="@dimen/title_text_size" />
 
         <TextView
@@ -22,7 +21,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-light"
-            android:textIsSelectable="true"
             android:textSize="@dimen/subtitle_text_size" />
 
         <TextView
