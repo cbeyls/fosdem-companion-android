@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -72,16 +73,56 @@ public class BookmarksListFragment extends ListFragment implements LoaderCallbac
 
 	private static class BookmarksLoader extends SimpleCursorLoader {
 
+		// Events that just started are still shown for 5 minutes
+		private static final long TIME_OFFSET = 5L * 60L * 1000L;
+
 		private final boolean upcomingOnly;
+		private final Handler handler;
+		private final Runnable timeoutRunnable = new Runnable() {
+
+			@Override
+			public void run() {
+				onContentChanged();
+			}
+		};
 
 		public BookmarksLoader(Context context, boolean upcomingOnly) {
 			super(context);
 			this.upcomingOnly = upcomingOnly;
+			this.handler = new Handler();
+		}
+
+		@Override
+		public void deliverResult(Cursor cursor) {
+			if (upcomingOnly && !isReset()) {
+				handler.removeCallbacks(timeoutRunnable);
+				// The loader will be refreshed when the start time of the first bookmark in the list is reached
+				if ((cursor != null) && cursor.moveToFirst()) {
+					long startTime = DatabaseManager.toEventStartTimeMillis(cursor);
+					if (startTime != -1L) {
+						long delay = startTime - (System.currentTimeMillis() - TIME_OFFSET);
+						if (delay > 0L) {
+							handler.postDelayed(timeoutRunnable, delay);
+						} else {
+							onContentChanged();
+						}
+					}
+				}
+			}
+			super.deliverResult(cursor);
+		}
+
+		@Override
+		protected void onReset() {
+			super.onReset();
+			if (upcomingOnly) {
+				handler.removeCallbacks(timeoutRunnable);
+			}
 		}
 
 		@Override
 		protected Cursor getCursor() {
-			return DatabaseManager.getInstance().getBookmarks(upcomingOnly ? System.currentTimeMillis() : -1L);
+			return DatabaseManager.getInstance().getBookmarks(upcomingOnly ? System.currentTimeMillis() - TIME_OFFSET : -1L);
 		}
 	}
 
