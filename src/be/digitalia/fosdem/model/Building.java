@@ -24,7 +24,7 @@ public enum Building {
 			if ("Ferrer".equalsIgnoreCase(roomName)) {
 				return H;
 			}
-			if ("Chavanne".equalsIgnoreCase(roomName) || "Guillissen".equalsIgnoreCase(roomName)) {
+			if ("Chavanne".equalsIgnoreCase(roomName) || "Lameere".equalsIgnoreCase(roomName) || "Guillissen".equalsIgnoreCase(roomName)) {
 				return U;
 			}
 		}
