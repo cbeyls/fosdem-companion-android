@@ -140,8 +140,8 @@ public class AlarmIntentService extends IntentService {
 				}
 
 				Notification notification = new NotificationCompat.Builder(this).setSmallIcon(R.drawable.ic_launcher).setWhen(event.getStartTime().getTime())
-						.setContentTitle(event.getTitle()).setContentText(String.format("%1$s - %2$s", event.getRoomName(), event.getPersonsSummary()))
-						.setContentInfo(event.getTrack().getName()).setContentIntent(eventPendingIntent).setAutoCancel(true).setDefaults(defaultFlags)
+						.setContentTitle(event.getTitle()).setContentText(String.format("%1$s - %2$s", event.getTrack().getName(), event.getPersonsSummary()))
+						.setContentInfo(event.getRoomName()).setContentIntent(eventPendingIntent).setAutoCancel(true).setDefaults(defaultFlags)
 						.setPriority(NotificationCompat.PRIORITY_DEFAULT).build();
 				notificationManager.notify(eventId, notification);
 			}
