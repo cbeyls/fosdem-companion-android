@@ -96,5 +96,15 @@
     <!-- Others -->
     <string name="directions">Directions to ULB</string>
     <string name="no_data">No data available.</string>
+    <string name="about">About</string>
+    <string name="about_text">Programmed by <a href="http://www.digitalia.be/">Christophe Beyls</a>.
+\n
+\nLicensed under the Apache License, version 2.0. Source available at <a href="https://github.com/cbeyls/fosdem-companion-android">https://github.com/cbeyls/fosdem-companion-android</a>. The FOSDEM logo is licensed under a CC-BY-SA 2.0 Belgium License.
+\n
+\nThis application makes use of the following libraries:
+\n- <a href="http://developer.android.com/tools/support-library/">Android Support Library</a><i>by The Android Open Source Project</i>
+\n- <a href="https://github.com/astuetz/PagerSlidingTabStrip">PagerSlidingTabStrip</a><i>by Andreas Stuetz</i>
+\n- <a href="http://viewpagerindicator.com/">ViewPagerIndicator</a><i>by Jake Wharton</i>
+\n- <a href="https://github.com/chrisbanes/PhotoView">PhotoView</a><i>by Chris Banes</i></string>
 
 </resources>

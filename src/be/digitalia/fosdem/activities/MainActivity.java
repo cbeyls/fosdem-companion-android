@@ -12,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -26,6 +27,7 @@ import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -316,6 +318,9 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 			startActivity(new Intent(this, SettingsActivity.class));
 			overridePendingTransition(R.anim.slide_in_right, R.anim.partial_zoom_out);
 			return true;
+		case R.id.about:
+			new AboutDialogFragment().show(getSupportFragmentManager(), "about");
+			return true;
 		}
 		return false;
 	}
@@ -448,5 +453,30 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		}
 
 		drawerLayout.closeDrawer(mainMenu);
+	}
+
+	public static class AboutDialogFragment extends DialogFragment {
+
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			Context context = getActivity();
+			String title;
+			try {
+				String versionName = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
+				title = String.format("%1$s %2$s", getString(R.string.app_name), versionName);
+			} catch (NameNotFoundException e) {
+				title = getString(R.string.app_name);
+			}
+
+			return new AlertDialog.Builder(context).setTitle(title).setIcon(R.drawable.ic_launcher).setMessage(getResources().getText(R.string.about_text))
+					.setPositiveButton(android.R.string.ok, null).create();
+		}
+
+		@Override
+		public void onStart() {
+			super.onStart();
+			// Make links clickable; must be called after the dialog is shown
+			((TextView) getDialog().findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+		}
 	}
 }
