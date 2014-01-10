@@ -314,7 +314,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 			return true;
 		case R.id.settings:
 			startActivity(new Intent(this, SettingsActivity.class));
-			overridePendingTransition(R.anim.slide_in_right, R.anim.zoom_out);
+			overridePendingTransition(R.anim.slide_in_right, R.anim.partial_zoom_out);
 			return true;
 		}
 		return false;

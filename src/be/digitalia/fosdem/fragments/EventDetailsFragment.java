@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -15,11 +16,13 @@ import android.support.v4.app.ShareCompat;
 import android.support.v4.content.Loader;
 import android.text.Html;
 import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.text.style.ClickableSpan;
+import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -111,8 +114,23 @@ public class EventDetailsFragment extends Fragment {
 		text = String.format("%1$s, %2$s - %3$s", event.getDay().toString(), (startTime != null) ? TIME_DATE_FORMAT.format(startTime) : "?",
 				(endTime != null) ? TIME_DATE_FORMAT.format(endTime) : "?");
 		((TextView) view.findViewById(R.id.time)).setText(text);
-		String roomName = event.getRoomName();
-		((TextView) view.findViewById(R.id.room)).setText(String.format("%1$s (Building %2$s)", roomName, Building.fromRoomName(roomName)));
+		final String roomName = event.getRoomName();
+		TextView roomTextView = (TextView) view.findViewById(R.id.room);
+		Spannable roomText = new SpannableString(String.format("%1$s (Building %2$s)", roomName, Building.fromRoomName(roomName)));
+		final int roomImageResId = getResources().getIdentifier(StringUtils.roomNameToResourceName(roomName), "drawable", getActivity().getPackageName());
+		// If the room image exists, make the room text clickable to display it
+		if (roomImageResId != 0) {
+			roomText.setSpan(new UnderlineSpan(), 0, roomText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			roomTextView.setOnClickListener(new View.OnClickListener() {
+
+				@Override
+				public void onClick(View view) {
+					RoomImageDialogFragment.newInstance(roomName, roomImageResId).show(getFragmentManager());
+				}
+			});
+			roomTextView.setFocusable(true);
+		}
+		roomTextView.setText(roomText);
 
 		textView = (TextView) view.findViewById(R.id.abstract_text);
 		text = event.getAbstractText();
@@ -189,6 +207,7 @@ public class EventDetailsFragment extends Fragment {
 				.setText(String.format("%1$s %2$s #fosdem", event.getTitle(), event.getUrl())).setChooserTitle(R.string.share);
 	}
 
+	@SuppressLint("InlinedApi")
 	private void addToAgenda() {
 		Intent intent = new Intent(Intent.ACTION_EDIT);
 		intent.setType("vnd.android.cursor.item/event");

@@ -34,6 +34,6 @@ public class SettingsActivity extends ActionBarActivity {
 	@Override
 	public void onBackPressed() {
 		super.onBackPressed();
-		overridePendingTransition(R.anim.zoom_in, R.anim.slide_out_right);
+		overridePendingTransition(R.anim.partial_zoom_in, R.anim.slide_out_right);
 	}
 }

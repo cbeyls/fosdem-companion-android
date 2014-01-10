@@ -65,10 +65,10 @@
                 android:id="@+id/room"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/selectable_background_grey"
                 android:drawableLeft="@drawable/ic_small_place"
                 android:drawablePadding="5dp"
                 android:textColor="@android:color/white"
-                android:textIsSelectable="true"
                 android:textSize="14sp" />
         </LinearLayout>
 

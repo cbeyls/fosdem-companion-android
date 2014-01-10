@@ -11,11 +11,18 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.EventDetailsFragment;
+import be.digitalia.fosdem.fragments.RoomImageDialogFragment;
 import be.digitalia.fosdem.fragments.TrackScheduleListFragment;
 import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Track;
 
+/**
+ * Track Schedule container, works in both single pane and dual pane modes.
+ * 
+ * @author Christophe Beyls
+ * 
+ */
 public class TrackScheduleActivity extends ActionBarActivity implements TrackScheduleListFragment.Callbacks {
 
 	public static final String EXTRA_DAY = "day";
@@ -48,6 +55,14 @@ public class TrackScheduleActivity extends ActionBarActivity implements TrackSch
 			fm.beginTransaction().add(R.id.schedule, trackScheduleListFragment).commit();
 		} else {
 			trackScheduleListFragment = (TrackScheduleListFragment) fm.findFragmentById(R.id.schedule);
+
+			// Remove the room image DialogFragment when switching from dual pane to single pane mode
+			if (!isTabletLandscape) {
+				Fragment roomImageDialogFragment = fm.findFragmentByTag(RoomImageDialogFragment.TAG);
+				if (roomImageDialogFragment != null) {
+					fm.beginTransaction().remove(roomImageDialogFragment).commit();
+				}
+			}
 		}
 		trackScheduleListFragment.setSelectionEnabled(isTabletLandscape);
 	}

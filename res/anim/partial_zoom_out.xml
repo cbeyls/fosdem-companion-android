@@ -7,12 +7,12 @@
         android:fromYScale="1.0"
         android:pivotX="50%"
         android:pivotY="50%"
-        android:toXScale="0"
-        android:toYScale="0" />
+        android:toXScale="0.75"
+        android:toYScale="0.75" />
 
     <alpha
         android:duration="@android:integer/config_mediumAnimTime"
         android:fromAlpha="1.0"
-        android:toAlpha="0" />
+        android:toAlpha="0.5" />
 
 </set>

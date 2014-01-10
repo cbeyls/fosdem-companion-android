@@ -3,8 +3,8 @@
 
     <scale
         android:duration="@android:integer/config_mediumAnimTime"
-        android:fromXScale="0.75"
-        android:fromYScale="0.75"
+        android:fromXScale="0"
+        android:fromYScale="0"
         android:pivotX="50%"
         android:pivotY="50%"
         android:toXScale="1.0"
@@ -12,7 +12,7 @@
 
     <alpha
         android:duration="@android:integer/config_mediumAnimTime"
-        android:fromAlpha="0.5"
+        android:fromAlpha="0"
         android:toAlpha="1.0" />
 
 </set>

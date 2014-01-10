@@ -15,6 +15,8 @@ public class StringUtils {
 			+ "AaAaAaCcCcCcCcDd" + "DdEeEeEeEeEeGgGg" + "GgGgHhHhIiIiIiIi" + "IiJjJjKkkLlLlLlL" + "lLlNnNnNnnNnOoOo" + "OoOoRrRrRrSsSsSs" + "SsTtTtTtUuUuUuUu"
 			+ "UuUuWwYyYZzZzZzF";
 
+	private static final String ROOM_DRAWABLE_PREFIX = "room_";
+
 	/**
 	 * Returns string without diacritics - 7 bit approximation.
 	 * 
@@ -97,5 +99,23 @@ public class StringUtils {
 		}
 		pos++;
 		return (pos < source.length()) ? source.subSequence(0, pos) : source;
+	}
+
+	/**
+	 * Converts a room name to a local drawable resource name, by stripping non-alpha chars and converting to lower case.
+	 * 
+	 * @return
+	 */
+	public static String roomNameToResourceName(String roomName) {
+		StringBuilder builder = new StringBuilder(ROOM_DRAWABLE_PREFIX.length() + roomName.length());
+		builder.append(ROOM_DRAWABLE_PREFIX);
+		int size = roomName.length();
+		for (int i = 0; i < size; ++i) {
+			char c = roomName.charAt(i);
+			if (Character.isLetterOrDigit(c)) {
+				builder.append(Character.toLowerCase(c));
+			}
+		}
+		return builder.toString();
 	}
 }
