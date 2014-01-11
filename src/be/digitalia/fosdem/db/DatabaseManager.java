@@ -348,7 +348,7 @@ public class DatabaseManager {
 		String[] selectionArgs = new String[] { String.valueOf(day.getIndex()) };
 		Cursor cursor = helper.getReadableDatabase().rawQuery(
 				"SELECT t.id AS _id, t.name, t.type" + " FROM " + DatabaseHelper.TRACKS_TABLE_NAME + " t" + " JOIN " + DatabaseHelper.EVENTS_TABLE_NAME
-						+ " e ON t.id = e.track_id" + " WHERE e.day_index = ?" + " GROUP BY t.id" + " ORDER BY t.id ASC", selectionArgs);
+						+ " e ON t.id = e.track_id" + " WHERE e.day_index = ?" + " GROUP BY t.id" + " ORDER BY t.name ASC", selectionArgs);
 		cursor.setNotificationUri(context.getContentResolver(), URI_SCHEDULE);
 		return cursor;
 	}
