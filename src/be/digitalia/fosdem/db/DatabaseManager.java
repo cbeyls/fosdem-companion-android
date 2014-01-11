@@ -705,7 +705,7 @@ public class DatabaseManager {
 		String[] selectionArgs = new String[] { String.valueOf(event.getId()) };
 		Cursor cursor = helper.getReadableDatabase().rawQuery(
 				"SELECT p.rowid AS _id, p.name" + " FROM " + DatabaseHelper.PERSONS_TABLE_NAME + " p" + " JOIN " + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
-						+ " ep ON p.rowid = ep.person_id" + " WHERE ep.event_id = ?" + " ORDER BY p.name ASC", selectionArgs);
+						+ " ep ON p.rowid = ep.person_id" + " WHERE ep.event_id = ?", selectionArgs);
 		try {
 			List<Person> result = new ArrayList<Person>(cursor.getCount());
 			while (cursor.moveToNext()) {
