@@ -3,7 +3,7 @@ package be.digitalia.fosdem.activities;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
-
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
@@ -14,16 +14,14 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Color;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -45,17 +43,15 @@ import be.digitalia.fosdem.api.FosdemApi;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.fragments.BookmarksListFragment;
 import be.digitalia.fosdem.fragments.MapFragment;
-import be.digitalia.fosdem.fragments.MessageDialogFragment;
 import be.digitalia.fosdem.fragments.PersonsListFragment;
 import be.digitalia.fosdem.fragments.TracksFragment;
-import be.digitalia.fosdem.loaders.LocalCacheLoader;
 
 /**
  * Main entry point of the application. Allows to switch between section fragments and update the database.
  * 
  * @author Christophe Beyls
  */
-public class MainActivity extends ActionBarActivity implements ListView.OnItemClickListener, Handler.Callback {
+public class MainActivity extends ActionBarActivity implements ListView.OnItemClickListener {
 
 	private enum Section {
 		TRACKS(TracksFragment.class, R.string.menu_tracks, R.drawable.ic_action_event, true), BOOKMARKS(BookmarksListFragment.class, R.string.menu_bookmarks,
@@ -91,17 +87,12 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		}
 	}
 
-	private static final int DOWNLOAD_SCHEDULE_LOADER_ID = 1;
-	private static final int DOWNLOAD_SCHEDULE_RESULT_WHAT = 1;
-
 	private static final long DATABASE_VALIDITY_DURATION = 24L * 60L * 60L * 1000L; // 24h
 	private static final long DOWNLOAD_REMINDER_SNOOZE_DURATION = 24L * 60L * 60L * 1000L; // 24h
 	private static final String PREF_LAST_DOWNLOAD_REMINDER_TIME = "last_download_reminder_time";
 	private static final String STATE_CURRENT_SECTION = "current_section";
 
 	private static final DateFormat LAST_UPDATE_DATE_FORMAT = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, Locale.getDefault());
-
-	private Handler handler;
 
 	private Section currentSection;
 
@@ -111,12 +102,30 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 	private TextView lastUpdateTextView;
 	private MainMenuAdapter menuAdapter;
 
-	private final BroadcastReceiver scheduleLoadingProgressReceiver = new BroadcastReceiver() {
+	private final BroadcastReceiver scheduleDownloadProgressReceiver = new BroadcastReceiver() {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			setSupportProgressBarIndeterminate(false);
 			setSupportProgress(intent.getIntExtra(FosdemApi.EXTRA_PROGRESS, 0) * 100);
+		}
+	};
+
+	private final BroadcastReceiver scheduleDownloadResultReceiver = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			// Hide the progress bar with a fill and fade out animation
+			setSupportProgressBarIndeterminate(false);
+			setSupportProgress(10000);
+
+			int result = intent.getIntExtra(FosdemApi.EXTRA_RESULT, FosdemApi.RESULT_ERROR);
+
+			if (result == FosdemApi.RESULT_ERROR) {
+				Toast.makeText(MainActivity.this, R.string.schedule_loading_error, Toast.LENGTH_LONG).show();
+			} else {
+				Toast.makeText(MainActivity.this, getString(R.string.events_download_completed, result), Toast.LENGTH_LONG).show();
+			}
 		}
 	};
 
@@ -148,12 +157,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		supportRequestWindowFeature(Window.FEATURE_PROGRESS);
-		handler = new Handler(this);
 		setContentView(R.layout.main);
-
-		// Connect the main progress bar
-		LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
-		lbm.registerReceiver(scheduleLoadingProgressReceiver, new IntentFilter(FosdemApi.ACTION_SCHEDULE_PROGRESS));
 
 		// Setup drawer layout
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -187,7 +191,9 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		LayoutInflater inflater = LayoutInflater.from(this);
 		View menuHeaderView = inflater.inflate(R.layout.header_main_menu, null);
 		menuListView.addHeaderView(menuHeaderView, null, false);
-		lbm.registerReceiver(scheduleRefreshedReceiver, new IntentFilter(DatabaseManager.ACTION_SCHEDULE_REFRESHED));
+
+		LocalBroadcastManager.getInstance(this).registerReceiver(scheduleRefreshedReceiver, new IntentFilter(DatabaseManager.ACTION_SCHEDULE_REFRESHED));
+
 		menuAdapter = new MainMenuAdapter(inflater);
 		menuListView.setAdapter(menuAdapter);
 		menuListView.setOnItemClickListener(this);
@@ -207,12 +213,6 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		// Ensure the current section is visible in the menu
 		menuListView.setSelection(currentSection.ordinal());
 		updateActionBar();
-
-		// Loader
-		if (getSupportLoaderManager().getLoader(DOWNLOAD_SCHEDULE_LOADER_ID) != null) {
-			// Reconnect to running loader
-			startDownloadSchedule();
-		}
 	}
 
 	private void updateActionBar() {
@@ -254,6 +254,14 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 	protected void onStart() {
 		super.onStart();
 
+		// Ensure the progress bar is hidden when starting
+		setSupportProgressBarVisibility(false);
+
+		// Monitor the schedule download
+		LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
+		lbm.registerReceiver(scheduleDownloadProgressReceiver, new IntentFilter(FosdemApi.ACTION_DOWNLOAD_SCHEDULE_PROGRESS));
+		lbm.registerReceiver(scheduleDownloadResultReceiver, new IntentFilter(FosdemApi.ACTION_DOWNLOAD_SCHEDULE_RESULT));
+
 		// Download reminder
 		long now = System.currentTimeMillis();
 		long time = DatabaseManager.getInstance().getLastUpdateTime();
@@ -272,11 +280,18 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 	}
 
 	@Override
+	protected void onStop() {
+		LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
+		lbm.unregisterReceiver(scheduleDownloadProgressReceiver);
+		lbm.unregisterReceiver(scheduleDownloadResultReceiver);
+
+		super.onStop();
+	}
+
+	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
-		lbm.unregisterReceiver(scheduleLoadingProgressReceiver);
-		lbm.unregisterReceiver(scheduleRefreshedReceiver);
+		LocalBroadcastManager.getInstance(this).unregisterReceiver(scheduleRefreshedReceiver);
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -325,56 +340,31 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		return false;
 	}
 
+	@SuppressLint("NewApi")
 	public void startDownloadSchedule() {
 		// Start by displaying indeterminate progress, determinate will come later
 		setSupportProgressBarIndeterminate(true);
 		setSupportProgressBarVisibility(true);
-		getSupportLoaderManager().initLoader(DOWNLOAD_SCHEDULE_LOADER_ID, null, downloadScheduleLoaderCallbacks);
-	}
-
-	private static class DownloadScheduleLoader extends LocalCacheLoader<Integer> {
-
-		public DownloadScheduleLoader(Context context) {
-			super(context);
-		}
-
-		@Override
-		public Integer loadInBackground() {
-			return FosdemApi.downloadSchedule(getContext());
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			new DownloadScheduleAsyncTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		} else {
+			new DownloadScheduleAsyncTask(this).execute();
 		}
 	}
 
-	private final LoaderCallbacks<Integer> downloadScheduleLoaderCallbacks = new LoaderCallbacks<Integer>() {
+	private static class DownloadScheduleAsyncTask extends AsyncTask<Void, Void, Void> {
 
-		@Override
-		public Loader<Integer> onCreateLoader(int id, Bundle args) {
-			return new DownloadScheduleLoader(MainActivity.this);
+		private final Context appContext;
+
+		public DownloadScheduleAsyncTask(Context context) {
+			appContext = context.getApplicationContext();
 		}
 
 		@Override
-		public void onLoadFinished(Loader<Integer> loader, Integer data) {
-			handler.sendMessage(handler.obtainMessage(DOWNLOAD_SCHEDULE_RESULT_WHAT, data, 0));
+		protected Void doInBackground(Void... args) {
+			FosdemApi.downloadSchedule(appContext);
+			return null;
 		}
-
-		@Override
-		public void onLoaderReset(Loader<Integer> loader) {
-		}
-	};
-
-	@Override
-	public boolean handleMessage(Message message) {
-		switch (message.what) {
-		case DOWNLOAD_SCHEDULE_RESULT_WHAT:
-			getSupportLoaderManager().destroyLoader(DOWNLOAD_SCHEDULE_LOADER_ID);
-			int result = message.arg1;
-			if (result == FosdemApi.RESULT_ERROR) {
-				MessageDialogFragment.newInstance(R.string.error_title, R.string.schedule_loading_error).show(getSupportFragmentManager(), "error");
-			} else {
-				Toast.makeText(this, getString(R.string.events_download_completed, result), Toast.LENGTH_LONG).show();
-			}
-			return true;
-		}
-		return false;
 	}
 
 	// MAIN MENU

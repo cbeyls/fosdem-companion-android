@@ -1,6 +1,8 @@
 package be.digitalia.fosdem.api;
 
 import java.io.InputStream;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import android.content.Context;
 import android.content.Intent;
@@ -19,40 +21,30 @@ import be.digitalia.fosdem.utils.HttpUtils;
 public class FosdemApi {
 
 	// Local broadcasts parameters
-	public static final String ACTION_SCHEDULE_PROGRESS = "ACTION_SCHEDULE_PROGRESS";
-	public static final String EXTRA_PROGRESS = "EXTRA_PROGRESS";
+	public static final String ACTION_DOWNLOAD_SCHEDULE_PROGRESS = "be.digitalia.fosdem.action.DOWNLOAD_SCHEDULE_PROGRESS";
+	public static final String EXTRA_PROGRESS = "PROGRESS";
+	public static final String ACTION_DOWNLOAD_SCHEDULE_RESULT = "be.digitalia.fosdem.action.DOWNLOAD_SCHEDULE_RESULT";
+	public static final String EXTRA_RESULT = "RESULT";
 
 	public static final int RESULT_ERROR = -1;
-	private static final int RESULT_IN_PROGRESS = -2;
 
-	private static final Object scheduleLock = new Object();
-	private static volatile int scheduleResult;
+	private static final Lock scheduleLock = new ReentrantLock();
 
 	/**
-	 * Download & store the schedule to the database. Only one thread will perform the actual action, the other ones will wait for the active thread to complete
-	 * before returning its result.
+	 * Download & store the schedule to the database. Only one thread at a time will perform the actual action, the other ones will return immediately. The
+	 * result will be sent back in the form of a local broadcast with an ACTION_DOWNLOAD_SCHEDULE_RESULT action.
 	 * 
 	 * @return The number of events processed, or RESULT_ERROR in case of error.
 	 */
-	public static int downloadSchedule(Context context) {
-		synchronized (scheduleLock) {
-			if (scheduleResult == RESULT_IN_PROGRESS) {
-				do {
-					try {
-						scheduleLock.wait();
-					} catch (InterruptedException e) {
-					}
-				} while (scheduleResult == RESULT_IN_PROGRESS);
-				// After waiting for completion, return the result stored by the other thread
-				return scheduleResult;
-			}
-
-			scheduleResult = RESULT_IN_PROGRESS;
+	public static void downloadSchedule(Context context) {
+		if (!scheduleLock.tryLock()) {
+			// If a download is already in progress, return immediately
+			return;
 		}
 
-		int result;
+		int result = RESULT_ERROR;
 		try {
-			InputStream is = HttpUtils.get(context, FosdemUrls.getSchedule(), ACTION_SCHEDULE_PROGRESS, EXTRA_PROGRESS);
+			InputStream is = HttpUtils.get(context, FosdemUrls.getSchedule(), ACTION_DOWNLOAD_SCHEDULE_PROGRESS, EXTRA_PROGRESS);
 			try {
 				Iterable<Event> events = new EventsParser().parse(is);
 				result = DatabaseManager.getInstance().storeSchedule(events);
@@ -64,15 +56,9 @@ public class FosdemApi {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			// Report completion in case of error to ensure a consistent UI
-			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ACTION_SCHEDULE_PROGRESS).putExtra(EXTRA_PROGRESS, 100));
-			result = RESULT_ERROR;
+		} finally {
+			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ACTION_DOWNLOAD_SCHEDULE_RESULT).putExtra(EXTRA_RESULT, result));
+			scheduleLock.unlock();
 		}
-
-		synchronized (scheduleLock) {
-			scheduleResult = result;
-			scheduleLock.notifyAll();
-		}
-		return result;
 	}
 }

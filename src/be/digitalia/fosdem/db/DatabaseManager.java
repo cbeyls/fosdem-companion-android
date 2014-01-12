@@ -123,6 +123,8 @@ public class DatabaseManager {
 	 * @return The number of events processed.
 	 */
 	public int storeSchedule(Iterable<Event> events) {
+		boolean isComplete = false;
+
 		SQLiteDatabase db = helper.getWritableDatabase();
 		db.beginTransaction();
 		try {
@@ -237,19 +239,23 @@ public class DatabaseManager {
 			// TODO purge outdated bookmarks ?
 
 			db.setTransactionSuccessful();
-
-			// Clear cache
-			cachedDays = null;
-			year = -1;
-			// Set last update time
-			getSharedPreferences().edit().putLong(LAST_UPDATE_TIME_PREF, System.currentTimeMillis()).commit();
+			isComplete = true;
 
 			return totalEvents;
 		} finally {
 			db.endTransaction();
-			context.getContentResolver().notifyChange(URI_SCHEDULE, null);
-			context.getContentResolver().notifyChange(URI_BOOKMARKS, null);
-			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ACTION_SCHEDULE_REFRESHED));
+
+			if (isComplete) {
+				// Clear cache
+				cachedDays = null;
+				year = -1;
+				// Set last update time
+				getSharedPreferences().edit().putLong(LAST_UPDATE_TIME_PREF, System.currentTimeMillis()).commit();
+
+				context.getContentResolver().notifyChange(URI_SCHEDULE, null);
+				context.getContentResolver().notifyChange(URI_BOOKMARKS, null);
+				LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ACTION_SCHEDULE_REFRESHED));
+			}
 		}
 	}
 
@@ -802,7 +808,7 @@ public class DatabaseManager {
 			stringEventIds[i] = String.valueOf(eventIds[i]);
 		}
 
-		boolean complete = false;
+		boolean isComplete = false;
 
 		SQLiteDatabase db = helper.getWritableDatabase();
 		db.beginTransaction();
@@ -815,12 +821,12 @@ public class DatabaseManager {
 			}
 
 			db.setTransactionSuccessful();
-			complete = true;
+			isComplete = true;
 			return true;
 		} finally {
 			db.endTransaction();
 
-			if (complete) {
+			if (isComplete) {
 				context.getContentResolver().notifyChange(URI_BOOKMARKS, null);
 
 				Intent intent = new Intent(ACTION_REMOVE_BOOKMARKS).putExtra(EXTRA_EVENT_IDS, eventIds);
