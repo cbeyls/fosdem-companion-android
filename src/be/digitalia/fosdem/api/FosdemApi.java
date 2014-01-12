@@ -34,7 +34,6 @@ public class FosdemApi {
 	 * Download & store the schedule to the database. Only one thread at a time will perform the actual action, the other ones will return immediately. The
 	 * result will be sent back in the form of a local broadcast with an ACTION_DOWNLOAD_SCHEDULE_RESULT action.
 	 * 
-	 * @return The number of events processed, or RESULT_ERROR in case of error.
 	 */
 	public static void downloadSchedule(Context context) {
 		if (!scheduleLock.tryLock()) {
