@@ -417,6 +417,7 @@ public class DatabaseManager {
 	}
 
 	/**
+	 * Returns the events for a specified track.
 	 * 
 	 * @param day
 	 * @param track
@@ -447,6 +448,76 @@ public class DatabaseManager {
 								+ DatabaseHelper.PERSONS_TABLE_NAME
 								+ " p ON ep.person_id = p.rowid"
 								+ " WHERE e.day_index = ? AND t.name = ? AND t.type = ?" + " GROUP BY e.id" + " ORDER BY e.start_time ASC", selectionArgs);
+		cursor.setNotificationUri(context.getContentResolver(), URI_SCHEDULE);
+		return cursor;
+	}
+
+	/**
+	 * Returns the events in the specified time window, ordered by start time. All parameters are optional but at least one must be provided.
+	 * 
+	 * @param minStartTime
+	 *            Minimum start time, or -1
+	 * @param maxStartTime
+	 *            Maximum start time, or -1
+	 * @param minEndTime
+	 *            Minimum end time, or -1
+	 * @param ascending
+	 *            If true, order results from start time ascending, else order from start time descending
+	 * @return
+	 */
+	public Cursor getEvents(long minStartTime, long maxStartTime, long minEndTime, boolean ascending) {
+		ArrayList<String> selectionArgs = new ArrayList<String>(3);
+		StringBuilder whereCondition = new StringBuilder();
+
+		if (minStartTime > 0L) {
+			whereCondition.append("e.start_time > ?");
+			selectionArgs.add(String.valueOf(minStartTime));
+		}
+		if (maxStartTime > 0L) {
+			if (whereCondition.length() > 0) {
+				whereCondition.append(" AND ");
+			}
+			whereCondition.append("e.start_time < ?");
+			selectionArgs.add(String.valueOf(maxStartTime));
+		}
+		if (minEndTime > 0L) {
+			if (whereCondition.length() > 0) {
+				whereCondition.append(" AND ");
+			}
+			whereCondition.append("e.end_time > ?");
+			selectionArgs.add(String.valueOf(minEndTime));
+		}
+		if (whereCondition.length() == 0) {
+			throw new IllegalArgumentException("At least one filter must be provided");
+		}
+		String ascendingString = ascending ? "ASC" : "DESC";
+
+		Cursor cursor = helper
+				.getReadableDatabase()
+				.rawQuery(
+						"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type"
+								+ " FROM "
+								+ DatabaseHelper.EVENTS_TABLE_NAME
+								+ " e"
+								+ " JOIN "
+								+ DatabaseHelper.EVENTS_TITLES_TABLE_NAME
+								+ " et ON e.id = et.rowid"
+								+ " JOIN "
+								+ DatabaseHelper.DAYS_TABLE_NAME
+								+ " d ON e.day_index = d._index"
+								+ " JOIN "
+								+ DatabaseHelper.TRACKS_TABLE_NAME
+								+ " t ON e.track_id = t.id"
+								+ " JOIN "
+								+ DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
+								+ " ep ON e.id = ep.event_id"
+								+ " JOIN "
+								+ DatabaseHelper.PERSONS_TABLE_NAME
+								+ " p ON ep.person_id = p.rowid"
+								+ " WHERE "
+								+ whereCondition.toString()
+								+ " GROUP BY e.id"
+								+ " ORDER BY e.start_time " + ascendingString, selectionArgs.toArray(new String[selectionArgs.size()]));
 		cursor.setNotificationUri(context.getContentResolver(), URI_SCHEDULE);
 		return cursor;
 	}

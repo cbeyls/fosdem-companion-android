@@ -154,7 +154,7 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 	public void onLoaderReset(Loader<List<Day>> loader) {
 	}
 
-	public static class DaysAdapter extends FragmentStatePagerAdapter {
+	private static class DaysAdapter extends FragmentStatePagerAdapter {
 
 		private List<Day> days;
 
@@ -170,8 +170,18 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 		}
 
 		@Override
+		public int getCount() {
+			return (days == null) ? 0 : days.size();
+		}
+
+		@Override
 		public Fragment getItem(int position) {
 			return TracksListFragment.newInstance(days.get(position));
+		}
+
+		@Override
+		public CharSequence getPageTitle(int position) {
+			return days.get(position).toString();
 		}
 
 		@Override
@@ -181,16 +191,6 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 			if (object != null) {
 				((Fragment) object).setUserVisibleHint(false);
 			}
-		}
-
-		@Override
-		public int getCount() {
-			return (days == null) ? 0 : days.size();
-		}
-
-		@Override
-		public CharSequence getPageTitle(int position) {
-			return days.get(position).toString();
 		}
 	}
 }

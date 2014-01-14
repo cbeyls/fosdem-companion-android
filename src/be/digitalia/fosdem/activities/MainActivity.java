@@ -3,6 +3,7 @@ package be.digitalia.fosdem.activities;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
+
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -42,6 +43,7 @@ import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemApi;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.fragments.BookmarksListFragment;
+import be.digitalia.fosdem.fragments.LiveFragment;
 import be.digitalia.fosdem.fragments.MapFragment;
 import be.digitalia.fosdem.fragments.PersonsListFragment;
 import be.digitalia.fosdem.fragments.TracksFragment;
@@ -55,8 +57,9 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 
 	private enum Section {
 		TRACKS(TracksFragment.class, R.string.menu_tracks, R.drawable.ic_action_event, true), BOOKMARKS(BookmarksListFragment.class, R.string.menu_bookmarks,
-				R.drawable.ic_action_important, false), SPEAKERS(PersonsListFragment.class, R.string.menu_speakers, R.drawable.ic_action_group, false), MAP(
-				MapFragment.class, R.string.menu_map, R.drawable.ic_action_map, false);
+				R.drawable.ic_action_important, false), LIVE(LiveFragment.class, R.string.menu_live, R.drawable.ic_action_play_over_video, false), SPEAKERS(
+				PersonsListFragment.class, R.string.menu_speakers, R.drawable.ic_action_group, false), MAP(MapFragment.class, R.string.menu_map,
+				R.drawable.ic_action_map, false);
 
 		private final String fragmentClassName;
 		private final int titleResId;

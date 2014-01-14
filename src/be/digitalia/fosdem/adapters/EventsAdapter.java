@@ -24,11 +24,17 @@ public class EventsAdapter extends CursorAdapter {
 
 	private final LayoutInflater inflater;
 	private final int titleTextSize;
+	private final boolean showDay;
 
 	public EventsAdapter(Context context) {
+		this(context, true);
+	}
+
+	public EventsAdapter(Context context, boolean showDay) {
 		super(context, null, 0);
 		inflater = LayoutInflater.from(context);
 		titleTextSize = context.getResources().getDimensionPixelSize(R.dimen.list_item_title_text_size);
+		this.showDay = showDay;
 	}
 
 	@Override
@@ -61,11 +67,18 @@ public class EventsAdapter extends CursorAdapter {
 		spannableString.setSpan(holder.titleSizeSpan, 0, eventTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		holder.title.setText(spannableString);
 
-		Date startTime = event.getStartTime();
 		holder.trackName.setText(event.getTrack().getName());
 
-		String details = String.format("%1$s, %2$s  |  %3$s", event.getDay().toString(), (startTime != null) ? TIME_DATE_FORMAT.format(startTime) : "?",
-				event.getRoomName());
+		Date startTime = event.getStartTime();
+		String startTimeString = (startTime != null) ? TIME_DATE_FORMAT.format(startTime) : "?";
+		String details;
+		if (showDay) {
+			details = String.format("%1$s, %2$s  |  %3$s", event.getDay().toString(), startTimeString, event.getRoomName());
+		} else {
+			Date endTime = event.getEndTime();
+			String endTimeString = (endTime != null) ? TIME_DATE_FORMAT.format(endTime) : "?";
+			details = String.format("%1$s - %2$s |  %3$s", startTimeString, endTimeString, event.getRoomName());
+		}
 		holder.details.setText(details);
 	}
 
