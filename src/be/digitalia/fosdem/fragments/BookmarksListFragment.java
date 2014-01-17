@@ -40,12 +40,13 @@ public class BookmarksListFragment extends ListFragment implements LoaderCallbac
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
 
 		adapter = new EventsAdapter(getActivity());
 		setListAdapter(adapter);
 
 		upcomingOnly = getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean(PREF_UPCOMING_ONLY, false);
+
+		setHasOptionsMenu(true);
 	}
 
 	@Override

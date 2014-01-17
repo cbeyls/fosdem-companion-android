@@ -42,10 +42,10 @@ public class PersonInfoListFragment extends ListFragment implements LoaderCallba
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
 
 		adapter = new EventsAdapter(getActivity());
 		person = getArguments().getParcelable(ARG_PERSON);
+		setHasOptionsMenu(true);
 	}
 
 	@Override
