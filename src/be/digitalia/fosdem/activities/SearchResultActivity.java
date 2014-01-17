@@ -1,10 +1,14 @@
 package be.digitalia.fosdem.activities;
 
 import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
 import be.digitalia.fosdem.R;
@@ -18,6 +22,7 @@ public class SearchResultActivity extends ActionBarActivity {
 	private static final String STATE_CURRENT_QUERY = "current_query";
 
 	private String currentQuery;
+	private SearchView searchView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +37,6 @@ public class SearchResultActivity extends ActionBarActivity {
 			handleIntent(getIntent(), false);
 		} else {
 			currentQuery = savedInstanceState.getString(STATE_CURRENT_QUERY);
-			getSupportActionBar().setSubtitle(currentQuery);
 		}
 	}
 
@@ -62,7 +66,19 @@ public class SearchResultActivity extends ActionBarActivity {
 			}
 
 			currentQuery = query;
-			getSupportActionBar().setSubtitle(query);
+			if (searchView != null) {
+				// Force loosing the focus to prevent the suggestions from appearing
+				searchView.clearFocus();
+				searchView.setFocusable(false);
+				searchView.setFocusableInTouchMode(false);
+
+				searchView.setQuery(query, false);
+			}
+
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO) {
+				// Legacy search mode for Eclair
+				getSupportActionBar().setSubtitle(query);
+			}
 
 			SearchResultListFragment f = SearchResultListFragment.newInstance(query);
 			getSupportFragmentManager().beginTransaction().replace(R.id.content, f).commit();
@@ -81,6 +97,20 @@ public class SearchResultActivity extends ActionBarActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.search, menu);
+
+		MenuItem searchMenuItem = menu.findItem(R.id.search);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+			// Associate searchable configuration with the SearchView
+			SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+			searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
+			searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+			searchView.setIconifiedByDefault(false); // Always show the search view
+			searchView.setQuery(currentQuery, false);
+		} else {
+			// Legacy search mode for Eclair
+			MenuItemCompat.setActionView(searchMenuItem, null);
+			getSupportActionBar().setSubtitle(currentQuery);
+		}
 		return true;
 	}
 
@@ -91,8 +121,13 @@ public class SearchResultActivity extends ActionBarActivity {
 			finish();
 			return true;
 		case R.id.search:
-			onSearchRequested();
-			return true;
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+				return false;
+			} else {
+				// Legacy search mode for Eclair
+				onSearchRequested();
+				return true;
+			}
 		}
 		return false;
 	}

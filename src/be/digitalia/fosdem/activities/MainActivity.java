@@ -7,6 +7,7 @@ import java.util.Locale;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -24,8 +25,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.SearchView;
 import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -299,6 +302,45 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.main, menu);
+
+		final MenuItem searchMenuItem = menu.findItem(R.id.search);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+			// Associate searchable configuration with the SearchView
+			SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
+			searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+			searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+				@Override
+				public boolean onQueryTextChange(String newText) {
+					return false;
+				}
+
+				@Override
+				public boolean onQueryTextSubmit(String query) {
+					MenuItemCompat.collapseActionView(searchMenuItem);
+					return false;
+				}
+			});
+			searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+
+				@Override
+				public boolean onSuggestionSelect(int position) {
+					return false;
+				}
+
+				@Override
+				public boolean onSuggestionClick(int position) {
+					MenuItemCompat.collapseActionView(searchMenuItem);
+					return false;
+				}
+			});
+		} else {
+			// Legacy search mode for Eclair
+			MenuItemCompat.setActionView(searchMenuItem, null);
+			MenuItemCompat.setShowAsAction(searchMenuItem, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
+		}
+
 		return true;
 	};
 
@@ -327,8 +369,13 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 
 		switch (item.getItemId()) {
 		case R.id.search:
-			onSearchRequested();
-			return true;
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+				return false;
+			} else {
+				// Legacy search mode for Eclair
+				onSearchRequested();
+				return true;
+			}
 		case R.id.refresh:
 			startDownloadSchedule();
 			return true;
