@@ -76,9 +76,9 @@ public class EventDetailsFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
-
 		event = getArguments().getParcelable(ARG_EVENT);
+
+		setHasOptionsMenu(true);
 	}
 
 	public Event getEvent() {
