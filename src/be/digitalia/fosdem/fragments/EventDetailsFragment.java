@@ -5,8 +5,10 @@ import java.util.Date;
 import java.util.List;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract;
@@ -14,6 +16,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -64,6 +67,15 @@ public class EventDetailsFragment extends Fragment {
 	private int personsCount = 1;
 	private boolean isBookmarked = false;
 	private ViewHolder holder;
+	private boolean bookmarksChanged = false;
+
+	private final BroadcastReceiver bookmarksReceiver = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			bookmarksChanged = true;
+		}
+	};
 
 	public static EventDetailsFragment newInstance(Event event) {
 		EventDetailsFragment f = new EventDetailsFragment();
@@ -77,8 +89,18 @@ public class EventDetailsFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		event = getArguments().getParcelable(ARG_EVENT);
-
+		isBookmarked = DatabaseManager.getInstance().isBookmarked(event);
 		setHasOptionsMenu(true);
+
+		LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(getActivity());
+		lbm.registerReceiver(bookmarksReceiver, new IntentFilter(DatabaseManager.ACTION_ADD_BOOKMARK));
+		lbm.registerReceiver(bookmarksReceiver, new IntentFilter(DatabaseManager.ACTION_REMOVE_BOOKMARKS));
+	}
+
+	@Override
+	public void onDestroy() {
+		LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(bookmarksReceiver);
+		super.onDestroy();
 	}
 
 	public Event getEvent() {
@@ -238,10 +260,15 @@ public class EventDetailsFragment extends Fragment {
 	@Override
 	public void onStart() {
 		super.onStart();
-		boolean result = DatabaseManager.getInstance().isBookmarked(event);
-		if (result != isBookmarked) {
-			isBookmarked = result;
-			invalidateOptionsMenu();
+
+		// If bookmarks have changed while this fragment was stopped, check again if this event is bookmarked
+		if (bookmarksChanged) {
+			boolean result = DatabaseManager.getInstance().isBookmarked(event);
+			if (result != isBookmarked) {
+				isBookmarked = result;
+				invalidateOptionsMenu();
+			}
+			bookmarksChanged = false;
 		}
 	}
 
