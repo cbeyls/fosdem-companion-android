@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -63,7 +64,13 @@ public class EventsAdapter extends CursorAdapter {
 		holder.event = event;
 
 		String eventTitle = event.getTitle();
-		SpannableString spannableString = new SpannableString(String.format("%1$s\n%2$s", eventTitle, event.getPersonsSummary()));
+		SpannableString spannableString;
+		String personsSummary = event.getPersonsSummary();
+		if (TextUtils.isEmpty(personsSummary)) {
+			spannableString = new SpannableString(eventTitle);
+		} else {
+			spannableString = new SpannableString(String.format("%1$s\n%2$s", eventTitle, event.getPersonsSummary()));
+		}
 		spannableString.setSpan(holder.titleSizeSpan, 0, eventTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		holder.title.setText(spannableString);
 

@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.text.TextUtils;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.EventDetailsActivity;
 import be.digitalia.fosdem.activities.MainActivity;
@@ -139,10 +140,17 @@ public class AlarmIntentService extends IntentService {
 					defaultFlags |= Notification.DEFAULT_LIGHTS;
 				}
 
+				String personsSummary = event.getPersonsSummary();
+				String contentText;
+				if (TextUtils.isEmpty(personsSummary)) {
+					contentText = event.getTrack().getName();
+				} else {
+					contentText = String.format("%1$s - %2$s", event.getTrack().getName(), personsSummary);
+				}
+
 				Notification notification = new NotificationCompat.Builder(this).setSmallIcon(R.drawable.ic_launcher).setWhen(event.getStartTime().getTime())
-						.setContentTitle(event.getTitle()).setContentText(String.format("%1$s - %2$s", event.getTrack().getName(), event.getPersonsSummary()))
-						.setContentInfo(event.getRoomName()).setContentIntent(eventPendingIntent).setAutoCancel(true).setDefaults(defaultFlags)
-						.setPriority(NotificationCompat.PRIORITY_DEFAULT).build();
+						.setContentTitle(event.getTitle()).setContentText(contentText).setContentInfo(event.getRoomName()).setContentIntent(eventPendingIntent)
+						.setAutoCancel(true).setDefaults(defaultFlags).setPriority(NotificationCompat.PRIORITY_DEFAULT).build();
 				notificationManager.notify(eventId, notification);
 			}
 

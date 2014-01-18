@@ -73,7 +73,7 @@ public class Event implements Parcelable {
 	}
 
 	public String getRoomName() {
-		return roomName;
+		return (roomName == null) ? "" : roomName;
 	}
 
 	public void setRoomName(String roomName) {
@@ -133,10 +133,13 @@ public class Event implements Parcelable {
 	}
 
 	public String getPersonsSummary() {
-		if ((personsSummary == null) && (persons != null)) {
+		if (personsSummary != null) {
+			return personsSummary;
+		}
+		if (persons != null) {
 			return TextUtils.join(", ", persons);
 		}
-		return personsSummary;
+		return "";
 	}
 
 	public void setPersonsSummary(String personsSummary) {

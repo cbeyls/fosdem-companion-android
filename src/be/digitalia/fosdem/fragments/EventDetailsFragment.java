@@ -127,8 +127,14 @@ public class EventDetailsFragment extends Fragment {
 
 		// Set the persons summary text first; replace it with the clickable text when the loader completes
 		holder.personsTextView = (TextView) view.findViewById(R.id.persons);
-		holder.personsTextView.setText(event.getPersonsSummary());
-		holder.personsTextView.setMovementMethod(linkMovementMethod);
+		String personsSummary = event.getPersonsSummary();
+		if (TextUtils.isEmpty(personsSummary)) {
+			holder.personsTextView.setVisibility(View.GONE);
+		} else {
+			holder.personsTextView.setText(personsSummary);
+			holder.personsTextView.setMovementMethod(linkMovementMethod);
+			holder.personsTextView.setVisibility(View.VISIBLE);
+		}
 
 		((TextView) view.findViewById(R.id.track)).setText(event.getTrack().getName());
 		Date startTime = event.getStartTime();
@@ -241,9 +247,11 @@ public class EventDetailsFragment extends Fragment {
 		}
 		// Strip HTML
 		description = StringUtils.trimEnd(Html.fromHtml(description)).toString();
-		// Add speaker info
-		description = String.format("%1$s: %2$s\n\n%3$s", getResources().getQuantityString(R.plurals.speakers, personsCount), event.getPersonsSummary(),
-				description);
+		// Add speaker info if available
+		if (personsCount > 0) {
+			description = String.format("%1$s: %2$s\n\n%3$s", getResources().getQuantityString(R.plurals.speakers, personsCount), event.getPersonsSummary(),
+					description);
+		}
 		intent.putExtra(CalendarContract.Events.DESCRIPTION, description);
 		intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, event.getStartTime().getTime());
 		intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, event.getEndTime().getTime());
@@ -302,19 +310,22 @@ public class EventDetailsFragment extends Fragment {
 			// 1. Persons
 			if (data.persons != null) {
 				personsCount = data.persons.size();
-				// Build a list of clickable persons
-				SpannableStringBuilder sb = new SpannableStringBuilder();
-				int length = 0;
-				for (Person person : data.persons) {
-					if (length != 0) {
-						sb.append(", ");
+				if (personsCount > 0) {
+					// Build a list of clickable persons
+					SpannableStringBuilder sb = new SpannableStringBuilder();
+					int length = 0;
+					for (Person person : data.persons) {
+						if (length != 0) {
+							sb.append(", ");
+						}
+						String name = person.getName();
+						sb.append(name);
+						length = sb.length();
+						sb.setSpan(new PersonClickableSpan(person), length - name.length(), length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 					}
-					String name = person.getName();
-					sb.append(name);
-					length = sb.length();
-					sb.setSpan(new PersonClickableSpan(person), length - name.length(), length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+					holder.personsTextView.setText(sb);
+					holder.personsTextView.setVisibility(View.VISIBLE);
 				}
-				holder.personsTextView.setText(sb);
 			}
 
 			// 2. Links

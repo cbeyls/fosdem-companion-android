@@ -398,10 +398,10 @@ public class DatabaseManager {
 								+ " JOIN "
 								+ DatabaseHelper.TRACKS_TABLE_NAME
 								+ " t ON e.track_id = t.id"
-								+ " JOIN "
+								+ " LEFT JOIN "
 								+ DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
 								+ " ep ON e.id = ep.event_id"
-								+ " JOIN "
+								+ " LEFT JOIN "
 								+ DatabaseHelper.PERSONS_TABLE_NAME
 								+ " p ON ep.person_id = p.rowid"
 								+ " WHERE e.id = ?" + " GROUP BY e.id", selectionArgs);
@@ -441,10 +441,10 @@ public class DatabaseManager {
 								+ " JOIN "
 								+ DatabaseHelper.TRACKS_TABLE_NAME
 								+ " t ON e.track_id = t.id"
-								+ " JOIN "
+								+ " LEFT JOIN "
 								+ DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
 								+ " ep ON e.id = ep.event_id"
-								+ " JOIN "
+								+ " LEFT JOIN "
 								+ DatabaseHelper.PERSONS_TABLE_NAME
 								+ " p ON ep.person_id = p.rowid"
 								+ " WHERE e.day_index = ? AND t.name = ? AND t.type = ?" + " GROUP BY e.id" + " ORDER BY e.start_time ASC", selectionArgs);
@@ -508,16 +508,15 @@ public class DatabaseManager {
 								+ " JOIN "
 								+ DatabaseHelper.TRACKS_TABLE_NAME
 								+ " t ON e.track_id = t.id"
-								+ " JOIN "
+								+ " LEFT JOIN "
 								+ DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
 								+ " ep ON e.id = ep.event_id"
-								+ " JOIN "
+								+ " LEFT JOIN "
 								+ DatabaseHelper.PERSONS_TABLE_NAME
 								+ " p ON ep.person_id = p.rowid"
 								+ " WHERE "
 								+ whereCondition.toString()
-								+ " GROUP BY e.id"
-								+ " ORDER BY e.start_time " + ascendingString, selectionArgs.toArray(new String[selectionArgs.size()]));
+								+ " GROUP BY e.id" + " ORDER BY e.start_time " + ascendingString, selectionArgs.toArray(new String[selectionArgs.size()]));
 		cursor.setNotificationUri(context.getContentResolver(), URI_SCHEDULE);
 		return cursor;
 	}
@@ -546,15 +545,18 @@ public class DatabaseManager {
 								+ " JOIN "
 								+ DatabaseHelper.TRACKS_TABLE_NAME
 								+ " t ON e.track_id = t.id"
-								+ " JOIN "
+								+ " LEFT JOIN "
 								+ DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
 								+ " ep ON e.id = ep.event_id"
-								+ " JOIN "
+								+ " LEFT JOIN "
 								+ DatabaseHelper.PERSONS_TABLE_NAME
 								+ " p ON ep.person_id = p.rowid"
 								+ " JOIN "
 								+ DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
-								+ " ep2 ON e.id = ep2.event_id" + " WHERE ep2.person_id = ?" + " GROUP BY e.id" + " ORDER BY e.start_time ASC", selectionArgs);
+								+ " ep2 ON e.id = ep2.event_id"
+								+ " WHERE ep2.person_id = ?"
+								+ " GROUP BY e.id"
+								+ " ORDER BY e.start_time ASC", selectionArgs);
 		cursor.setNotificationUri(context.getContentResolver(), URI_SCHEDULE);
 		return cursor;
 	}
@@ -596,10 +598,10 @@ public class DatabaseManager {
 								+ " JOIN "
 								+ DatabaseHelper.TRACKS_TABLE_NAME
 								+ " t ON e.track_id = t.id"
-								+ " JOIN "
+								+ " LEFT JOIN "
 								+ DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
 								+ " ep ON e.id = ep.event_id"
-								+ " JOIN "
+								+ " LEFT JOIN "
 								+ DatabaseHelper.PERSONS_TABLE_NAME
 								+ " p ON ep.person_id = p.rowid" + whereCondition + " GROUP BY e.id" + " ORDER BY e.start_time ASC", selectionArgs);
 		cursor.setNotificationUri(context.getContentResolver(), URI_BOOKMARKS);
@@ -632,10 +634,10 @@ public class DatabaseManager {
 								+ " JOIN "
 								+ DatabaseHelper.TRACKS_TABLE_NAME
 								+ " t ON e.track_id = t.id"
-								+ " JOIN "
+								+ " LEFT JOIN "
 								+ DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
 								+ " ep ON e.id = ep.event_id"
-								+ " JOIN "
+								+ " LEFT JOIN "
 								+ DatabaseHelper.PERSONS_TABLE_NAME
 								+ " p ON ep.person_id = p.rowid"
 								+ " WHERE e.id IN ( "
@@ -677,10 +679,10 @@ public class DatabaseManager {
 		// Query is similar to getSearchResults but returns different columns, does not join the Day table and limits the result set to 5 entries.
 		Cursor cursor = helper.getReadableDatabase().rawQuery(
 				"SELECT e.id AS " + BaseColumns._ID + ", et.title AS " + SearchManager.SUGGEST_COLUMN_TEXT_1
-						+ ", GROUP_CONCAT(p.name, ', ') || ' - ' || t.name AS " + SearchManager.SUGGEST_COLUMN_TEXT_2 + ", e.id AS "
+						+ ", IFNULL(GROUP_CONCAT(p.name, ', '), '') || ' - ' || t.name AS " + SearchManager.SUGGEST_COLUMN_TEXT_2 + ", e.id AS "
 						+ SearchManager.SUGGEST_COLUMN_INTENT_DATA + " FROM " + DatabaseHelper.EVENTS_TABLE_NAME + " e" + " JOIN "
 						+ DatabaseHelper.EVENTS_TITLES_TABLE_NAME + " et ON e.id = et.rowid" + " JOIN " + DatabaseHelper.TRACKS_TABLE_NAME
-						+ " t ON e.track_id = t.id" + " JOIN " + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME + " ep ON e.id = ep.event_id" + " JOIN "
+						+ " t ON e.track_id = t.id" + " LEFT JOIN " + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME + " ep ON e.id = ep.event_id" + " LEFT JOIN "
 						+ DatabaseHelper.PERSONS_TABLE_NAME + " p ON ep.person_id = p.rowid" + " WHERE e.id IN ( " + "SELECT rowid" + " FROM "
 						+ DatabaseHelper.EVENTS_TITLES_TABLE_NAME + " WHERE " + DatabaseHelper.EVENTS_TITLES_TABLE_NAME + " MATCH ?" + " UNION "
 						+ "SELECT e.id" + " FROM " + DatabaseHelper.EVENTS_TABLE_NAME + " e" + " JOIN " + DatabaseHelper.TRACKS_TABLE_NAME

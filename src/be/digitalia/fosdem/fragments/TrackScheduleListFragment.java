@@ -13,6 +13,7 @@ import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
@@ -189,9 +190,14 @@ public class TrackScheduleListFragment extends ListFragment implements LoaderCal
 			holder.event = event;
 			holder.time.setText(TIME_DATE_FORMAT.format(event.getStartTime()));
 
+			SpannableString spannableString;
 			String eventTitle = event.getTitle();
 			String personsSummary = event.getPersonsSummary();
-			SpannableString spannableString = new SpannableString(String.format("%1$s\n%2$s\n%3$s", eventTitle, personsSummary, event.getRoomName()));
+			if (TextUtils.isEmpty(personsSummary)) {
+				spannableString = new SpannableString(String.format("%1$s\n%2$s", eventTitle, event.getRoomName()));
+			} else {
+				spannableString = new SpannableString(String.format("%1$s\n%2$s\n%3$s", eventTitle, personsSummary, event.getRoomName()));
+			}
 			spannableString.setSpan(holder.titleSizeSpan, 0, eventTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			spannableString.setSpan(holder.boldStyleSpan, 0, eventTitle.length() + personsSummary.length() + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 

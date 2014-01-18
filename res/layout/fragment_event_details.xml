@@ -27,7 +27,6 @@
             android:id="@+id/persons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"
             android:textIsSelectable="true"
             android:textSize="14sp"
@@ -37,6 +36,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
+            android:layout_marginTop="10dp"
             android:background="@color/fosdem_purple"
             android:orientation="vertical"
             android:padding="6dp" >
