@@ -69,6 +69,8 @@ public class EventDetailsFragment extends Fragment {
 	private ViewHolder holder;
 	private boolean bookmarksChanged = false;
 
+	private MenuItem bookmarkMenuItem;
+
 	private final BroadcastReceiver bookmarksReceiver = new BroadcastReceiver() {
 
 		@Override
@@ -190,21 +192,27 @@ public class EventDetailsFragment extends Fragment {
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.event, menu);
-
 		ShareCompat.configureMenuItem(menu, R.id.share, getShareIntentBuilder());
+		bookmarkMenuItem = menu.findItem(R.id.bookmark);
+		updateOptionsMenu();
+	}
 
-		MenuItem item = menu.findItem(R.id.bookmark);
-		if (isBookmarked) {
-			item.setTitle(R.string.remove_bookmark);
-			item.setIcon(R.drawable.ic_action_important);
-		} else {
-			item.setTitle(R.string.add_bookmark);
-			item.setIcon(R.drawable.ic_action_not_important);
+	private void updateOptionsMenu() {
+		if (bookmarkMenuItem != null) {
+			if (isBookmarked) {
+				bookmarkMenuItem.setTitle(R.string.remove_bookmark);
+				bookmarkMenuItem.setIcon(R.drawable.ic_action_important);
+			} else {
+				bookmarkMenuItem.setTitle(R.string.add_bookmark);
+				bookmarkMenuItem.setIcon(R.drawable.ic_action_not_important);
+			}
 		}
 	}
 
-	private void invalidateOptionsMenu() {
-		getActivity().supportInvalidateOptionsMenu();
+	@Override
+	public void onDestroyOptionsMenu() {
+		super.onDestroyOptionsMenu();
+		bookmarkMenuItem = null;
 	}
 
 	@Override
@@ -214,12 +222,12 @@ public class EventDetailsFragment extends Fragment {
 			if (!isBookmarked) {
 				if (DatabaseManager.getInstance().addBookmark(event)) {
 					isBookmarked = true;
-					invalidateOptionsMenu();
+					updateOptionsMenu();
 				}
 			} else {
 				if (DatabaseManager.getInstance().removeBookmark(event)) {
 					isBookmarked = false;
-					invalidateOptionsMenu();
+					updateOptionsMenu();
 				}
 			}
 			break;
@@ -274,7 +282,7 @@ public class EventDetailsFragment extends Fragment {
 			boolean result = DatabaseManager.getInstance().isBookmarked(event);
 			if (result != isBookmarked) {
 				isBookmarked = result;
-				invalidateOptionsMenu();
+				updateOptionsMenu();
 			}
 			bookmarksChanged = false;
 		}

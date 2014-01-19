@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
@@ -37,6 +36,9 @@ public class BookmarksListFragment extends ListFragment implements LoaderCallbac
 	private EventsAdapter adapter;
 	private boolean upcomingOnly;
 
+	private MenuItem filterMenuItem;
+	private MenuItem upcomingOnlyMenuItem;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -66,8 +68,23 @@ public class BookmarksListFragment extends ListFragment implements LoaderCallbac
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.bookmarks, menu);
-		menu.findItem(R.id.filter).setIcon(upcomingOnly ? R.drawable.ic_action_filter_selected : R.drawable.ic_action_filter);
-		menu.findItem(R.id.upcoming_only).setChecked(upcomingOnly);
+		filterMenuItem = menu.findItem(R.id.filter);
+		upcomingOnlyMenuItem = menu.findItem(R.id.upcoming_only);
+		updateOptionsMenu();
+	}
+
+	private void updateOptionsMenu() {
+		if (filterMenuItem != null) {
+			filterMenuItem.setIcon(upcomingOnly ? R.drawable.ic_action_filter_selected : R.drawable.ic_action_filter);
+			upcomingOnlyMenuItem.setChecked(upcomingOnly);
+		}
+	}
+
+	@Override
+	public void onDestroyOptionsMenu() {
+		super.onDestroyOptionsMenu();
+		filterMenuItem = null;
+		upcomingOnlyMenuItem = null;
 	}
 
 	@Override
@@ -75,9 +92,8 @@ public class BookmarksListFragment extends ListFragment implements LoaderCallbac
 		switch (item.getItemId()) {
 		case R.id.upcoming_only:
 			upcomingOnly = !upcomingOnly;
-			FragmentActivity activity = getActivity();
-			activity.supportInvalidateOptionsMenu();
-			activity.getPreferences(Context.MODE_PRIVATE).edit().putBoolean(PREF_UPCOMING_ONLY, upcomingOnly).commit();
+			updateOptionsMenu();
+			getActivity().getPreferences(Context.MODE_PRIVATE).edit().putBoolean(PREF_UPCOMING_ONLY, upcomingOnly).commit();
 			getLoaderManager().restartLoader(BOOKMARKS_LOADER_ID, null, this);
 			return true;
 		}
