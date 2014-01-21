@@ -192,7 +192,7 @@ public class EventDetailsFragment extends Fragment {
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.event, menu);
-		ShareCompat.configureMenuItem(menu, R.id.share, getShareIntentBuilder());
+		menu.findItem(R.id.share).setIntent(getShareChooserIntent());
 		bookmarkMenuItem = menu.findItem(R.id.bookmark);
 		updateOptionsMenu();
 	}
@@ -238,9 +238,9 @@ public class EventDetailsFragment extends Fragment {
 		return false;
 	}
 
-	private ShareCompat.IntentBuilder getShareIntentBuilder() {
+	private Intent getShareChooserIntent() {
 		return ShareCompat.IntentBuilder.from(getActivity()).setSubject(String.format("%1$s (FOSDEM)", event.getTitle())).setType("text/plain")
-				.setText(String.format("%1$s %2$s #fosdem", event.getTitle(), event.getUrl())).setChooserTitle(R.string.share);
+				.setText(String.format("%1$s %2$s #FOSDEM", event.getTitle(), event.getUrl())).setChooserTitle(R.string.share).createChooserIntent();
 	}
 
 	@SuppressLint("InlinedApi")
