@@ -39,7 +39,6 @@ public class TrackScheduleEventActivity extends ActionBarActivity implements Loa
 	private Track track;
 	private int initialPosition = -1;
 	private View progress;
-	private View content;
 	private ViewPager pager;
 	private TrackScheduleEventAdapter adapter;
 
@@ -50,9 +49,11 @@ public class TrackScheduleEventActivity extends ActionBarActivity implements Loa
 		setContentView(R.layout.track_schedule_event);
 
 		progress = findViewById(R.id.progress);
-		content = findViewById(R.id.content);
 		pager = (ViewPager) findViewById(R.id.pager);
 		adapter = new TrackScheduleEventAdapter(getSupportFragmentManager());
+		pager.setAdapter(adapter);
+		PageIndicator pageIndicator = (PageIndicator) findViewById(R.id.indicator);
+		pageIndicator.setViewPager(pager);
 
 		Bundle extras = getIntent().getExtras();
 		day = extras.getParcelable(EXTRA_DAY);
@@ -71,13 +72,7 @@ public class TrackScheduleEventActivity extends ActionBarActivity implements Loa
 	}
 
 	private void setCustomProgressVisibility(boolean isVisible) {
-		if (isVisible) {
-			progress.setVisibility(View.VISIBLE);
-			content.setVisibility(View.GONE);
-		} else {
-			progress.setVisibility(View.GONE);
-			content.setVisibility(View.VISIBLE);
-		}
+		progress.setVisibility(isVisible ? View.VISIBLE : View.GONE);
 	}
 
 	@Override
@@ -101,16 +96,9 @@ public class TrackScheduleEventActivity extends ActionBarActivity implements Loa
 
 		if (data != null) {
 			adapter.setCursor(data);
-			if (pager.getAdapter() == null) {
-				pager.setAdapter(adapter);
-
-				PageIndicator pageIndicator = (PageIndicator) findViewById(R.id.indicator);
-				pageIndicator.setViewPager(pager);
-
-				if (initialPosition != -1) {
-					pager.setCurrentItem(initialPosition, false);
-					initialPosition = -1;
-				}
+			if (initialPosition != -1) {
+				pager.setCurrentItem(initialPosition, false);
+				initialPosition = -1;
 			}
 		}
 	}
