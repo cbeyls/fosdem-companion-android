@@ -6,6 +6,8 @@ This is a new implementation of the [legacy FOSDEM app](https://github.com/rkall
 
 To get more information and install the app, look at the [Google Play Store](https://play.google.com/store/apps/details?id=be.digitalia.fosdem) page.
 
+The name FOSDEM and the gear logo are registered trademarks of FOSDEM VZW. Used with permission.
+
 ## License
 
 [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
