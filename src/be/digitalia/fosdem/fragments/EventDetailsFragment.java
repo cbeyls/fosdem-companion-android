@@ -146,7 +146,7 @@ public class EventDetailsFragment extends Fragment {
 		((TextView) view.findViewById(R.id.time)).setText(text);
 		final String roomName = event.getRoomName();
 		TextView roomTextView = (TextView) view.findViewById(R.id.room);
-		Spannable roomText = new SpannableString(String.format("%1$s (Building %2$s)", roomName, Building.fromRoomName(roomName)));
+		Spannable roomText = new SpannableString(String.format("%1$s [Building %2$s]", roomName, Building.fromRoomName(roomName)));
 		final int roomImageResId = getResources().getIdentifier(StringUtils.roomNameToResourceName(roomName), "drawable", getActivity().getPackageName());
 		// If the room image exists, make the room text clickable to display it
 		if (roomImageResId != 0) {

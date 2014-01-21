@@ -102,7 +102,8 @@ public class StringUtils {
 	}
 
 	/**
-	 * Converts a room name to a local drawable resource name, by stripping non-alpha chars and converting to lower case.
+	 * Converts a room name to a local drawable resource name, by stripping non-alpha chars and converting to lower case. Any letter following a digit will be
+	 * ignored, along with the rest of the string.
 	 * 
 	 * @return
 	 */
@@ -110,10 +111,17 @@ public class StringUtils {
 		StringBuilder builder = new StringBuilder(ROOM_DRAWABLE_PREFIX.length() + roomName.length());
 		builder.append(ROOM_DRAWABLE_PREFIX);
 		int size = roomName.length();
+		boolean lastDigit = false;
 		for (int i = 0; i < size; ++i) {
 			char c = roomName.charAt(i);
-			if (Character.isLetterOrDigit(c)) {
+			if (Character.isLetter(c)) {
+				if (lastDigit) {
+					break;
+				}
 				builder.append(Character.toLowerCase(c));
+			} else if (Character.isDigit(c)) {
+				builder.append(c);
+				lastDigit = true;
 			}
 		}
 		return builder.toString();
