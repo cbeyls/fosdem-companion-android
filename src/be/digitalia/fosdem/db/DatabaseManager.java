@@ -40,7 +40,8 @@ public class DatabaseManager {
 
 	public static final String ACTION_SCHEDULE_REFRESHED = "be.digitalia.fosdem.action.SCHEDULE_REFRESHED";
 	public static final String ACTION_ADD_BOOKMARK = "be.digitalia.fosdem.action.ADD_BOOKMARK";
-	public static final String EXTRA_EVENT = "event";
+	public static final String EXTRA_EVENT_ID = "event_id";
+	public static final String EXTRA_EVENT_START_TIME = "event_start";
 	public static final String ACTION_REMOVE_BOOKMARKS = "be.digitalia.fosdem.action.REMOVE_BOOKMARKS";
 	public static final String EXTRA_EVENT_IDS = "event_ids";
 
@@ -857,7 +858,11 @@ public class DatabaseManager {
 			if (complete) {
 				context.getContentResolver().notifyChange(URI_BOOKMARKS, null);
 
-				Intent intent = new Intent(ACTION_ADD_BOOKMARK).putExtra(EXTRA_EVENT, event);
+				Intent intent = new Intent(ACTION_ADD_BOOKMARK).putExtra(EXTRA_EVENT_ID, event.getId());
+				Date startTime = event.getStartTime();
+				if (startTime != null) {
+					intent.putExtra(EXTRA_EVENT_START_TIME, startTime.getTime());
+				}
 				LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 			}
 		}

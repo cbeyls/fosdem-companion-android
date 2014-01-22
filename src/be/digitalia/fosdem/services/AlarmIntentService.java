@@ -1,7 +1,5 @@
 package be.digitalia.fosdem.services;
 
-import java.util.Date;
-
 import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.Notification;
@@ -104,13 +102,13 @@ public class AlarmIntentService extends IntentService {
 		} else if (DatabaseManager.ACTION_ADD_BOOKMARK.equals(action)) {
 
 			long delay = getDelay();
-			Event event = intent.getParcelableExtra(DatabaseManager.EXTRA_EVENT);
+			long eventId = intent.getLongExtra(DatabaseManager.EXTRA_EVENT_ID, -1L);
+			long startTime = intent.getLongExtra(DatabaseManager.EXTRA_EVENT_START_TIME, -1L);
 			// Only schedule future events. If they start before the delay, the alarm will go off immediately
-			Date startTime = event.getStartTime();
-			if ((startTime == null) || (startTime.getTime() < System.currentTimeMillis())) {
+			if ((startTime == -1L) || (startTime < System.currentTimeMillis())) {
 				return;
 			}
-			alarmManager.set(AlarmManager.RTC_WAKEUP, startTime.getTime() - delay, getAlarmPendingIntent(event.getId()));
+			alarmManager.set(AlarmManager.RTC_WAKEUP, startTime - delay, getAlarmPendingIntent(eventId));
 
 		} else if (DatabaseManager.ACTION_REMOVE_BOOKMARKS.equals(action)) {
 
