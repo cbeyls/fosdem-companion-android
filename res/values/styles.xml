@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="AppTheme" parent="@style/Theme.AppCompat.Light">
         <item name="android:actionBarItemBackground">@drawable/selectable_background</item>
@@ -23,6 +23,7 @@
     </style>
 
     <style name="ProgressBar.Fosdem" parent="@style/Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="android:indeterminateDrawable">@drawable/progress_indeterminate_horizontal</item>
         <item name="android:progressDrawable">@drawable/progress_horizontal</item>
     </style>
 
