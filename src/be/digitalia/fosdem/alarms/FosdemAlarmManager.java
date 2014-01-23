@@ -89,8 +89,10 @@ public class FosdemAlarmManager implements OnSharedPreferenceChangeListener {
 	private void registerReceivers() {
 		LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(context);
 		lbm.registerReceiver(scheduleRefreshedReceiver, new IntentFilter(DatabaseManager.ACTION_SCHEDULE_REFRESHED));
-		lbm.registerReceiver(bookmarksReceiver, new IntentFilter(DatabaseManager.ACTION_ADD_BOOKMARK));
-		lbm.registerReceiver(bookmarksReceiver, new IntentFilter(DatabaseManager.ACTION_REMOVE_BOOKMARKS));
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(DatabaseManager.ACTION_ADD_BOOKMARK);
+		filter.addAction(DatabaseManager.ACTION_REMOVE_BOOKMARKS);
+		lbm.registerReceiver(bookmarksReceiver, filter);
 	}
 
 	private void unregisterReceivers() {

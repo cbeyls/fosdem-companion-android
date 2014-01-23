@@ -5,18 +5,17 @@ import java.util.Date;
 import java.util.List;
 
 import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.Loader;
-import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -36,6 +35,7 @@ import android.widget.TextView;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.PersonInfoActivity;
 import be.digitalia.fosdem.db.DatabaseManager;
+import be.digitalia.fosdem.loaders.BookmarkStatusLoader;
 import be.digitalia.fosdem.loaders.LocalCacheLoader;
 import be.digitalia.fosdem.model.Building;
 import be.digitalia.fosdem.model.Event;
@@ -57,7 +57,8 @@ public class EventDetailsFragment extends Fragment {
 		ViewGroup linksContainer;
 	}
 
-	private static final int EVENT_DETAILS_LOADER_ID = 1;
+	private static final int BOOKMARK_STATUS_LOADER_ID = 1;
+	private static final int EVENT_DETAILS_LOADER_ID = 2;
 
 	private static final String ARG_EVENT = "event";
 
@@ -65,19 +66,10 @@ public class EventDetailsFragment extends Fragment {
 
 	private Event event;
 	private int personsCount = 1;
-	private boolean isBookmarked = false;
+	private Boolean isBookmarked;
 	private ViewHolder holder;
-	private boolean bookmarksChanged = false;
 
 	private MenuItem bookmarkMenuItem;
-
-	private final BroadcastReceiver bookmarksReceiver = new BroadcastReceiver() {
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			bookmarksChanged = true;
-		}
-	};
 
 	public static EventDetailsFragment newInstance(Event event) {
 		EventDetailsFragment f = new EventDetailsFragment();
@@ -91,18 +83,7 @@ public class EventDetailsFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		event = getArguments().getParcelable(ARG_EVENT);
-		isBookmarked = DatabaseManager.getInstance().isBookmarked(event);
 		setHasOptionsMenu(true);
-
-		LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(getActivity());
-		lbm.registerReceiver(bookmarksReceiver, new IntentFilter(DatabaseManager.ACTION_ADD_BOOKMARK));
-		lbm.registerReceiver(bookmarksReceiver, new IntentFilter(DatabaseManager.ACTION_REMOVE_BOOKMARKS));
-	}
-
-	@Override
-	public void onDestroy() {
-		LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(bookmarksReceiver);
-		super.onDestroy();
 	}
 
 	public Event getEvent() {
@@ -146,7 +127,7 @@ public class EventDetailsFragment extends Fragment {
 		((TextView) view.findViewById(R.id.time)).setText(text);
 		final String roomName = event.getRoomName();
 		TextView roomTextView = (TextView) view.findViewById(R.id.room);
-		Spannable roomText = new SpannableString(String.format("%1$s [Building %2$s]", roomName, Building.fromRoomName(roomName)));
+		Spannable roomText = new SpannableString(String.format("%1$s (Building %2$s)", roomName, Building.fromRoomName(roomName)));
 		final int roomImageResId = getResources().getIdentifier(StringUtils.roomNameToResourceName(roomName), "drawable", getActivity().getPackageName());
 		// If the room image exists, make the room text clickable to display it
 		if (roomImageResId != 0) {
@@ -190,6 +171,15 @@ public class EventDetailsFragment extends Fragment {
 	}
 
 	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+
+		LoaderManager loaderManager = getLoaderManager();
+		loaderManager.initLoader(BOOKMARK_STATUS_LOADER_ID, null, bookmarkStatusLoaderCallbacks);
+		loaderManager.initLoader(EVENT_DETAILS_LOADER_ID, null, eventDetailsLoaderCallbacks);
+	}
+
+	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.event, menu);
 		menu.findItem(R.id.share).setIntent(getShareChooserIntent());
@@ -197,14 +187,25 @@ public class EventDetailsFragment extends Fragment {
 		updateOptionsMenu();
 	}
 
+	private Intent getShareChooserIntent() {
+		return ShareCompat.IntentBuilder.from(getActivity()).setSubject(String.format("%1$s (FOSDEM)", event.getTitle())).setType("text/plain")
+				.setText(String.format("%1$s %2$s #FOSDEM", event.getTitle(), event.getUrl())).setChooserTitle(R.string.share).createChooserIntent();
+	}
+
 	private void updateOptionsMenu() {
 		if (bookmarkMenuItem != null) {
-			if (isBookmarked) {
-				bookmarkMenuItem.setTitle(R.string.remove_bookmark);
-				bookmarkMenuItem.setIcon(R.drawable.ic_action_important);
+			if (isBookmarked == null) {
+				bookmarkMenuItem.setEnabled(false);
 			} else {
-				bookmarkMenuItem.setTitle(R.string.add_bookmark);
-				bookmarkMenuItem.setIcon(R.drawable.ic_action_not_important);
+				bookmarkMenuItem.setEnabled(true);
+
+				if (isBookmarked) {
+					bookmarkMenuItem.setTitle(R.string.remove_bookmark);
+					bookmarkMenuItem.setIcon(R.drawable.ic_action_important);
+				} else {
+					bookmarkMenuItem.setTitle(R.string.add_bookmark);
+					bookmarkMenuItem.setIcon(R.drawable.ic_action_not_important);
+				}
 			}
 		}
 	}
@@ -219,18 +220,10 @@ public class EventDetailsFragment extends Fragment {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.bookmark:
-			if (!isBookmarked) {
-				if (DatabaseManager.getInstance().addBookmark(event)) {
-					isBookmarked = true;
-					updateOptionsMenu();
-				}
-			} else {
-				if (DatabaseManager.getInstance().removeBookmark(event)) {
-					isBookmarked = false;
-					updateOptionsMenu();
-				}
+			if (isBookmarked != null) {
+				new UpdateBookmarkAsyncTask(event).execute(isBookmarked);
 			}
-			break;
+			return true;
 		case R.id.add_to_agenda:
 			addToAgenda();
 			return true;
@@ -238,9 +231,23 @@ public class EventDetailsFragment extends Fragment {
 		return false;
 	}
 
-	private Intent getShareChooserIntent() {
-		return ShareCompat.IntentBuilder.from(getActivity()).setSubject(String.format("%1$s (FOSDEM)", event.getTitle())).setType("text/plain")
-				.setText(String.format("%1$s %2$s #FOSDEM", event.getTitle(), event.getUrl())).setChooserTitle(R.string.share).createChooserIntent();
+	private static class UpdateBookmarkAsyncTask extends AsyncTask<Boolean, Void, Void> {
+
+		private final Event event;
+
+		public UpdateBookmarkAsyncTask(Event event) {
+			this.event = event;
+		}
+
+		@Override
+		protected Void doInBackground(Boolean... remove) {
+			if (remove[0]) {
+				DatabaseManager.getInstance().removeBookmark(event);
+			} else {
+				DatabaseManager.getInstance().addBookmark(event);
+			}
+			return null;
+		}
 	}
 
 	@SuppressLint("InlinedApi")
@@ -266,27 +273,23 @@ public class EventDetailsFragment extends Fragment {
 		startActivity(intent);
 	}
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
+	private final LoaderCallbacks<Boolean> bookmarkStatusLoaderCallbacks = new LoaderCallbacks<Boolean>() {
 
-		getLoaderManager().initLoader(EVENT_DETAILS_LOADER_ID, null, eventDetailsLoaderCallbacks);
-	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
-
-		// If bookmarks have changed while this fragment was stopped, check again if this event is bookmarked
-		if (bookmarksChanged) {
-			boolean result = DatabaseManager.getInstance().isBookmarked(event);
-			if (result != isBookmarked) {
-				isBookmarked = result;
-				updateOptionsMenu();
-			}
-			bookmarksChanged = false;
+		@Override
+		public Loader<Boolean> onCreateLoader(int id, Bundle args) {
+			return new BookmarkStatusLoader(getActivity(), event);
 		}
-	}
+
+		@Override
+		public void onLoadFinished(Loader<Boolean> loader, Boolean data) {
+			isBookmarked = data;
+			updateOptionsMenu();
+		}
+
+		@Override
+		public void onLoaderReset(Loader<Boolean> loader) {
+		}
+	};
 
 	private static class EventDetailsLoader extends LocalCacheLoader<EventDetails> {
 
@@ -308,6 +311,7 @@ public class EventDetailsFragment extends Fragment {
 	}
 
 	private final LoaderCallbacks<EventDetails> eventDetailsLoaderCallbacks = new LoaderCallbacks<EventDetails>() {
+
 		@Override
 		public Loader<EventDetails> onCreateLoader(int id, Bundle args) {
 			return new EventDetailsLoader(getActivity(), event);

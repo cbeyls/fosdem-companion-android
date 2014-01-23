@@ -4,6 +4,8 @@
 
     <item
         android:id="@+id/bookmark"
+        android:icon="@drawable/ic_action_not_important"
+        android:title="@string/add_bookmark"
         app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/share"
