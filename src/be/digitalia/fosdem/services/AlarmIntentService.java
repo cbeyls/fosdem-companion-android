@@ -119,7 +119,7 @@ public class AlarmIntentService extends IntentService {
 			}
 		} else if (AlarmReceiver.ACTION_NOTIFY_EVENT.equals(action)) {
 
-			int eventId = Integer.parseInt(intent.getDataString());
+			long eventId = Long.parseLong(intent.getDataString());
 			Event event = DatabaseManager.getInstance().getEvent(eventId);
 			if (event != null) {
 
@@ -149,7 +149,7 @@ public class AlarmIntentService extends IntentService {
 				Notification notification = new NotificationCompat.Builder(this).setSmallIcon(R.drawable.ic_launcher).setWhen(event.getStartTime().getTime())
 						.setContentTitle(event.getTitle()).setContentText(contentText).setContentInfo(event.getRoomName()).setContentIntent(eventPendingIntent)
 						.setAutoCancel(true).setDefaults(defaultFlags).setPriority(NotificationCompat.PRIORITY_DEFAULT).build();
-				notificationManager.notify(eventId, notification);
+				notificationManager.notify((int) eventId, notification);
 			}
 
 			AlarmReceiver.completeWakefulIntent(intent);

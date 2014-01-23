@@ -381,7 +381,7 @@ public class DatabaseManager {
 	/**
 	 * Returns the event with the specified id.
 	 */
-	public Event getEvent(int id) {
+	public Event getEvent(long id) {
 		String[] selectionArgs = new String[] { String.valueOf(id) };
 		Cursor cursor = helper
 				.getReadableDatabase()

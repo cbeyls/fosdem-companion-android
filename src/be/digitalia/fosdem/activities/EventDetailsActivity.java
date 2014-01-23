@@ -84,9 +84,9 @@ public class EventDetailsActivity extends ActionBarActivity implements LoaderCal
 
 	private static class EventLoader extends LocalCacheLoader<Event> {
 
-		private final int eventId;
+		private final long eventId;
 
-		public EventLoader(Context context, int eventId) {
+		public EventLoader(Context context, long eventId) {
 			super(context);
 			this.eventId = eventId;
 		}
@@ -99,7 +99,7 @@ public class EventDetailsActivity extends ActionBarActivity implements LoaderCal
 
 	@Override
 	public Loader<Event> onCreateLoader(int id, Bundle args) {
-		return new EventLoader(this, Integer.parseInt(getIntent().getDataString()));
+		return new EventLoader(this, Long.parseLong(getIntent().getDataString()));
 	}
 
 	@Override
