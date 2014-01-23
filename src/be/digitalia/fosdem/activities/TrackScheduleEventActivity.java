@@ -40,6 +40,7 @@ public class TrackScheduleEventActivity extends ActionBarActivity implements Loa
 	private int initialPosition = -1;
 	private View progress;
 	private ViewPager pager;
+	private PageIndicator pageIndicator;
 	private TrackScheduleEventAdapter adapter;
 
 	@Override
@@ -48,18 +49,19 @@ public class TrackScheduleEventActivity extends ActionBarActivity implements Loa
 
 		setContentView(R.layout.track_schedule_event);
 
-		progress = findViewById(R.id.progress);
-		pager = (ViewPager) findViewById(R.id.pager);
-		adapter = new TrackScheduleEventAdapter(getSupportFragmentManager());
-		pager.setAdapter(adapter);
-		PageIndicator pageIndicator = (PageIndicator) findViewById(R.id.indicator);
-		pageIndicator.setViewPager(pager);
-
 		Bundle extras = getIntent().getExtras();
 		day = extras.getParcelable(EXTRA_DAY);
 		track = extras.getParcelable(EXTRA_TRACK);
+
+		progress = findViewById(R.id.progress);
+		pager = (ViewPager) findViewById(R.id.pager);
+		adapter = new TrackScheduleEventAdapter(getSupportFragmentManager());
+		pageIndicator = (PageIndicator) findViewById(R.id.indicator);
+
 		if (savedInstanceState == null) {
 			initialPosition = extras.getInt(EXTRA_POSITION, -1);
+			pager.setAdapter(adapter);
+			pageIndicator.setViewPager(pager);
 		}
 
 		ActionBar bar = getSupportActionBar();
@@ -96,6 +98,14 @@ public class TrackScheduleEventActivity extends ActionBarActivity implements Loa
 
 		if (data != null) {
 			adapter.setCursor(data);
+
+			// Delay setting the adapter when the instance state is restored
+			// to ensure the current position is restored properly
+			if (pager.getAdapter() == null) {
+				pager.setAdapter(adapter);
+				pageIndicator.setViewPager(pager);
+			}
+
 			if (initialPosition != -1) {
 				pager.setCurrentItem(initialPosition, false);
 				initialPosition = -1;
