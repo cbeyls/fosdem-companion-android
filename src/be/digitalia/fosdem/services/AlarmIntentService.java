@@ -139,16 +139,27 @@ public class AlarmIntentService extends IntentService {
 				}
 
 				String personsSummary = event.getPersonsSummary();
+				String trackName = event.getTrack().getName();
+				String bigText;
 				String contentText;
 				if (TextUtils.isEmpty(personsSummary)) {
-					contentText = event.getTrack().getName();
+					contentText = trackName;
+					bigText = event.getSubTitle();
 				} else {
-					contentText = String.format("%1$s - %2$s", event.getTrack().getName(), personsSummary);
+					contentText = String.format("%1$s - %2$s", trackName, personsSummary);
+					String subTitle = event.getSubTitle();
+					if (TextUtils.isEmpty(subTitle)) {
+						bigText = personsSummary;
+					} else {
+						bigText = String.format("%1s\n\n%2$s", subTitle, personsSummary);
+					}
 				}
 
 				Notification notification = new NotificationCompat.Builder(this).setSmallIcon(R.drawable.ic_launcher).setWhen(event.getStartTime().getTime())
-						.setContentTitle(event.getTitle()).setContentText(contentText).setContentInfo(event.getRoomName()).setContentIntent(eventPendingIntent)
-						.setAutoCancel(true).setDefaults(defaultFlags).setPriority(NotificationCompat.PRIORITY_DEFAULT).build();
+						.setContentTitle(event.getTitle()).setContentText(contentText)
+						.setStyle(new NotificationCompat.BigTextStyle().bigText(bigText).setSummaryText(trackName)).setContentInfo(event.getRoomName())
+						.setContentIntent(eventPendingIntent).setAutoCancel(true).setDefaults(defaultFlags).setPriority(NotificationCompat.PRIORITY_DEFAULT)
+						.build();
 				notificationManager.notify((int) eventId, notification);
 			}
 
