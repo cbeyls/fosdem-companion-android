@@ -19,6 +19,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:drawablePadding="6dp"
         android:padding="@dimen/list_item_padding"
         android:textSize="@dimen/list_item_small_text_size" />
 

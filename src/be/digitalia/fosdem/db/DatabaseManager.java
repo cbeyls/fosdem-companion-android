@@ -45,8 +45,8 @@ public class DatabaseManager {
 	public static final String ACTION_REMOVE_BOOKMARKS = "be.digitalia.fosdem.action.REMOVE_BOOKMARKS";
 	public static final String EXTRA_EVENT_IDS = "event_ids";
 
-	private static final Uri URI_SCHEDULE = Uri.parse("sqlite://be.digitalia.fosdem/schedule");
-	private static final Uri URI_BOOKMARKS = Uri.parse("sqlite://be.digitalia.fosdem/bookmarks");
+	private static final Uri URI_TRACKS = Uri.parse("sqlite://be.digitalia.fosdem/tracks");
+	private static final Uri URI_EVENTS = Uri.parse("sqlite://be.digitalia.fosdem/events");
 
 	private static final String DB_PREFS_FILE = "database";
 	private static final String LAST_UPDATE_TIME_PREF = "last_update_time";
@@ -253,8 +253,8 @@ public class DatabaseManager {
 				// Set last update time
 				getSharedPreferences().edit().putLong(LAST_UPDATE_TIME_PREF, System.currentTimeMillis()).commit();
 
-				context.getContentResolver().notifyChange(URI_SCHEDULE, null);
-				context.getContentResolver().notifyChange(URI_BOOKMARKS, null);
+				context.getContentResolver().notifyChange(URI_TRACKS, null);
+				context.getContentResolver().notifyChange(URI_EVENTS, null);
 				LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ACTION_SCHEDULE_REFRESHED));
 			}
 		}
@@ -273,8 +273,9 @@ public class DatabaseManager {
 			getSharedPreferences().edit().remove(LAST_UPDATE_TIME_PREF).commit();
 		} finally {
 			db.endTransaction();
-			context.getContentResolver().notifyChange(URI_SCHEDULE, null);
-			context.getContentResolver().notifyChange(URI_BOOKMARKS, null);
+
+			context.getContentResolver().notifyChange(URI_TRACKS, null);
+			context.getContentResolver().notifyChange(URI_EVENTS, null);
 			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ACTION_SCHEDULE_REFRESHED));
 		}
 	}
@@ -356,7 +357,7 @@ public class DatabaseManager {
 		Cursor cursor = helper.getReadableDatabase().rawQuery(
 				"SELECT t.id AS _id, t.name, t.type" + " FROM " + DatabaseHelper.TRACKS_TABLE_NAME + " t" + " JOIN " + DatabaseHelper.EVENTS_TABLE_NAME
 						+ " e ON t.id = e.track_id" + " WHERE e.day_index = ?" + " GROUP BY t.id" + " ORDER BY t.name ASC", selectionArgs);
-		cursor.setNotificationUri(context.getContentResolver(), URI_SCHEDULE);
+		cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
 		return cursor;
 	}
 
@@ -429,7 +430,7 @@ public class DatabaseManager {
 		Cursor cursor = helper
 				.getReadableDatabase()
 				.rawQuery(
-						"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type"
+						"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, b.event_id"
 								+ " FROM "
 								+ DatabaseHelper.EVENTS_TABLE_NAME
 								+ " e"
@@ -448,8 +449,12 @@ public class DatabaseManager {
 								+ " LEFT JOIN "
 								+ DatabaseHelper.PERSONS_TABLE_NAME
 								+ " p ON ep.person_id = p.rowid"
-								+ " WHERE e.day_index = ? AND t.name = ? AND t.type = ?" + " GROUP BY e.id" + " ORDER BY e.start_time ASC", selectionArgs);
-		cursor.setNotificationUri(context.getContentResolver(), URI_SCHEDULE);
+								+ " LEFT JOIN "
+								+ DatabaseHelper.BOOKMARKS_TABLE_NAME
+								+ " b ON e.id = b.event_id"
+								+ " WHERE e.day_index = ? AND t.name = ? AND t.type = ?"
+								+ " GROUP BY e.id" + " ORDER BY e.start_time ASC", selectionArgs);
+		cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
 		return cursor;
 	}
 
@@ -496,7 +501,7 @@ public class DatabaseManager {
 		Cursor cursor = helper
 				.getReadableDatabase()
 				.rawQuery(
-						"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type"
+						"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, b.event_id"
 								+ " FROM "
 								+ DatabaseHelper.EVENTS_TABLE_NAME
 								+ " e"
@@ -515,10 +520,14 @@ public class DatabaseManager {
 								+ " LEFT JOIN "
 								+ DatabaseHelper.PERSONS_TABLE_NAME
 								+ " p ON ep.person_id = p.rowid"
+								+ " LEFT JOIN "
+								+ DatabaseHelper.BOOKMARKS_TABLE_NAME
+								+ " b ON e.id = b.event_id"
 								+ " WHERE "
 								+ whereCondition.toString()
-								+ " GROUP BY e.id" + " ORDER BY e.start_time " + ascendingString, selectionArgs.toArray(new String[selectionArgs.size()]));
-		cursor.setNotificationUri(context.getContentResolver(), URI_SCHEDULE);
+								+ " GROUP BY e.id"
+								+ " ORDER BY e.start_time " + ascendingString, selectionArgs.toArray(new String[selectionArgs.size()]));
+		cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
 		return cursor;
 	}
 
@@ -533,7 +542,7 @@ public class DatabaseManager {
 		Cursor cursor = helper
 				.getReadableDatabase()
 				.rawQuery(
-						"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type"
+						"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, b.event_id"
 								+ " FROM "
 								+ DatabaseHelper.EVENTS_TABLE_NAME
 								+ " e"
@@ -552,13 +561,13 @@ public class DatabaseManager {
 								+ " LEFT JOIN "
 								+ DatabaseHelper.PERSONS_TABLE_NAME
 								+ " p ON ep.person_id = p.rowid"
+								+ " LEFT JOIN "
+								+ DatabaseHelper.BOOKMARKS_TABLE_NAME
+								+ " b ON e.id = b.event_id"
 								+ " JOIN "
 								+ DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
-								+ " ep2 ON e.id = ep2.event_id"
-								+ " WHERE ep2.person_id = ?"
-								+ " GROUP BY e.id"
-								+ " ORDER BY e.start_time ASC", selectionArgs);
-		cursor.setNotificationUri(context.getContentResolver(), URI_SCHEDULE);
+								+ " ep2 ON e.id = ep2.event_id" + " WHERE ep2.person_id = ?" + " GROUP BY e.id" + " ORDER BY e.start_time ASC", selectionArgs);
+		cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
 		return cursor;
 	}
 
@@ -583,7 +592,7 @@ public class DatabaseManager {
 		Cursor cursor = helper
 				.getReadableDatabase()
 				.rawQuery(
-						"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type"
+						"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, 1"
 								+ " FROM "
 								+ DatabaseHelper.BOOKMARKS_TABLE_NAME
 								+ " b"
@@ -605,7 +614,7 @@ public class DatabaseManager {
 								+ " LEFT JOIN "
 								+ DatabaseHelper.PERSONS_TABLE_NAME
 								+ " p ON ep.person_id = p.rowid" + whereCondition + " GROUP BY e.id" + " ORDER BY e.start_time ASC", selectionArgs);
-		cursor.setNotificationUri(context.getContentResolver(), URI_BOOKMARKS);
+		cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
 		return cursor;
 	}
 
@@ -622,7 +631,7 @@ public class DatabaseManager {
 		Cursor cursor = helper
 				.getReadableDatabase()
 				.rawQuery(
-						"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type"
+						"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, b.event_id"
 								+ " FROM "
 								+ DatabaseHelper.EVENTS_TABLE_NAME
 								+ " e"
@@ -641,6 +650,9 @@ public class DatabaseManager {
 								+ " LEFT JOIN "
 								+ DatabaseHelper.PERSONS_TABLE_NAME
 								+ " p ON ep.person_id = p.rowid"
+								+ " LEFT JOIN "
+								+ DatabaseHelper.BOOKMARKS_TABLE_NAME
+								+ " b ON e.id = b.event_id"
 								+ " WHERE e.id IN ( "
 								+ "SELECT rowid"
 								+ " FROM "
@@ -666,7 +678,7 @@ public class DatabaseManager {
 								+ DatabaseHelper.PERSONS_TABLE_NAME
 								+ " p ON ep.person_id = p.rowid" + " WHERE p.name MATCH ?" + " )" + " GROUP BY e.id" + " ORDER BY e.start_time ASC",
 						selectionArgs);
-		cursor.setNotificationUri(context.getContentResolver(), URI_SCHEDULE);
+		cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
 		return cursor;
 	}
 
@@ -677,7 +689,7 @@ public class DatabaseManager {
 	public Cursor getSearchSuggestionResults(String query, int limit) {
 		final String matchQuery = query + "*";
 		String[] selectionArgs = new String[] { matchQuery, "%" + query + "%", matchQuery, String.valueOf(limit) };
-		// Query is similar to getSearchResults but returns different columns, does not join the Day table and limits the result set to 5 entries.
+		// Query is similar to getSearchResults but returns different columns, does not join the Day table or the Bookmark table and limits the result set.
 		Cursor cursor = helper.getReadableDatabase().rawQuery(
 				"SELECT e.id AS " + BaseColumns._ID + ", et.title AS " + SearchManager.SUGGEST_COLUMN_TEXT_1
 						+ ", IFNULL(GROUP_CONCAT(p.name, ', '), '') || ' - ' || t.name AS " + SearchManager.SUGGEST_COLUMN_TEXT_2 + ", e.id AS "
@@ -766,13 +778,17 @@ public class DatabaseManager {
 		return cursor.isNull(1) ? -1L : cursor.getLong(1);
 	}
 
+	public static boolean toBookmarkStatus(Cursor cursor) {
+		return !cursor.isNull(14);
+	}
+
 	/**
 	 * Returns all persons in alphabetical order.
 	 */
 	public Cursor getPersons() {
 		Cursor cursor = helper.getReadableDatabase().rawQuery(
 				"SELECT rowid AS _id, name" + " FROM " + DatabaseHelper.PERSONS_TABLE_NAME + " ORDER BY name COLLATE NOCASE", null);
-		cursor.setNotificationUri(context.getContentResolver(), URI_SCHEDULE);
+		cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
 		return cursor;
 	}
 
@@ -856,7 +872,7 @@ public class DatabaseManager {
 			db.endTransaction();
 
 			if (complete) {
-				context.getContentResolver().notifyChange(URI_BOOKMARKS, null);
+				context.getContentResolver().notifyChange(URI_EVENTS, null);
 
 				Intent intent = new Intent(ACTION_ADD_BOOKMARK).putExtra(EXTRA_EVENT_ID, event.getId());
 				Date startTime = event.getStartTime();
@@ -905,7 +921,7 @@ public class DatabaseManager {
 			db.endTransaction();
 
 			if (isComplete) {
-				context.getContentResolver().notifyChange(URI_BOOKMARKS, null);
+				context.getContentResolver().notifyChange(URI_EVENTS, null);
 
 				Intent intent = new Intent(ACTION_REMOVE_BOOKMARKS).putExtra(EXTRA_EVENT_IDS, eventIds);
 				LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
