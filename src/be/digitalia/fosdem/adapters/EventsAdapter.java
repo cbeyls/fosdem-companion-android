@@ -79,14 +79,14 @@ public class EventsAdapter extends CursorAdapter {
 		holder.trackName.setText(event.getTrack().getName());
 
 		Date startTime = event.getStartTime();
+		Date endTime = event.getEndTime();
 		String startTimeString = (startTime != null) ? TIME_DATE_FORMAT.format(startTime) : "?";
+		String endTimeString = (endTime != null) ? TIME_DATE_FORMAT.format(endTime) : "?";
 		String details;
 		if (showDay) {
-			details = String.format("%1$s, %2$s  |  %3$s", event.getDay().toString(), startTimeString, event.getRoomName());
+			details = String.format("%1$s, %2$s ― %3$s  |  %4$s", event.getDay().getShortName(), startTimeString, endTimeString, event.getRoomName());
 		} else {
-			Date endTime = event.getEndTime();
-			String endTimeString = (endTime != null) ? TIME_DATE_FORMAT.format(endTime) : "?";
-			details = String.format("%1$s - %2$s |  %3$s", startTimeString, endTimeString, event.getRoomName());
+			details = String.format("%1$s ― %2$s  |  %3$s", startTimeString, endTimeString, event.getRoomName());
 		}
 		holder.details.setText(details);
 	}

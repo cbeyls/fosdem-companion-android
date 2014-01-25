@@ -43,6 +43,10 @@ public class Day implements Parcelable {
 		return String.format(Locale.US, "Day %1$d (%2$s)", index, DAY_DATE_FORMAT.format(date));
 	}
 
+	public String getShortName() {
+		return DAY_DATE_FORMAT.format(date);
+	}
+
 	@Override
 	public String toString() {
 		return getName();
