@@ -268,8 +268,14 @@ public class EventDetailsFragment extends Fragment {
 					description);
 		}
 		intent.putExtra(CalendarContract.Events.DESCRIPTION, description);
-		intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, event.getStartTime().getTime());
-		intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, event.getEndTime().getTime());
+		Date time = event.getStartTime();
+		if (time != null) {
+			intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, time.getTime());
+		}
+		time = event.getEndTime();
+		if (time != null) {
+			intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, time.getTime());
+		}
 		startActivity(intent);
 	}
 
