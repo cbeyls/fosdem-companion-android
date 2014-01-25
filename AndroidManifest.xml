@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="be.digitalia.fosdem"
     android:versionCode="0700104"
@@ -58,6 +59,12 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/main_searchable" />
         </activity>
+        <!-- Clearing the Task Affinity allows this dialog activity to be displayed without bringing to front the main application with it. -->
+        <activity
+            android:name=".activities.RoomImageDialogActivity"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:theme="@style/DialogTheme" />
         <activity
             android:name=".activities.SettingsActivity"
             android:label="@string/settings" />

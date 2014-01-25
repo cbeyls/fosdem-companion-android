@@ -9,18 +9,24 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.EventDetailsActivity;
 import be.digitalia.fosdem.activities.MainActivity;
+import be.digitalia.fosdem.activities.RoomImageDialogActivity;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.fragments.SettingsFragment;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.receivers.AlarmReceiver;
+import be.digitalia.fosdem.utils.StringUtils;
 
 /**
  * A service to schedule or unschedule alarms in the background, keeping the app responsive.
@@ -140,7 +146,7 @@ public class AlarmIntentService extends IntentService {
 
 				String personsSummary = event.getPersonsSummary();
 				String trackName = event.getTrack().getName();
-				String bigText;
+				CharSequence bigText;
 				String contentText;
 				if (TextUtils.isEmpty(personsSummary)) {
 					contentText = trackName;
@@ -151,16 +157,31 @@ public class AlarmIntentService extends IntentService {
 					if (TextUtils.isEmpty(subTitle)) {
 						bigText = personsSummary;
 					} else {
-						bigText = String.format("%1s\n\n%2$s", subTitle, personsSummary);
+						SpannableString spannableBigText = new SpannableString(String.format("%1$s\n%2$s", subTitle, personsSummary));
+						// Set the subtitle in white color
+						spannableBigText.setSpan(new ForegroundColorSpan(Color.WHITE), 0, subTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+						bigText = spannableBigText;
 					}
 				}
 
-				Notification notification = new NotificationCompat.Builder(this).setSmallIcon(R.drawable.ic_launcher).setWhen(event.getStartTime().getTime())
-						.setContentTitle(event.getTitle()).setContentText(contentText)
+				NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this).setSmallIcon(R.drawable.ic_launcher)
+						.setWhen(event.getStartTime().getTime()).setContentTitle(event.getTitle()).setContentText(contentText)
 						.setStyle(new NotificationCompat.BigTextStyle().bigText(bigText).setSummaryText(trackName)).setContentInfo(event.getRoomName())
-						.setContentIntent(eventPendingIntent).setAutoCancel(true).setDefaults(defaultFlags).setPriority(NotificationCompat.PRIORITY_DEFAULT)
-						.build();
-				notificationManager.notify((int) eventId, notification);
+						.setContentIntent(eventPendingIntent).setAutoCancel(true).setDefaults(defaultFlags).setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+				// Add an optional action button to show the room map image
+				String roomName = event.getRoomName();
+				int roomImageResId = getResources().getIdentifier(StringUtils.roomNameToResourceName(roomName), "drawable", getPackageName());
+				if (roomImageResId != 0) {
+					// The room name is the unique Id of a RoomImageDialogActivity
+					Intent mapIntent = new Intent(this, RoomImageDialogActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK).setData(Uri.parse(roomName));
+					mapIntent.putExtra(RoomImageDialogActivity.EXTRA_ROOM_NAME, roomName);
+					mapIntent.putExtra(RoomImageDialogActivity.EXTRA_ROOM_IMAGE_RESOURCE_ID, roomImageResId);
+					PendingIntent mapPendingIntent = PendingIntent.getActivity(this, 0, mapIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+					notificationBuilder.addAction(R.drawable.ic_action_place, getString(R.string.room_map), mapPendingIntent);
+				}
+
+				notificationManager.notify((int) eventId, notificationBuilder.build());
 			}
 
 			AlarmReceiver.completeWakefulIntent(intent);
