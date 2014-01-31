@@ -300,6 +300,8 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		LocalBroadcastManager.getInstance(this).unregisterReceiver(scheduleRefreshedReceiver);
 	}
 
+	@SuppressLint("NewApi")
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.main, menu);
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="AppTheme" parent="@style/Theme.AppCompat.Light">
+    <style name="AppTheme" parent="@style/Theme.AppCompat.Light" tools:ignore="NewApi">
         <item name="android:actionBarItemBackground">@drawable/selectable_background</item>
         <item name="actionBarItemBackground">@drawable/selectable_background</item>
         <item name="android:dropDownListViewStyle">@style/DropDownListView.Fosdem</item>
