@@ -8,13 +8,21 @@ To get more information and install the app, look at the [Google Play Store](htt
 
 The name FOSDEM and the gear logo are registered trademarks of FOSDEM VZW. Used with permission.
 
+## How to build
+
+The project depends on the Android Support Library, including the compatibility ActionBar. All other dependencies are included.
+
+### Eclipse
+Import the *android-support-v7-appcompat* project from your local SDK folder to your Eclipse workspace and add it as a dependency to this project. 
+
+### Gradle
+```
+gradle build
+```
+
 ## License
 
 [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
-
-## Build dependencies
-
-The project is built with Eclipse and depends on the Android Support Library and the compatibility ActionBar. You need to import the appcompat project from your local SDK folder to your Eclipse workspace and add it as a dependency to this project. All other dependencies are included in the project.
 
 ## Used libraries
 
