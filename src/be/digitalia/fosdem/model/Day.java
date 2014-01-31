@@ -4,18 +4,14 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import be.digitalia.fosdem.utils.DateUtils;
 
 public class Day implements Parcelable {
 
-	private static DateFormat DAY_DATE_FORMAT = new SimpleDateFormat("EEEE", Locale.US);
-
-	{
-		DAY_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT+1"));
-	}
+	private static DateFormat DAY_DATE_FORMAT = DateUtils.withBelgiumTimeZone(new SimpleDateFormat("EEEE", Locale.US));
 
 	private int index;
 	private Date date;
