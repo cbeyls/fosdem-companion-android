@@ -68,12 +68,7 @@ public class SearchResultActivity extends ActionBarActivity {
 
 			currentQuery = query;
 			if (searchView != null) {
-				// Force loosing the focus to prevent the suggestions from appearing
-				searchView.clearFocus();
-				searchView.setFocusable(false);
-				searchView.setFocusableInTouchMode(false);
-
-				searchView.setQuery(query, false);
+				setSearchViewQuery(query);
 			}
 
 			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO) {
@@ -107,13 +102,21 @@ public class SearchResultActivity extends ActionBarActivity {
 			searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 			searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 			searchView.setIconifiedByDefault(false); // Always show the search view
-			searchView.setQuery(currentQuery, false);
+			setSearchViewQuery(currentQuery);
 		} else {
 			// Legacy search mode for Eclair
 			MenuItemCompat.setActionView(searchMenuItem, null);
 			getSupportActionBar().setSubtitle(currentQuery);
 		}
 		return true;
+	}
+
+	private void setSearchViewQuery(String query) {
+		// Force loosing the focus to prevent the suggestions from appearing
+		searchView.clearFocus();
+		searchView.setFocusable(false);
+		searchView.setFocusableInTouchMode(false);
+		searchView.setQuery(query, false);
 	}
 
 	@Override
