@@ -27,6 +27,8 @@ public class TrackScheduleActivity extends ActionBarActivity implements TrackSch
 
 	public static final String EXTRA_DAY = "day";
 	public static final String EXTRA_TRACK = "track";
+	// Optional extra used as a hint for up navigation from an event
+	public static final String EXTRA_FROM_EVENT_ID = "from_event_id";
 
 	private Day day;
 	private Track track;
@@ -51,7 +53,12 @@ public class TrackScheduleActivity extends ActionBarActivity implements TrackSch
 		TrackScheduleListFragment trackScheduleListFragment;
 		FragmentManager fm = getSupportFragmentManager();
 		if (savedInstanceState == null) {
-			trackScheduleListFragment = TrackScheduleListFragment.newInstance(day, track);
+			long fromEventId = extras.getLong(EXTRA_FROM_EVENT_ID, -1L);
+			if (fromEventId != -1L) {
+				trackScheduleListFragment = TrackScheduleListFragment.newInstance(day, track, fromEventId);
+			} else {
+				trackScheduleListFragment = TrackScheduleListFragment.newInstance(day, track);
+			}
 			fm.beginTransaction().add(R.id.schedule, trackScheduleListFragment).commit();
 		} else {
 			trackScheduleListFragment = (TrackScheduleListFragment) fm.findFragmentById(R.id.schedule);

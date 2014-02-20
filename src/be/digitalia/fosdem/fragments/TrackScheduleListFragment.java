@@ -39,12 +39,15 @@ public class TrackScheduleListFragment extends ListFragment implements LoaderCal
 	}
 
 	private static final int EVENTS_LOADER_ID = 1;
+
 	private static final String ARG_DAY = "day";
 	private static final String ARG_TRACK = "track";
+	private static final String ARG_FROM_EVENT_ID = "from_event_id";
 
 	private TrackScheduleAdapter adapter;
 	private Callbacks listener;
 	private boolean selectionEnabled = false;
+	private boolean isListAlreadyShown = false;
 
 	public static TrackScheduleListFragment newInstance(Day day, Track track) {
 		TrackScheduleListFragment f = new TrackScheduleListFragment();
@@ -55,12 +58,32 @@ public class TrackScheduleListFragment extends ListFragment implements LoaderCal
 		return f;
 	}
 
+	public static TrackScheduleListFragment newInstance(Day day, Track track, long fromEventId) {
+		TrackScheduleListFragment f = new TrackScheduleListFragment();
+		Bundle args = new Bundle();
+		args.putParcelable(ARG_DAY, day);
+		args.putParcelable(ARG_TRACK, track);
+		args.putLong(ARG_FROM_EVENT_ID, fromEventId);
+		f.setArguments(args);
+		return f;
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		adapter = new TrackScheduleAdapter(getActivity());
 		setListAdapter(adapter);
+
+		if (savedInstanceState != null) {
+			isListAlreadyShown = savedInstanceState.getBoolean("isListAlreadyShown");
+		}
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putBoolean("isListAlreadyShown", isListAlreadyShown);
 	}
 
 	@Override
@@ -79,7 +102,7 @@ public class TrackScheduleListFragment extends ListFragment implements LoaderCal
 
 	private void notifyEventSelected(int position) {
 		if (listener != null) {
-			listener.onEventSelected(position, (position == -1) ? null : adapter.getItem(position));
+			listener.onEventSelected(position, (position == ListView.INVALID_POSITION) ? null : adapter.getItem(position));
 		}
 	}
 
@@ -114,23 +137,27 @@ public class TrackScheduleListFragment extends ListFragment implements LoaderCal
 				final int count = adapter.getCount();
 				int checkedPosition = getListView().getCheckedItemPosition();
 				if ((checkedPosition == ListView.INVALID_POSITION) || (checkedPosition >= count)) {
-					if (count > 0) {
-						// Select the first item if any
-						getListView().setItemChecked(0, true);
-						checkedPosition = 0;
-					} else {
-						// No result, nothing selected
-						checkedPosition = -1;
+					// There is no current valid selection, use the default one
+					checkedPosition = getDefaultPosition();
+					if (checkedPosition != ListView.INVALID_POSITION) {
+						getListView().setItemChecked(checkedPosition, true);
 					}
 				}
 
 				// Ensure the current selection is visible
-				if (checkedPosition != -1) {
+				if (checkedPosition != ListView.INVALID_POSITION) {
 					setSelection(checkedPosition);
 				}
 				// Notify the parent of the current selection to synchronize its state
 				notifyEventSelected(checkedPosition);
+
+			} else if (!isListAlreadyShown) {
+				int position = getDefaultPosition();
+				if (position != ListView.INVALID_POSITION) {
+					setSelection(position);
+				}
 			}
+			isListAlreadyShown = true;
 		}
 
 		// The list should now be shown.
@@ -139,6 +166,26 @@ public class TrackScheduleListFragment extends ListFragment implements LoaderCal
 		} else {
 			setListShownNoAnimation(true);
 		}
+	}
+
+	/**
+	 * @return The default position in the list, or -1 if the list is empty
+	 */
+	private int getDefaultPosition() {
+		final int count = adapter.getCount();
+		if (count == 0) {
+			return ListView.INVALID_POSITION;
+		}
+		long fromEventId = getArguments().getLong(ARG_FROM_EVENT_ID, -1L);
+		if (fromEventId != -1L) {
+			// Look for the source event in the list and return its position
+			for (int i = 0; i < count; ++i) {
+				if (adapter.getItemId(i) == fromEventId) {
+					return i;
+				}
+			}
+		}
+		return 0;
 	}
 
 	@Override

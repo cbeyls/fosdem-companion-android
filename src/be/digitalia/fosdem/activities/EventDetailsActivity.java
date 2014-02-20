@@ -69,6 +69,7 @@ public class EventDetailsActivity extends ActionBarActivity implements LoaderCal
 			Intent upIntent = new Intent(this, TrackScheduleActivity.class);
 			upIntent.putExtra(TrackScheduleActivity.EXTRA_DAY, event.getDay());
 			upIntent.putExtra(TrackScheduleActivity.EXTRA_TRACK, event.getTrack());
+			upIntent.putExtra(TrackScheduleActivity.EXTRA_FROM_EVENT_ID, event.getId());
 			upIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
 			finish();
