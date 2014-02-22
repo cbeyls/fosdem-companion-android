@@ -9,6 +9,7 @@
         android:targetSdkVersion="19" />
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.NFC" />
 
     <!-- Permissions required for alarms -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -46,7 +47,15 @@
                 android:value=".activities.MainActivity" />
         </activity>
         <activity android:name=".activities.TrackScheduleEventActivity" />
-        <activity android:name=".activities.EventDetailsActivity" />
+        <activity android:name=".activities.EventDetailsActivity" >
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="application/be.digitalia.fosdem" />
+            </intent-filter>
+        </activity>
         <activity android:name=".activities.PersonInfoActivity" />
         <activity
             android:name=".activities.SearchResultActivity"

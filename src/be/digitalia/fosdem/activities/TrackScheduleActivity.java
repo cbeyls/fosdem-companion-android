@@ -16,6 +16,8 @@ import be.digitalia.fosdem.fragments.TrackScheduleListFragment;
 import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Track;
+import be.digitalia.fosdem.utils.NfcUtils;
+import be.digitalia.fosdem.utils.NfcUtils.CreateNfcAppDataCallback;
 
 /**
  * Track Schedule container, works in both single pane and dual pane modes.
@@ -23,7 +25,7 @@ import be.digitalia.fosdem.model.Track;
  * @author Christophe Beyls
  * 
  */
-public class TrackScheduleActivity extends ActionBarActivity implements TrackScheduleListFragment.Callbacks {
+public class TrackScheduleActivity extends ActionBarActivity implements TrackScheduleListFragment.Callbacks, CreateNfcAppDataCallback {
 
 	public static final String EXTRA_DAY = "day";
 	public static final String EXTRA_TRACK = "track";
@@ -33,6 +35,7 @@ public class TrackScheduleActivity extends ActionBarActivity implements TrackSch
 	private Day day;
 	private Track track;
 	private boolean isTabletLandscape;
+	private Event lastSelectedEvent;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +75,19 @@ public class TrackScheduleActivity extends ActionBarActivity implements TrackSch
 			}
 		}
 		trackScheduleListFragment.setSelectionEnabled(isTabletLandscape);
+
+		if (isTabletLandscape) {
+			// Enable Android Beam
+			NfcUtils.setAppDataPushMessageCallbackIfAvailable(this, this);
+		}
+	}
+
+	@Override
+	public byte[] createNfcAppData() {
+		if (lastSelectedEvent == null) {
+			return null;
+		}
+		return String.valueOf(lastSelectedEvent.getId()).getBytes();
 	}
 
 	@Override
@@ -88,6 +104,8 @@ public class TrackScheduleActivity extends ActionBarActivity implements TrackSch
 	public void onEventSelected(int position, Event event) {
 		if (isTabletLandscape) {
 			// Tablet mode: Show event details in the right pane fragment
+			lastSelectedEvent = event;
+
 			FragmentManager fm = getSupportFragmentManager();
 			EventDetailsFragment currentFragment = (EventDetailsFragment) fm.findFragmentById(R.id.event);
 			if (event != null) {
