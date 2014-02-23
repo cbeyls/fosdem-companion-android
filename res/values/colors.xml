@@ -5,5 +5,9 @@
     <color name="tab_pressed_fosdem">#80a91991</color>
     <color name="main_menu_background">#f0fafafa</color>
     <color name="translucent_grey">#29000000</color>
+    <color name="schedule_time_background">#29000000</color>
+    <color name="schedule_time_foreground">#d6000000</color>
+    <color name="schedule_time_running_background">#000</color>
+    <color name="schedule_time_running_foreground">#fff</color>
 
 </resources>

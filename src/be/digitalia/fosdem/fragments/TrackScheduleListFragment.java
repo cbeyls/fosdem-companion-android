@@ -4,9 +4,12 @@ import java.text.DateFormat;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
@@ -29,7 +32,7 @@ import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.DateUtils;
 
-public class TrackScheduleListFragment extends ListFragment implements LoaderCallbacks<Cursor> {
+public class TrackScheduleListFragment extends ListFragment implements Handler.Callback, LoaderCallbacks<Cursor> {
 
 	/**
 	 * Interface implemented by container activities
@@ -39,11 +42,15 @@ public class TrackScheduleListFragment extends ListFragment implements LoaderCal
 	}
 
 	private static final int EVENTS_LOADER_ID = 1;
+	private static final int REFRESH_TIME_WHAT = 1;
+	private static final long REFRESH_TIME_INTERVAL = 60 * 1000L; // 1min
 
 	private static final String ARG_DAY = "day";
 	private static final String ARG_TRACK = "track";
 	private static final String ARG_FROM_EVENT_ID = "from_event_id";
 
+	private Day day;
+	private Handler handler;
 	private TrackScheduleAdapter adapter;
 	private Callbacks listener;
 	private boolean selectionEnabled = false;
@@ -72,6 +79,8 @@ public class TrackScheduleListFragment extends ListFragment implements LoaderCal
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		day = getArguments().getParcelable(ARG_DAY);
+		handler = new Handler(this);
 		adapter = new TrackScheduleAdapter(getActivity());
 		setListAdapter(adapter);
 
@@ -122,8 +131,44 @@ public class TrackScheduleListFragment extends ListFragment implements LoaderCal
 	}
 
 	@Override
+	public void onStart() {
+		super.onStart();
+
+		// Setup display auto-refresh during the track's day
+		long now = System.currentTimeMillis();
+		long dayStart = day.getDate().getTime();
+		if (now < dayStart) {
+			// Before track day, schedule refresh in the future
+			handler.sendEmptyMessageDelayed(REFRESH_TIME_WHAT, dayStart - now);
+		} else if (now < dayStart + android.text.format.DateUtils.DAY_IN_MILLIS) {
+			// During track day, start refresh immediately
+			adapter.setCurrentTime(now);
+			handler.sendEmptyMessageDelayed(REFRESH_TIME_WHAT, REFRESH_TIME_INTERVAL);
+		} else {
+			// After track day, disable refresh
+			adapter.setCurrentTime(-1L);
+		}
+	}
+
+	@Override
+	public void onStop() {
+		handler.removeMessages(REFRESH_TIME_WHAT);
+		super.onStop();
+	}
+
+	@Override
+	public boolean handleMessage(Message msg) {
+		switch (msg.what) {
+		case REFRESH_TIME_WHAT:
+			adapter.setCurrentTime(System.currentTimeMillis());
+			handler.sendEmptyMessageDelayed(REFRESH_TIME_WHAT, REFRESH_TIME_INTERVAL);
+			return true;
+		}
+		return false;
+	}
+
+	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		Day day = getArguments().getParcelable(ARG_DAY);
 		Track track = getArguments().getParcelable(ARG_TRACK);
 		return new TrackScheduleLoader(getActivity(), day, track);
 	}
@@ -203,12 +248,29 @@ public class TrackScheduleListFragment extends ListFragment implements LoaderCal
 		private static final DateFormat TIME_DATE_FORMAT = DateUtils.getTimeDateFormat();
 
 		private final LayoutInflater inflater;
+		private final int timeBackgroundColor;
+		private final int timeForegroundColor;
+		private final int timeRunningBackgroundColor;
+		private final int timeRunningForegroundColor;
 		private final int titleTextSize;
+		private long currentTime = -1L;
 
 		public TrackScheduleAdapter(Context context) {
 			super(context, null, 0);
 			inflater = LayoutInflater.from(context);
-			titleTextSize = context.getResources().getDimensionPixelSize(R.dimen.list_item_title_text_size);
+			Resources res = context.getResources();
+			timeBackgroundColor = res.getColor(R.color.schedule_time_background);
+			timeForegroundColor = res.getColor(R.color.schedule_time_foreground);
+			timeRunningBackgroundColor = res.getColor(R.color.schedule_time_running_background);
+			timeRunningForegroundColor = res.getColor(R.color.schedule_time_running_foreground);
+			titleTextSize = res.getDimensionPixelSize(R.dimen.list_item_title_text_size);
+		}
+
+		public void setCurrentTime(long time) {
+			if (currentTime != time) {
+				currentTime = time;
+				notifyDataSetChanged();
+			}
 		}
 
 		@Override
@@ -235,7 +297,17 @@ public class TrackScheduleListFragment extends ListFragment implements LoaderCal
 			ViewHolder holder = (ViewHolder) view.getTag();
 			Event event = DatabaseManager.toEvent(cursor, holder.event);
 			holder.event = event;
+
 			holder.time.setText(TIME_DATE_FORMAT.format(event.getStartTime()));
+			if ((currentTime != -1L) && event.isRunningAtTime(currentTime)) {
+				// Contrast colors for running event
+				holder.time.setBackgroundColor(timeRunningBackgroundColor);
+				holder.time.setTextColor(timeRunningForegroundColor);
+			} else {
+				// Normal colors
+				holder.time.setBackgroundColor(timeBackgroundColor);
+				holder.time.setTextColor(timeForegroundColor);
+			}
 
 			SpannableString spannableString;
 			String eventTitle = event.getTitle();

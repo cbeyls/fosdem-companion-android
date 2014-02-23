@@ -61,6 +61,10 @@ public class Event implements Parcelable {
 		this.endTime = endTime;
 	}
 
+	public boolean isRunningAtTime(long time) {
+		return (startTime != null) && (endTime != null) && (startTime.getTime() < time) && (time < endTime.getTime());
+	}
+
 	/**
 	 * 
 	 * @return The event duration in minutes
