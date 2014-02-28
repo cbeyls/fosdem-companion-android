@@ -71,7 +71,10 @@ public class PersonInfoListFragment extends ListFragment implements LoaderCallba
 		setEmptyText(getString(R.string.no_data));
 
 		int contentMargin = getResources().getDimensionPixelSize(R.dimen.content_margin);
-		getListView().setPadding(contentMargin, contentMargin, contentMargin, contentMargin);
+		ListView listView = getListView();
+		listView.setPadding(contentMargin, contentMargin, contentMargin, contentMargin);
+		listView.setClipToPadding(false);
+		listView.setScrollBarStyle(ListView.SCROLLBARS_OUTSIDE_OVERLAY);
 
 		View headerView = LayoutInflater.from(getActivity()).inflate(R.layout.header_person_info, null);
 		((TextView) headerView.findViewById(R.id.title)).setText(person.getName());
