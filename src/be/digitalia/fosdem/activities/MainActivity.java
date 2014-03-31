@@ -211,8 +211,9 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		// Restore current section
 		if (savedInstanceState == null) {
 			currentSection = Section.TRACKS;
-			Fragment f = Fragment.instantiate(this, currentSection.getFragmentClassName());
-			getSupportFragmentManager().beginTransaction().add(R.id.content, f).commit();
+			String fragmentClassName = currentSection.getFragmentClassName();
+			Fragment f = Fragment.instantiate(this, fragmentClassName);
+			getSupportFragmentManager().beginTransaction().add(R.id.content, f, fragmentClassName).commit();
 		} else {
 			currentSection = Section.values()[savedInstanceState.getInt(STATE_CURRENT_SECTION)];
 		}
