@@ -11,11 +11,10 @@
         android:orientation="vertical"
         android:visibility="visible" >
 
-        <com.astuetz.PagerSlidingTabStrip
-            android:id="@+id/indicator"
+        <com.example.android.common.view.SlidingTabLayout
+            android:id="@+id/sliding_tabs"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            app:pstsIndicatorColor="@color/fosdem_purple" />
+            android:layout_height="wrap_content" />
 
         <android.support.v4.view.ViewPager
             android:id="@+id/pager"

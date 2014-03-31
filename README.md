@@ -27,7 +27,6 @@ gradle build
 ## Used libraries
 
 * [Android Support Library](http://developer.android.com/tools/support-library/) by The Android Open Source Project
-* [PagerSlidingTabStrip](https://github.com/astuetz/PagerSlidingTabStrip) by Andreas Stuetz
 * [ViewPagerIndicator](http://viewpagerindicator.com/) by Jake Wharton
 * [PhotoView](https://github.com/chrisbanes/PhotoView) by Chris Banes
 

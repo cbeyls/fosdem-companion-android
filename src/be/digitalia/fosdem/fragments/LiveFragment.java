@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import be.digitalia.fosdem.R;
 
-import com.astuetz.PagerSlidingTabStrip;
+import com.example.android.common.view.SlidingTabLayout;
 
 public class LiveFragment extends Fragment {
 
@@ -29,8 +29,9 @@ public class LiveFragment extends Fragment {
 
 		ViewPager pager = (ViewPager) view.findViewById(R.id.pager);
 		pager.setAdapter(livePagerAdapter);
-		PagerSlidingTabStrip indicator = (PagerSlidingTabStrip) view.findViewById(R.id.indicator);
-		indicator.setViewPager(pager);
+		SlidingTabLayout slidingTabs = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
+		slidingTabs.setSelectedIndicatorColors(getResources().getColor(R.color.fosdem_purple));
+		slidingTabs.setViewPager(pager);
 
 		return view;
 	}
