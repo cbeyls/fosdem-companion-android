@@ -10,6 +10,8 @@
         <item name="actionBarStyle">@style/ActionBar.Solid.Fosdem</item>
         <item name="android:textViewStyle">@style/TextView.Fosdem</item>
         <item name="android:listViewStyle">@style/ListView.Fosdem</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/fosdem_fastscroll_thumb_holo</item>
+        <item name="android:listChoiceIndicatorMultiple">@drawable/fosdem_btn_check_holo_light</item>
         <item name="activatedBackgroundIndicator">@drawable/activated_background</item>
         <item name="android:selectableItemBackground">@drawable/selectable_background</item>
     </style>
