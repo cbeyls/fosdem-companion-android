@@ -79,7 +79,8 @@ public class UnderlinePageIndicator extends View implements PageIndicator {
         this(context, attrs, R.attr.vpiUnderlinePageIndicatorStyle);
     }
 
-    public UnderlinePageIndicator(Context context, AttributeSet attrs, int defStyle) {
+    @SuppressWarnings("deprecation")
+	public UnderlinePageIndicator(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         if (isInEditMode()) return;
 
@@ -387,7 +388,6 @@ public class UnderlinePageIndicator extends View implements PageIndicator {
             dest.writeInt(currentPage);
         }
 
-        @SuppressWarnings("UnusedDeclaration")
         public static final Creator<SavedState> CREATOR = new Creator<SavedState>() {
             @Override
             public SavedState createFromParcel(Parcel in) {
