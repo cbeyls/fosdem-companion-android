@@ -3,4 +3,8 @@
 
     <style name="DialogTheme" parent="@android:style/Theme.Holo.Light.Dialog" />
 
+    <style name="ListView.Fosdem" parent="@android:style/Widget.Holo.Light.ListView">
+        <item name="android:listSelector">@drawable/selectable_background</item>
+    </style>
+
 </resources>
