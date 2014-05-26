@@ -144,6 +144,7 @@ public class DatabaseManager {
 			int totalEvents = 0;
 			Map<Track, Long> tracks = new HashMap<Track, Long>();
 			long nextTrackId = 0L;
+			long minEventId = Long.MAX_VALUE;
 			Set<Day> days = new HashSet<Day>(2);
 
 			for (Event event : events) {
@@ -166,6 +167,9 @@ public class DatabaseManager {
 				// 2b: Insert main event
 				eventInsertStatement.clearBindings();
 				long eventId = event.getId();
+				if (eventId < minEventId) {
+					minEventId = eventId;
+				}
 				eventInsertStatement.bindLong(1, eventId);
 				Day day = event.getDay();
 				days.add(day);
@@ -237,7 +241,11 @@ public class DatabaseManager {
 				db.insert(DatabaseHelper.DAYS_TABLE_NAME, null, values);
 			}
 
-			// TODO purge outdated bookmarks ?
+			// 4: Purge outdated bookmarks
+			if (minEventId < Long.MAX_VALUE) {
+				String[] whereArgs = new String[] { String.valueOf(minEventId) };
+				db.delete(DatabaseHelper.BOOKMARKS_TABLE_NAME, "event_id < ?", whereArgs);
+			}
 
 			db.setTransactionSuccessful();
 			isComplete = true;
