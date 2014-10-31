@@ -4,7 +4,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.8.+'
+        classpath 'com.android.tools.build:gradle:0.12.+'
     }
 }
 
@@ -38,10 +38,10 @@ android {
     }
 
     compileSdkVersion 19
-    buildToolsVersion "19.0.1"
+    buildToolsVersion "20.0.0"
 }
 
 dependencies {
-    compile "com.android.support:appcompat-v7:19.0.+"
+    compile "com.android.support:appcompat-v7:20.0.+"
     compile files('libs/photoview-1.2.2.jar')
 }
