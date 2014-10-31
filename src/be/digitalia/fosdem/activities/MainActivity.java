@@ -126,12 +126,18 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 			setSupportProgress(10000);
 
 			int result = intent.getIntExtra(FosdemApi.EXTRA_RESULT, FosdemApi.RESULT_ERROR);
-
-			if (result == FosdemApi.RESULT_ERROR) {
-				Toast.makeText(MainActivity.this, R.string.schedule_loading_error, Toast.LENGTH_LONG).show();
-			} else {
-				Toast.makeText(MainActivity.this, getString(R.string.events_download_completed, result), Toast.LENGTH_LONG).show();
+			String message;
+			switch(result) {
+			case FosdemApi.RESULT_ERROR:
+				message = getString(R.string.schedule_loading_error);
+				break;
+			case 0:
+				message = getString(R.string.events_download_empty);
+				break;
+			default:
+				message = getResources().getQuantityString(R.plurals.events_download_completed, result, result);
 			}
+			Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
 		}
 	};
 

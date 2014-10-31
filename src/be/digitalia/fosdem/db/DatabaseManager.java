@@ -247,8 +247,10 @@ public class DatabaseManager {
 				db.delete(DatabaseHelper.BOOKMARKS_TABLE_NAME, "event_id < ?", whereArgs);
 			}
 
-			db.setTransactionSuccessful();
-			isComplete = true;
+			if (totalEvents > 0) {
+				db.setTransactionSuccessful();
+				isComplete = true;
+			}
 
 			return totalEvents;
 		} finally {
