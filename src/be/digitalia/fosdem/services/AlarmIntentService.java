@@ -3,21 +3,21 @@ package be.digitalia.fosdem.services;
 import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
-import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.EventDetailsActivity;
 import be.digitalia.fosdem.activities.MainActivity;
@@ -57,7 +57,8 @@ public class AlarmIntentService extends IntentService {
 	}
 
 	private PendingIntent getAlarmPendingIntent(long eventId) {
-		Intent intent = new Intent(this, AlarmReceiver.class).setAction(AlarmReceiver.ACTION_NOTIFY_EVENT).setData(Uri.parse(String.valueOf(eventId)));
+		Intent intent = new Intent(this, AlarmReceiver.class).setAction(AlarmReceiver.ACTION_NOTIFY_EVENT).setData(
+				Uri.parse(String.valueOf(eventId)));
 		return PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 	}
 
@@ -123,65 +124,86 @@ public class AlarmIntentService extends IntentService {
 			for (long eventId : eventIds) {
 				alarmManager.cancel(getAlarmPendingIntent(eventId));
 			}
+
 		} else if (AlarmReceiver.ACTION_NOTIFY_EVENT.equals(action)) {
 
 			long eventId = Long.parseLong(intent.getDataString());
 			Event event = DatabaseManager.getInstance().getEvent(eventId);
 			if (event != null) {
-
-				NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-				PendingIntent eventPendingIntent = TaskStackBuilder.create(this).addNextIntent(new Intent(this, MainActivity.class))
-						.addNextIntent(new Intent(this, EventDetailsActivity.class).setData(Uri.parse(String.valueOf(event.getId()))))
-						.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+				PendingIntent eventPendingIntent = TaskStackBuilder
+						.create(this)
+						.addNextIntent(new Intent(this, MainActivity.class))
+						.addNextIntent(
+								new Intent(this, EventDetailsActivity.class).setData(Uri.parse(String.valueOf(event
+										.getId())))).getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
 				int defaultFlags = Notification.DEFAULT_SOUND;
 				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 				if (sharedPreferences.getBoolean(SettingsFragment.KEY_PREF_NOTIFICATIONS_VIBRATE, false)) {
 					defaultFlags |= Notification.DEFAULT_VIBRATE;
 				}
-				if (sharedPreferences.getBoolean(SettingsFragment.KEY_PREF_NOTIFICATIONS_LED, false)) {
-					defaultFlags |= Notification.DEFAULT_LIGHTS;
-				}
 
 				String personsSummary = event.getPersonsSummary();
 				String trackName = event.getTrack().getName();
-				CharSequence bigText;
 				String contentText;
+				CharSequence bigText;
 				if (TextUtils.isEmpty(personsSummary)) {
 					contentText = trackName;
 					bigText = event.getSubTitle();
 				} else {
 					contentText = String.format("%1$s - %2$s", trackName, personsSummary);
 					String subTitle = event.getSubTitle();
+					SpannableString spannableBigText;
 					if (TextUtils.isEmpty(subTitle)) {
-						bigText = personsSummary;
+						spannableBigText = new SpannableString(personsSummary);
 					} else {
-						SpannableString spannableBigText = new SpannableString(String.format("%1$s\n%2$s", subTitle, personsSummary));
-						// Set the subtitle in white color
-						spannableBigText.setSpan(new ForegroundColorSpan(Color.WHITE), 0, subTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-						bigText = spannableBigText;
+						spannableBigText = new SpannableString(String.format("%1$s\n%2$s", subTitle, personsSummary));
 					}
+					// Set the persons summary in italic
+					spannableBigText.setSpan(new StyleSpan(Typeface.ITALIC),
+							spannableBigText.length() - personsSummary.length(), spannableBigText.length(),
+							Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+					bigText = spannableBigText;
 				}
 
-				NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this).setSmallIcon(R.drawable.ic_launcher)
-						.setWhen(event.getStartTime().getTime()).setContentTitle(event.getTitle()).setContentText(contentText)
-						.setStyle(new NotificationCompat.BigTextStyle().bigText(bigText).setSummaryText(trackName)).setContentInfo(event.getRoomName())
-						.setContentIntent(eventPendingIntent).setAutoCancel(true).setDefaults(defaultFlags).setPriority(NotificationCompat.PRIORITY_DEFAULT);
+				NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+						.setSmallIcon(R.drawable.ic_launcher).setWhen(event.getStartTime().getTime())
+						.setContentTitle(event.getTitle()).setContentText(contentText)
+						.setStyle(new NotificationCompat.BigTextStyle().bigText(bigText).setSummaryText(trackName))
+						.setContentInfo(event.getRoomName()).setContentIntent(eventPendingIntent).setAutoCancel(true)
+						.setDefaults(defaultFlags).setPriority(NotificationCompat.PRIORITY_HIGH);
+
+				// Blink the LED with FOSDEM color if enabled in the options
+				if (sharedPreferences.getBoolean(SettingsFragment.KEY_PREF_NOTIFICATIONS_LED, false)) {
+					notificationBuilder.setLights(getResources().getColor(R.color.fosdem_purple), 1000, 5000);
+				}
+
+				// Android Wear extensions
+				NotificationCompat.WearableExtender wearableExtender = new NotificationCompat.WearableExtender();
 
 				// Add an optional action button to show the room map image
 				String roomName = event.getRoomName();
-				int roomImageResId = getResources().getIdentifier(StringUtils.roomNameToResourceName(roomName), "drawable", getPackageName());
+				int roomImageResId = getResources().getIdentifier(StringUtils.roomNameToResourceName(roomName),
+						"drawable", getPackageName());
 				if (roomImageResId != 0) {
 					// The room name is the unique Id of a RoomImageDialogActivity
-					Intent mapIntent = new Intent(this, RoomImageDialogActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK).setData(Uri.parse(roomName));
+					Intent mapIntent = new Intent(this, RoomImageDialogActivity.class).setFlags(
+							Intent.FLAG_ACTIVITY_NEW_TASK).setData(Uri.parse(roomName));
 					mapIntent.putExtra(RoomImageDialogActivity.EXTRA_ROOM_NAME, roomName);
 					mapIntent.putExtra(RoomImageDialogActivity.EXTRA_ROOM_IMAGE_RESOURCE_ID, roomImageResId);
-					PendingIntent mapPendingIntent = PendingIntent.getActivity(this, 0, mapIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-					notificationBuilder.addAction(R.drawable.ic_action_place, getString(R.string.room_map), mapPendingIntent);
+					PendingIntent mapPendingIntent = PendingIntent.getActivity(this, 0, mapIntent,
+							PendingIntent.FLAG_UPDATE_CURRENT);
+					CharSequence mapTitle = getString(R.string.room_map);
+					notificationBuilder.addAction(new NotificationCompat.Action(R.drawable.ic_action_place, mapTitle,
+							mapPendingIntent));
+					// Use bigger action icon for wearable notification
+					wearableExtender.addAction(new NotificationCompat.Action(R.drawable.ic_place_white_wear, mapTitle,
+							mapPendingIntent));
 				}
 
-				notificationManager.notify((int) eventId, notificationBuilder.build());
+				notificationBuilder.extend(wearableExtender);
+
+				NotificationManagerCompat.from(this).notify((int) eventId, notificationBuilder.build());
 			}
 
 			AlarmReceiver.completeWakefulIntent(intent);
@@ -189,7 +211,8 @@ public class AlarmIntentService extends IntentService {
 	}
 
 	private long getDelay() {
-		String delayString = PreferenceManager.getDefaultSharedPreferences(this).getString(SettingsFragment.KEY_PREF_NOTIFICATIONS_DELAY, "0");
+		String delayString = PreferenceManager.getDefaultSharedPreferences(this).getString(
+				SettingsFragment.KEY_PREF_NOTIFICATIONS_DELAY, "0");
 		// Convert from minutes to milliseconds
 		return Long.parseLong(delayString) * 1000L * 60L;
 	}
