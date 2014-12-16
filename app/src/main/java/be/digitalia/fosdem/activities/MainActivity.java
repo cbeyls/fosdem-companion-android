@@ -19,6 +19,8 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.StringRes;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -42,6 +44,7 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemApi;
 import be.digitalia.fosdem.db.DatabaseManager;
@@ -53,23 +56,25 @@ import be.digitalia.fosdem.fragments.TracksFragment;
 
 /**
  * Main entry point of the application. Allows to switch between section fragments and update the database.
- * 
+ *
  * @author Christophe Beyls
  */
 public class MainActivity extends ActionBarActivity implements ListView.OnItemClickListener {
 
 	private enum Section {
-		TRACKS(TracksFragment.class, R.string.menu_tracks, R.drawable.ic_action_event, true), BOOKMARKS(BookmarksListFragment.class, R.string.menu_bookmarks,
-				R.drawable.ic_action_important, false), LIVE(LiveFragment.class, R.string.menu_live, R.drawable.ic_action_play_over_video, false), SPEAKERS(
-				PersonsListFragment.class, R.string.menu_speakers, R.drawable.ic_action_group, false), MAP(MapFragment.class, R.string.menu_map,
-				R.drawable.ic_action_map, false);
+		TRACKS(TracksFragment.class, R.string.menu_tracks, R.drawable.ic_action_event, true),
+		BOOKMARKS(BookmarksListFragment.class, R.string.menu_bookmarks, R.drawable.ic_action_important, false),
+		LIVE(LiveFragment.class, R.string.menu_live, R.drawable.ic_action_play_over_video, false),
+		SPEAKERS(PersonsListFragment.class, R.string.menu_speakers, R.drawable.ic_action_group, false),
+		MAP(MapFragment.class, R.string.menu_map, R.drawable.ic_action_map, false);
 
 		private final String fragmentClassName;
 		private final int titleResId;
 		private final int iconResId;
 		private final boolean keep;
 
-		private Section(Class<? extends Fragment> fragmentClass, int titleResId, int iconResId, boolean keep) {
+		private Section(Class<? extends Fragment> fragmentClass, @StringRes int titleResId,
+						@DrawableRes int iconResId, boolean keep) {
 			this.fragmentClassName = fragmentClass.getName();
 			this.titleResId = titleResId;
 			this.iconResId = iconResId;
@@ -127,15 +132,15 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 
 			int result = intent.getIntExtra(FosdemApi.EXTRA_RESULT, FosdemApi.RESULT_ERROR);
 			String message;
-			switch(result) {
-			case FosdemApi.RESULT_ERROR:
-				message = getString(R.string.schedule_loading_error);
-				break;
-			case 0:
-				message = getString(R.string.events_download_empty);
-				break;
-			default:
-				message = getResources().getQuantityString(R.plurals.events_download_completed, result, result);
+			switch (result) {
+				case FosdemApi.RESULT_ERROR:
+					message = getString(R.string.schedule_loading_error);
+					break;
+				case 0:
+					message = getString(R.string.events_download_empty);
+					break;
+				default:
+					message = getResources().getQuantityString(R.plurals.events_download_completed, result, result);
 			}
 			Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
 		}
@@ -351,7 +356,9 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		}
 
 		return true;
-	};
+	}
+
+	;
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
@@ -377,24 +384,24 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		}
 
 		switch (item.getItemId()) {
-		case R.id.search:
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-				return false;
-			} else {
-				// Legacy search mode for Eclair
-				onSearchRequested();
+			case R.id.search:
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+					return false;
+				} else {
+					// Legacy search mode for Eclair
+					onSearchRequested();
+					return true;
+				}
+			case R.id.refresh:
+				startDownloadSchedule();
 				return true;
-			}
-		case R.id.refresh:
-			startDownloadSchedule();
-			return true;
-		case R.id.settings:
-			startActivity(new Intent(this, SettingsActivity.class));
-			overridePendingTransition(R.anim.slide_in_right, R.anim.partial_zoom_out);
-			return true;
-		case R.id.about:
-			new AboutDialogFragment().show(getSupportFragmentManager(), "about");
-			return true;
+			case R.id.settings:
+				startActivity(new Intent(this, SettingsActivity.class));
+				overridePendingTransition(R.anim.slide_in_right, R.anim.partial_zoom_out);
+				return true;
+			case R.id.about:
+				new AboutDialogFragment().show(getSupportFragmentManager(), "about");
+				return true;
 		}
 		return false;
 	}

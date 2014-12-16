@@ -3,6 +3,7 @@ package be.digitalia.fosdem.fragments;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.support.annotation.DrawableRes;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.widget.ImageView;
@@ -12,7 +13,7 @@ public class RoomImageDialogFragment extends DialogFragment {
 
 	public static final String TAG = "room";
 
-	public static RoomImageDialogFragment newInstance(String roomName, int imageResId) {
+	public static RoomImageDialogFragment newInstance(String roomName, @DrawableRes int imageResId) {
 		RoomImageDialogFragment f = new RoomImageDialogFragment();
 		Bundle args = new Bundle();
 		args.putString("roomName", roomName);

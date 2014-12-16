@@ -3,6 +3,7 @@ package be.digitalia.fosdem.fragments;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.support.annotation.StringRes;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 
@@ -14,7 +15,7 @@ import android.support.v4.app.FragmentManager;
  */
 public class MessageDialogFragment extends DialogFragment {
 
-	public static MessageDialogFragment newInstance(int titleResId, int messageResId) {
+	public static MessageDialogFragment newInstance(@StringRes int titleResId, @StringRes int messageResId) {
 		MessageDialogFragment f = new MessageDialogFragment();
 		Bundle args = new Bundle();
 		args.putInt("titleResId", titleResId);
@@ -23,7 +24,7 @@ public class MessageDialogFragment extends DialogFragment {
 		return f;
 	}
 
-	public static MessageDialogFragment newInstance(int titleResId, CharSequence message) {
+	public static MessageDialogFragment newInstance(@StringRes int titleResId, CharSequence message) {
 		MessageDialogFragment f = new MessageDialogFragment();
 		Bundle args = new Bundle();
 		args.putInt("titleResId", titleResId);

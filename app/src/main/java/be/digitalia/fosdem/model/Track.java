@@ -2,17 +2,24 @@ package be.digitalia.fosdem.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.StringRes;
+
 import be.digitalia.fosdem.R;
 
 public class Track implements Parcelable {
 
 	public static enum Type {
-		other(R.string.other), keynote(R.string.keynote), maintrack(R.string.main_track), devroom(R.string.developer_room), lightningtalk(
-				R.string.lightning_talk), certification(R.string.certification_exam);
+		other(R.string.other),
+		keynote(R.string.keynote),
+		maintrack(R.string.main_track),
+		devroom(R.string.developer_room),
+		lightningtalk(R.string.lightning_talk),
+		certification(R.string.certification_exam);
 
-		private int nameResId;
+		private final int nameResId;
 
-		private Type(int nameResId) {
+		private Type(@StringRes int nameResId) {
 			this.nameResId = nameResId;
 		}
 
