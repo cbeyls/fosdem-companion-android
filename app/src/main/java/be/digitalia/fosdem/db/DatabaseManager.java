@@ -142,10 +142,10 @@ public class DatabaseManager {
 
 			// 2: Insert the events
 			int totalEvents = 0;
-			Map<Track, Long> tracks = new HashMap<Track, Long>();
+			Map<Track, Long> tracks = new HashMap<>();
 			long nextTrackId = 0L;
 			long minEventId = Long.MAX_VALUE;
-			Set<Day> days = new HashSet<Day>(2);
+			Set<Day> days = new HashSet<>(2);
 
 			for (Event event : events) {
 				// 2a: Retrieve or insert Track
@@ -317,7 +317,7 @@ public class DatabaseManager {
 		Cursor cursor = helper.getReadableDatabase().query(DatabaseHelper.DAYS_TABLE_NAME, new String[] { "_index", "date" }, null, null, null, null,
 				"_index ASC");
 		try {
-			List<Day> result = new ArrayList<Day>(cursor.getCount());
+			List<Day> result = new ArrayList<>(cursor.getCount());
 			while (cursor.moveToNext()) {
 				Day day = new Day();
 				day.setIndex(cursor.getInt(0));
@@ -482,7 +482,7 @@ public class DatabaseManager {
 	 * @return
 	 */
 	public Cursor getEvents(long minStartTime, long maxStartTime, long minEndTime, boolean ascending) {
-		ArrayList<String> selectionArgs = new ArrayList<String>(3);
+		ArrayList<String> selectionArgs = new ArrayList<>(3);
 		StringBuilder whereCondition = new StringBuilder();
 
 		if (minStartTime > 0L) {
@@ -813,7 +813,7 @@ public class DatabaseManager {
 				"SELECT p.rowid AS _id, p.name" + " FROM " + DatabaseHelper.PERSONS_TABLE_NAME + " p" + " JOIN " + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
 						+ " ep ON p.rowid = ep.person_id" + " WHERE ep.event_id = ?", selectionArgs);
 		try {
-			List<Person> result = new ArrayList<Person>(cursor.getCount());
+			List<Person> result = new ArrayList<>(cursor.getCount());
 			while (cursor.moveToNext()) {
 				result.add(toPerson(cursor));
 			}
@@ -842,7 +842,7 @@ public class DatabaseManager {
 		Cursor cursor = helper.getReadableDatabase().rawQuery(
 				"SELECT url, description" + " FROM " + DatabaseHelper.LINKS_TABLE_NAME + " WHERE event_id = ?" + " ORDER BY rowid ASC", selectionArgs);
 		try {
-			List<Link> result = new ArrayList<Link>(cursor.getCount());
+			List<Link> result = new ArrayList<>(cursor.getCount());
 			while (cursor.moveToNext()) {
 				Link link = new Link();
 				link.setUrl(cursor.getString(0));

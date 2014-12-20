@@ -1,5 +1,9 @@
 package be.digitalia.fosdem.parsers;
 
+import android.text.TextUtils;
+
+import org.xmlpull.v1.XmlPullParser;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -7,9 +11,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-import org.xmlpull.v1.XmlPullParser;
-
-import android.text.TextUtils;
 import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Link;
@@ -19,9 +20,8 @@ import be.digitalia.fosdem.utils.DateUtils;
 
 /**
  * Main parser for FOSDEM schedule data in pentabarf XML format.
- * 
+ *
  * @author Christophe Beyls
- * 
  */
 public class EventsParser extends IterableAbstractPullParser<Event> {
 
@@ -36,8 +36,8 @@ public class EventsParser extends IterableAbstractPullParser<Event> {
 
 	/**
 	 * Returns the hours portion of a time string in the "hh:mm" format, without allocating objects.
-	 * 
-	 * @param time
+	 *
+	 * @param time string in the "hh:mm" format
 	 * @return hours
 	 */
 	private static int getHours(String time) {
@@ -46,8 +46,8 @@ public class EventsParser extends IterableAbstractPullParser<Event> {
 
 	/**
 	 * Returns the minutes portion of a time string in the "hh:mm" format, without allocating objects.
-	 * 
-	 * @param time
+	 *
+	 * @param time string in the "hh:mm" format
 	 * @return minutes
 	 */
 	private static int getMinutes(String time) {
@@ -70,101 +70,116 @@ public class EventsParser extends IterableAbstractPullParser<Event> {
 	protected Event parseNext(XmlPullParser parser) throws Exception {
 		while (!isNextEndTag("schedule")) {
 			if (isStartTag()) {
-				String name = parser.getName();
 
-				if ("day".equals(name)) {
-					currentDay = new Day();
-					currentDay.setIndex(Integer.parseInt(parser.getAttributeValue(null, "index")));
-					currentDay.setDate(DATE_FORMAT.parse(parser.getAttributeValue(null, "date")));
-				} else if ("room".equals(name)) {
-					currentRoom = parser.getAttributeValue(null, "name");
-				} else if ("event".equals(name)) {
-					Event event = new Event();
-					event.setId(Long.parseLong(parser.getAttributeValue(null, "id")));
-					event.setDay(currentDay);
-					event.setRoomName(currentRoom);
-					// Initialize empty lists
-					List<Person> persons = new ArrayList<Person>();
-					event.setPersons(persons);
-					List<Link> links = new ArrayList<Link>();
-					event.setLinks(links);
+				switch (parser.getName()) {
+					case "day":
+						currentDay = new Day();
+						currentDay.setIndex(Integer.parseInt(parser.getAttributeValue(null, "index")));
+						currentDay.setDate(DATE_FORMAT.parse(parser.getAttributeValue(null, "date")));
+						break;
+					case "room":
+						currentRoom = parser.getAttributeValue(null, "name");
+						break;
+					case "event":
+						Event event = new Event();
+						event.setId(Long.parseLong(parser.getAttributeValue(null, "id")));
+						event.setDay(currentDay);
+						event.setRoomName(currentRoom);
+						// Initialize empty lists
+						List<Person> persons = new ArrayList<>();
+						event.setPersons(persons);
+						List<Link> links = new ArrayList<>();
+						event.setLinks(links);
 
-					String duration = null;
-					String trackName = "";
-					Track.Type trackType = Track.Type.other;
+						String duration = null;
+						String trackName = "";
+						Track.Type trackType = Track.Type.other;
 
-					while (!isNextEndTag("event")) {
-						if (isStartTag()) {
-							name = parser.getName();
+						while (!isNextEndTag("event")) {
+							if (isStartTag()) {
 
-							if ("start".equals(name)) {
-								String time = parser.nextText();
-								if (!TextUtils.isEmpty(time)) {
-									calendar.setTime(currentDay.getDate());
-									calendar.set(Calendar.HOUR_OF_DAY, getHours(time));
-									calendar.set(Calendar.MINUTE, getMinutes(time));
-									event.setStartTime(calendar.getTime());
+								switch (parser.getName()) {
+									case "start":
+										String time = parser.nextText();
+										if (!TextUtils.isEmpty(time)) {
+											calendar.setTime(currentDay.getDate());
+											calendar.set(Calendar.HOUR_OF_DAY, getHours(time));
+											calendar.set(Calendar.MINUTE, getMinutes(time));
+											event.setStartTime(calendar.getTime());
+										}
+										break;
+									case "duration":
+										duration = parser.nextText();
+										break;
+									case "slug":
+										event.setSlug(parser.nextText());
+										break;
+									case "title":
+										event.setTitle(parser.nextText());
+										break;
+									case "subtitle":
+										event.setSubTitle(parser.nextText());
+										break;
+									case "track":
+										trackName = parser.nextText();
+										break;
+									case "type":
+										try {
+											trackType = Enum.valueOf(Track.Type.class, parser.nextText());
+										} catch (Exception e) {
+											// trackType will be "other"
+										}
+										break;
+									case "abstract":
+										event.setAbstractText(parser.nextText());
+										break;
+									case "description":
+										event.setDescription(parser.nextText());
+										break;
+									case "persons":
+										while (!isNextEndTag("persons")) {
+											if (isStartTag("person")) {
+												Person person = new Person();
+												person.setId(Long.parseLong(parser.getAttributeValue(null, "id")));
+												person.setName(parser.nextText());
+
+												persons.add(person);
+											}
+										}
+										break;
+									case "links":
+										while (!isNextEndTag("links")) {
+											if (isStartTag("link")) {
+												Link link = new Link();
+												link.setUrl(parser.getAttributeValue(null, "href"));
+												link.setDescription(parser.nextText());
+
+												links.add(link);
+											}
+										}
+										break;
+									default:
+										skipToEndTag();
+										break;
 								}
-							} else if ("duration".equals(name)) {
-								duration = parser.nextText();
-							} else if ("slug".equals(name)) {
-								event.setSlug(parser.nextText());
-							} else if ("title".equals(name)) {
-								event.setTitle(parser.nextText());
-							} else if ("subtitle".equals(name)) {
-								event.setSubTitle(parser.nextText());
-							} else if ("track".equals(name)) {
-								trackName = parser.nextText();
-							} else if ("type".equals(name)) {
-								try {
-									trackType = Enum.valueOf(Track.Type.class, parser.nextText());
-								} catch (Exception e) {
-									// trackType will be "other"
-								}
-							} else if ("abstract".equals(name)) {
-								event.setAbstractText(parser.nextText());
-							} else if ("description".equals(name)) {
-								event.setDescription(parser.nextText());
-							} else if ("persons".equals(name)) {
-								while (!isNextEndTag("persons")) {
-									if (isStartTag("person")) {
-										Person person = new Person();
-										person.setId(Long.parseLong(parser.getAttributeValue(null, "id")));
-										person.setName(parser.nextText());
-
-										persons.add(person);
-									}
-								}
-							} else if ("links".equals(name)) {
-								while (!isNextEndTag("links")) {
-									if (isStartTag("link")) {
-										Link link = new Link();
-										link.setUrl(parser.getAttributeValue(null, "href"));
-										link.setDescription(parser.nextText());
-
-										links.add(link);
-									}
-								}
-							} else {
-								skipToEndTag();
 							}
 						}
-					}
 
-					if ((event.getStartTime() != null) && !TextUtils.isEmpty(duration)) {
-						calendar.add(Calendar.HOUR_OF_DAY, getHours(duration));
-						calendar.add(Calendar.MINUTE, getMinutes(duration));
-						event.setEndTime(calendar.getTime());
-					}
+						if ((event.getStartTime() != null) && !TextUtils.isEmpty(duration)) {
+							calendar.add(Calendar.HOUR_OF_DAY, getHours(duration));
+							calendar.add(Calendar.MINUTE, getMinutes(duration));
+							event.setEndTime(calendar.getTime());
+						}
 
-					if ((currentTrack == null) || !trackName.equals(currentTrack.getName()) || (trackType != currentTrack.getType())) {
-						currentTrack = new Track(trackName, trackType);
-					}
-					event.setTrack(currentTrack);
+						if ((currentTrack == null) || !trackName.equals(currentTrack.getName()) || (trackType != currentTrack.getType())) {
+							currentTrack = new Track(trackName, trackType);
+						}
+						event.setTrack(currentTrack);
 
-					return event;
-				} else {
-					skipToEndTag();
+						return event;
+					default:
+						skipToEndTag();
+						break;
 				}
 			}
 		}
