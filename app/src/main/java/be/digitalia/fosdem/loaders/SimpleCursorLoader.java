@@ -2,7 +2,6 @@ package be.digitalia.fosdem.loaders;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
 import android.support.v4.content.AsyncTaskLoader;
 
 /**
@@ -49,10 +48,6 @@ public abstract class SimpleCursorLoader extends AsyncTaskLoader<Cursor> {
 		}
 	}
 
-	/**
-	 * Creates an empty unspecified CursorLoader. You must follow this with calls to {@link #setUri(Uri)}, {@link #setSelection(String)}, etc to specify the
-	 * query to perform.
-	 */
 	public SimpleCursorLoader(Context context) {
 		super(context);
 		mObserver = new ForceLoadContentObserver();

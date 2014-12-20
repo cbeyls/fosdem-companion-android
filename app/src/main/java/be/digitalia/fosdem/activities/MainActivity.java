@@ -20,6 +20,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.DialogFragment;
@@ -156,6 +157,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 
 	public static class DownloadScheduleReminderDialogFragment extends DialogFragment {
 
+		@NonNull
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 			return new AlertDialog.Builder(getActivity()).setTitle(R.string.download_reminder_title).setMessage(R.string.download_reminder_message)
@@ -358,8 +360,6 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		return true;
 	}
 
-	;
-
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		// Hide & disable primary (contextual) action items when the main menu is opened
@@ -513,6 +513,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 
 	public static class AboutDialogFragment extends DialogFragment {
 
+		@NonNull
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 			Context context = getActivity();

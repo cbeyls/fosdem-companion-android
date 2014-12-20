@@ -21,7 +21,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 /**
- * A PreferenceFragment for the support library. Based on the platform's code with a some removed features and a basic ListView layout.
+ * A PreferenceFragment for the support library. Based on the platform's code with some removed features and a basic ListView layout.
  * 
  * @author Christophe Beyls
  * 
@@ -61,7 +61,7 @@ public abstract class PreferenceFragment extends Fragment {
 			Constructor<PreferenceManager> c = PreferenceManager.class.getDeclaredConstructor(Activity.class, int.class);
 			c.setAccessible(true);
 			mPreferenceManager = c.newInstance(this.getActivity(), FIRST_REQUEST_CODE);
-		} catch (Exception e) {
+		} catch (Exception ignored) {
 		}
 	}
 
@@ -103,7 +103,7 @@ public abstract class PreferenceFragment extends Fragment {
 			Method m = PreferenceManager.class.getDeclaredMethod("dispatchActivityStop");
 			m.setAccessible(true);
 			m.invoke(mPreferenceManager);
-		} catch (Exception e) {
+		} catch (Exception ignored) {
 		}
 	}
 
@@ -119,7 +119,7 @@ public abstract class PreferenceFragment extends Fragment {
 			Method m = PreferenceManager.class.getDeclaredMethod("dispatchActivityDestroy");
 			m.setAccessible(true);
 			m.invoke(mPreferenceManager);
-		} catch (Exception e) {
+		} catch (Exception ignored) {
 		}
 	}
 
@@ -139,7 +139,7 @@ public abstract class PreferenceFragment extends Fragment {
 			Method m = PreferenceManager.class.getDeclaredMethod("dispatchActivityResult", int.class, int.class, Intent.class);
 			m.setAccessible(true);
 			m.invoke(mPreferenceManager, requestCode, resultCode, data);
-		} catch (Exception e) {
+		} catch (Exception ignored) {
 		}
 	}
 
@@ -158,7 +158,7 @@ public abstract class PreferenceFragment extends Fragment {
 					postBindPreferences();
 				}
 			}
-		} catch (Exception e) {
+		} catch (Exception ignored) {
 		}
 	}
 
@@ -179,7 +179,7 @@ public abstract class PreferenceFragment extends Fragment {
 			m.setAccessible(true);
 			PreferenceScreen screen = (PreferenceScreen) m.invoke(mPreferenceManager, intent, getPreferenceScreen());
 			setPreferenceScreen(screen);
-		} catch (Exception e) {
+		} catch (Exception ignored) {
 		}
 	}
 
@@ -190,7 +190,7 @@ public abstract class PreferenceFragment extends Fragment {
 			m.setAccessible(true);
 			PreferenceScreen screen = (PreferenceScreen) m.invoke(mPreferenceManager, getActivity(), resId, getPreferenceScreen());
 			setPreferenceScreen(screen);
-		} catch (Exception e) {
+		} catch (Exception ignored) {
 		}
 	}
 
@@ -234,13 +234,13 @@ public abstract class PreferenceFragment extends Fragment {
 			throw new IllegalStateException("Content view not yet created");
 		}
 		View rawListView = root.findViewById(android.R.id.list);
+		if (rawListView == null) {
+			throw new RuntimeException("Your content must have a ListView whose id attribute is 'android.R.id.list'");
+		}
 		if (!(rawListView instanceof ListView)) {
 			throw new RuntimeException("Content has view with id attribute 'android.R.id.list' that is not a ListView class");
 		}
 		mList = (ListView) rawListView;
-		if (mList == null) {
-			throw new RuntimeException("Your content must have a ListView whose id attribute is 'android.R.id.list'");
-		}
 		mHandler.sendEmptyMessage(MSG_REQUEST_FOCUS);
 	}
 }

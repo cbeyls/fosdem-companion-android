@@ -2,7 +2,6 @@ package be.digitalia.fosdem.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.DrawableRes;
 import android.support.annotation.StringRes;
 
 import be.digitalia.fosdem.R;

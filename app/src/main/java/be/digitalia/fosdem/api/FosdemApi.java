@@ -50,7 +50,7 @@ public class FosdemApi {
 			} finally {
 				try {
 					is.close();
-				} catch (Exception e) {
+				} catch (Exception ignored) {
 				}
 			}
 		} catch (Exception e) {
