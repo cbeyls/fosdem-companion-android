@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="be.digitalia.fosdem"
     android:installLocation="auto"
-    android:versionCode="0700108"
-    android:versionName="1.0.8" >
+    android:versionCode="700110"
+    android:versionName="1.1.0" >
 
     <uses-sdk
         android:minSdkVersion="7"
