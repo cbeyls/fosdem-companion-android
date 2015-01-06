@@ -25,5 +25,6 @@ android {
 
 dependencies {
     compile 'com.android.support:appcompat-v7:20.0.+'
-    compile 'com.github.chrisbanes.photoview:library:1.2.+'
+    // Version 1.2.3 has a bug and crashes when detecting 2-finger gestures. Use 1.2.2 instead.
+    compile 'com.github.chrisbanes.photoview:library:1.2.2'
 }
