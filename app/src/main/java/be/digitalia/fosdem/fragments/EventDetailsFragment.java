@@ -1,9 +1,5 @@
 package be.digitalia.fosdem.fragments;
 
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -32,6 +28,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.List;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.PersonInfoActivity;
 import be.digitalia.fosdem.db.DatabaseManager;
@@ -201,10 +202,10 @@ public class EventDetailsFragment extends Fragment {
 
 				if (isBookmarked) {
 					bookmarkMenuItem.setTitle(R.string.remove_bookmark);
-					bookmarkMenuItem.setIcon(R.drawable.ic_action_important);
+					bookmarkMenuItem.setIcon(R.drawable.ic_bookmark_white_24dp);
 				} else {
 					bookmarkMenuItem.setTitle(R.string.add_bookmark);
-					bookmarkMenuItem.setIcon(R.drawable.ic_action_not_important);
+					bookmarkMenuItem.setIcon(R.drawable.ic_bookmark_outline_white_24dp);
 				}
 			}
 		}
@@ -219,14 +220,14 @@ public class EventDetailsFragment extends Fragment {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.bookmark:
-			if (isBookmarked != null) {
-				new UpdateBookmarkAsyncTask(event).execute(isBookmarked);
-			}
-			return true;
-		case R.id.add_to_agenda:
-			addToAgenda();
-			return true;
+			case R.id.bookmark:
+				if (isBookmarked != null) {
+					new UpdateBookmarkAsyncTask(event).execute(isBookmarked);
+				}
+				return true;
+			case R.id.add_to_agenda:
+				addToAgenda();
+				return true;
 		}
 		return false;
 	}

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Main theme -->
+
+    <style name="AppTheme" parent="Base.AppTheme"/>
+
+    <style name="DialogTheme" parent="android:Theme.Material.Light.Dialog"/>
+
+    <!-- Styles -->
+
+    <style name="Metadata.Selectable">
+        <!-- Invert colors at theme level to allow using the white ripple selector -->
+        <item name="android:theme">@style/ThemeOverlay.AppCompat.Dark</item>
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+    </style>
+
+</resources>

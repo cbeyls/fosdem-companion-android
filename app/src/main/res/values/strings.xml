@@ -19,7 +19,7 @@
 
     <!-- Main menu -->
     <string name="menu_tracks">Tracks</string>
-    <string name="menu_bookmarks">Starred</string>
+    <string name="menu_bookmarks">Bookmarks</string>
     <string name="menu_live">Live</string>
     <string name="menu_speakers">Speakers</string>
     <string name="menu_map">Map</string>
@@ -64,7 +64,7 @@
     <string name="settings">Settings</string>
     <string name="settings_notifications">Notifications</string>
     <string name="settings_notifications_enabled_title">Enable notifications</string>
-    <string name="settings_notifications_enabled_summary">If checked, this will notify you of starred upcoming events</string>
+    <string name="settings_notifications_enabled_summary">If checked, this will notify you of bookmarked upcoming events</string>
     <string name="settings_notifications_vibrate_title">Vibrate</string>
     <string name="settings_notifications_vibrate_summary">Vibrate on notification</string>
     <string name="settings_notifications_led_title">Flash led</string>
@@ -86,7 +86,7 @@
         <item>60</item>
     </string-array>
 
-    <string name="settings_notifications_delay_summary">Delay before getting notified of an upcoming starred event</string>
+    <string name="settings_notifications_delay_summary">Delay before getting notified of an upcoming bookmarked event</string>
 
     <!-- Event details -->
     <string name="event_details">Event details</string>

@@ -202,7 +202,7 @@ public class AlarmIntentService extends IntentService {
 						PendingIntent mapPendingIntent = PendingIntent.getActivity(this, 0, mapIntent,
 								PendingIntent.FLAG_UPDATE_CURRENT);
 						CharSequence mapTitle = getString(R.string.room_map);
-						notificationBuilder.addAction(new NotificationCompat.Action(R.drawable.ic_action_place, mapTitle,
+						notificationBuilder.addAction(new NotificationCompat.Action(R.drawable.ic_place_white_24dp, mapTitle,
 								mapPendingIntent));
 						// Use bigger action icon for wearable notification
 						wearableExtender.addAction(new NotificationCompat.Action(R.drawable.ic_place_white_wear, mapTitle,

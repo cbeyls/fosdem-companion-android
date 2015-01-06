@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="?attr/activatedBackgroundIndicator"
-    android:orientation="horizontal" >
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:background="?attr/activatedBackgroundIndicator"
+              android:orientation="horizontal">
 
     <TextView
         android:id="@+id/time"
@@ -13,7 +14,8 @@
         android:padding="@dimen/list_item_padding"
         android:textColor="@color/schedule_time_foreground"
         android:textSize="@dimen/list_item_small_text_size"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        tools:text="09:30"/>
 
     <TextView
         android:id="@+id/text"
@@ -22,6 +24,10 @@
         android:layout_weight="1"
         android:drawablePadding="6dp"
         android:padding="@dimen/list_item_padding"
-        android:textSize="@dimen/list_item_small_text_size" />
+        android:textColor="?android:textColorPrimary"
+        android:textSize="@dimen/list_item_small_text_size"
+        tools:text="Welcome to FOSDEM 2015\nFOSDEM Staff"
+        tools:textSize="@dimen/list_item_medium_text_size"
+        tools:textStyle="bold"/>
 
 </LinearLayout>

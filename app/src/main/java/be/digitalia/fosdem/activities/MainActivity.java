@@ -1,9 +1,5 @@
 package be.digitalia.fosdem.activities;
 
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -15,14 +11,16 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -31,20 +29,30 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
+import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemApi;
@@ -63,11 +71,11 @@ import be.digitalia.fosdem.fragments.TracksFragment;
 public class MainActivity extends ActionBarActivity implements ListView.OnItemClickListener {
 
 	private enum Section {
-		TRACKS(TracksFragment.class, R.string.menu_tracks, R.drawable.ic_action_event, true),
-		BOOKMARKS(BookmarksListFragment.class, R.string.menu_bookmarks, R.drawable.ic_action_important, false),
-		LIVE(LiveFragment.class, R.string.menu_live, R.drawable.ic_action_play_over_video, false),
-		SPEAKERS(PersonsListFragment.class, R.string.menu_speakers, R.drawable.ic_action_group, false),
-		MAP(MapFragment.class, R.string.menu_map, R.drawable.ic_action_map, false);
+		TRACKS(TracksFragment.class, R.string.menu_tracks, R.drawable.ic_event_grey600_24dp, true),
+		BOOKMARKS(BookmarksListFragment.class, R.string.menu_bookmarks, R.drawable.ic_bookmark_grey600_24dp, false),
+		LIVE(LiveFragment.class, R.string.menu_live, R.drawable.ic_play_circle_outline_grey600_24dp, false),
+		SPEAKERS(PersonsListFragment.class, R.string.menu_speakers, R.drawable.ic_people_grey600_24dp, false),
+		MAP(MapFragment.class, R.string.menu_map, R.drawable.ic_map_grey600_24dp, false);
 
 		private final String fragmentClassName;
 		private final int titleResId;
@@ -108,6 +116,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 
 	private Section currentSection;
 
+	private ProgressBar progressBar;
 	private DrawerLayout drawerLayout;
 	private ActionBarDrawerToggle drawerToggle;
 	private View mainMenu;
@@ -120,8 +129,8 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			setSupportProgressBarIndeterminate(false);
-			setSupportProgress(intent.getIntExtra(FosdemApi.EXTRA_PROGRESS, 0) * 100);
+			progressBar.setIndeterminate(false);
+			progressBar.setProgress(intent.getIntExtra(FosdemApi.EXTRA_PROGRESS, 0));
 		}
 	};
 
@@ -130,8 +139,10 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			// Hide the progress bar with a fill and fade out animation
-			setSupportProgressBarIndeterminate(false);
-			setSupportProgress(10000);
+			progressBar.setIndeterminate(false);
+			progressBar.setProgress(100);
+			progressBar.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, android.R.anim.fade_out));
+			progressBar.setVisibility(View.GONE);
 
 			int result = intent.getIntExtra(FosdemApi.EXTRA_RESULT, FosdemApi.RESULT_ERROR);
 			String message;
@@ -177,14 +188,18 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		supportRequestWindowFeature(Window.FEATURE_PROGRESS);
 		setContentView(R.layout.main);
+
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(toolbar);
+
+		progressBar = (ProgressBar) findViewById(R.id.progress);
 
 		// Setup drawer layout
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		drawerLayout.setDrawerShadow(getResources().getDrawable(R.drawable.drawer_shadow), Gravity.LEFT);
-		drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.drawable.ic_drawer, R.string.main_menu, R.string.close_menu) {
+		drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.main_menu, R.string.close_menu) {
 
 			@Override
 			public void onDrawerOpened(View drawerView) {
@@ -277,7 +292,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		super.onStart();
 
 		// Ensure the progress bar is hidden when starting
-		setSupportProgressBarVisibility(false);
+		progressBar.setVisibility(View.GONE);
 
 		// Monitor the schedule download
 		LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
@@ -390,8 +405,9 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 	@SuppressLint("NewApi")
 	public void startDownloadSchedule() {
 		// Start by displaying indeterminate progress, determinate will come later
-		setSupportProgressBarIndeterminate(true);
-		setSupportProgressBarVisibility(true);
+		progressBar.clearAnimation();
+		progressBar.setIndeterminate(true);
+		progressBar.setVisibility(View.VISIBLE);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			new DownloadScheduleAsyncTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		} else {
@@ -420,10 +436,18 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 
 		private Section[] sections = Section.values();
 		private LayoutInflater inflater;
+		private int currentSectionForegroundColor;
 		private int currentSectionBackgroundColor;
 
 		public MainMenuAdapter(LayoutInflater inflater) {
 			this.inflater = inflater;
+			// Select the primary color to tint the current section
+			TypedArray a = getTheme().obtainStyledAttributes(new int[]{R.attr.colorPrimary});
+			try {
+				currentSectionForegroundColor = a.getColor(0, Color.TRANSPARENT);
+			} finally {
+				a.recycle();
+			}
 			currentSectionBackgroundColor = getResources().getColor(R.color.translucent_grey);
 		}
 
@@ -451,10 +475,22 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 			Section section = getItem(position);
 
 			TextView tv = (TextView) convertView.findViewById(R.id.section_text);
-			tv.setText(section.getTitleResId());
-			tv.setCompoundDrawablesWithIntrinsicBounds(section.getIconResId(), 0, 0, 0);
-			// Show highlighted background for current section
-			tv.setBackgroundColor((section == currentSection) ? currentSectionBackgroundColor : Color.TRANSPARENT);
+			SpannableString sectionTitle = new SpannableString(getString(section.getTitleResId()));
+			Drawable sectionIcon = getResources().getDrawable(section.getIconResId());
+			int backgroundColor;
+			if (section == currentSection) {
+				// Special color for the current section
+				//sectionTitle.setSpan(new StyleSpan(Typeface.BOLD), 0, sectionTitle.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+				sectionTitle.setSpan(new ForegroundColorSpan(currentSectionForegroundColor), 0, sectionTitle.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+				// We need to mutate the drawable before applying the ColorFilter, or else all the similar drawable instances will be tinted.
+				sectionIcon.mutate().setColorFilter(currentSectionForegroundColor, PorterDuff.Mode.SRC_IN);
+				backgroundColor = currentSectionBackgroundColor;
+			} else {
+				backgroundColor = Color.TRANSPARENT;
+			}
+			tv.setText(sectionTitle);
+			tv.setCompoundDrawablesWithIntrinsicBounds(sectionIcon, null, null, null);
+			tv.setBackgroundColor(backgroundColor);
 
 			return convertView;
 		}

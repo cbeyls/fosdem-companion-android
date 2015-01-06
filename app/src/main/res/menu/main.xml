@@ -1,26 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" >
+      xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/search"
-        android:icon="@drawable/ic_action_search"
+        android:icon="@drawable/ic_search_white_24dp"
         android:menuCategory="secondary"
         android:title="@string/search_events"
         app:actionViewClass="android.support.v7.widget.SearchView"
         app:showAsAction="ifRoom|collapseActionView"/>
     <item
         android:id="@+id/refresh"
-        android:icon="@drawable/ic_action_refresh"
+        android:icon="@drawable/ic_sync_white_24dp"
         android:menuCategory="secondary"
         android:title="@string/update_events_db"
         app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/settings"
-        android:icon="@drawable/ic_action_settings"
         android:menuCategory="secondary"
         android:title="@string/settings"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="never"/>
     <item
         android:id="@+id/about"
         android:menuCategory="secondary"

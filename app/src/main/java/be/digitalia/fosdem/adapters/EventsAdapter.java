@@ -73,7 +73,7 @@ public class EventsAdapter extends CursorAdapter {
 		}
 		spannableString.setSpan(holder.titleSizeSpan, 0, eventTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		holder.title.setText(spannableString);
-		int bookmarkDrawable = DatabaseManager.toBookmarkStatus(cursor) ? R.drawable.ic_small_starred : 0;
+		int bookmarkDrawable = DatabaseManager.toBookmarkStatus(cursor) ? R.drawable.ic_bookmark_grey600_24dp : 0;
 		holder.title.setCompoundDrawablesWithIntrinsicBounds(0, 0, bookmarkDrawable, 0);
 
 		holder.trackName.setText(event.getTrack().getName());

@@ -1,105 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="@dimen/content_margin" >
-
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-light"
-            android:textSize="@dimen/title_text_size" />
-
-        <TextView
-            android:id="@+id/subtitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-light"
-            android:textSize="@dimen/subtitle_text_size" />
-
-        <TextView
-            android:id="@+id/persons"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:textIsSelectable="true"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:layout_marginTop="10dp"
-            android:background="@color/fosdem_purple"
             android:orientation="vertical"
-            android:padding="6dp" >
+            android:padding="@dimen/content_margin">
+
+            <TextView
+                android:id="@+id/title"
+                style="@style/TextAppearance.AppCompat.Headline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textIsSelectable="true"
+                tools:text="Welcome to FOSDEM"/>
+
+            <TextView
+                android:id="@+id/subtitle"
+                style="@style/TextAppearance.AppCompat.Subhead"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textIsSelectable="true"
+                tools:text="An introduction to your favourite Free Software meeting"/>
+
+            <TextView
+                android:id="@+id/persons"
+                style="@style/TextAppearance.AppCompat.Body2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                tools:text="FOSDEM Staff"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/fosdem_blue"
+            android:orientation="vertical"
+            android:paddingBottom="8dp"
+            android:paddingLeft="@dimen/content_margin"
+            android:paddingRight="@dimen/content_margin"
+            android:paddingTop="8dp">
 
             <TextView
                 android:id="@+id/track"
+                style="@style/Metadata"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:drawableLeft="@drawable/ic_small_labels"
-                android:drawablePadding="5dp"
-                android:textColor="@android:color/white"
-                android:textIsSelectable="true"
-                android:textSize="14sp" />
+                tools:text="Keynotes"/>
 
             <TextView
                 android:id="@+id/time"
+                style="@style/Metadata"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:drawableLeft="@drawable/ic_small_time"
-                android:drawablePadding="5dp"
-                android:textColor="@android:color/white"
-                android:textIsSelectable="true"
-                android:textSize="14sp" />
+                tools:text="Day 1 (Saturday), 09:30 - 09:55"/>
 
             <TextView
                 android:id="@+id/room"
+                style="@style/Metadata.Selectable"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/selectable_background_grey"
                 android:drawableLeft="@drawable/ic_small_place"
-                android:drawablePadding="5dp"
-                android:textColor="@android:color/white"
-                android:textSize="14sp" />
+                tools:text="Janson (Building J)"/>
         </LinearLayout>
 
         <TextView
             android:id="@+id/abstract_text"
+            style="@style/TextAppearance.AppCompat.Body1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/translucent_grey"
-            android:padding="6dp"
-            android:textIsSelectable="true" />
+            android:padding="@dimen/content_margin"
+            android:textIsSelectable="true"
+            tools:text="FOSDEM welcome and opening talk."/>
 
         <TextView
             android:id="@+id/description"
+            style="@style/TextAppearance.AppCompat.Body1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:textIsSelectable="true" />
+            android:padding="@dimen/content_margin"
+            android:textIsSelectable="true"
+            tools:text="Welcome to FOSDEM 2015!"/>
 
         <LinearLayout
             android:id="@+id/links_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="gone" >
+            android:paddingBottom="@dimen/content_margin"
+            android:paddingLeft="@dimen/content_margin"
+            android:paddingRight="@dimen/content_margin"
+            android:paddingTop="8dp"
+            android:visibility="gone">
 
             <TextView
-                style="@style/HeaderStyle"
-                android:layout_marginTop="16dp"
-                android:text="@string/related_links_header" />
+                style="@style/Header"
+                android:text="@string/related_links_header"/>
 
-            <View style="@style/HeaderLineStyle" />
+            <View style="@style/HeaderLine"/>
         </LinearLayout>
     </LinearLayout>
 

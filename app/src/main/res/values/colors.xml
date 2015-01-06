@@ -2,8 +2,12 @@
 <resources>
 
     <color name="fosdem_purple">#a91991</color>
-    <color name="main_menu_background">#f0fafafa</color>
-    <color name="translucent_grey">#29000000</color>
+    <color name="fosdem_purple_dark">#76005e</color>
+    <color name="fosdem_blue">#3479c4</color>
+    <color name="fosdem_blue_translucent">#663479c4</color>
+    <color name="secondary_text">#323232</color>
+    <color name="main_menu_background">#fffafafa</color>
+    <color name="translucent_grey">#0c000000</color>
     <color name="schedule_time_background">#29000000</color>
     <color name="schedule_time_foreground">#000</color>
     <color name="schedule_time_running_background">#d6000000</color>

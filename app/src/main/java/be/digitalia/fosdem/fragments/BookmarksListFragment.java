@@ -14,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.EventDetailsActivity;
 import be.digitalia.fosdem.adapters.EventsAdapter;
@@ -24,9 +25,8 @@ import be.digitalia.fosdem.widgets.BookmarksMultiChoiceModeListener;
 
 /**
  * Bookmarks list, optionally filterable.
- * 
+ *
  * @author Christophe Beyls
- * 
  */
 public class BookmarksListFragment extends ListFragment implements LoaderCallbacks<Cursor> {
 
@@ -75,7 +75,9 @@ public class BookmarksListFragment extends ListFragment implements LoaderCallbac
 
 	private void updateOptionsMenu() {
 		if (filterMenuItem != null) {
-			filterMenuItem.setIcon(upcomingOnly ? R.drawable.ic_action_filter_selected : R.drawable.ic_action_filter);
+			filterMenuItem.setIcon(upcomingOnly ?
+					R.drawable.ic_filter_list_selected_white_24dp
+					: R.drawable.ic_filter_list_white_24dp);
 			upcomingOnlyMenuItem.setChecked(upcomingOnly);
 		}
 	}
@@ -90,12 +92,12 @@ public class BookmarksListFragment extends ListFragment implements LoaderCallbac
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.upcoming_only:
-			upcomingOnly = !upcomingOnly;
-			updateOptionsMenu();
-			getActivity().getPreferences(Context.MODE_PRIVATE).edit().putBoolean(PREF_UPCOMING_ONLY, upcomingOnly).commit();
-			getLoaderManager().restartLoader(BOOKMARKS_LOADER_ID, null, this);
-			return true;
+			case R.id.upcoming_only:
+				upcomingOnly = !upcomingOnly;
+				updateOptionsMenu();
+				getActivity().getPreferences(Context.MODE_PRIVATE).edit().putBoolean(PREF_UPCOMING_ONLY, upcomingOnly).commit();
+				getLoaderManager().restartLoader(BOOKMARKS_LOADER_ID, null, this);
+				return true;
 		}
 		return false;
 	}
