@@ -3,7 +3,6 @@ package be.digitalia.fosdem.fragments;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.view.View;
@@ -12,7 +11,7 @@ import be.digitalia.fosdem.activities.EventDetailsActivity;
 import be.digitalia.fosdem.adapters.EventsAdapter;
 import be.digitalia.fosdem.model.Event;
 
-public abstract class BaseLiveListFragment extends ListFragment implements LoaderCallbacks<Cursor> {
+public abstract class BaseLiveListFragment extends SmoothListFragment implements LoaderCallbacks<Cursor> {
 
 	private static final int EVENTS_LOADER_ID = 1;
 
@@ -43,12 +42,7 @@ public abstract class BaseLiveListFragment extends ListFragment implements Loade
 			adapter.swapCursor(data);
 		}
 
-		// The list should now be shown.
-		if (isResumed()) {
-			setListShown(true);
-		} else {
-			setListShownNoAnimation(true);
-		}
+		setListShown(true);
 	}
 
 	@Override

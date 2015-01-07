@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
@@ -23,7 +22,7 @@ import be.digitalia.fosdem.loaders.SimpleCursorLoader;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Person;
 
-public class PersonInfoListFragment extends ListFragment implements LoaderCallbacks<Cursor> {
+public class PersonInfoListFragment extends SmoothListFragment implements LoaderCallbacks<Cursor> {
 
 	private static final int PERSON_EVENTS_LOADER_ID = 1;
 	private static final String ARG_PERSON = "person";
@@ -112,12 +111,7 @@ public class PersonInfoListFragment extends ListFragment implements LoaderCallba
 			adapter.swapCursor(data);
 		}
 
-		// The list should now be shown.
-		if (isResumed()) {
-			setListShown(true);
-		} else {
-			setListShownNoAnimation(true);
-		}
+		setListShown(true);
 	}
 
 	@Override

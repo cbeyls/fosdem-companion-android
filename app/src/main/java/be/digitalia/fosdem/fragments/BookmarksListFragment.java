@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.view.Menu;
@@ -28,7 +27,7 @@ import be.digitalia.fosdem.widgets.BookmarksMultiChoiceModeListener;
  *
  * @author Christophe Beyls
  */
-public class BookmarksListFragment extends ListFragment implements LoaderCallbacks<Cursor> {
+public class BookmarksListFragment extends SmoothListFragment implements LoaderCallbacks<Cursor> {
 
 	private static final int BOOKMARKS_LOADER_ID = 1;
 	private static final String PREF_UPCOMING_ONLY = "bookmarks_upcoming_only";
@@ -168,12 +167,7 @@ public class BookmarksListFragment extends ListFragment implements LoaderCallbac
 			adapter.swapCursor(data);
 		}
 
-		// The list should now be shown.
-		if (isResumed()) {
-			setListShown(true);
-		} else {
-			setListShownNoAnimation(true);
-		}
+		setListShown(true);
 	}
 
 	@Override

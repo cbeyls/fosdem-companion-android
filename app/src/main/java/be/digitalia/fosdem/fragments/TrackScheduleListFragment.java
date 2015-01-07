@@ -10,7 +10,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
@@ -32,7 +31,7 @@ import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.DateUtils;
 
-public class TrackScheduleListFragment extends ListFragment implements Handler.Callback, LoaderCallbacks<Cursor> {
+public class TrackScheduleListFragment extends SmoothListFragment implements Handler.Callback, LoaderCallbacks<Cursor> {
 
 	/**
 	 * Interface implemented by container activities
@@ -205,12 +204,7 @@ public class TrackScheduleListFragment extends ListFragment implements Handler.C
 			isListAlreadyShown = true;
 		}
 
-		// The list should now be shown.
-		if (isResumed()) {
-			setListShown(true);
-		} else {
-			setListShownNoAnimation(true);
-		}
+		setListShown(true);
 	}
 
 	/**

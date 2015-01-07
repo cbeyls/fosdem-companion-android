@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
@@ -20,7 +19,7 @@ import be.digitalia.fosdem.loaders.SimpleCursorLoader;
 import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Track;
 
-public class TracksListFragment extends ListFragment implements LoaderCallbacks<Cursor> {
+public class TracksListFragment extends SmoothListFragment implements LoaderCallbacks<Cursor> {
 
 	private static final int TRACKS_LOADER_ID = 1;
 	private static final String ARG_DAY = "day";
@@ -80,12 +79,7 @@ public class TracksListFragment extends ListFragment implements LoaderCallbacks<
 			adapter.swapCursor(data);
 		}
 
-		// The list should now be shown.
-		if (isResumed()) {
-			setListShown(true);
-		} else {
-			setListShownNoAnimation(true);
-		}
+		setListShown(true);
 	}
 
 	@Override
