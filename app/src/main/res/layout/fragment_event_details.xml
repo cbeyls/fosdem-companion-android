@@ -44,7 +44,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/fosdem_blue"
+            android:background="?attr/colorPrimary"
             android:orientation="vertical"
             android:paddingBottom="8dp"
             android:paddingLeft="@dimen/content_margin"
