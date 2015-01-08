@@ -175,11 +175,16 @@ public class AlarmIntentService extends IntentService {
 					}
 
 					NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-							.setSmallIcon(R.drawable.ic_launcher).setWhen(event.getStartTime().getTime())
-							.setContentTitle(event.getTitle()).setContentText(contentText)
+							.setSmallIcon(R.drawable.ic_stat_fosdem)
+							.setWhen(event.getStartTime().getTime())
+							.setContentTitle(event.getTitle())
+							.setContentText(contentText)
 							.setStyle(new NotificationCompat.BigTextStyle().bigText(bigText).setSummaryText(trackName))
-							.setContentInfo(event.getRoomName()).setContentIntent(eventPendingIntent).setAutoCancel(true)
-							.setDefaults(defaultFlags).setPriority(NotificationCompat.PRIORITY_HIGH);
+							.setContentInfo(event.getRoomName())
+							.setContentIntent(eventPendingIntent)
+							.setAutoCancel(true)
+							.setDefaults(defaultFlags)
+							.setPriority(NotificationCompat.PRIORITY_HIGH);
 
 					// Blink the LED with FOSDEM color if enabled in the options
 					if (sharedPreferences.getBoolean(SettingsFragment.KEY_PREF_NOTIFICATIONS_LED, false)) {
