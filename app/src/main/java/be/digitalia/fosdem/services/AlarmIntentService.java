@@ -174,8 +174,11 @@ public class AlarmIntentService extends IntentService {
 						bigText = spannableBigText;
 					}
 
+					int notificationColor = getResources().getColor(R.color.fosdem_purple);
+
 					NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
 							.setSmallIcon(R.drawable.ic_stat_fosdem)
+							.setColor(notificationColor)
 							.setWhen(event.getStartTime().getTime())
 							.setContentTitle(event.getTitle())
 							.setContentText(contentText)
@@ -184,11 +187,12 @@ public class AlarmIntentService extends IntentService {
 							.setContentIntent(eventPendingIntent)
 							.setAutoCancel(true)
 							.setDefaults(defaultFlags)
-							.setPriority(NotificationCompat.PRIORITY_HIGH);
+							.setPriority(NotificationCompat.PRIORITY_HIGH)
+							.setCategory(NotificationCompat.CATEGORY_EVENT);
 
 					// Blink the LED with FOSDEM color if enabled in the options
 					if (sharedPreferences.getBoolean(SettingsFragment.KEY_PREF_NOTIFICATIONS_LED, false)) {
-						notificationBuilder.setLights(getResources().getColor(R.color.fosdem_purple), 1000, 5000);
+						notificationBuilder.setLights(notificationColor, 1000, 5000);
 					}
 
 					// Android Wear extensions
