@@ -3,9 +3,22 @@
 
     <!-- Main theme -->
 
-    <style name="AppTheme" parent="Base.AppTheme"/>
+    <style name="AppTheme" parent="Base.AppTheme">
+        <item name="android:alertDialogTheme">@style/AlertDialogTheme</item>
+    </style>
 
-    <style name="DialogTheme" parent="android:Theme.Material.Light.Dialog"/>
+    <style name="DialogTheme" parent="android:Theme.Material.Light.Dialog">
+        <item name="android:colorPrimary">@color/fosdem_purple</item>
+        <item name="android:colorPrimaryDark">@color/fosdem_purple_dark</item>
+        <item name="android:colorAccent">@color/fosdem_blue</item>
+    </style>
+
+    <style name="AlertDialogTheme" parent="android:Theme.Material.Light.Dialog.Alert">
+        <item name="android:colorPrimary">@color/fosdem_purple</item>
+        <item name="android:colorPrimaryDark">@color/fosdem_purple_dark</item>
+        <item name="android:colorAccent">@color/fosdem_blue</item>
+        <item name="android:textColorLink">?android:attr/colorAccent</item>
+    </style>
 
     <!-- Styles -->
 
