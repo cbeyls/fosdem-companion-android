@@ -8,6 +8,7 @@
         <item name="android:progressBarStyleHorizontal">@style/ProgressBar.Fosdem</item>
         <item name="android:listViewStyle">@style/ListView.Fosdem</item>
         <item name="android:fastScrollThumbDrawable">@drawable/fosdem_fastscroll_thumb_holo</item>
+        <item name="android:selectableItemBackground">?attr/selectableItemBackground</item>
     </style>
 
     <style name="DialogTheme" parent="android:Theme.Holo.Light.Dialog"/>

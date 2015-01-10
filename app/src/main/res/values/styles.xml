@@ -56,6 +56,13 @@
 
     <!-- Styles -->
 
+    <style name="SlidingTabs">
+        <item name="theme">@style/ThemeOverlay.AppCompat.Dark</item>
+        <item name="android:background">?attr/colorPrimary</item>
+        <item name="indicatorColor">@android:color/white</item>
+        <item name="textColor">@color/tab_text</item>
+    </style>
+
     <style name="Metadata" parent="TextAppearance.AppCompat.Body1">
         <item name="android:textColor">?android:textColorPrimaryInverse</item>
         <item name="android:gravity">center_vertical</item>

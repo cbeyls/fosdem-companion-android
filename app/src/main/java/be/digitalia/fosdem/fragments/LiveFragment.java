@@ -30,7 +30,6 @@ public class LiveFragment extends Fragment {
 		ViewPager pager = (ViewPager) view.findViewById(R.id.pager);
 		pager.setAdapter(livePagerAdapter);
 		SlidingTabLayout slidingTabs = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
-		slidingTabs.setSelectedIndicatorColors(getResources().getColor(R.color.fosdem_purple));
 		slidingTabs.setViewPager(pager);
 
 		return view;

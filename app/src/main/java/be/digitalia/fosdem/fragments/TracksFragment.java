@@ -61,7 +61,6 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 		holder.emptyView = view.findViewById(android.R.id.empty);
 		holder.pager = (ViewPager) view.findViewById(R.id.pager);
 		holder.slidingTabs = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
-		holder.slidingTabs.setSelectedIndicatorColors(getResources().getColor(R.color.fosdem_purple));
 
 		return view;
 	}
