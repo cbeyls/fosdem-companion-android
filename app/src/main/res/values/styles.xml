@@ -27,7 +27,11 @@
         <item name="windowActionModeOverlay">true</item>
     </style>
 
-    <style name="DialogTheme" parent="android:Theme.Dialog"/>
+    <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorPrimary">@color/fosdem_purple</item>
+        <item name="colorPrimaryDark">@color/fosdem_purple_dark</item>
+        <item name="colorAccent">@color/fosdem_blue</item>
+    </style>
 
     <style name="Toolbar.Fosdem" parent="Widget.AppCompat.Toolbar">
         <item name="android:background">?attr/colorPrimary</item>

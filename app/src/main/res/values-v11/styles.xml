@@ -11,8 +11,6 @@
         <item name="android:selectableItemBackground">?attr/selectableItemBackground</item>
     </style>
 
-    <style name="DialogTheme" parent="android:Theme.Holo.Light.Dialog"/>
-
     <style name="ProgressBar.Fosdem" parent="android:Widget.Holo.ProgressBar.Horizontal">
         <item name="android:indeterminateDrawable">
             @drawable/fosdem_progress_indeterminate_horizontal_holo_light
