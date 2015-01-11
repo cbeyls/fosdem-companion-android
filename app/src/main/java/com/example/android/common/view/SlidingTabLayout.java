@@ -35,6 +35,8 @@ import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.Locale;
+
 import be.digitalia.fosdem.R;
 
 /**
@@ -251,7 +253,12 @@ public class SlidingTabLayout extends HorizontalScrollView {
 				lp.weight = 1;
 			}
 
-			tabTitleView.setText(adapter.getPageTitle(i));
+			CharSequence tabText = adapter.getPageTitle(i);
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+				// Emulate allCaps
+				tabText = tabText.toString().toUpperCase(Locale.getDefault());
+			}
+			tabTitleView.setText(tabText);
 			tabView.setOnClickListener(tabClickListener);
 
 			mTabStrip.addView(tabView);
