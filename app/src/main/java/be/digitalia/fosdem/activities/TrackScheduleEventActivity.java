@@ -13,6 +13,9 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 import android.view.View;
+
+import com.viewpagerindicator.PageIndicator;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.fragments.EventDetailsFragment;
@@ -21,8 +24,6 @@ import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.NfcUtils;
 import be.digitalia.fosdem.utils.NfcUtils.CreateNfcAppDataCallback;
-
-import com.viewpagerindicator.PageIndicator;
 
 /**
  * Event view of the track schedule; allows to slide between events of the same track using a ViewPager.
@@ -69,8 +70,8 @@ public class TrackScheduleEventActivity extends ActionBarActivity implements Loa
 
 		ActionBar bar = getSupportActionBar();
 		bar.setDisplayHomeAsUpEnabled(true);
-		bar.setTitle(R.string.event_details);
-		bar.setSubtitle(track.getName());
+		bar.setTitle(track.toString());
+		bar.setSubtitle(day.toString());
 
 		// Enable Android Beam
 		NfcUtils.setAppDataPushMessageCallbackIfAvailable(this, this);

@@ -9,9 +9,11 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.Loader;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 import android.widget.Toast;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.fragments.EventDetailsFragment;
@@ -39,7 +41,9 @@ public class EventDetailsActivity extends ActionBarActivity implements LoaderCal
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.content);
 
-		getSupportActionBar().setTitle(R.string.event_details);
+		ActionBar bar = getSupportActionBar();
+		bar.setDisplayHomeAsUpEnabled(true);
+		bar.setDisplayShowTitleEnabled(false);
 
 		Event event = getIntent().getParcelableExtra(EXTRA_EVENT);
 

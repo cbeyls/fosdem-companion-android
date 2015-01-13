@@ -251,7 +251,11 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 	}
 
 	private void updateActionBar() {
-		getSupportActionBar().setTitle(drawerLayout.isDrawerOpen(mainMenu) ? R.string.app_name : currentSection.getTitleResId());
+		if (drawerLayout.isDrawerOpen(mainMenu)) {
+			getSupportActionBar().setTitle(null);
+		} else {
+			getSupportActionBar().setTitle(currentSection.getTitleResId());
+		}
 	}
 
 	private void updateLastUpdateTime() {
