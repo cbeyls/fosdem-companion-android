@@ -59,7 +59,9 @@
                 <data android:mimeType="application/be.digitalia.fosdem"/>
             </intent-filter>
         </activity>
-        <activity android:name=".activities.PersonInfoActivity"/>
+        <activity
+            android:name=".activities.PersonInfoActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".activities.SearchResultActivity"
             android:launchMode="singleTop">

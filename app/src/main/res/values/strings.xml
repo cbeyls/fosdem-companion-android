@@ -102,7 +102,6 @@
     </plurals>
 
     <!-- Speaker info -->
-    <string name="person_info">Speaker info</string>
     <string name="talks_header">TALKS</string>
     <string name="more_info">More info</string>
 

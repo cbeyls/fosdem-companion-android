@@ -13,7 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.TextView;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.EventDetailsActivity;
 import be.digitalia.fosdem.adapters.EventsAdapter;
@@ -55,10 +55,10 @@ public class PersonInfoListFragment extends SmoothListFragment implements Loader
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.more_info:
-			Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(person.getUrl()));
-			startActivity(intent);
-			return true;
+			case R.id.more_info:
+				Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(person.getUrl()));
+				startActivity(intent);
+				return true;
 		}
 		return false;
 	}
@@ -76,7 +76,6 @@ public class PersonInfoListFragment extends SmoothListFragment implements Loader
 		listView.setScrollBarStyle(ListView.SCROLLBARS_OUTSIDE_OVERLAY);
 
 		View headerView = LayoutInflater.from(getActivity()).inflate(R.layout.header_person_info, null);
-		((TextView) headerView.findViewById(R.id.title)).setText(person.getName());
 		getListView().addHeaderView(headerView, null, false);
 
 		setListAdapter(adapter);

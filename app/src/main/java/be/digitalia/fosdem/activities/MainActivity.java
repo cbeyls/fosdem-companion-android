@@ -189,9 +189,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-
-		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-		setSupportActionBar(toolbar);
+		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
 		progressBar = (ProgressBar) findViewById(R.id.progress);
 

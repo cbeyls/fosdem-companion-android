@@ -9,6 +9,6 @@
     <dimen name="list_item_medium_text_size">16sp</dimen>
     <dimen name="list_item_small_text_size">14sp</dimen>
     <dimen name="content_margin">16dp</dimen>
-    <dimen name="toolbar_elevation">6dp</dimen>
+    <dimen name="toolbar_elevation">8dp</dimen>
 
 </resources>
