@@ -123,13 +123,10 @@ public class SlidingTabLayout extends HorizontalScrollView {
 
 		a.recycle();
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			// If we're running on Honeycomb or newer, then we can use the Theme's
-			// selectableItemBackground to ensure that the View has a pressed state
-			context.getTheme().resolveAttribute(android.R.attr.selectableItemBackground,
-					outValue, true);
-			mItemBackground = outValue.resourceId;
-		}
+		// Use the Support Library Theme's
+		// selectableItemBackground to ensure that the View has a pressed state
+		context.getTheme().resolveAttribute(R.attr.selectableItemBackground, outValue, true);
+		mItemBackground = outValue.resourceId;
 	}
 
 	public void setDistributeEvenly(boolean distributeEvenly) {
@@ -259,6 +256,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
 				tabText = tabText.toString().toUpperCase(Locale.getDefault());
 			}
 			tabTitleView.setText(tabText);
+			tabView.setFocusable(true);
 			tabView.setOnClickListener(tabClickListener);
 
 			mTabStrip.addView(tabView);
