@@ -67,30 +67,28 @@
         <item name="textColor">@color/tab_text</item>
     </style>
 
-    <style name="Metadata" parent="TextAppearance.AppCompat.Body1">
-        <item name="android:textColor">?android:textColorPrimaryInverse</item>
+    <style name="SeparatorLine">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">@color/translucent_grey</item>
+    </style>
+
+    <style name="Metadata" parent="TextAppearance.AppCompat.Subhead">
+        <item name="android:textColor">#666666</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:drawablePadding">8dp</item>
     </style>
 
     <style name="Metadata.Selectable">
-        <item name="android:background">@drawable/abc_item_background_holo_dark</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
     </style>
 
     <style name="Header">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginBottom">5dp</item>
-        <item name="android:paddingLeft">@dimen/list_item_padding</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:textSize">20sp</item>
         <item name="android:textColor">@color/fosdem_purple</item>
-    </style>
-
-    <style name="HeaderLine">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">2dp</item>
-        <item name="android:background">@color/fosdem_purple</item>
     </style>
 
     <style name="RoomImageDialogAnimations">

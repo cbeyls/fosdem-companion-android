@@ -39,24 +39,17 @@
                 android:layout_marginTop="8dp"
                 tools:text="FOSDEM Staff"/>
 
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary"
-            android:orientation="vertical"
-            android:paddingBottom="8dp"
-            android:paddingLeft="@dimen/content_margin"
-            android:paddingRight="@dimen/content_margin"
-            android:paddingTop="8dp">
+            <View
+                style="@style/SeparatorLine"
+                android:layout_marginTop="8dp"/>
 
             <TextView
                 android:id="@+id/track"
                 style="@style/Metadata"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawableLeft="@drawable/ic_small_labels"
+                android:layout_marginTop="8dp"
+                android:drawableLeft="@drawable/ic_local_offer_grey600_18dp"
                 tools:text="Keynotes"/>
 
             <TextView
@@ -64,7 +57,7 @@
                 style="@style/Metadata"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawableLeft="@drawable/ic_small_time"
+                android:drawableLeft="@drawable/ic_access_time_grey600_18dp"
                 tools:text="Day 1 (Saturday), 09:30 - 09:55"/>
 
             <TextView
@@ -72,8 +65,9 @@
                 style="@style/Metadata.Selectable"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawableLeft="@drawable/ic_small_place"
+                android:drawableLeft="@drawable/ic_place_grey600_18dp"
                 tools:text="Janson (Building J)"/>
+
         </LinearLayout>
 
         <TextView
@@ -109,8 +103,6 @@
             <TextView
                 style="@style/Header"
                 android:text="@string/related_links_header"/>
-
-            <View style="@style/HeaderLine"/>
         </LinearLayout>
     </LinearLayout>
 

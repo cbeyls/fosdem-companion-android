@@ -89,7 +89,7 @@
     <string name="settings_notifications_delay_summary">Delay before getting notified of an upcoming bookmarked event</string>
 
     <!-- Event details -->
-    <string name="related_links_header">RELATED LINKS</string>
+    <string name="related_links_header">Related Links</string>
     <string name="add_bookmark">Add to bookmarks</string>
     <string name="remove_bookmark">Remove from bookmarks</string>
     <string name="share">Share</string>
@@ -101,7 +101,7 @@
     </plurals>
 
     <!-- Speaker info -->
-    <string name="talks_header">TALKS</string>
+    <string name="talks_header">Talks</string>
     <string name="more_info">More info</string>
 
     <!-- Others -->

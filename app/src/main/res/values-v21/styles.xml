@@ -14,13 +14,4 @@
         <item name="android:textColorLink">?android:attr/colorAccent</item>
     </style>
 
-    <!-- Styles -->
-
-    <style name="Metadata.Selectable">
-        <!-- Invert colors at theme level to allow using the white ripple selector -->
-        <item name="android:theme">@style/ThemeOverlay.AppCompat.Dark</item>
-        <item name="android:textColor">?android:textColorPrimary</item>
-        <item name="android:background">?android:attr/selectableItemBackground</item>
-    </style>
-
 </resources>
