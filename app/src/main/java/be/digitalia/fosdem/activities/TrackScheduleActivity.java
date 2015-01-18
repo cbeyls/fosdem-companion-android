@@ -10,6 +10,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.ImageView;
 
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.EventDetailsFragment;
@@ -26,7 +27,10 @@ import be.digitalia.fosdem.utils.NfcUtils.CreateNfcAppDataCallback;
  *
  * @author Christophe Beyls
  */
-public class TrackScheduleActivity extends ActionBarActivity implements TrackScheduleListFragment.Callbacks, CreateNfcAppDataCallback {
+public class TrackScheduleActivity extends ActionBarActivity
+		implements TrackScheduleListFragment.Callbacks,
+		EventDetailsFragment.FloatingActionButtonProvider,
+		CreateNfcAppDataCallback {
 
 	public static final String EXTRA_DAY = "day";
 	public static final String EXTRA_TRACK = "track";
@@ -38,11 +42,15 @@ public class TrackScheduleActivity extends ActionBarActivity implements TrackSch
 	private boolean isTabletLandscape;
 	private Event lastSelectedEvent;
 
+	private ImageView floatingActionButton;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.track_schedule);
 		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+
+		floatingActionButton = (ImageView) findViewById(R.id.fab);
 
 		Bundle extras = getIntent().getExtras();
 		day = extras.getParcelable(EXTRA_DAY);
@@ -102,14 +110,6 @@ public class TrackScheduleActivity extends ActionBarActivity implements TrackSch
 	}
 
 	@Override
-	public byte[] createNfcAppData() {
-		if (lastSelectedEvent == null) {
-			return null;
-		}
-		return String.valueOf(lastSelectedEvent.getId()).getBytes();
-	}
-
-	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
@@ -118,6 +118,8 @@ public class TrackScheduleActivity extends ActionBarActivity implements TrackSch
 		}
 		return false;
 	}
+
+	// TrackScheduleListFragment.Callbacks
 
 	@Override
 	public void onEventSelected(int position, Event event) {
@@ -148,5 +150,22 @@ public class TrackScheduleActivity extends ActionBarActivity implements TrackSch
 			intent.putExtra(TrackScheduleEventActivity.EXTRA_POSITION, position);
 			startActivity(intent);
 		}
+	}
+
+	// EventDetailsFragment.FloatingActionButtonProvider
+
+	@Override
+	public ImageView getActionButton() {
+		return floatingActionButton;
+	}
+
+	// CreateNfcAppDataCallback
+
+	@Override
+	public byte[] createNfcAppData() {
+		if (lastSelectedEvent == null) {
+			return null;
+		}
+		return String.valueOf(lastSelectedEvent.getId()).getBytes();
 	}
 }

@@ -20,6 +20,6 @@
     <bool name="default_underline_indicator_fades">true</bool>
     <integer name="default_underline_indicator_fade_delay">300</integer>
     <integer name="default_underline_indicator_fade_length">400</integer>
-    <color name="default_underline_indicator_selected_color">@color/fosdem_purple</color>
+    <color name="default_underline_indicator_selected_color">@color/color_primary</color>
 
 </resources>

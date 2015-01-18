@@ -4,9 +4,9 @@
     <!-- Main theme -->
 
     <style name="Base.AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="colorPrimary">@color/fosdem_purple</item>
-        <item name="colorPrimaryDark">@color/fosdem_purple_dark</item>
-        <item name="colorAccent">@color/fosdem_blue</item>
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorPrimaryDark">@color/color_primary_dark</item>
+        <item name="colorAccent">@color/color_accent</item>
         <item name="android:textColorLink">?attr/colorAccent</item>
 
         <item name="activatedBackgroundIndicator">@drawable/activated_background</item>
@@ -28,9 +28,9 @@
     </style>
 
     <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog">
-        <item name="colorPrimary">@color/fosdem_purple</item>
-        <item name="colorPrimaryDark">@color/fosdem_purple_dark</item>
-        <item name="colorAccent">@color/fosdem_blue</item>
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorPrimaryDark">@color/color_primary_dark</item>
+        <item name="colorAccent">@color/color_accent</item>
     </style>
 
     <style name="Toolbar.Fosdem" parent="Widget.AppCompat.Toolbar">
@@ -67,6 +67,17 @@
         <item name="textColor">@color/tab_text</item>
     </style>
 
+    <style name="FloatingActionButton" tools:ignore="newApi">
+        <item name="android:layout_width">@dimen/fab_diameter</item>
+        <item name="android:layout_height">@dimen/fab_diameter</item>
+        <item name="android:background">@drawable/fab_background</item>
+        <item name="android:elevation">@dimen/fab_elevation_low</item>
+        <item name="android:stateListAnimator">@anim/fab_elevation</item>
+        <item name="android:scaleType">center</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
     <style name="SeparatorLine">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
@@ -88,7 +99,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingBottom">8dp</item>
         <item name="android:textSize">20sp</item>
-        <item name="android:textColor">@color/fosdem_purple</item>
+        <item name="android:textColor">@color/color_primary</item>
     </style>
 
     <style name="RoomImageDialogAnimations">

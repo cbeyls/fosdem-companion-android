@@ -1,6 +1,7 @@
 package be.digitalia.fosdem.fragments;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -27,6 +28,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.text.DateFormat;
@@ -46,6 +48,14 @@ import be.digitalia.fosdem.utils.DateUtils;
 import be.digitalia.fosdem.utils.StringUtils;
 
 public class EventDetailsFragment extends Fragment {
+
+	/**
+	 * Interface implemented by container activities
+	 */
+	public interface FloatingActionButtonProvider {
+		// May return null
+		ImageView getActionButton();
+	}
 
 	private static class EventDetails {
 		List<Person> persons;
@@ -71,6 +81,7 @@ public class EventDetailsFragment extends Fragment {
 	private ViewHolder holder;
 
 	private MenuItem bookmarkMenuItem;
+	private ImageView actionButton;
 
 	public static EventDetailsFragment newInstance(Event event) {
 		EventDetailsFragment f = new EventDetailsFragment();
@@ -84,7 +95,6 @@ public class EventDetailsFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		event = getArguments().getParcelable(ARG_EVENT);
-		setHasOptionsMenu(true);
 	}
 
 	public Event getEvent() {
@@ -166,18 +176,44 @@ public class EventDetailsFragment extends Fragment {
 	}
 
 	@Override
-	public void onDestroyView() {
-		super.onDestroyView();
-		holder = null;
-	}
-
-	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+
+		Activity activity = getActivity();
+		if (activity instanceof FloatingActionButtonProvider) {
+			actionButton = ((FloatingActionButtonProvider) activity).getActionButton();
+			if (actionButton != null) {
+				actionButton.setOnClickListener(actionButtonClickListener);
+			}
+		}
+
+		// Ensure the actionButton is initialized before creating the options menu
+		setHasOptionsMenu(true);
 
 		LoaderManager loaderManager = getLoaderManager();
 		loaderManager.initLoader(BOOKMARK_STATUS_LOADER_ID, null, bookmarkStatusLoaderCallbacks);
 		loaderManager.initLoader(EVENT_DETAILS_LOADER_ID, null, eventDetailsLoaderCallbacks);
+	}
+
+	private final View.OnClickListener actionButtonClickListener = new View.OnClickListener() {
+
+		@Override
+		public void onClick(View view) {
+			if (isBookmarked != null) {
+				new UpdateBookmarkAsyncTask(event).execute(isBookmarked);
+			}
+		}
+	};
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		holder = null;
+		if (actionButton != null) {
+			// Clear the reference to this fragment
+			actionButton.setOnClickListener(null);
+			actionButton = null;
+		}
 	}
 
 	@Override
@@ -185,27 +221,54 @@ public class EventDetailsFragment extends Fragment {
 		inflater.inflate(R.menu.event, menu);
 		menu.findItem(R.id.share).setIntent(getShareChooserIntent());
 		bookmarkMenuItem = menu.findItem(R.id.bookmark);
+		if (actionButton != null) {
+			bookmarkMenuItem.setEnabled(false).setVisible(false);
+		}
 		updateOptionsMenu();
 	}
 
 	private Intent getShareChooserIntent() {
-		return ShareCompat.IntentBuilder.from(getActivity()).setSubject(String.format("%1$s (FOSDEM)", event.getTitle())).setType("text/plain")
-				.setText(String.format("%1$s %2$s #FOSDEM", event.getTitle(), event.getUrl())).setChooserTitle(R.string.share).createChooserIntent();
+		return ShareCompat.IntentBuilder.from(getActivity())
+				.setSubject(String.format("%1$s (FOSDEM)", event.getTitle()))
+				.setType("text/plain")
+				.setText(String.format("%1$s %2$s #FOSDEM", event.getTitle(), event.getUrl()))
+				.setChooserTitle(R.string.share)
+				.createChooserIntent();
 	}
 
 	private void updateOptionsMenu() {
-		if (bookmarkMenuItem != null) {
+		if (actionButton != null) {
+			// Action Button is used as bookmark button
+
 			if (isBookmarked == null) {
-				bookmarkMenuItem.setEnabled(false);
+				actionButton.setEnabled(false);
 			} else {
-				bookmarkMenuItem.setEnabled(true);
+				actionButton.setEnabled(true);
 
 				if (isBookmarked) {
-					bookmarkMenuItem.setTitle(R.string.remove_bookmark);
-					bookmarkMenuItem.setIcon(R.drawable.ic_bookmark_white_24dp);
+					actionButton.setContentDescription(getString(R.string.remove_bookmark));
+					actionButton.setImageResource(R.drawable.ic_bookmark_white_24dp);
 				} else {
-					bookmarkMenuItem.setTitle(R.string.add_bookmark);
-					bookmarkMenuItem.setIcon(R.drawable.ic_bookmark_outline_white_24dp);
+					actionButton.setContentDescription(getString(R.string.add_bookmark));
+					actionButton.setImageResource(R.drawable.ic_bookmark_outline_white_24dp);
+				}
+			}
+		} else {
+			// Standard menu item is used as bookmark button
+
+			if (bookmarkMenuItem != null) {
+				if (isBookmarked == null) {
+					bookmarkMenuItem.setEnabled(false);
+				} else {
+					bookmarkMenuItem.setEnabled(true);
+
+					if (isBookmarked) {
+						bookmarkMenuItem.setTitle(R.string.remove_bookmark);
+						bookmarkMenuItem.setIcon(R.drawable.ic_bookmark_white_24dp);
+					} else {
+						bookmarkMenuItem.setTitle(R.string.add_bookmark);
+						bookmarkMenuItem.setIcon(R.drawable.ic_bookmark_outline_white_24dp);
+					}
 				}
 			}
 		}

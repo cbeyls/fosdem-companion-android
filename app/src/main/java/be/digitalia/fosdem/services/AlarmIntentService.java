@@ -174,7 +174,7 @@ public class AlarmIntentService extends IntentService {
 						bigText = spannableBigText;
 					}
 
-					int notificationColor = getResources().getColor(R.color.fosdem_purple);
+					int notificationColor = getResources().getColor(R.color.color_primary);
 
 					NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
 							.setSmallIcon(R.drawable.ic_stat_fosdem)

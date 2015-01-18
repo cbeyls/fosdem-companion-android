@@ -8,9 +8,9 @@
     </style>
 
     <style name="AlertDialogTheme" parent="android:Theme.Material.Light.Dialog.Alert">
-        <item name="android:colorPrimary">@color/fosdem_purple</item>
-        <item name="android:colorPrimaryDark">@color/fosdem_purple_dark</item>
-        <item name="android:colorAccent">@color/fosdem_blue</item>
+        <item name="android:colorPrimary">@color/color_primary</item>
+        <item name="android:colorPrimaryDark">@color/color_primary_dark</item>
+        <item name="android:colorAccent">@color/color_accent</item>
         <item name="android:textColorLink">?android:attr/colorAccent</item>
     </style>
 
