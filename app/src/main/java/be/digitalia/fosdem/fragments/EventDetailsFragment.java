@@ -348,10 +348,10 @@ public class EventDetailsFragment extends Fragment {
 			}
 
 			// 2. Links
-			// Keep the first 2 views in links container (titles) only
+			// Keep the first view in links container (title) only
 			int linkViewCount = holder.linksContainer.getChildCount();
-			if (linkViewCount > 2) {
-				holder.linksContainer.removeViews(2, linkViewCount - 2);
+			if (linkViewCount > 1) {
+				holder.linksContainer.removeViews(1, linkViewCount - 1);
 			}
 			if ((data.links != null) && (data.links.size() > 0)) {
 				holder.linksContainer.setVisibility(View.VISIBLE);
