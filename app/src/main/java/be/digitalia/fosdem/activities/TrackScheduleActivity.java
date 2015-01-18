@@ -8,7 +8,9 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.EventDetailsFragment;
 import be.digitalia.fosdem.fragments.RoomImageDialogFragment;
@@ -21,9 +23,8 @@ import be.digitalia.fosdem.utils.NfcUtils.CreateNfcAppDataCallback;
 
 /**
  * Track Schedule container, works in both single pane and dual pane modes.
- * 
+ *
  * @author Christophe Beyls
- * 
  */
 public class TrackScheduleActivity extends ActionBarActivity implements TrackScheduleListFragment.Callbacks, CreateNfcAppDataCallback {
 
@@ -41,6 +42,7 @@ public class TrackScheduleActivity extends ActionBarActivity implements TrackSch
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.track_schedule);
+		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
 		Bundle extras = getIntent().getExtras();
 		day = extras.getParcelable(EXTRA_DAY);
@@ -93,9 +95,9 @@ public class TrackScheduleActivity extends ActionBarActivity implements TrackSch
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case android.R.id.home:
-			NavUtils.navigateUpFromSameTask(this);
-			return true;
+			case android.R.id.home:
+				NavUtils.navigateUpFromSameTask(this);
+				return true;
 		}
 		return false;
 	}

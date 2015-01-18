@@ -1,24 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="horizontal" >
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
 
-    <FrameLayout
-        android:id="@+id/schedule"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1" />
+        android:orientation="vertical">
 
-    <View
-        android:layout_width="1dp"
-        android:layout_height="match_parent"
-        android:background="#ccc" />
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            style="@style/Toolbar.Fosdem"
+            android:layout_width="match_parent"
+            android:layout_height="128dp"
+            android:elevation="2dp"
+            android:gravity="top"/>
 
-    <FrameLayout
+        <FrameLayout
+            android:id="@+id/schedule"
+            android:layout_width="@dimen/schedule_column_width"
+            android:layout_height="0dp"
+            android:layout_gravity="left"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
+    <android.support.v7.widget.CardView
         android:id="@+id/event"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="2" />
-
-</LinearLayout>
+        android:layout_marginLeft="@dimen/schedule_column_width"
+        android:layout_marginRight="48dp"
+        android:layout_marginTop="64dp"/>
+</FrameLayout>
