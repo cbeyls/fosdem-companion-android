@@ -12,6 +12,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.MessageDialogFragment;
 import be.digitalia.fosdem.fragments.SearchResultListFragment;
@@ -21,6 +22,8 @@ public class SearchResultActivity extends ActionBarActivity {
 	public static final int MIN_SEARCH_LENGTH = 3;
 
 	private static final String STATE_CURRENT_QUERY = "current_query";
+	// Search Intent sent by Google Now
+	private static final String GMS_ACTION_SEARCH = "com.google.android.gms.actions.SEARCH_ACTION";
 
 	private String currentQuery;
 	private SearchView searchView;
@@ -55,7 +58,7 @@ public class SearchResultActivity extends ActionBarActivity {
 
 	private void handleIntent(Intent intent, boolean isNewIntent) {
 		String intentAction = intent.getAction();
-		if (Intent.ACTION_SEARCH.equals(intentAction)) {
+		if (Intent.ACTION_SEARCH.equals(intentAction) || GMS_ACTION_SEARCH.equals(intentAction)) {
 			// Normal search, results are displayed here
 			String query = intent.getStringExtra(SearchManager.QUERY);
 			if (query != null) {
