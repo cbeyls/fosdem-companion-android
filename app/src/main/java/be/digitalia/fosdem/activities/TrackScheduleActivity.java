@@ -68,11 +68,28 @@ public class TrackScheduleActivity extends ActionBarActivity implements TrackSch
 		} else {
 			trackScheduleListFragment = (TrackScheduleListFragment) fm.findFragmentById(R.id.schedule);
 
-			// Remove the room image DialogFragment when switching from dual pane to single pane mode
+			// Cleanup after switching from dual pane to single pane mode
 			if (!isTabletLandscape) {
+				FragmentTransaction ft = null;
+
+				Fragment eventDetailsFragment = fm.findFragmentById(R.id.event);
+				if (eventDetailsFragment != null) {
+					if (ft == null) {
+						ft = fm.beginTransaction();
+					}
+					ft.remove(eventDetailsFragment);
+				}
+
 				Fragment roomImageDialogFragment = fm.findFragmentByTag(RoomImageDialogFragment.TAG);
 				if (roomImageDialogFragment != null) {
-					fm.beginTransaction().remove(roomImageDialogFragment).commit();
+					if (ft == null) {
+						ft = fm.beginTransaction();
+					}
+					ft.remove(roomImageDialogFragment);
+				}
+
+				if (ft != null) {
+					ft.commit();
 				}
 			}
 		}
