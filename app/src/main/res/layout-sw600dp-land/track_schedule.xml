@@ -29,14 +29,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginLeft="@dimen/schedule_column_width"
-        android:layout_marginRight="120dp"
+        android:layout_marginRight="96dp"
         android:layout_marginTop="64dp"/>
 
     <ImageView
         android:id="@+id/fab"
         style="@style/FloatingActionButton"
         android:layout_gravity="top|right"
-        android:layout_marginRight="32dp"
+        android:layout_marginRight="20dp"
         android:layout_marginTop="100dp"
         android:src="@drawable/ic_bookmark_outline_white_24dp"/>
 </FrameLayout>
