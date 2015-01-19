@@ -225,6 +225,10 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		LayoutInflater inflater = LayoutInflater.from(this);
 		View menuHeaderView = inflater.inflate(R.layout.header_main_menu, null);
 		menuListView.addHeaderView(menuHeaderView, null, false);
+		View menuFooterView = inflater.inflate(R.layout.footer_main_menu, null);
+		menuFooterView.findViewById(R.id.settings).setOnClickListener(menuFooterClickListener);
+		menuFooterView.findViewById(R.id.about).setOnClickListener(menuFooterClickListener);
+		menuListView.addFooterView(menuFooterView, null, false);
 
 		LocalBroadcastManager.getInstance(this).registerReceiver(scheduleRefreshedReceiver, new IntentFilter(DatabaseManager.ACTION_SCHEDULE_REFRESHED));
 
@@ -393,13 +397,6 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 			case R.id.refresh:
 				startDownloadSchedule();
 				return true;
-			case R.id.settings:
-				startActivity(new Intent(this, SettingsActivity.class));
-				overridePendingTransition(R.anim.slide_in_right, R.anim.partial_zoom_out);
-				return true;
-			case R.id.about:
-				new AboutDialogFragment().show(getSupportFragmentManager(), "about");
-				return true;
 		}
 		return false;
 	}
@@ -433,6 +430,23 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 	}
 
 	// MAIN MENU
+
+	private final View.OnClickListener menuFooterClickListener = new View.OnClickListener() {
+
+		@Override
+		public void onClick(View view) {
+			switch (view.getId()) {
+				case R.id.settings:
+					startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+					overridePendingTransition(R.anim.slide_in_right, R.anim.partial_zoom_out);
+					break;
+				case R.id.about:
+					new AboutDialogFragment().show(getSupportFragmentManager(), "about");
+					break;
+			}
+			drawerLayout.closeDrawer(mainMenu);
+		}
+	};
 
 	private class MainMenuAdapter extends BaseAdapter {
 

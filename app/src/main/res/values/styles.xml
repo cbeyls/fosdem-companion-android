@@ -60,6 +60,14 @@
 
     <!-- Styles -->
 
+    <style name="MainMenuItem" parent="TextAppearance.AppCompat.Body2">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/main_menu_item_height</item>
+        <item name="android:gravity">left|center_vertical</item>
+        <item name="android:paddingLeft">@dimen/main_menu_padding</item>
+        <item name="android:drawablePadding">@dimen/main_menu_drawable_padding</item>
+    </style>
+
     <style name="SlidingTabs">
         <item name="theme">@style/ThemeOverlay.AppCompat.Dark</item>
         <item name="android:background">?attr/colorPrimary</item>

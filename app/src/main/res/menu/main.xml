@@ -15,15 +15,5 @@
         android:menuCategory="secondary"
         android:title="@string/update_events_db"
         app:showAsAction="ifRoom"/>
-    <item
-        android:id="@+id/settings"
-        android:menuCategory="secondary"
-        android:title="@string/settings"
-        app:showAsAction="never"/>
-    <item
-        android:id="@+id/about"
-        android:menuCategory="secondary"
-        android:title="@string/about"
-        app:showAsAction="never"/>
 
 </menu>
