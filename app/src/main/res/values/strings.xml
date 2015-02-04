@@ -94,6 +94,7 @@
     <string name="remove_bookmark">Remove from bookmarks</string>
     <string name="share">Share</string>
     <string name="add_to_agenda">Add to agenda</string>
+    <string name="calendar_not_found">No compatible calendar application found.</string>
 
     <plurals name="speakers">
         <item quantity="one">Speaker</item>
