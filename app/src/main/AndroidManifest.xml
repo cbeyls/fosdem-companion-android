@@ -46,13 +46,16 @@
         </activity>
         <activity
             android:name=".activities.TrackScheduleActivity"
+            android:parentActivityName=".activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity"/>
         </activity>
         <activity android:name=".activities.TrackScheduleEventActivity"/>
-        <activity android:name=".activities.EventDetailsActivity">
+        <activity
+            android:name=".activities.EventDetailsActivity"
+            android:parentActivityName=".activities.TrackScheduleActivity">
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
 
@@ -60,6 +63,9 @@
 
                 <data android:mimeType="application/be.digitalia.fosdem"/>
             </intent-filter>
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.TrackScheduleActivity"/>
         </activity>
         <activity
             android:name=".activities.PersonInfoActivity"

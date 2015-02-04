@@ -24,9 +24,8 @@ import be.digitalia.fosdem.utils.NfcUtils.CreateNfcAppDataCallback;
 
 /**
  * Displays a single event passed either as a complete Parcelable object in extras or as an id in data.
- * 
+ *
  * @author Christophe Beyls
- * 
  */
 public class EventDetailsActivity extends ActionBarActivity implements LoaderCallbacks<Event>, CreateNfcAppDataCallback {
 
@@ -74,21 +73,27 @@ public class EventDetailsActivity extends ActionBarActivity implements LoaderCal
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case android.R.id.home:
-			// Navigate up to the track associated to this event
-			Intent upIntent = new Intent(this, TrackScheduleActivity.class);
-			upIntent.putExtra(TrackScheduleActivity.EXTRA_DAY, event.getDay());
-			upIntent.putExtra(TrackScheduleActivity.EXTRA_TRACK, event.getTrack());
-			upIntent.putExtra(TrackScheduleActivity.EXTRA_FROM_EVENT_ID, event.getId());
-			upIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			case android.R.id.home:
+				// Navigate up to the track associated with this event
+				Intent upIntent = new Intent(this, TrackScheduleActivity.class);
+				upIntent.putExtra(TrackScheduleActivity.EXTRA_DAY, event.getDay());
+				upIntent.putExtra(TrackScheduleActivity.EXTRA_TRACK, event.getTrack());
+				upIntent.putExtra(TrackScheduleActivity.EXTRA_FROM_EVENT_ID, event.getId());
 
-			finish();
-			if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
-				TaskStackBuilder.create(this).addNextIntent(new Intent(this, MainActivity.class)).addNextIntent(upIntent).startActivities();
-			} else {
-				startActivity(upIntent);
-			}
-			return true;
+				if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
+					TaskStackBuilder.create(this)
+							.addNextIntentWithParentStack(upIntent)
+							.startActivities();
+					finish();
+				} else {
+					// Replicate the compatibility implementation of NavUtils.navigateUpTo()
+					// to ensure the parent Activity is always launched
+					// even if not present on the back stack.
+					upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					startActivity(upIntent);
+					finish();
+				}
+				return true;
 		}
 		return false;
 	}
