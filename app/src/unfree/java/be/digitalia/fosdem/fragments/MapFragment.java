@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -49,10 +48,11 @@ public class MapFragment extends AbstractMapFragment implements GoogleApiClient.
     }
 
     private static final long POSITION_UPDATE_INTERVAL_IN_MS = 10000l;
+    private static final double WIDTH_IN_METERS = distFrom(TOP_LEFT, TOP_RIGHT);
 
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
-    private ImageView mIvPosition;
+    private View mVwPosition;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -74,7 +74,7 @@ public class MapFragment extends AbstractMapFragment implements GoogleApiClient.
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mIvPosition = (ImageView) view.findViewById(R.id.ivPosition);
+        mVwPosition = view.findViewById(R.id.ivPosition);
     }
 
     @Override
@@ -125,6 +125,25 @@ public class MapFragment extends AbstractMapFragment implements GoogleApiClient.
         return pos2.latitude - (pos2.longitude * m);
     }
 
+    /**
+     * Compute distance in meters between two coordinates.
+     * Found on : http://stackoverflow.com/questions/837872/calculate-distance-in-meters-when-you-know-longitude-and-latitude-in-java
+     *
+     * @param pos1 Position to compute from
+     * @param pos2 Position to compute to
+     * @return Distance in meters
+     */
+    private static float distFrom(LatLng pos1, LatLng pos2) {
+        double earthRadius = 6371000; //meters
+        double dLat = Math.toRadians(pos2.latitude-pos1.latitude);
+        double dLng = Math.toRadians(pos2.longitude-pos1.longitude);
+        double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(Math.toRadians(pos1.latitude)) * Math.cos(Math.toRadians(pos2.latitude)) *
+                        Math.sin(dLng/2) * Math.sin(dLng/2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return (float) (earthRadius * c);
+    }
+
     @Override
     public void onConnected(Bundle bundle) {
         Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(
@@ -139,26 +158,30 @@ public class MapFragment extends AbstractMapFragment implements GoogleApiClient.
     private void setPositionOnMap(Location pos) {
         LatLng latLng = new LatLng(pos.getLatitude(), pos.getLongitude());
         if (isInsideZone(latLng)) {
-            mIvPosition.setVisibility(View.VISIBLE);
-            setPositionImage(latLng);
+            mVwPosition.setVisibility(View.VISIBLE);
+            setPositionImage(latLng, pos.getAccuracy());
         } else {
-            mIvPosition.setVisibility(View.GONE);
+            mVwPosition.setVisibility(View.GONE);
         }
     }
 
-    private void setPositionImage(LatLng latLng) {
+    private void setPositionImage(LatLng latLng, float accuracy) {
         View v = getView();
         if (v == null) {
             return;
         }
         int left = (int) Math.round(getDistanceFromBorder(latLng, M_LEFT, P_LEFT) / DISTANCE_BETWEEN_LEFT_AND_RIGHT * v.getWidth());
         int top = (int) Math.round(getDistanceFromBorder(latLng, M_TOP, P_TOP) / DISTANCE_BETWEEN_TOP_AND_BOTTOM * v.getHeight());
-        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mIvPosition.getLayoutParams();
+        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mVwPosition.getLayoutParams();
         if (lp == null) {
             lp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         }
-        lp.setMargins(left - mIvPosition.getWidth()/2, top - mIvPosition.getHeight()/2, 0, 0);
-        mIvPosition.setLayoutParams(lp);
+        int size = (int) (accuracy * (WIDTH_IN_METERS/v.getWidth()));
+        mVwPosition.setMinimumHeight(size);
+        mVwPosition.setMinimumWidth(size);
+        size = mVwPosition.getWidth() > size && mVwPosition.getWidth() != 0 ? mVwPosition.getWidth() : size;
+        lp.setMargins(left - size/2, top - size/2, 0, 0);
+        mVwPosition.setLayoutParams(lp);
     }
 
     private double getDistanceFromBorder(LatLng latLng, double m, double p) {

@@ -9,11 +9,16 @@
         android:scaleType="fitXY"
         android:src="@drawable/campusmap"
         />
-    <ImageView
+    <FrameLayout
         android:id="@+id/ivPosition"
-        android:contentDescription="@string/your_position"
-        android:visibility="gone"
-        android:src="@drawable/ic_launcher"
+        android:background="@drawable/accuracy_background"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content">
+        <ImageView
+            android:layout_gravity="center"
+            android:contentDescription="@string/your_position"
+            android:src="@drawable/position"
+            android:layout_width="10dp"
+            android:layout_height="10dp" />
+    </FrameLayout>
 </FrameLayout>
