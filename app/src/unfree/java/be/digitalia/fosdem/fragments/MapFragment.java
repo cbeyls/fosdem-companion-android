@@ -19,10 +19,10 @@ import be.digitalia.fosdem.R;
 
 public class MapFragment extends AbstractMapFragment implements GoogleApiClient.ConnectionCallbacks, LocationListener {
 
-    private static final LatLng TOP_LEFT = new LatLng(50.81495814,4.37645320);
-    private static final LatLng TOP_RIGHT = new LatLng(50.8166223,4.38251400);
-    private static final LatLng BOTTOM_RIGHT = new LatLng(50.81110086,4.38665628);
-    private static final LatLng BOTTOM_LEFT = new LatLng(50.8094395,4.3812597);
+    private static final LatLng TOP_LEFT = new LatLng(50.81491805,4.376473692);
+    private static final LatLng TOP_RIGHT = new LatLng(50.816999567,4.382631876);
+    private static final LatLng BOTTOM_RIGHT = new LatLng(50.811480524,4.387159185);
+    private static final LatLng BOTTOM_LEFT = new LatLng(50.80904489,4.381001001);
 
     private static final double M_TOP = getM(TOP_LEFT, TOP_RIGHT);
     private static final double P_TOP = getP(TOP_RIGHT, M_TOP);
@@ -36,15 +36,15 @@ public class MapFragment extends AbstractMapFragment implements GoogleApiClient.
     private static final double DISTANCE_BETWEEN_LEFT_AND_RIGHT;
     static {
         DISTANCE_BETWEEN_LEFT_AND_RIGHT = Math.sqrt(
-                Math.pow(TOP_RIGHT.longitude - TOP_LEFT.longitude,2) +
-                        Math.pow(TOP_RIGHT.latitude - TOP_LEFT.latitude, 2)
+                Math.pow(TOP_RIGHT.longitude - TOP_LEFT.longitude, 2) +
+                Math.pow(TOP_RIGHT.latitude  - TOP_LEFT.latitude,  2)
         );
     }
     private static final double DISTANCE_BETWEEN_TOP_AND_BOTTOM;
     static {
         DISTANCE_BETWEEN_TOP_AND_BOTTOM = Math.sqrt(
-                Math.pow(TOP_RIGHT.longitude - BOTTOM_RIGHT.longitude,2) +
-                        Math.pow(TOP_RIGHT.latitude - BOTTOM_RIGHT.latitude, 2)
+                Math.pow(TOP_RIGHT.longitude - BOTTOM_RIGHT.longitude, 2) +
+                Math.pow(TOP_RIGHT.latitude  - BOTTOM_RIGHT.latitude,  2)
         );
     }
 
@@ -152,7 +152,7 @@ public class MapFragment extends AbstractMapFragment implements GoogleApiClient.
             return;
         }
         int left = (int) Math.round(getDistanceFromBorder(latLng, M_LEFT, P_LEFT) / DISTANCE_BETWEEN_LEFT_AND_RIGHT * v.getWidth());
-        int top = (int) Math.round(getDistanceFromBorder(latLng, M_TOP, P_TOP) / DISTANCE_BETWEEN_TOP_AND_BOTTOM * v.getWidth());
+        int top = (int) Math.round(getDistanceFromBorder(latLng, M_TOP, P_TOP) / DISTANCE_BETWEEN_TOP_AND_BOTTOM * v.getHeight());
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mIvPosition.getLayoutParams();
         if (lp == null) {
             lp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
