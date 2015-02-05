@@ -22,7 +22,7 @@ import android.support.v4.content.LocalBroadcastManager;
 
 /**
  * Utility class to perform HTTP requests.
- * 
+ *
  * @author Christophe Beyls
  */
 public class HttpUtils {
@@ -43,9 +43,9 @@ public class HttpUtils {
 		});
 
 		// Trust all HTTPS certificates
-		TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+		TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
 			public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-				return new java.security.cert.X509Certificate[] {};
+				return new java.security.cert.X509Certificate[]{};
 			}
 
 			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
@@ -53,7 +53,7 @@ public class HttpUtils {
 
 			public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
 			}
-		} };
+		}};
 		try {
 			SSLContext sc = SSLContext.getInstance("TLS");
 			sc.init(null, trustAllCerts, new java.security.SecureRandom());
@@ -63,44 +63,67 @@ public class HttpUtils {
 		}
 	}
 
+	public static class HttpResult {
+		// Will be null when the local content is up-to-date
+		public InputStream inputStream;
+		public String lastModified;
+	}
+
 	public static InputStream get(Context context, String path) throws IOException {
-		return get(context, new URL(path), null, null);
+		return get(context, new URL(path), null, null, null).inputStream;
 	}
 
-	public static InputStream get(Context context, String path, String progressAction, String progressExtra) throws IOException {
-		return get(context, new URL(path), progressAction, progressExtra);
+	public static HttpResult get(Context context, String path, String lastModified,
+								 String progressAction, String progressExtra) throws IOException {
+		return get(context, new URL(path), lastModified, progressAction, progressExtra);
 	}
 
-	public static InputStream get(final Context context, URL url, final String progressAction, final String progressExtra) throws IOException {
+	public static HttpResult get(final Context context, URL url, String lastModified,
+								 final String progressAction, final String progressExtra) throws IOException {
+		HttpResult result = new HttpResult();
+
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setReadTimeout(DEFAULT_TIMEOUT);
 		connection.setConnectTimeout(DEFAULT_TIMEOUT);
+		if (lastModified != null) {
+			connection.addRequestProperty("If-Modified-Since", lastModified);
+		}
 		connection.connect();
 
-		if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+		result.lastModified = connection.getHeaderField("Last-Modified");
+
+		int responseCode = connection.getResponseCode();
+		if (responseCode != HttpURLConnection.HTTP_OK) {
 			connection.disconnect();
 
-			throw new IOException("Server returned response code: " + connection.getResponseCode());
+			if ((responseCode == HttpURLConnection.HTTP_NOT_MODIFIED) && (lastModified != null)) {
+				// Cached result is still valid; return an empty response
+				return result;
+			}
+
+			throw new IOException("Server returned response code: " + responseCode);
 		}
 
 		final int length = connection.getContentLength();
-		InputStream is = new BufferedInputStream(connection.getInputStream());
+		result.inputStream = new BufferedInputStream(connection.getInputStream());
 		if ((progressAction == null) || (length == -1)) {
 			// No progress support
-			return is;
+			return result;
 		}
 
 		// Broadcast the progression in percents, with a precision of 1/10 of the total file size
-		return new ByteCountInputStream(is, new ByteCountInputStream.ByteCountListener() {
+		result.inputStream = new ByteCountInputStream(result.inputStream,
+				new ByteCountInputStream.ByteCountListener() {
 
-			private LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(context);
+					private LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(context);
 
-			@Override
-			public void onNewCount(int byteCount) {
-				// Cap percent to 100
-				int percent = (byteCount >= length) ? 100 : byteCount * 100 / length;
-				lbm.sendBroadcast(new Intent(progressAction).putExtra(progressExtra, percent));
-			}
-		}, length / 10);
+					@Override
+					public void onNewCount(int byteCount) {
+						// Cap percent to 100
+						int percent = (byteCount >= length) ? 100 : byteCount * 100 / length;
+						lbm.sendBroadcast(new Intent(progressAction).putExtra(progressExtra, percent));
+					}
+				}, length / 10);
+		return result;
 	}
 }

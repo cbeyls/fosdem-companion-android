@@ -1,12 +1,12 @@
 package be.digitalia.fosdem.api;
 
-import java.io.InputStream;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
+
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.parsers.EventsParser;
@@ -27,6 +27,7 @@ public class FosdemApi {
 	public static final String EXTRA_RESULT = "RESULT";
 
 	public static final int RESULT_ERROR = -1;
+	public static final int RESULT_UP_TO_DATE = -2;
 
 	private static final Lock scheduleLock = new ReentrantLock();
 
@@ -43,16 +44,29 @@ public class FosdemApi {
 
 		int result = RESULT_ERROR;
 		try {
-			InputStream is = HttpUtils.get(context, FosdemUrls.getSchedule(), ACTION_DOWNLOAD_SCHEDULE_PROGRESS, EXTRA_PROGRESS);
+			DatabaseManager dbManager = DatabaseManager.getInstance();
+			HttpUtils.HttpResult httpResult = HttpUtils.get(
+					context,
+					FosdemUrls.getSchedule(),
+					dbManager.getLastModifiedTag(),
+					ACTION_DOWNLOAD_SCHEDULE_PROGRESS,
+					EXTRA_PROGRESS);
+			if (httpResult.inputStream == null) {
+				// Nothing to parse, the result is up-to-date.
+				result = RESULT_UP_TO_DATE;
+				return;
+			}
+
 			try {
-				Iterable<Event> events = new EventsParser().parse(is);
-				result = DatabaseManager.getInstance().storeSchedule(events);
+				Iterable<Event> events = new EventsParser().parse(httpResult.inputStream);
+				result = dbManager.storeSchedule(events, httpResult.lastModified);
 			} finally {
 				try {
-					is.close();
+					httpResult.inputStream.close();
 				} catch (Exception ignored) {
 				}
 			}
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

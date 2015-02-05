@@ -50,6 +50,7 @@ public class DatabaseManager {
 
 	private static final String DB_PREFS_FILE = "database";
 	private static final String LAST_UPDATE_TIME_PREF = "last_update_time";
+	private static final String LAST_MODIFIED_TAG_PREF = "last_modified_tag";
 
 	private static DatabaseManager instance;
 
@@ -118,12 +119,20 @@ public class DatabaseManager {
 	}
 
 	/**
+	 *
+	 * @return The time identifier of the current version of the database.
+	 */
+	public String getLastModifiedTag() {
+		return getSharedPreferences().getString(LAST_MODIFIED_TAG_PREF, null);
+	}
+
+	/**
 	 * Stores the schedule to the database.
 	 * 
 	 * @param events
 	 * @return The number of events processed.
 	 */
-	public int storeSchedule(Iterable<Event> events) {
+	public int storeSchedule(Iterable<Event> events, String lastModifiedTag) {
 		boolean isComplete = false;
 
 		SQLiteDatabase db = helper.getWritableDatabase();
@@ -260,8 +269,11 @@ public class DatabaseManager {
 				// Clear cache
 				cachedDays = null;
 				year = -1;
-				// Set last update time
-				getSharedPreferences().edit().putLong(LAST_UPDATE_TIME_PREF, System.currentTimeMillis()).commit();
+				// Set last update time and server's last modified tag
+				getSharedPreferences().edit()
+						.putLong(LAST_UPDATE_TIME_PREF, System.currentTimeMillis())
+						.putString(LAST_MODIFIED_TAG_PREF, lastModifiedTag)
+						.commit();
 
 				context.getContentResolver().notifyChange(URI_TRACKS, null);
 				context.getContentResolver().notifyChange(URI_EVENTS, null);
