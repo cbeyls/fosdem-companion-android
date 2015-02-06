@@ -53,10 +53,12 @@ public class MapFragment extends AbstractMapFragment implements GoogleApiClient.
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private View mVwPosition;
+    private int mPositionDotSizeInPx;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mPositionDotSizeInPx = getResources().getDimensionPixelSize(R.dimen.position_dot_size);
         mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
                 .addConnectionCallbacks(this)
                 .addApi(LocationServices.API)
@@ -179,7 +181,7 @@ public class MapFragment extends AbstractMapFragment implements GoogleApiClient.
         int size = (int) (accuracy * (WIDTH_IN_METERS/v.getWidth()));
         mVwPosition.setMinimumHeight(size);
         mVwPosition.setMinimumWidth(size);
-        size = mVwPosition.getWidth() > size && mVwPosition.getWidth() != 0 ? mVwPosition.getWidth() : size;
+        size = size > mPositionDotSizeInPx ? size : mPositionDotSizeInPx;
         lp.setMargins(left - size/2, top - size/2, 0, 0);
         mVwPosition.setLayoutParams(lp);
     }
