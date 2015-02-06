@@ -18,19 +18,19 @@ import be.digitalia.fosdem.R;
 
 public class MapFragment extends AbstractMapFragment implements GoogleApiClient.ConnectionCallbacks, LocationListener {
 
-    private static final LatLng TOP_LEFT = new LatLng(50.81491805,4.376473692);
-    private static final LatLng TOP_RIGHT = new LatLng(50.816999567,4.382631876);
-    private static final LatLng BOTTOM_RIGHT = new LatLng(50.811480524,4.387159185);
-    private static final LatLng BOTTOM_LEFT = new LatLng(50.80904489,4.381001001);
+    private static final LatLng TOP_LEFT     = new LatLng(50.81491805 , 4.376473692);
+    private static final LatLng TOP_RIGHT    = new LatLng(50.816999567, 4.382631876);
+    private static final LatLng BOTTOM_RIGHT = new LatLng(50.811480524, 4.387159185);
+    private static final LatLng BOTTOM_LEFT  = new LatLng(50.80904489 , 4.381001001);
 
-    private static final double M_TOP = getM(TOP_LEFT, TOP_RIGHT);
-    private static final double P_TOP = getP(TOP_RIGHT, M_TOP);
-    private static final double M_RIGHT = getM(TOP_RIGHT, BOTTOM_RIGHT);
-    private static final double P_RIGHT = getP(BOTTOM_RIGHT, M_RIGHT);
-    private static final double M_BOTTOM = getM(BOTTOM_LEFT, BOTTOM_RIGHT);
-    private static final double P_BOTTOM = getP(BOTTOM_RIGHT, M_BOTTOM);
-    private static final double M_LEFT = getM(TOP_LEFT, BOTTOM_LEFT);
-    private static final double P_LEFT = getP(BOTTOM_LEFT, M_LEFT);
+    private static final double M_TOP        = getM(TOP_LEFT, TOP_RIGHT);
+    private static final double P_TOP        = getP(TOP_RIGHT, M_TOP);
+    private static final double M_RIGHT      = getM(TOP_RIGHT, BOTTOM_RIGHT);
+    private static final double P_RIGHT      = getP(BOTTOM_RIGHT, M_RIGHT);
+    private static final double M_BOTTOM     = getM(BOTTOM_LEFT, BOTTOM_RIGHT);
+    private static final double P_BOTTOM     = getP(BOTTOM_RIGHT, M_BOTTOM);
+    private static final double M_LEFT       = getM(TOP_LEFT, BOTTOM_LEFT);
+    private static final double P_LEFT       = getP(BOTTOM_LEFT, M_LEFT);
 
     private static final double DISTANCE_BETWEEN_LEFT_AND_RIGHT;
     static {
@@ -48,12 +48,14 @@ public class MapFragment extends AbstractMapFragment implements GoogleApiClient.
     }
 
     private static final long POSITION_UPDATE_INTERVAL_IN_MS = 10000l;
+    private static final long POSITION_UPDATE_FASTEST_INTERVAL_IN_MS = 5000l;
     private static final double WIDTH_IN_METERS = distFrom(TOP_LEFT, TOP_RIGHT);
 
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private View mVwPosition;
     private int mPositionDotSizeInPx;
+    private Location mLastPosition;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,6 +67,7 @@ public class MapFragment extends AbstractMapFragment implements GoogleApiClient.
                 .build();
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(POSITION_UPDATE_INTERVAL_IN_MS);
+        mLocationRequest.setFastestInterval(POSITION_UPDATE_FASTEST_INTERVAL_IN_MS);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
@@ -160,11 +163,22 @@ public class MapFragment extends AbstractMapFragment implements GoogleApiClient.
     private void setPositionOnMap(Location pos) {
         LatLng latLng = new LatLng(pos.getLatitude(), pos.getLongitude());
         if (isInsideZone(latLng)) {
-            mVwPosition.setVisibility(View.VISIBLE);
-            setPositionImage(latLng, pos.getAccuracy());
+            if (!isSameAsLastPosition(pos)) {
+                mVwPosition.setVisibility(View.VISIBLE);
+                setPositionImage(latLng, pos.getAccuracy());
+                mLastPosition = pos;
+            }
         } else {
             mVwPosition.setVisibility(View.GONE);
         }
+    }
+
+    private boolean isSameAsLastPosition(Location pos) {
+        return                mLastPosition  != null               &&
+                              pos            != null               &&
+                mLastPosition.getLongitude() == pos.getLongitude() &&
+                mLastPosition.getLatitude()  == pos.getLatitude()  &&
+                mLastPosition.getAccuracy()  == pos.getAccuracy();
     }
 
     private void setPositionImage(LatLng latLng, float accuracy) {
