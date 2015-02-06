@@ -21,5 +21,6 @@
     <dimen name="fab_diameter">56dp</dimen>
     <dimen name="fab_elevation_low">2dp</dimen>
     <dimen name="fab_elevation_high">4dp</dimen>
+    <dimen name="position_dot_size">5dp</dimen>
 
 </resources>

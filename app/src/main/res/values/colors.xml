@@ -12,5 +12,7 @@
     <color name="schedule_time_foreground">#000</color>
     <color name="schedule_time_running_background">#d6000000</color>
     <color name="schedule_time_running_foreground">#fff</color>
+    <color name="precision_color">#88a7168e</color>
+    <color name="precision_stroke_color">#a7168e</color>
 
 </resources>
