@@ -3,6 +3,7 @@ package be.digitalia.fosdem.fragments;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.Configuration;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import java.util.List;
 import java.util.Locale;
@@ -72,6 +74,7 @@ public class AbstractMapFragment extends Fragment {
     private int mPositionDotSizeInPx;
     private View mVwPosition;
     private Location mLastPosition;
+    private boolean mIsInLandscape;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -88,6 +91,11 @@ public class AbstractMapFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        ImageView ivMap = (ImageView) view.findViewById(R.id.ivMap);
+        mIsInLandscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+        if (mIsInLandscape) {
+            ivMap.setImageResource(R.drawable.campusmap_horizontal);
+        }
         mVwPosition = view.findViewById(R.id.ivPosition);
     }
 
@@ -153,8 +161,14 @@ public class AbstractMapFragment extends Fragment {
         if (v == null) {
             return;
         }
-        int left = (int) Math.round(getDistanceFromBorder(latLng, M_LEFT, P_LEFT) / DISTANCE_BETWEEN_LEFT_AND_RIGHT * v.getWidth());
-        int top = (int) Math.round(getDistanceFromBorder(latLng, M_TOP, P_TOP) / DISTANCE_BETWEEN_TOP_AND_BOTTOM * v.getHeight());
+        int left, top;
+        if (mIsInLandscape) {
+            left = (int) Math.round(getDistanceFromBorder(latLng, M_TOP, P_TOP) / DISTANCE_BETWEEN_TOP_AND_BOTTOM * v.getWidth());
+            top = (int) Math.round(getDistanceFromBorder(latLng, M_RIGHT, P_RIGHT) / DISTANCE_BETWEEN_LEFT_AND_RIGHT * v.getHeight());
+        } else {
+            left = (int) Math.round(getDistanceFromBorder(latLng, M_LEFT, P_LEFT) / DISTANCE_BETWEEN_LEFT_AND_RIGHT * v.getWidth());
+            top = (int) Math.round(getDistanceFromBorder(latLng, M_TOP, P_TOP) / DISTANCE_BETWEEN_TOP_AND_BOTTOM * v.getHeight());
+        }
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mVwPosition.getLayoutParams();
         if (lp == null) {
             lp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
