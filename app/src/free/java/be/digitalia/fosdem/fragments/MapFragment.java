@@ -1,10 +1,15 @@
 package be.digitalia.fosdem.fragments;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+
+import be.digitalia.fosdem.R;
 
 public class MapFragment extends AbstractMapFragment implements LocationListener {
 
@@ -45,6 +50,19 @@ public class MapFragment extends AbstractMapFragment implements LocationListener
 
     @Override
     public void onProviderDisabled(String provider) {
-
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(R.string.map_gps_disabled).setCancelable(false).setPositiveButton(R.string.map_gps_enable, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                Intent gpsOptionsIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(gpsOptionsIntent);
+            }
+        });
+        builder.setNegativeButton(R.string.map_gps_do_nothing, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.cancel();
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 }

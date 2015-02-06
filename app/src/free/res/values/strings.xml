@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="map_gps_disabled">Your GPS is disabled. Would you like to enable it?</string>
+    <string name="map_gps_enable">Enable GPS</string>
+    <string name="map_gps_do_nothing">Do nothing</string>
+</resources>
