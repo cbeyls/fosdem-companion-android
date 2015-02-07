@@ -75,6 +75,7 @@ public class AbstractMapFragment extends Fragment {
     private View mVwPosition;
     private Location mLastPosition;
     private boolean mIsInLandscape;
+    private ImageView mIvMap;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -91,10 +92,10 @@ public class AbstractMapFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ImageView ivMap = (ImageView) view.findViewById(R.id.ivMap);
+        mIvMap = (ImageView) view.findViewById(R.id.ivMap);
         mIsInLandscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
         if (mIsInLandscape) {
-            ivMap.setImageResource(R.drawable.campusmap_horizontal);
+            mIvMap.setImageResource(R.drawable.campusmap_horizontal);
         }
         mVwPosition = view.findViewById(R.id.ivPosition);
     }
@@ -163,21 +164,24 @@ public class AbstractMapFragment extends Fragment {
         }
         int left, top;
         if (mIsInLandscape) {
-            left = (int) Math.round(getDistanceFromBorder(latLng, M_TOP, P_TOP) / DISTANCE_BETWEEN_TOP_AND_BOTTOM * v.getWidth());
-            top = (int) Math.round(getDistanceFromBorder(latLng, M_RIGHT, P_RIGHT) / DISTANCE_BETWEEN_LEFT_AND_RIGHT * v.getHeight());
+            left = (int) Math.round(getDistanceFromBorder(latLng, M_TOP, P_TOP) / DISTANCE_BETWEEN_TOP_AND_BOTTOM * mIvMap.getWidth());
+            // We use the bottom border instead of the top one because otherwise this gives a different position on the map when the screen is rotated
+            top = (int) (mIvMap.getHeight() - Math.round(getDistanceFromBorder(latLng, M_LEFT, P_LEFT) / DISTANCE_BETWEEN_LEFT_AND_RIGHT * mIvMap.getHeight()));
         } else {
-            left = (int) Math.round(getDistanceFromBorder(latLng, M_LEFT, P_LEFT) / DISTANCE_BETWEEN_LEFT_AND_RIGHT * v.getWidth());
-            top = (int) Math.round(getDistanceFromBorder(latLng, M_TOP, P_TOP) / DISTANCE_BETWEEN_TOP_AND_BOTTOM * v.getHeight());
+            left = (int) Math.round(getDistanceFromBorder(latLng, M_LEFT, P_LEFT) / DISTANCE_BETWEEN_LEFT_AND_RIGHT * mIvMap.getWidth());
+            top = (int) Math.round(getDistanceFromBorder(latLng, M_TOP, P_TOP) / DISTANCE_BETWEEN_TOP_AND_BOTTOM * mIvMap.getHeight());
         }
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mVwPosition.getLayoutParams();
         if (lp == null) {
             lp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         }
+        int leftOffset = (v.getWidth() - mIvMap.getWidth()) / 2;
+        int topOffset = (v.getHeight() - mIvMap.getHeight()) / 2;
         int size = (int) (accuracy * (WIDTH_IN_METERS/v.getWidth()));
         mVwPosition.setMinimumHeight(size);
         mVwPosition.setMinimumWidth(size);
         size = size > mPositionDotSizeInPx ? size : mPositionDotSizeInPx;
-        lp.setMargins(left - size/2, top - size/2, 0, 0);
+        lp.setMargins(leftOffset + left - size/2, topOffset + top - size/2, 0, 0);
         mVwPosition.setLayoutParams(lp);
     }
 
