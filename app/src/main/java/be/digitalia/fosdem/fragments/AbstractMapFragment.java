@@ -177,7 +177,7 @@ public class AbstractMapFragment extends Fragment {
         }
         int leftOffset = (v.getWidth() - mIvMap.getWidth()) / 2;
         int topOffset = (v.getHeight() - mIvMap.getHeight()) / 2;
-        int size = (int) (accuracy * (WIDTH_IN_METERS/v.getWidth()));
+        int size = (int) (accuracy * (WIDTH_IN_METERS/ (mIsInLandscape ? v.getHeight() : v.getWidth())));
         mVwPosition.setMinimumHeight(size);
         mVwPosition.setMinimumWidth(size);
         size = size > mPositionDotSizeInPx ? size : mPositionDotSizeInPx;
