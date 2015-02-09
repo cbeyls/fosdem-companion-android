@@ -150,6 +150,9 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 				case FosdemApi.RESULT_ERROR:
 					message = getString(R.string.schedule_loading_error);
 					break;
+				case FosdemApi.RESULT_UP_TO_DATE:
+					message = getString(R.string.events_download_up_to_date);
+					break;
 				case 0:
 					message = getString(R.string.events_download_empty);
 					break;

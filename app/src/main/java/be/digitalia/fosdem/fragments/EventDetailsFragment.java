@@ -2,6 +2,7 @@ package be.digitalia.fosdem.fragments;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -30,6 +31,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -340,7 +342,11 @@ public class EventDetailsFragment extends Fragment {
 		if (time != null) {
 			intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, time.getTime());
 		}
-		startActivity(intent);
+		try {
+			startActivity(intent);
+		} catch (ActivityNotFoundException e) {
+			Toast.makeText(getActivity(), R.string.calendar_not_found, Toast.LENGTH_LONG).show();
+		}
 	}
 
 	private final LoaderCallbacks<Boolean> bookmarkStatusLoaderCallbacks = new LoaderCallbacks<Boolean>() {
