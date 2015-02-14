@@ -14,19 +14,19 @@ import com.android.volley.toolbox.NetworkImageView;
 import java.util.ArrayList;
 
 import be.digitalia.fosdem.R;
-import be.digitalia.fosdem.model.Speaker;
-import be.digitalia.fosdem.utils.ImageUtil;
+import be.digitalia.fosdem.model.KeySpeaker;
+import be.digitalia.fosdem.utils.VolleySingleton;
 
 /**
  * Created by Abhishek on 14/02/15.
  */
 public class SpeakerAdapter extends BaseAdapter {
 
-    private ArrayList<Speaker> mSpeakerList;
+    private ArrayList<KeySpeaker> mSpeakerList;
     private Context mContext;
     private LayoutInflater mInflater;
 
-    public SpeakerAdapter(Context context, ArrayList<Speaker> speakerList) {
+    public SpeakerAdapter(Context context, ArrayList<KeySpeaker> speakerList) {
         this.mSpeakerList = speakerList;
         this.mContext = context;
     }
@@ -37,7 +37,7 @@ public class SpeakerAdapter extends BaseAdapter {
     }
 
     @Override
-    public Speaker getItem(int position) {
+    public KeySpeaker getItem(int position) {
         return mSpeakerList.get(position);
     }
 
@@ -67,12 +67,12 @@ public class SpeakerAdapter extends BaseAdapter {
         holder.information = (TextView) row.findViewById(R.id.textView_speaker_information);
         holder.linkedIn = (ImageView) row.findViewById(R.id.imageView_linkedin);
         holder.twitter = (ImageView) row.findViewById(R.id.imageView_twitter);
-        Speaker speaker = getItem(position);
-        holder.speakerImage.setImageUrl(speaker.getImageUrl(), ImageUtil.getImageLoader(mContext));
+        KeySpeaker speaker = getItem(position);
+        holder.speakerImage.setImageUrl(speaker.getProfilePicUrl(), VolleySingleton.getImageLoader(mContext));
         holder.name.setText(speaker.getName());
         holder.designation.setText(speaker.getDesignation());
         holder.information.setText(speaker.getInformation());
-        if (speaker.getLinkedInURl().length() == 0) {
+        if (speaker.getLinkedInUrl().length() == 0) {
             holder.linkedIn.setVisibility(View.GONE);
         } else {
             holder.linkedIn.setVisibility(View.VISIBLE);
@@ -84,7 +84,7 @@ public class SpeakerAdapter extends BaseAdapter {
             });
         }
 
-        if (speaker.getTwitterUrl().length() == 0) {
+        if (speaker.getTwitterHandle().length() == 0) {
             holder.twitter.setVisibility(View.GONE);
         } else {
             holder.twitter.setVisibility(View.VISIBLE);

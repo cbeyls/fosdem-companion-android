@@ -57,6 +57,7 @@ import java.util.Locale;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemApi;
 import be.digitalia.fosdem.db.DatabaseManager;
+import be.digitalia.fosdem.db.JsonToDatabase;
 import be.digitalia.fosdem.fragments.BookmarksListFragment;
 import be.digitalia.fosdem.fragments.KeySpeakerFragment;
 import be.digitalia.fosdem.fragments.LiveFragment;
@@ -149,6 +150,9 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+
+        //Test
+        new JsonToDatabase(getApplicationContext());
 
         progressBar = (ProgressBar) findViewById(R.id.progress);
 
@@ -275,7 +279,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 
                 FragmentManager fm = getSupportFragmentManager();
                 if (fm.findFragmentByTag("download_reminder") == null) {
-                    new DownloadScheduleReminderDialogFragment().show(fm, "download_reminder");
+//                    new DownloadScheduleReminderDialogFragment().show(fm, "download_reminder");
                 }
             }
         }
@@ -354,7 +358,8 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
                     return true;
                 }
             case R.id.refresh:
-                startDownloadSchedule();
+//                startDownloadSchedule();
+                Toast.makeText(getApplication(), "Disabled database refresh, Uncomment line 361 in MainActivity.java", Toast.LENGTH_SHORT).show();
                 return true;
         }
         return false;
