@@ -17,9 +17,9 @@ import be.digitalia.fosdem.R;
 
 public class MapFragment extends Fragment {
 
-	private static final double DESTINATION_LATITUDE = 50.812375;
-	private static final double DESTINATION_LONGITUDE = 4.380734;
-	private static final String DESTINATION_NAME = "ULB";
+	private static final double DESTINATION_LATITUDE = 1.29677;
+	private static final double DESTINATION_LONGITUDE = 103.786914;
+	private static final String DESTINATION_NAME = "Plug-In@Blk71";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -50,8 +50,8 @@ public class MapFragment extends Fragment {
 	private void launchDirections() {
 		// Build intent to start Google Maps directions
 		String uri = String.format(Locale.US,
-				"http://maps.google.com/maps?f=d&daddr=%1$f,%2$f(%3$s)&dirflg=r",
-				DESTINATION_LATITUDE, DESTINATION_LONGITUDE, DESTINATION_NAME);
+                "https://www.google.com/maps/search/%1$s/@%2$f,%3$f,17z",
+				DESTINATION_NAME, DESTINATION_LATITUDE, DESTINATION_LONGITUDE);
 
 		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
 
