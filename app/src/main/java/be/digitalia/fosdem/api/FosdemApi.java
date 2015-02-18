@@ -42,7 +42,8 @@ public class FosdemApi {
 			return;
 		}
 
-		int result = RESULT_ERROR;
+
+        int result = RESULT_ERROR;
 		try {
 			DatabaseManager dbManager = DatabaseManager.getInstance();
 			HttpUtils.HttpResult httpResult = HttpUtils.get(

@@ -6,9 +6,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-	private static final String DATABASE_NAME = "fosdem.sqlite";
-	private static final int DATABASE_VERSION = 1;
-
 	public static final String EVENTS_TABLE_NAME = "events";
 	public static final String EVENTS_TITLES_TABLE_NAME = "events_titles";
 	public static final String PERSONS_TABLE_NAME = "persons";
@@ -17,6 +14,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public static final String TRACKS_TABLE_NAME = "tracks";
 	public static final String DAYS_TABLE_NAME = "days";
 	public static final String BOOKMARKS_TABLE_NAME = "bookmarks";
+    public static final String TABLE_NAME_KEY_SPEAKERS = "key_speakers";
+    private static final String TABLE_KEY_SPEAKERS = "CREATE TABLE " + TABLE_NAME_KEY_SPEAKERS
+            + " (id INTEGER PRIMARY KEY, name TEXT, designation TEXT, information TEXT, twitter_handle TEXT,"
+            + " linkedin_url TEXT, profile_pic_url TEXT);";
+    private static final String DATABASE_NAME = "fosdem.sqlite";
+    private static final int DATABASE_VERSION = 1;
 
 	public DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -56,7 +59,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 		// Bookmarks
 		database.execSQL("CREATE TABLE " + BOOKMARKS_TABLE_NAME + " (event_id INTEGER PRIMARY KEY);");
-	}
+        database.execSQL(TABLE_KEY_SPEAKERS);
+    }
 
 	@Override
 	public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
