@@ -1,6 +1,6 @@
 # FOSSASIA Companion
 
-Advanced native Android schedule browser application for the[FOSSASIA](http://fossasia.org/) conference in Singapore.
+Advanced native Android schedule browser application for the [FOSSASIA](http://fossasia.org/) conference in Singapore.
 
 This is build upon the [FOSDEM Companion For android](https://github.com/cbeyls/fosdem-companion-android). It uses loaders and fragments extensively and is backward compatible up to Android 2.1 thanks to the support library.
 
@@ -31,3 +31,4 @@ The result apk file will be placed in ```app/build/outputs/apk/```.
 ## Contributors
 
 * Christophe Beyls
+
