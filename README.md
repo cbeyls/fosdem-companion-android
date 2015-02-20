@@ -6,7 +6,7 @@ This is build upon the [FOSDEM Companion For android](https://github.com/cbeyls/
 
 To get more information and install the app, look at the [Google Play Store](https://play.google.com/store/apps/details?id=be.digitalia.fosdem) page.
 
-The name FOSSASIA and the gear logo are registered trademarks of FOSDEM VZW. Used with permission.
+The name FOSDEM and the gear logo are registered trademarks of FOSDEM VZW. Used with permission.
 
 ## How to build
 
