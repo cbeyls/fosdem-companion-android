@@ -10,7 +10,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import be.digitalia.fosdem.R;
-import be.digitalia.fosdem.model.Schedule;
+import be.digitalia.fosdem.model.FossasiaEvent;
 
 /**
  * Created by Abhishek on 20/02/15.
@@ -18,27 +18,27 @@ import be.digitalia.fosdem.model.Schedule;
 public class ScheduleAdapter extends BaseAdapter {
 
     private Context mContext;
-    private ArrayList<Schedule> mScheduleList;
+    private ArrayList<FossasiaEvent> mFossasiaEventList;
     private LayoutInflater mInflater;
 
-    public ScheduleAdapter(Context context, ArrayList<Schedule> scheduleList) {
+    public ScheduleAdapter(Context context, ArrayList<FossasiaEvent> fossasiaEventList) {
         this.mContext = context;
-        this.mScheduleList = scheduleList;
+        this.mFossasiaEventList = fossasiaEventList;
     }
 
     @Override
     public int getCount() {
-        return mScheduleList.size();
+        return mFossasiaEventList.size();
     }
 
     @Override
-    public Schedule getItem(int position) {
-        return mScheduleList.get(position);
+    public FossasiaEvent getItem(int position) {
+        return mFossasiaEventList.get(position);
     }
 
     @Override
     public long getItemId(int position) {
-        return mScheduleList.get(position).getId();
+        return mFossasiaEventList.get(position).getId();
     }
 
     @Override
@@ -50,18 +50,18 @@ public class ScheduleAdapter extends BaseAdapter {
         }
         View row;
         if (convertView == null) {
-            row = mInflater.inflate(R.layout.list_schedule, parent, false);
+            row = mInflater.inflate(R.layout.item_schedule_event, parent, false);
         } else {
             row = convertView;
         }
 
         ScheduleHolder holder = new ScheduleHolder();
-        holder.dateTime = (TextView) row.findViewById(R.id.schedule_time);
-        holder.title = (TextView) row.findViewById(R.id.schedule_title);
-        Schedule schedule = getItem(position);
-        holder.dateTime.setText(schedule.getTime());
-        holder.title.setText(schedule.getTitle());
-        row.setTag(schedule.getId());
+        holder.dateTime = (TextView) row.findViewById(R.id.time);
+        holder.title = (TextView) row.findViewById(R.id.text);
+        FossasiaEvent fossasiaEvent = getItem(position);
+        holder.dateTime.setText(fossasiaEvent.getStartTime() + " - " + fossasiaEvent.getEndTime());
+        holder.title.setText(fossasiaEvent.getTitle());
+        row.setTag(fossasiaEvent.getId());
         return row;
     }
 

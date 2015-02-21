@@ -26,10 +26,10 @@ import java.util.Set;
 
 import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Event;
+import be.digitalia.fosdem.model.FossasiaEvent;
 import be.digitalia.fosdem.model.KeySpeaker;
 import be.digitalia.fosdem.model.Link;
 import be.digitalia.fosdem.model.Person;
-import be.digitalia.fosdem.model.Schedule;
 import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.DateUtils;
 
@@ -456,28 +456,39 @@ public class DatabaseManager {
         }
     }
 
-    public ArrayList<Schedule> getSchedule() {
+    public ArrayList<FossasiaEvent> getSchedule() {
         Cursor cursor = helper.getReadableDatabase().query(DatabaseHelper.TABLE_NAME_SCHEDULE, null, null, null, null, null, null);
-        ArrayList<Schedule> scheduleList = new ArrayList<Schedule>();
+        ArrayList<FossasiaEvent> fossasiaEventList = new ArrayList<FossasiaEvent>();
         int id;
         String title;
-        String information;
-        String time;
+        String subTitle;
         String date;
+        String day;
+        String startTime;
+        String endTime;
+        String abstractText;
+        String description;
+        String venue;
         if (cursor.moveToFirst()) {
             do {
                 id = cursor.getInt(0);
                 title = cursor.getString(1);
-                information = cursor.getString(2);
-                time = cursor.getString(3);
-                date = cursor.getString(4);
+                subTitle = cursor.getString(2);
+                date = cursor.getString(3);
+                day = cursor.getString(4);
+                startTime = cursor.getString(5);
+                endTime = cursor.getString(6);
+                abstractText = cursor.getString(7);
+                description = cursor.getString(8);
+                venue = cursor.getString(9);
 
-                scheduleList.add(new Schedule(title, time, date, information, id));
+
+                fossasiaEventList.add(new FossasiaEvent(id, title, subTitle, date, day, startTime, endTime, abstractText, description, venue));
             }
             while (cursor.moveToNext());
         }
         cursor.close();
-        return scheduleList;
+        return fossasiaEventList;
     }
 
     public ArrayList<KeySpeaker> getKeySpeakers() {
@@ -901,7 +912,7 @@ public class DatabaseManager {
         }
     }
 
-    public List<Link> getLinks(Event event) {
+    public List<Link> getLinks(FossasiaEvent event) {
         String[] selectionArgs = new String[]{String.valueOf(event.getId())};
         Cursor cursor = helper.getReadableDatabase().rawQuery(
                 "SELECT url, description" + " FROM " + DatabaseHelper.LINKS_TABLE_NAME + " WHERE event_id = ?" + " ORDER BY rowid ASC", selectionArgs);
@@ -919,10 +930,47 @@ public class DatabaseManager {
         }
     }
 
-    public boolean isBookmarked(Event event) {
+    public boolean isBookmarked(FossasiaEvent event) {
         String[] selectionArgs = new String[]{String.valueOf(event.getId())};
         return queryNumEntries(helper.getReadableDatabase(), DatabaseHelper.BOOKMARKS_TABLE_NAME, "event_id = ?", selectionArgs) > 0L;
     }
+
+
+    public boolean addBookmark(FossasiaEvent event) {
+        boolean complete = false;
+
+        SQLiteDatabase db = helper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            ContentValues values = new ContentValues();
+            values.put("event_id", event.getId());
+            long result = db.insert(DatabaseHelper.BOOKMARKS_TABLE_NAME, null, values);
+
+            // If the bookmark is already present
+            if (result == -1L) {
+                return false;
+            }
+
+            db.setTransactionSuccessful();
+            complete = true;
+            return true;
+        } finally {
+            db.endTransaction();
+
+            if (complete) {
+                context.getContentResolver().notifyChange(URI_EVENTS, null);
+
+                Intent intent = new Intent(ACTION_ADD_BOOKMARK).putExtra(EXTRA_EVENT_ID, event.getId());
+                // TODO: For now commented this, must implement String to date converter.
+//                Date startTime = event.getStartTime();
+//                if (startTime != null) {
+//                    intent.putExtra(EXTRA_EVENT_START_TIME, startTime.getTime());
+//                }
+                LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+            }
+        }
+    }
+
 
     public boolean addBookmark(Event event) {
         boolean complete = false;
@@ -949,16 +997,21 @@ public class DatabaseManager {
                 context.getContentResolver().notifyChange(URI_EVENTS, null);
 
                 Intent intent = new Intent(ACTION_ADD_BOOKMARK).putExtra(EXTRA_EVENT_ID, event.getId());
-                Date startTime = event.getStartTime();
-                if (startTime != null) {
-                    intent.putExtra(EXTRA_EVENT_START_TIME, startTime.getTime());
-                }
+                // TODO: For now commented this, must implement String to date converter.
+//                Date startTime = event.getStartTime();
+//                if (startTime != null) {
+//                    intent.putExtra(EXTRA_EVENT_START_TIME, startTime.getTime());
+//                }
                 LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
             }
         }
     }
 
     public boolean removeBookmark(Event event) {
+        return removeBookmarks(new long[]{event.getId()});
+    }
+
+    public boolean removeBookmark(FossasiaEvent event) {
         return removeBookmarks(new long[]{event.getId()});
     }
 

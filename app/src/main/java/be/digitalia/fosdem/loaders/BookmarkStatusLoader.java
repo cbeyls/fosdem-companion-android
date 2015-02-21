@@ -1,14 +1,15 @@
 package be.digitalia.fosdem.loaders;
 
-import be.digitalia.fosdem.db.DatabaseManager;
-import be.digitalia.fosdem.model.Event;
-import be.digitalia.fosdem.utils.ArrayUtils;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.LocalBroadcastManager;
+
+import be.digitalia.fosdem.db.DatabaseManager;
+import be.digitalia.fosdem.model.FossasiaEvent;
+import be.digitalia.fosdem.utils.ArrayUtils;
 
 /**
  * This loader retrieves the bookmark status of an event from the database, then updates it in real time by listening to broadcasts.
@@ -18,32 +19,30 @@ import android.support.v4.content.LocalBroadcastManager;
  */
 public class BookmarkStatusLoader extends AsyncTaskLoader<Boolean> {
 
-	private final Event event;
-	private Boolean isBookmarked;
-
-	private final BroadcastReceiver addBookmarkReceiver = new BroadcastReceiver() {
+    private final FossasiaEvent event;
+    private final BroadcastReceiver addBookmarkReceiver = new BroadcastReceiver() {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			if (event.getId() == intent.getLongExtra(DatabaseManager.EXTRA_EVENT_ID, -1L)) {
-				updateBookmark(true);
-			}
+            if ((long) event.getId() == intent.getLongExtra(DatabaseManager.EXTRA_EVENT_ID, -1L)) {
+                updateBookmark(true);
+            }
+        }
+    };
+    private final BroadcastReceiver removeBookmarksReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            long[] eventIds = intent.getLongArrayExtra(DatabaseManager.EXTRA_EVENT_IDS);
+            if (ArrayUtils.indexOf(eventIds, event.getId()) != -1) {
+                updateBookmark(false);
+            }
 		}
 	};
+    private Boolean isBookmarked;
 
-	private final BroadcastReceiver removeBookmarksReceiver = new BroadcastReceiver() {
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			long[] eventIds = intent.getLongArrayExtra(DatabaseManager.EXTRA_EVENT_IDS);
-			if (ArrayUtils.indexOf(eventIds, event.getId()) != -1) {
-				updateBookmark(false);
-			}
-		}
-	};
-
-	public BookmarkStatusLoader(Context context, Event event) {
-		super(context);
+    public BookmarkStatusLoader(Context context, FossasiaEvent event) {
+        super(context);
 		this.event = event;
 
 		LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(getContext());

@@ -14,12 +14,10 @@ public class KeySpeakerFragment extends SmoothListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         DatabaseManager dbManager = DatabaseManager.getInstance();
         SpeakerAdapter adapter = new SpeakerAdapter(getActivity().getApplicationContext(), dbManager.getKeySpeakers());
         setListAdapter(adapter);
     }
-
 }
 
 

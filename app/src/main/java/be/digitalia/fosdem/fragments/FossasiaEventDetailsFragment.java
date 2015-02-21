@@ -1,17 +1,23 @@
 package be.digitalia.fosdem.fragments;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.ShareCompat;
+import android.support.v4.content.Loader;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
@@ -25,29 +31,87 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.DateFormat;
-import java.util.Date;
 import java.util.List;
 
 import be.digitalia.fosdem.R;
-import be.digitalia.fosdem.activities.PersonInfoActivity;
 import be.digitalia.fosdem.db.DatabaseManager;
-import be.digitalia.fosdem.model.Building;
-import be.digitalia.fosdem.model.Event;
+import be.digitalia.fosdem.loaders.BookmarkStatusLoader;
+import be.digitalia.fosdem.loaders.LocalCacheLoader;
+import be.digitalia.fosdem.model.FossasiaEvent;
+import be.digitalia.fosdem.model.KeySpeaker;
 import be.digitalia.fosdem.model.Link;
-import be.digitalia.fosdem.model.Person;
 import be.digitalia.fosdem.utils.DateUtils;
 import be.digitalia.fosdem.utils.StringUtils;
 
-public class EventDetailsFragment extends Fragment {
+public class FossasiaEventDetailsFragment extends Fragment {
 
     private static final int BOOKMARK_STATUS_LOADER_ID = 1;
     private static final int EVENT_DETAILS_LOADER_ID = 2;
     private static final String ARG_EVENT = "event";
     private static final DateFormat TIME_DATE_FORMAT = DateUtils.getTimeDateFormat();
-    private Event event;
+    private FossasiaEvent event;
     private int personsCount = 1;
+    private final LoaderCallbacks<EventDetails> eventDetailsLoaderCallbacks = new LoaderCallbacks<EventDetails>() {
+
+        @Override
+        public Loader<EventDetails> onCreateLoader(int id, Bundle args) {
+            return new EventDetailsLoader(getActivity(), event);
+        }
+
+        @Override
+        public void onLoadFinished(Loader<EventDetails> loader, EventDetails data) {
+            // 1. Persons
+            if (data.persons != null) {
+                personsCount = data.persons.size();
+                if (personsCount > 0) {
+                    // Build a list of clickable persons
+                    SpannableStringBuilder sb = new SpannableStringBuilder();
+                    int length = 0;
+                    for (String person : data.persons) {
+                        if (length != 0) {
+                            sb.append(", ");
+                        }
+                        String name = person;
+                        sb.append(name);
+                        length = sb.length();
+                        // TODO: Fix this,
+//						sb.setSpan(new PersonClickableSpan(person), length - name.length(), length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        sb.setSpan(name, length - name.length(), length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+                    holder.personsTextView.setText(sb);
+                    holder.personsTextView.setVisibility(View.VISIBLE);
+                }
+            }
+//TODO: Understand and fix this.
+            // 2. Links
+            // Keep the first view in links container (title) only
+//			int linkViewCount = holder.linksContainer.getChildCount();
+//			if (linkViewCount > 1) {
+//				holder.linksContainer.removeViews(1, linkViewCount - 1);
+//			}
+//			if ((data.links != null) && (data.links.size() > 0)) {
+//				holder.linksContainer.setVisibility(View.VISIBLE);
+//				for (Link link : data.links) {
+//					View view = holder.inflater.inflate(R.layout.item_link, holder.linksContainer, false);
+//					TextView tv = (TextView) view.findViewById(R.id.description);
+//					tv.setText(link.getDescription());
+//					view.setOnClickListener(new LinkClickListener(link));
+//					holder.linksContainer.addView(view);
+//					// Add a list divider
+//					holder.inflater.inflate(R.layout.list_divider, holder.linksContainer, true);
+//				}
+//			} else {
+//				holder.linksContainer.setVisibility(View.GONE);
+//			}
+        }
+
+        @Override
+        public void onLoaderReset(Loader<EventDetails> loader) {
+        }
+    };
     private Boolean isBookmarked;
     private final View.OnClickListener actionButtonClickListener = new View.OnClickListener() {
 
@@ -58,12 +122,30 @@ public class EventDetailsFragment extends Fragment {
             }
         }
     };
+    private final LoaderCallbacks<Boolean> bookmarkStatusLoaderCallbacks = new LoaderCallbacks<Boolean>() {
+
+        @Override
+        public Loader<Boolean> onCreateLoader(int id, Bundle args) {
+            return new BookmarkStatusLoader(getActivity(), event);
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Boolean> loader, Boolean data) {
+            isBookmarked = data;
+            updateOptionsMenu();
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Boolean> loader) {
+        }
+    };
     private ViewHolder holder;
+
     private MenuItem bookmarkMenuItem;
     private ImageView actionButton;
 
-    public static EventDetailsFragment newInstance(Event event) {
-        EventDetailsFragment f = new EventDetailsFragment();
+    public static FossasiaEventDetailsFragment newInstance(FossasiaEvent event) {
+        FossasiaEventDetailsFragment f = new FossasiaEventDetailsFragment();
         Bundle args = new Bundle();
         args.putParcelable(ARG_EVENT, event);
         f.setArguments(args);
@@ -76,7 +158,7 @@ public class EventDetailsFragment extends Fragment {
         event = getArguments().getParcelable(ARG_EVENT);
     }
 
-    public Event getEvent() {
+    public FossasiaEvent getEvent() {
         return event;
     }
 
@@ -100,7 +182,7 @@ public class EventDetailsFragment extends Fragment {
 
         // Set the persons summary text first; replace it with the clickable text when the loader completes
         holder.personsTextView = (TextView) view.findViewById(R.id.persons);
-        String personsSummary = event.getPersonsSummary();
+        String personsSummary = event.getPersonSummary();
         if (TextUtils.isEmpty(personsSummary)) {
             holder.personsTextView.setVisibility(View.GONE);
         } else {
@@ -108,17 +190,20 @@ public class EventDetailsFragment extends Fragment {
             holder.personsTextView.setMovementMethod(linkMovementMethod);
             holder.personsTextView.setVisibility(View.VISIBLE);
         }
-
-        ((TextView) view.findViewById(R.id.track)).setText(event.getTrack().getName());
-        Date startTime = event.getStartTime();
-        Date endTime = event.getEndTime();
-        text = String.format("%1$s, %2$s ― %3$s", event.getDay().toString(), (startTime != null) ? TIME_DATE_FORMAT.format(startTime) : "?",
-                (endTime != null) ? TIME_DATE_FORMAT.format(endTime) : "?");
+        // TODO: Fix keynote in spreadsheet and here
+//		((TextView) view.findViewById(R.id.track)).setText(event.get);
+        // TODO: Use date from Date object, not from string
+//		Date startTime = event.getStartTime();
+//		Date endTime = event.getEndTime();
+        String startTime = event.getStartTime();
+        String endTime = event.getEndTime();
+        text = String.format("%1$s, %2$s ― %3$s", event.getDay(), (startTime != null) ? startTime : "?",
+                (endTime != null) ? endTime : "?");
         ((TextView) view.findViewById(R.id.time)).setText(text);
-        final String roomName = event.getRoomName();
+        final String venue = event.getVenue();
         TextView roomTextView = (TextView) view.findViewById(R.id.room);
-        Spannable roomText = new SpannableString(String.format("%1$s (Building %2$s)", roomName, Building.fromRoomName(roomName)));
-        final int roomImageResId = getResources().getIdentifier(StringUtils.roomNameToResourceName(roomName), "drawable", getActivity().getPackageName());
+        Spannable roomText = new SpannableString(String.format("%1$s", venue));
+        final int roomImageResId = getResources().getIdentifier(StringUtils.roomNameToResourceName(venue), "drawable", getActivity().getPackageName());
         // If the room image exists, make the room text clickable to display it
         if (roomImageResId != 0) {
             roomText.setSpan(new UnderlineSpan(), 0, roomText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -126,7 +211,7 @@ public class EventDetailsFragment extends Fragment {
 
                 @Override
                 public void onClick(View view) {
-                    RoomImageDialogFragment.newInstance(roomName, roomImageResId).show(getFragmentManager());
+                    RoomImageDialogFragment.newInstance(venue, roomImageResId).show(getFragmentManager());
                 }
             });
             roomTextView.setFocusable(true);
@@ -170,8 +255,8 @@ public class EventDetailsFragment extends Fragment {
         setHasOptionsMenu(true);
 
         LoaderManager loaderManager = getLoaderManager();
-//		loaderManager.initLoader(BOOKMARK_STATUS_LOADER_ID, null, bookmarkStatusLoaderCallbacks);
-//		loaderManager.initLoader(EVENT_DETAILS_LOADER_ID, null, eventDetailsLoaderCallbacks);
+        loaderManager.initLoader(BOOKMARK_STATUS_LOADER_ID, null, bookmarkStatusLoaderCallbacks);
+        loaderManager.initLoader(EVENT_DETAILS_LOADER_ID, null, eventDetailsLoaderCallbacks);
     }
 
     @Override
@@ -200,7 +285,7 @@ public class EventDetailsFragment extends Fragment {
         return ShareCompat.IntentBuilder.from(getActivity())
                 .setSubject(String.format("%1$s (FOSDEM)", event.getTitle()))
                 .setType("text/plain")
-                .setText(String.format("%1$s %2$s #FOSDEM", event.getTitle(), event.getUrl()))
+//				.setText(String.format("%1$s %2$s #FOSDEM", event.getTitle(), event.getUrl()))
                 .setChooserTitle(R.string.share)
                 .createChooserIntent();
     }
@@ -258,10 +343,45 @@ public class EventDetailsFragment extends Fragment {
                 }
                 return true;
             case R.id.add_to_agenda:
-//				addToAgenda();
+                addToAgenda();
                 return true;
         }
         return false;
+    }
+
+    @SuppressLint("InlinedApi")
+    private void addToAgenda() {
+        Intent intent = new Intent(Intent.ACTION_EDIT);
+        intent.setType("vnd.android.cursor.item/event");
+        intent.putExtra(CalendarContract.Events.TITLE, event.getTitle());
+        intent.putExtra(CalendarContract.Events.EVENT_LOCATION, event.getVenue());
+        String description = event.getAbstractText();
+        if (TextUtils.isEmpty(description)) {
+            description = event.getDescription();
+        }
+        // Strip HTML
+        description = StringUtils.trimEnd(Html.fromHtml(description)).toString();
+        // Add speaker info if available
+        if (personsCount > 0) {
+            description = String.format("%1$s: %2$s\n\n%3$s", getResources().getQuantityString(R.plurals.speakers, personsCount), event.getPersonSummary(),
+                    description);
+        }
+        intent.putExtra(CalendarContract.Events.DESCRIPTION, description);
+
+        // TODO: Implement String to Date converter
+//		Date time = event.getStartTime();
+//		if (time != null) {
+//			intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, time.getTime());
+//		}
+//		time = event.getEndTime();
+//		if (time != null) {
+//			intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, time.getTime());
+//		}
+        try {
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(getActivity(), R.string.calendar_not_found, Toast.LENGTH_LONG).show();
+        }
     }
 
     /**
@@ -273,8 +393,8 @@ public class EventDetailsFragment extends Fragment {
     }
 
     private static class EventDetails {
-        List<Person> persons;
-        List<Link> links;
+        List<String> persons;
+        List<String> links;
     }
 
     private static class ViewHolder {
@@ -285,9 +405,9 @@ public class EventDetailsFragment extends Fragment {
 
     private static class UpdateBookmarkAsyncTask extends AsyncTask<Boolean, Void, Void> {
 
-        private final Event event;
+        private final FossasiaEvent event;
 
-        public UpdateBookmarkAsyncTask(Event event) {
+        public UpdateBookmarkAsyncTask(FossasiaEvent event) {
             this.event = event;
         }
 
@@ -302,146 +422,40 @@ public class EventDetailsFragment extends Fragment {
         }
     }
 
-//	@SuppressLint("InlinedApi")
-//	private void addToAgenda() {
-//		Intent intent = new Intent(Intent.ACTION_EDIT);
-//		intent.setType("vnd.android.cursor.item/event");
-//		intent.putExtra(CalendarContract.Events.TITLE, event.getTitle());
-//		intent.putExtra(CalendarContract.Events.EVENT_LOCATION, "ULB - " + event.getRoomName());
-//		String description = event.getAbstractText();
-//		if (TextUtils.isEmpty(description)) {
-//			description = event.getDescription();
-//		}
-//		// Strip HTML
-//		description = StringUtils.trimEnd(Html.fromHtml(description)).toString();
-//		// Add speaker info if available
-//		if (personsCount > 0) {
-//			description = String.format("%1$s: %2$s\n\n%3$s", getResources().getQuantityString(R.plurals.speakers, personsCount), event.getPersonsSummary(),
-//					description);
-//		}
-//		intent.putExtra(CalendarContract.Events.DESCRIPTION, description);
-//		Date time = event.getStartTime();
-//		if (time != null) {
-//			intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, time.getTime());
-//		}
-//		time = event.getEndTime();
-//		if (time != null) {
-//			intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, time.getTime());
-//		}
-//		try {
-//			startActivity(intent);
-//		} catch (ActivityNotFoundException e) {
-//			Toast.makeText(getActivity(), R.string.calendar_not_found, Toast.LENGTH_LONG).show();
-//		}
-//	}
+    private static class EventDetailsLoader extends LocalCacheLoader<EventDetails> {
 
-//	private final LoaderCallbacks<Boolean> bookmarkStatusLoaderCallbacks = new LoaderCallbacks<Boolean>() {
-//
-//		@Override
-//		public Loader<Boolean> onCreateLoader(int id, Bundle args) {
-//			return new BookmarkStatusLoader(getActivity(), event);
-//		}
-//
-//		@Override
-//		public void onLoadFinished(Loader<Boolean> loader, Boolean data) {
-//			isBookmarked = data;
-//			updateOptionsMenu();
-//		}
-//
-//		@Override
-//		public void onLoaderReset(Loader<Boolean> loader) {
-//		}
-//	};
+        private final FossasiaEvent event;
 
-//	private static class EventDetailsLoader extends LocalCacheLoader<EventDetails> {
-//
-//		private final Event event;
-//
-//		public EventDetailsLoader(Context context, Event event) {
-//			super(context);
-//			this.event = event;
-//		}
-//
-//		@Override
-//		public EventDetails loadInBackground() {
-//			EventDetails result = new EventDetails();
-//			DatabaseManager dbm = DatabaseManager.getInstance();
-//			result.persons = dbm.getPersons(event);
-//			result.links = dbm.getLinks(event);
-//			return result;
-//		}
-//	}
+        public EventDetailsLoader(Context context, FossasiaEvent event) {
+            super(context);
+            this.event = event;
+        }
 
-//	private final LoaderCallbacks<EventDetails> eventDetailsLoaderCallbacks = new LoaderCallbacks<EventDetails>() {
-//
-//		@Override
-//		public Loader<EventDetails> onCreateLoader(int id, Bundle args) {
-//			return new EventDetailsLoader(getActivity(), event);
-//		}
-//
-//		@Override
-//		public void onLoadFinished(Loader<EventDetails> loader, EventDetails data) {
-//			// 1. Persons
-//			if (data.persons != null) {
-//				personsCount = data.persons.size();
-//				if (personsCount > 0) {
-//					// Build a list of clickable persons
-//					SpannableStringBuilder sb = new SpannableStringBuilder();
-//					int length = 0;
-//					for (Person person : data.persons) {
-//						if (length != 0) {
-//							sb.append(", ");
-//						}
-//						String name = person.getName();
-//						sb.append(name);
-//						length = sb.length();
-//						sb.setSpan(new PersonClickableSpan(person), length - name.length(), length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//					}
-//					holder.personsTextView.setText(sb);
-//					holder.personsTextView.setVisibility(View.VISIBLE);
-//				}
-//			}
-//
-//			// 2. Links
-//			// Keep the first view in links container (title) only
-//			int linkViewCount = holder.linksContainer.getChildCount();
-//			if (linkViewCount > 1) {
-//				holder.linksContainer.removeViews(1, linkViewCount - 1);
-//			}
-//			if ((data.links != null) && (data.links.size() > 0)) {
-//				holder.linksContainer.setVisibility(View.VISIBLE);
-//				for (Link link : data.links) {
-//					View view = holder.inflater.inflate(R.layout.item_link, holder.linksContainer, false);
-//					TextView tv = (TextView) view.findViewById(R.id.description);
-//					tv.setText(link.getDescription());
-//					view.setOnClickListener(new LinkClickListener(link));
-//					holder.linksContainer.addView(view);
-//					// Add a list divider
-//					holder.inflater.inflate(R.layout.list_divider, holder.linksContainer, true);
-//				}
-//			} else {
-//				holder.linksContainer.setVisibility(View.GONE);
-//			}
-//		}
-//
-//		@Override
-//		public void onLoaderReset(Loader<EventDetails> loader) {
-//		}
-//	};
+        @Override
+        public EventDetails loadInBackground() {
+            EventDetails result = new EventDetails();
+            DatabaseManager dbm = DatabaseManager.getInstance();
+            result.persons = event.getKeyNoteList();
+            // TODO: Fix the link's attached with each speaker
+            result.links = event.getKeyNoteList();
+            return result;
+        }
+    }
 
     private static class PersonClickableSpan extends ClickableSpan {
 
-        private final Person person;
+        private final KeySpeaker person;
 
-        public PersonClickableSpan(Person person) {
+        public PersonClickableSpan(KeySpeaker person) {
             this.person = person;
         }
 
         @Override
         public void onClick(View v) {
-            Context context = v.getContext();
-            Intent intent = new Intent(context, PersonInfoActivity.class).putExtra(PersonInfoActivity.EXTRA_PERSON, person);
-            context.startActivity(intent);
+            // TODO: uncomment this code and fix it, to display speaker info.
+//			Context context = v.getContext();
+//			Intent intent = new Intent(context, PersonInfoActivity.class).putExtra(PersonInfoActivity.EXTRA_PERSON, person);
+//			context.startActivity(intent);
         }
     }
 

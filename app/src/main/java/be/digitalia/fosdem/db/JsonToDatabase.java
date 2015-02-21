@@ -16,8 +16,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import be.digitalia.fosdem.api.FossasiaUrls;
+import be.digitalia.fosdem.model.FossasiaEvent;
 import be.digitalia.fosdem.model.KeySpeaker;
-import be.digitalia.fosdem.model.Schedule;
 import be.digitalia.fosdem.utils.VolleySingleton;
 
 /**
@@ -54,22 +54,41 @@ public class JsonToDatabase {
             public void onResponse(String response) {
                 JSONArray jsonArray = removePaddingFromString(response);
                 Log.d(TAG, jsonArray.toString());
-                String date;
-                String time;
+                int id;
                 String title;
-                String information;
+                String subTitle;
+                String date;
+                String day;
+                String startTime;
+                String endTime;
+                String abstractText;
+                String description;
+                String venue;
 
-                for (int i = 0; i < jsonArray.length(); i++) {
+                for (int i = 1; i < jsonArray.length(); i++) {
+                    // Starting from 1 not 0, because 1st row contains columns name and actual data is from second row
                     try {
-                        date = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(0)
+                        title = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(0)
                                 .getString("v");
-                        time = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(1)
+                        subTitle = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(1)
                                 .getString("v");
-                        information = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(3)
+                        date = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(2)
                                 .getString("v");
-                        title = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(2)
+                        day = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(3)
                                 .getString("v");
-                        Schedule temp = new Schedule(title, time, date, information, i);
+                        startTime = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(4)
+                                .getString("v");
+                        endTime = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(5)
+                                .getString("v");
+                        abstractText = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(6)
+                                .getString("v");
+                        description = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(7)
+                                .getString("v");
+                        venue = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(8)
+                                .getString("v");
+                        id = i - 1;
+
+                        FossasiaEvent temp = new FossasiaEvent(id, title, subTitle, date, day, startTime, endTime, abstractText, description, venue);
                         Log.d(TAG, temp.generateSqlQuery());
                         queries.add(temp.generateSqlQuery());
                     } catch (JSONException e) {

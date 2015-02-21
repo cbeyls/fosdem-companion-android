@@ -19,8 +19,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + " (id INTEGER PRIMARY KEY, name TEXT, designation TEXT, information TEXT, twitter_handle TEXT,"
             + " linkedin_url TEXT, profile_pic_url TEXT);";
     public static final String TABLE_NAME_SCHEDULE = "schedule";
+
     private static final String TABLE_SCHEDULE = "CREATE TABLE " + TABLE_NAME_SCHEDULE
-            + " (id INTEGER PRIMARY KEY, title TEXT, information TEXT, time TEXT, date TEXT);";
+            + " (id INTEGER PRIMARY KEY, title TEXT, sub_title TEXT, date TEXT, day TEXT, start_time TEXT, end_time TEXT, abstract_text TEXT, description TEXT, venue TEXT);";
     private static final String DATABASE_NAME = "fosdem.sqlite";
     private static final int DATABASE_VERSION = 1;
 
