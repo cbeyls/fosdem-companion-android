@@ -29,6 +29,7 @@ import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.KeySpeaker;
 import be.digitalia.fosdem.model.Link;
 import be.digitalia.fosdem.model.Person;
+import be.digitalia.fosdem.model.Schedule;
 import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.DateUtils;
 
@@ -111,6 +112,7 @@ public class DatabaseManager {
         db.delete(DatabaseHelper.DAYS_TABLE_NAME, null, null);
         // Deleting Fossasia tables
         db.delete(DatabaseHelper.TABLE_NAME_KEY_SPEAKERS, null, null);
+        db.delete(DatabaseHelper.TABLE_NAME_SCHEDULE, null, null);
 
     }
 
@@ -452,6 +454,30 @@ public class DatabaseManager {
         } finally {
             cursor.close();
         }
+    }
+
+    public ArrayList<Schedule> getSchedule() {
+        Cursor cursor = helper.getReadableDatabase().query(DatabaseHelper.TABLE_NAME_SCHEDULE, null, null, null, null, null, null);
+        ArrayList<Schedule> scheduleList = new ArrayList<Schedule>();
+        int id;
+        String title;
+        String information;
+        String time;
+        String date;
+        if (cursor.moveToFirst()) {
+            do {
+                id = cursor.getInt(0);
+                title = cursor.getString(1);
+                information = cursor.getString(2);
+                time = cursor.getString(3);
+                date = cursor.getString(4);
+
+                scheduleList.add(new Schedule(title, time, date, information, id));
+            }
+            while (cursor.moveToNext());
+        }
+        cursor.close();
+        return scheduleList;
     }
 
     public ArrayList<KeySpeaker> getKeySpeakers() {

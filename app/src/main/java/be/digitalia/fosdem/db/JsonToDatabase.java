@@ -17,6 +17,7 @@ import java.util.ArrayList;
 
 import be.digitalia.fosdem.api.FossasiaUrls;
 import be.digitalia.fosdem.model.KeySpeaker;
+import be.digitalia.fosdem.model.Schedule;
 import be.digitalia.fosdem.utils.VolleySingleton;
 
 /**
@@ -28,16 +29,73 @@ public class JsonToDatabase {
 
     private Context context;
     private boolean keySpeakerLoaded;
+    private boolean scheduleLoaded;
     private ArrayList<String> queries;
 
     public JsonToDatabase(Context context) {
         this.context = context;
         this.keySpeakerLoaded = false;
-        fetchKeySpeakers(FossasiaUrls.SCHEDULE_URL);
+        fetchKeySpeakers(FossasiaUrls.KEY_SPEAKER_URL);
+        fetchSchedule(FossasiaUrls.SCHEDULE_URL);
         queries = new ArrayList<String>();
         keySpeakerLoaded = false;
+        scheduleLoaded = false;
 
     }
+
+    private void fetchSchedule(String url) {
+
+        RequestQueue queue = VolleySingleton.getReqQueue(context);
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(url, new Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                JSONArray jsonArray = removePaddingFromString(response);
+                Log.d(TAG, jsonArray.toString());
+                String date;
+                String time;
+                String title;
+                String information;
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    try {
+                        date = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(0)
+                                .getString("v");
+                        time = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(1)
+                                .getString("v");
+                        information = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(3)
+                                .getString("v");
+                        title = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(2)
+                                .getString("v");
+                        Schedule temp = new Schedule(title, time, date, information, i);
+                        Log.d(TAG, temp.generateSqlQuery());
+                        queries.add(temp.generateSqlQuery());
+                    } catch (JSONException e) {
+                        Log.e(TAG, "JSON Error: " + e.getMessage() + "\nResponse" + response);
+                    }
+
+                }
+                scheduleLoaded = true;
+                checkStatus();
+            }
+        }
+
+                , new ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                keySpeakerLoaded = true;
+                checkStatus();
+            }
+        }
+
+        );
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+    }
+    
 
     private void fetchKeySpeakers(String url) {
 
@@ -74,7 +132,7 @@ public class JsonToDatabase {
                         Log.d(TAG, temp.generateSqlQuery());
                         queries.add(temp.generateSqlQuery());
                     } catch (JSONException e) {
-                        Log.e(TAG, "JSON Error: " + e.getMessage() + "\nResponse" + response);
+                        Log.e(TAG, "JSON Error: " + e.getMessage() + "\nResponse: " + response);
                     }
 
                 }
@@ -98,7 +156,7 @@ public class JsonToDatabase {
     }
 
     private void checkStatus() {
-        if (keySpeakerLoaded) {
+        if (keySpeakerLoaded && scheduleLoaded) {
             DatabaseManager dbManager = DatabaseManager.getInstance();
             //Temporary clearing database for testing only
             dbManager.clearDatabase();
