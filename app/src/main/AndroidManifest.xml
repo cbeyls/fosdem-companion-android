@@ -24,7 +24,7 @@
         android:required="false"/>
 
     <application
-        android:name="org.fossasia.FosdemApplication"
+        android:name=".FossasiaApplication"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:icon="@drawable/ic_launcher"

@@ -5,7 +5,7 @@ import android.preference.PreferenceManager;
 import org.fossasia.alarms.FosdemAlarmManager;
 import org.fossasia.db.DatabaseManager;
 
-public class FosdemApplication extends Application {
+public class FossasiaApplication extends Application {
 
 	@Override
 	public void onCreate() {
