@@ -1,6 +1,9 @@
 package be.digitalia.fosdem.adapters;
 
 import android.content.Context;
+import android.graphics.Typeface;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,9 +62,19 @@ public class ScheduleAdapter extends BaseAdapter {
         holder.dateTime = (TextView) row.findViewById(R.id.time);
         holder.title = (TextView) row.findViewById(R.id.text);
         FossasiaEvent fossasiaEvent = getItem(position);
-        holder.dateTime.setText(fossasiaEvent.getStartTime() + " - " + fossasiaEvent.getEndTime());
-        holder.title.setText(fossasiaEvent.getTitle());
+        holder.dateTime.setText(fossasiaEvent.getStartTime());
+
         row.setTag(fossasiaEvent.getId());
+
+        //
+        String title = fossasiaEvent.getTitle();
+        String subTitle = "";
+        if (fossasiaEvent.getSubTitle() != null) {
+            subTitle = "\n" + fossasiaEvent.getSubTitle();
+        }
+        SpannableString styledString = new SpannableString(title + subTitle);
+        styledString.setSpan(new StyleSpan(Typeface.BOLD), 0, title.length(), 0);
+        holder.title.setText(styledString);
         return row;
     }
 

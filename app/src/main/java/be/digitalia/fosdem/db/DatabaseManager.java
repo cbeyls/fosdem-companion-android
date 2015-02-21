@@ -491,6 +491,42 @@ public class DatabaseManager {
         return fossasiaEventList;
     }
 
+    public ArrayList<FossasiaEvent> getScheduleByDate(String selectDate) {
+        Cursor cursor = helper.getReadableDatabase().rawQuery("SELECT * FROM schedule WHERE date='" + selectDate + "'", null);
+        ArrayList<FossasiaEvent> fossasiaEventList = new ArrayList<FossasiaEvent>();
+        int id;
+        String title;
+        String subTitle;
+        String date;
+        String day;
+        String startTime;
+        String endTime;
+        String abstractText;
+        String description;
+        String venue;
+        if (cursor.moveToFirst()) {
+            do {
+                id = cursor.getInt(0);
+                title = cursor.getString(1);
+                subTitle = cursor.getString(2);
+                date = cursor.getString(3);
+                day = cursor.getString(4);
+                startTime = cursor.getString(5);
+                endTime = cursor.getString(6);
+                abstractText = cursor.getString(7);
+                description = cursor.getString(8);
+                venue = cursor.getString(9);
+
+
+                fossasiaEventList.add(new FossasiaEvent(id, title, subTitle, date, day, startTime, endTime, abstractText, description, venue));
+            }
+            while (cursor.moveToNext());
+        }
+        cursor.close();
+        return fossasiaEventList;
+    }
+
+
     public ArrayList<KeySpeaker> getKeySpeakers() {
         Cursor cursor = helper.getReadableDatabase().query(DatabaseHelper.TABLE_NAME_KEY_SPEAKERS, null, null, null, null, null, null);
         ArrayList<KeySpeaker> speakers = new ArrayList<KeySpeaker>();
@@ -1054,5 +1090,9 @@ public class DatabaseManager {
                 LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
             }
         }
+    }
+
+    public void getEventByDate(String date) {
+
     }
 }

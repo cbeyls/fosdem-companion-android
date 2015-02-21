@@ -34,6 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.DateFormat;
+import java.util.Date;
 import java.util.List;
 
 import be.digitalia.fosdem.R;
@@ -368,15 +369,15 @@ public class FossasiaEventDetailsFragment extends Fragment {
         }
         intent.putExtra(CalendarContract.Events.DESCRIPTION, description);
 
-        // TODO: Implement String to Date converter
-//		Date time = event.getStartTime();
-//		if (time != null) {
-//			intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, time.getTime());
-//		}
-//		time = event.getEndTime();
-//		if (time != null) {
-//			intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, time.getTime());
-//		}
+//        TODO: Implement String to Date converter
+        Date time = StringUtils.StringtoDate(event.getDate(), event.getStartTime());
+        if (time != null) {
+            intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, time.getTime());
+        }
+        time = StringUtils.StringtoDate(event.getDate(), event.getEndTime());
+        if (time != null) {
+            intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, time.getTime());
+        }
         try {
             startActivity(intent);
         } catch (ActivityNotFoundException e) {

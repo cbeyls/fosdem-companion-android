@@ -1,51 +1,91 @@
 package be.digitalia.fosdem.fragments;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ListView;
-import android.widget.Toast;
+import android.view.ViewGroup;
+
+import com.example.android.common.view.SlidingTabLayout;
 
 import java.util.ArrayList;
 
-import be.digitalia.fosdem.activities.EventDetailsActivity;
-import be.digitalia.fosdem.adapters.ScheduleAdapter;
-import be.digitalia.fosdem.db.DatabaseManager;
-import be.digitalia.fosdem.model.FossasiaEvent;
+import be.digitalia.fosdem.R;
 
 /**
- * Created by Abhishek on 20/02/15.
+ * Created by Abhishek on 24/02/15.
  */
-public class ScheduleFragment extends SmoothListFragment {
+public class ScheduleFragment extends Fragment {
 
-    private ArrayList<FossasiaEvent> events;
-
-    public static Fragment newInstance(int day) {
-        Fragment fragment = new ScheduleFragment();
-        Bundle bundle = new Bundle();
-        bundle.putInt("DAY", day);
-        fragment.setArguments(bundle);
-        return fragment;
-    }
-
+    private DayLoader daysAdapter;
+    private ViewHolder holder;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DatabaseManager dbManager = DatabaseManager.getInstance();
-        events = dbManager.getSchedule();
-        setListAdapter(new ScheduleAdapter(getActivity(), events));
-
+        daysAdapter = new DayLoader(getChildFragmentManager());
     }
 
     @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        long idNew = (long) v.getTag();
-        Toast.makeText(getActivity(), "Position: " + idNew, Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(getActivity().getApplicationContext(), EventDetailsActivity.class);
-        intent.putExtra("event", events.get((int) idNew));
-        startActivity(intent);
-        super.onListItemClick(l, v, position, id);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_schedule, container, false);
+
+        holder = new ViewHolder();
+        holder.contentView = view.findViewById(R.id.content);
+        holder.emptyView = view.findViewById(android.R.id.empty);
+        holder.pager = (ViewPager) view.findViewById(R.id.pager);
+        holder.slidingTabs = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
+        holder.contentView.setVisibility(View.VISIBLE);
+        holder.emptyView.setVisibility(View.GONE);
+        if (holder.pager.getAdapter() == null) {
+            holder.pager.setAdapter(daysAdapter);
+        }
+        holder.slidingTabs.setViewPager(holder.pager);
+
+        return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        holder = null;
+    }
+
+    private static class ViewHolder {
+        View contentView;
+        View emptyView;
+        ViewPager pager;
+        SlidingTabLayout slidingTabs;
+    }
+
+    private static class DayLoader extends FragmentStatePagerAdapter {
+
+        private ArrayList<String> mPageTitle;
+
+        public DayLoader(FragmentManager fm) {
+            super(fm);
+            mPageTitle = new ArrayList<String>();
+
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return ScheduleListFragment.newInstance(position);
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            //TODO: Remove this hard coding
+            int dayNo = position + 13;
+            return dayNo + " March";
+        }
     }
 }
