@@ -516,9 +516,16 @@ public class DatabaseManager {
                 abstractText = cursor.getString(7);
                 description = cursor.getString(8);
                 venue = cursor.getString(9);
+                Cursor cursorSpeaker = helper.getReadableDatabase().rawQuery(String.format("SELECT speaker FROM %s WHERE event='%s'", DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, title), null);
+                ArrayList<String> speakers = new ArrayList<String>();
+                if (cursorSpeaker.moveToFirst()) {
+                    do {
+                        speakers.add(cursorSpeaker.getString(0));
+                    }
+                    while (cursorSpeaker.moveToNext());
+                }
 
-
-                fossasiaEventList.add(new FossasiaEvent(id, title, subTitle, date, day, startTime, endTime, abstractText, description, venue));
+                fossasiaEventList.add(new FossasiaEvent(id, title, subTitle, speakers, date, day, startTime, endTime, abstractText, description, venue));
             }
             while (cursor.moveToNext());
         }

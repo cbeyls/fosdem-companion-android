@@ -187,8 +187,8 @@ public class FossasiaEventDetailsFragment extends Fragment {
         if (TextUtils.isEmpty(personsSummary)) {
             holder.personsTextView.setVisibility(View.GONE);
         } else {
-            holder.personsTextView.setText(personsSummary);
-            holder.personsTextView.setMovementMethod(linkMovementMethod);
+//            holder.personsTextView.setText(personsSummary);
+//            holder.personsTextView.setMovementMethod(linkMovementMethod);
             holder.personsTextView.setVisibility(View.VISIBLE);
         }
         // TODO: Fix keynote in spreadsheet and here

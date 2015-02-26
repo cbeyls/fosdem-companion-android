@@ -30,6 +30,7 @@ public class JsonToDatabase {
     private Context context;
     private boolean keySpeakerLoaded;
     private boolean scheduleLoaded;
+    private boolean speakerEventReplation;
     private ArrayList<String> queries;
 
     public JsonToDatabase(Context context) {
@@ -37,11 +38,65 @@ public class JsonToDatabase {
         this.keySpeakerLoaded = false;
         fetchKeySpeakers(FossasiaUrls.KEY_SPEAKER_URL);
         fetchSchedule(FossasiaUrls.SCHEDULE_URL);
+        fetchSpeakerEventRelation(FossasiaUrls.SPEAKER_EVENT_URL);
         queries = new ArrayList<String>();
         keySpeakerLoaded = false;
         scheduleLoaded = false;
+        speakerEventReplation = false;
+
 
     }
+
+    private void fetchSpeakerEventRelation(String url) {
+
+        RequestQueue queue = VolleySingleton.getReqQueue(context);
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(url, new Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                JSONArray jsonArray = removePaddingFromString(response);
+                Log.d(TAG, jsonArray.toString());
+                String speaker;
+                String event;
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    try {
+                        speaker = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(0)
+                                .getString("v");
+                        event = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(1)
+                                .getString("v");
+                        String query = "INSERT INTO %s VALUES ('%s', '%s');";
+                        query = String.format(query, DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, speaker, event);
+                        Log.d(TAG, query);
+                        queries.add(query);
+                    } catch (JSONException e) {
+                        Log.e(TAG, "JSON Error: " + e.getMessage() + "\nResponse" + response);
+                    }
+
+                }
+                speakerEventReplation = true;
+                checkStatus();
+            }
+        }
+
+                , new ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                speakerEventReplation = true;
+                checkStatus();
+            }
+        }
+
+        );
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+    }
+
+
+
 
     private void fetchSchedule(String url) {
 
@@ -105,7 +160,7 @@ public class JsonToDatabase {
 
             @Override
             public void onErrorResponse(VolleyError error) {
-                keySpeakerLoaded = true;
+                scheduleLoaded = true;
                 checkStatus();
             }
         }
@@ -175,7 +230,7 @@ public class JsonToDatabase {
     }
 
     private void checkStatus() {
-        if (keySpeakerLoaded && scheduleLoaded) {
+        if (keySpeakerLoaded && scheduleLoaded && speakerEventReplation) {
             DatabaseManager dbManager = DatabaseManager.getInstance();
             //Temporary clearing database for testing only
             dbManager.clearDatabase();

@@ -22,6 +22,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String TABLE_SCHEDULE = "CREATE TABLE " + TABLE_NAME_SCHEDULE
             + " (id INTEGER PRIMARY KEY, title TEXT, sub_title TEXT, date TEXT, day TEXT, start_time TEXT, end_time TEXT, abstract_text TEXT, description TEXT, venue TEXT);";
+
+    public static final String TABLE_NAME_SPEAKER_EVENT_RELATION = "speaker_event_relation";
+    private static final String TABLE_SPEAKER_EVENT_RELATION = "CREATE TABLE " + TABLE_NAME_SPEAKER_EVENT_RELATION
+            + " (speaker TEXT, event TEXT);";
     private static final String DATABASE_NAME = "fosdem.sqlite";
     private static final int DATABASE_VERSION = 1;
 
@@ -65,6 +69,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         database.execSQL("CREATE TABLE " + BOOKMARKS_TABLE_NAME + " (event_id INTEGER PRIMARY KEY);");
         database.execSQL(TABLE_KEY_SPEAKERS);
         database.execSQL(TABLE_SCHEDULE);
+        database.execSQL(TABLE_SPEAKER_EVENT_RELATION);
     }
 
     @Override

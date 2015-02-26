@@ -169,7 +169,17 @@ public class FossasiaEvent implements Parcelable {
 
     public String getPersonSummary() {
         // TODO: Make a comma separated list of all the speakers from KeyNoteList
-        return "Abhishek Batra";
+        if (keyNoteList.size() > 0) {
+            String speakers = "";
+            for (String speaker : keyNoteList) {
+                speakers += speaker + ", ";
+            }
+
+            return speakers.substring(0, speakers.length() - 2);
+        } else {
+            return "";
+        }
+
     }
 
     public String generateSqlQuery() {
