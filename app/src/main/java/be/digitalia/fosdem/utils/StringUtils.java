@@ -1,5 +1,7 @@
 package be.digitalia.fosdem.utils;
 
+import android.util.Log;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -10,6 +12,8 @@ import java.util.Locale;
  * @author Christophe Beyls
  */
 public class StringUtils {
+
+    private final static String TAG = "STRING_UTIL";
     /**
      * Mirror of the unicode table from 00c0 to 017f without diacritics.
      */
@@ -130,9 +134,34 @@ public class StringUtils {
 
 
     public static Date StringtoDate(String sDate, String sTime) {
+        if (sTime != null) {
+            sTime = sTime.replaceAll(" ", "");
+            String amPm = sTime.substring(Math.max(sTime.length() - 2, 0));
+            String time = sTime.substring(0, sTime.length() - 2);
+            Log.d(TAG, amPm);
+            Log.d(TAG, time);
+            String[] hrMin = time.split(":");
+            Calendar cal = Calendar.getInstance();
+            String[] date = sDate.split("/");
+            int hour = Integer.parseInt(hrMin[0]);
+            int min = Integer.parseInt(hrMin[1]);
+
+            if (amPm.equals("PM") || amPm.equals("pm") || amPm.equals("Pm") || amPm.equals("pM")) {
+                if (hour > 0 && hour < 12) {
+                    hour += 12;
+                }
+            } else if (amPm.equals("AM") || amPm.equals("am") || amPm.equals("Am") || amPm.equals("aM"))
+                if (hour == 12) {
+                    hour = 0;
+                }
+            cal.set(Integer.parseInt(date[2]), Integer.parseInt(date[1]) - 1, Integer.parseInt(date[0]), hour, min);
+            return cal.getTime();
+        }
+
+
         Calendar cal = Calendar.getInstance();
         String[] date = sDate.split("/");
-        cal.set(Integer.parseInt(date[2]), Integer.parseInt(date[1]), Integer.parseInt(date[0]));
+        cal.set(Integer.parseInt(date[2]), Integer.parseInt(date[1]) - 1, Integer.parseInt(date[0]));
         if (sTime != null) {
         }
         return cal.getTime();
