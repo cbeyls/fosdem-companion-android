@@ -69,7 +69,7 @@ public class JsonToDatabase {
                                 .getString("v");
                         String query = "INSERT INTO %s VALUES ('%s', '%s');";
                         query = String.format(query, DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, speaker, event);
-                        Log.d(TAG, query);
+//                        Log.d(TAG, query);
                         queries.add(query);
                     } catch (JSONException e) {
                         Log.e(TAG, "JSON Error: " + e.getMessage() + "\nResponse" + response);
@@ -119,6 +119,7 @@ public class JsonToDatabase {
                 String abstractText;
                 String description;
                 String venue;
+                String track;
 
                 for (int i = 1; i < jsonArray.length(); i++) {
                     // Starting from 1 not 0, because 1st row contains columns name and actual data is from second row
@@ -141,9 +142,11 @@ public class JsonToDatabase {
                                 .getString("v");
                         venue = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(8)
                                 .getString("v");
+                        track = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(9)
+                                .getString("v");
                         id = i - 1;
 
-                        FossasiaEvent temp = new FossasiaEvent(id, title, subTitle, date, day, startTime, endTime, abstractText, description, venue);
+                        FossasiaEvent temp = new FossasiaEvent(id, title, subTitle, date, day, startTime, endTime, abstractText, description, venue, track);
                         Log.d(TAG, temp.generateSqlQuery());
                         queries.add(temp.generateSqlQuery());
                     } catch (JSONException e) {
@@ -203,7 +206,7 @@ public class JsonToDatabase {
                         profilePicUrl = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(5)
                                 .getString("v");
                         KeySpeaker temp = new KeySpeaker(i + 1, name, information, linkedInUrl, twitterHandle, designation, profilePicUrl);
-                        Log.d(TAG, temp.generateSqlQuery());
+//                        Log.d(TAG, temp.generateSqlQuery());
                         queries.add(temp.generateSqlQuery());
                     } catch (JSONException e) {
                         Log.e(TAG, "JSON Error: " + e.getMessage() + "\nResponse: " + response);

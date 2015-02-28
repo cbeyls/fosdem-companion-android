@@ -1,7 +1,5 @@
 package be.digitalia.fosdem.utils;
 
-import android.util.Log;
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -133,13 +131,11 @@ public class StringUtils {
     }
 
 
-    public static Date StringtoDate(String sDate, String sTime) {
+    public static Date StringToDate(String sDate, String sTime) {
         if (sTime != null) {
             sTime = sTime.replaceAll(" ", "");
             String amPm = sTime.substring(Math.max(sTime.length() - 2, 0));
             String time = sTime.substring(0, sTime.length() - 2);
-            Log.d(TAG, amPm);
-            Log.d(TAG, time);
             String[] hrMin = time.split(":");
             Calendar cal = Calendar.getInstance();
             String[] date = sDate.split("/");

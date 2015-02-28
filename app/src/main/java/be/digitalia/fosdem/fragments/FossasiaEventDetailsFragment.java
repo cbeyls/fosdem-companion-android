@@ -192,7 +192,7 @@ public class FossasiaEventDetailsFragment extends Fragment {
             holder.personsTextView.setVisibility(View.VISIBLE);
         }
         // TODO: Fix keynote in spreadsheet and here
-//		((TextView) view.findViewById(R.id.track)).setText(event.get);
+        ((TextView) view.findViewById(R.id.track)).setText(event.getTrack());
         // TODO: Use date from Date object, not from string
 //		Date startTime = event.getStartTime();
 //		Date endTime = event.getEndTime();
@@ -369,12 +369,11 @@ public class FossasiaEventDetailsFragment extends Fragment {
         }
         intent.putExtra(CalendarContract.Events.DESCRIPTION, description);
 
-//        TODO: Implement String to Date converter
-        Date time = StringUtils.StringtoDate(event.getDate(), event.getStartTime());
+        Date time = StringUtils.StringToDate(event.getDate(), event.getStartTime());
         if (time != null) {
             intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, time.getTime());
         }
-        time = StringUtils.StringtoDate(event.getDate(), event.getEndTime());
+        time = StringUtils.StringToDate(event.getDate(), event.getEndTime());
         if (time != null) {
             intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, time.getTime());
         }

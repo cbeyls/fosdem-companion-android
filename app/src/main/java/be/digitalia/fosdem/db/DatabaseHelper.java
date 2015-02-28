@@ -21,7 +21,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLE_NAME_SCHEDULE = "schedule";
 
     private static final String TABLE_SCHEDULE = "CREATE TABLE " + TABLE_NAME_SCHEDULE
-            + " (id INTEGER PRIMARY KEY, title TEXT, sub_title TEXT, date TEXT, day TEXT, start_time TEXT, end_time TEXT, abstract_text TEXT, description TEXT, venue TEXT);";
+            + " (id INTEGER PRIMARY KEY, title TEXT, sub_title TEXT, date TEXT, day TEXT, start_time TEXT, end_time TEXT, abstract_text TEXT, description TEXT, venue TEXT, track TEXT);";
 
     public static final String TABLE_NAME_SPEAKER_EVENT_RELATION = "speaker_event_relation";
     private static final String TABLE_SPEAKER_EVENT_RELATION = "CREATE TABLE " + TABLE_NAME_SPEAKER_EVENT_RELATION

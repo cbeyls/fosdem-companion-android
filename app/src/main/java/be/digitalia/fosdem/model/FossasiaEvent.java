@@ -21,6 +21,7 @@ public class FossasiaEvent implements Parcelable {
             return new FossasiaEvent[size];
         }
     };
+
     private long id;
     private String title;
     private String subTitle;
@@ -35,8 +36,9 @@ public class FossasiaEvent implements Parcelable {
     private String abstractText;
     private String description;
     private String venue;
+    private String track;
 
-    public FossasiaEvent(int id, String title, String subTitle, ArrayList<String> keyNoteList, String date, String day, String startTime, String endTime, String abstractText, String description, String venue) {
+    public FossasiaEvent(int id, String title, String subTitle, ArrayList<String> keyNoteList, String date, String day, String startTime, String endTime, String abstractText, String description, String venue, String track) {
         this.id = id;
         this.title = title;
         this.subTitle = subTitle;
@@ -48,9 +50,10 @@ public class FossasiaEvent implements Parcelable {
         this.abstractText = abstractText;
         this.description = description;
         this.venue = venue;
+        this.track = track;
     }
 
-    public FossasiaEvent(int id, String title, String subTitle, String date, String day, String startTime, String endTime, String abstractText, String description, String venue) {
+    public FossasiaEvent(int id, String title, String subTitle, String date, String day, String startTime, String endTime, String abstractText, String description, String venue, String track) {
         this.id = id;
         this.title = title;
         this.subTitle = subTitle;
@@ -62,6 +65,7 @@ public class FossasiaEvent implements Parcelable {
         this.description = description;
         this.venue = venue;
         this.keyNoteList = new ArrayList<String>();
+        this.track = track;
     }
 
     public FossasiaEvent(Parcel in) {
@@ -75,6 +79,7 @@ public class FossasiaEvent implements Parcelable {
         this.abstractText = in.readString();
         this.description = in.readString();
         this.venue = in.readString();
+        this.track = in.readString();
         this.keyNoteList = in.readArrayList(String.class.getClassLoader());
 
     }
@@ -167,6 +172,14 @@ public class FossasiaEvent implements Parcelable {
         this.venue = venue;
     }
 
+    public String getTrack() {
+        return track;
+    }
+
+    public void setTrack(String track) {
+        this.track = track;
+    }
+
     public String getPersonSummary() {
         // TODO: Make a comma separated list of all the speakers from KeyNoteList
         if (keyNoteList.size() > 0) {
@@ -183,7 +196,7 @@ public class FossasiaEvent implements Parcelable {
     }
 
     public String generateSqlQuery() {
-        String query = String.format("INSERT INTO %s VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');", DatabaseHelper.TABLE_NAME_SCHEDULE, id, title, subTitle, date, day, startTime, endTime, abstractText, description, venue);
+        String query = String.format("INSERT INTO %s VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');", DatabaseHelper.TABLE_NAME_SCHEDULE, id, title, subTitle, date, day, startTime, endTime, abstractText, description, venue, track);
         return query;
     }
 
@@ -204,6 +217,7 @@ public class FossasiaEvent implements Parcelable {
         out.writeString(abstractText);
         out.writeString(description);
         out.writeString(venue);
+        out.writeString(track);
         out.writeList(keyNoteList);
 
     }

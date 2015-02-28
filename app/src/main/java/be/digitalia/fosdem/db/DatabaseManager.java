@@ -469,6 +469,8 @@ public class DatabaseManager {
         String abstractText;
         String description;
         String venue;
+        String track;
+
         if (cursor.moveToFirst()) {
             do {
                 id = cursor.getInt(0);
@@ -481,9 +483,10 @@ public class DatabaseManager {
                 abstractText = cursor.getString(7);
                 description = cursor.getString(8);
                 venue = cursor.getString(9);
+                track = cursor.getString(10);
 
 
-                fossasiaEventList.add(new FossasiaEvent(id, title, subTitle, date, day, startTime, endTime, abstractText, description, venue));
+                fossasiaEventList.add(new FossasiaEvent(id, title, subTitle, date, day, startTime, endTime, abstractText, description, venue, track));
             }
             while (cursor.moveToNext());
         }
@@ -504,6 +507,7 @@ public class DatabaseManager {
         String abstractText;
         String description;
         String venue;
+        String track;
         if (cursor.moveToFirst()) {
             do {
                 id = cursor.getInt(0);
@@ -516,6 +520,7 @@ public class DatabaseManager {
                 abstractText = cursor.getString(7);
                 description = cursor.getString(8);
                 venue = cursor.getString(9);
+                track = cursor.getString(10);
                 Cursor cursorSpeaker = helper.getReadableDatabase().rawQuery(String.format("SELECT speaker FROM %s WHERE event='%s'", DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, title), null);
                 ArrayList<String> speakers = new ArrayList<String>();
                 if (cursorSpeaker.moveToFirst()) {
@@ -525,7 +530,7 @@ public class DatabaseManager {
                     while (cursorSpeaker.moveToNext());
                 }
 
-                fossasiaEventList.add(new FossasiaEvent(id, title, subTitle, speakers, date, day, startTime, endTime, abstractText, description, venue));
+                fossasiaEventList.add(new FossasiaEvent(id, title, subTitle, speakers, date, day, startTime, endTime, abstractText, description, venue, track));
             }
             while (cursor.moveToNext());
         }
