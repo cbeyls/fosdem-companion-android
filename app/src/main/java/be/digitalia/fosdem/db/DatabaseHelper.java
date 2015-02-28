@@ -11,7 +11,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String PERSONS_TABLE_NAME = "persons";
     public static final String EVENTS_PERSONS_TABLE_NAME = "events_persons";
     public static final String LINKS_TABLE_NAME = "links";
-    public static final String TRACKS_TABLE_NAME = "tracks";
+    public static final String TRACKS_TABLE_NAME = "tracks_new";
     public static final String DAYS_TABLE_NAME = "days";
     public static final String BOOKMARKS_TABLE_NAME = "bookmarks";
     public static final String TABLE_NAME_KEY_SPEAKERS = "key_speakers";
@@ -26,6 +26,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLE_NAME_SPEAKER_EVENT_RELATION = "speaker_event_relation";
     private static final String TABLE_SPEAKER_EVENT_RELATION = "CREATE TABLE " + TABLE_NAME_SPEAKER_EVENT_RELATION
             + " (speaker TEXT, event TEXT);";
+    public static final String TABLE_NAME_TRACK = "tracks";
+    public static final String TABLE_COLUMN_NAME = "track_name";
+    public static final String TABLE_COLOUMN_INFORMATION = "information";
+    private static final String TABLE_TRACKS = "CREATE TABLE " + TABLE_NAME_TRACK
+            + " (_id INTEGER, " + TABLE_COLUMN_NAME + " TEXT, " + TABLE_COLOUMN_INFORMATION + " TEXT);";
     private static final String DATABASE_NAME = "fosdem.sqlite";
     private static final int DATABASE_VERSION = 1;
 
@@ -70,6 +75,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         database.execSQL(TABLE_KEY_SPEAKERS);
         database.execSQL(TABLE_SCHEDULE);
         database.execSQL(TABLE_SPEAKER_EVENT_RELATION);
+        database.execSQL(TABLE_TRACKS);
     }
 
     @Override

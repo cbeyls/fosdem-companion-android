@@ -30,7 +30,8 @@ public class JsonToDatabase {
     private Context context;
     private boolean keySpeakerLoaded;
     private boolean scheduleLoaded;
-    private boolean speakerEventReplation;
+    private boolean speakerEventRelation;
+    private boolean tracks;
     private ArrayList<String> queries;
 
     public JsonToDatabase(Context context) {
@@ -39,13 +40,64 @@ public class JsonToDatabase {
         fetchKeySpeakers(FossasiaUrls.KEY_SPEAKER_URL);
         fetchSchedule(FossasiaUrls.SCHEDULE_URL);
         fetchSpeakerEventRelation(FossasiaUrls.SPEAKER_EVENT_URL);
+        fetchTracks(FossasiaUrls.TRACKS_URL);
         queries = new ArrayList<String>();
         keySpeakerLoaded = false;
         scheduleLoaded = false;
-        speakerEventReplation = false;
+        speakerEventRelation = false;
+        tracks = false;
 
 
     }
+
+    private void fetchTracks(String url) {
+
+        RequestQueue queue = VolleySingleton.getReqQueue(context);
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(url, new Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                JSONArray jsonArray = removePaddingFromString(response);
+                Log.d(TAG, jsonArray.toString());
+                String trackName;
+                String trackInformation;
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    try {
+                        trackName = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(0)
+                                .getString("v");
+                        trackInformation = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(1)
+                                .getString("v");
+                        String query = "INSERT INTO %s VALUES (%d, '%s', '%s');";
+                        query = String.format(query, DatabaseHelper.TABLE_NAME_TRACK, i, trackName, trackInformation);
+                        Log.d(TAG, query);
+                        queries.add(query);
+                    } catch (JSONException e) {
+                        Log.e(TAG, "JSON Error: " + e.getMessage() + "\nResponse" + response);
+                    }
+
+                }
+                tracks = true;
+                checkStatus();
+            }
+        }
+
+                , new ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                tracks = true;
+                checkStatus();
+            }
+        }
+
+        );
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+    }
+
 
     private void fetchSpeakerEventRelation(String url) {
 
@@ -76,7 +128,7 @@ public class JsonToDatabase {
                     }
 
                 }
-                speakerEventReplation = true;
+                speakerEventRelation = true;
                 checkStatus();
             }
         }
@@ -85,7 +137,7 @@ public class JsonToDatabase {
 
             @Override
             public void onErrorResponse(VolleyError error) {
-                speakerEventReplation = true;
+                speakerEventRelation = true;
                 checkStatus();
             }
         }
@@ -233,7 +285,7 @@ public class JsonToDatabase {
     }
 
     private void checkStatus() {
-        if (keySpeakerLoaded && scheduleLoaded && speakerEventReplation) {
+        if (keySpeakerLoaded && scheduleLoaded && speakerEventRelation && tracks) {
             DatabaseManager dbManager = DatabaseManager.getInstance();
             //Temporary clearing database for testing only
             dbManager.clearDatabase();

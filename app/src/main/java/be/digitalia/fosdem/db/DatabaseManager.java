@@ -113,6 +113,8 @@ public class DatabaseManager {
         // Deleting Fossasia tables
         db.delete(DatabaseHelper.TABLE_NAME_KEY_SPEAKERS, null, null);
         db.delete(DatabaseHelper.TABLE_NAME_SCHEDULE, null, null);
+        db.delete(DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, null, null);
+        db.delete(DatabaseHelper.TABLE_NAME_TRACK, null, null);
 
     }
 
@@ -604,6 +606,13 @@ public class DatabaseManager {
                 "SELECT t.id AS _id, t.name, t.type" + " FROM " + DatabaseHelper.TRACKS_TABLE_NAME + " t" + " JOIN " + DatabaseHelper.EVENTS_TABLE_NAME
                         + " e ON t.id = e.track_id" + " WHERE e.day_index = ?" + " GROUP BY t.id" + " ORDER BY t.name ASC", selectionArgs);
         cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
+        return cursor;
+    }
+
+    public Cursor getTracks() {
+        Cursor cursor = helper.getReadableDatabase().rawQuery(
+                "SELECT * FROM " + DatabaseHelper.TABLE_NAME_TRACK, null);
+//        cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
         return cursor;
     }
 

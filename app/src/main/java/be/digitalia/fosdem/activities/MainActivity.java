@@ -59,12 +59,12 @@ import be.digitalia.fosdem.api.FosdemApi;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.db.JsonToDatabase;
 import be.digitalia.fosdem.fragments.BookmarksListFragment;
+import be.digitalia.fosdem.fragments.FossasiaTracksListFragment;
 import be.digitalia.fosdem.fragments.KeySpeakerFragment;
 import be.digitalia.fosdem.fragments.LiveFragment;
 import be.digitalia.fosdem.fragments.MapFragment;
 import be.digitalia.fosdem.fragments.PersonsListFragment;
 import be.digitalia.fosdem.fragments.ScheduleFragment;
-import be.digitalia.fosdem.fragments.TracksFragment;
 
 /**
  * Main entry point of the application. Allows to switch between section fragments and update the database.
@@ -412,12 +412,13 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
     }
 
     private enum Section {
-        TRACKS(TracksFragment.class, R.string.menu_tracks, R.drawable.ic_event_grey600_24dp, true),
+
         SCHEDULE(ScheduleFragment.class, R.string.menu_schedule, R.drawable.ic_event_grey600_24dp, true),
         BOOKMARKS(BookmarksListFragment.class, R.string.menu_bookmarks, R.drawable.ic_bookmark_grey600_24dp, false),
         LIVE(LiveFragment.class, R.string.menu_live, R.drawable.ic_play_circle_outline_grey600_24dp, false),
         KEY_SPEAKERS(KeySpeakerFragment.class, R.string.menu_key_speakers, R.drawable.ic_people_grey600_24dp, false),
         SPEAKERS(PersonsListFragment.class, R.string.menu_speakers, R.drawable.ic_people_grey600_24dp, false),
+        TRACKS(FossasiaTracksListFragment.class, R.string.menu_tracks, R.drawable.ic_event_grey600_24dp, true),
         MAP(MapFragment.class, R.string.menu_map, R.drawable.ic_map_grey600_24dp, false);
 
         private final String fragmentClassName;
