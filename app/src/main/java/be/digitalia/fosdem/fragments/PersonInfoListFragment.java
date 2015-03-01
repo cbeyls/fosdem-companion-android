@@ -26,7 +26,6 @@ import be.digitalia.fosdem.model.Speaker;
 
 public class PersonInfoListFragment extends SmoothListFragment {
 
-    private static final int PERSON_EVENTS_LOADER_ID = 1;
     private static final String ARG_PERSON = "person";
 
     private Speaker person;
