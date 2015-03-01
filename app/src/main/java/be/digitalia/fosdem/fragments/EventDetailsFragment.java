@@ -440,7 +440,7 @@ public class EventDetailsFragment extends Fragment {
         @Override
         public void onClick(View v) {
             Context context = v.getContext();
-            Intent intent = new Intent(context, PersonInfoActivity.class).putExtra(PersonInfoActivity.EXTRA_PERSON, person);
+            Intent intent = new Intent(context, PersonInfoActivity.class).putExtra(PersonInfoActivity.SPEAKER, person);
             context.startActivity(intent);
         }
     }

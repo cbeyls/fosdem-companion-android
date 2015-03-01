@@ -35,17 +35,18 @@ public class ScheduleListFragment extends SmoothListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
         int day = getArguments().getInt("DAY") + 13;
         track = null;
         track = getArguments().getString("TRACK");
         DatabaseManager dbManager = DatabaseManager.getInstance();
         if (track != null) {
-            events = dbManager.getScheduleByDateandTrack(day + "/03/2015", track);
+            events = dbManager.getEventsByDateandTrack(day + "/03/2015", track);
         } else {
-            events = dbManager.getScheduleByDate(day + "/03/2015");
+            events = dbManager.getEventsByDate(day + "/03/2015");
         }
         setListAdapter(new ScheduleAdapter(getActivity(), events));
-
     }
 
     @Override

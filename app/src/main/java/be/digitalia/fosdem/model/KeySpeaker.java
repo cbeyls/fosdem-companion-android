@@ -1,12 +1,24 @@
 package be.digitalia.fosdem.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import be.digitalia.fosdem.db.DatabaseHelper;
 
 /**
  * Created by Abhishek on 17/02/15.
  */
-public class KeySpeaker {
+public class KeySpeaker implements Parcelable {
 
+    public static final Parcelable.Creator<KeySpeaker> CREATOR = new Parcelable.Creator<KeySpeaker>() {
+        public KeySpeaker createFromParcel(Parcel in) {
+            return new KeySpeaker(in);
+        }
+
+        public KeySpeaker[] newArray(int size) {
+            return new KeySpeaker[size];
+        }
+    };
     private int id;
     private String name;
     private String information;
@@ -23,6 +35,16 @@ public class KeySpeaker {
         this.twitterHandle = twitterHandle;
         this.designation = designation;
         this.profilePicUrl = profilePicUrl;
+    }
+
+    public KeySpeaker(Parcel in) {
+        this.id = in.readInt();
+        this.name = in.readString();
+        this.information = in.readString();
+        this.linkedInUrl = in.readString();
+        this.twitterHandle = in.readString();
+        this.designation = in.readString();
+        this.profilePicUrl = in.readString();
     }
 
     public String getProfilePicUrl() {
@@ -84,5 +106,22 @@ public class KeySpeaker {
     public String generateSqlQuery() {
         String query = String.format("INSERT INTO %s VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s');", DatabaseHelper.TABLE_NAME_KEY_SPEAKERS, id, name, designation, information, twitterHandle, linkedInUrl, profilePicUrl);
         return query;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel out, int flags) {
+        out.writeInt(id);
+        out.writeString(name);
+        out.writeString(information);
+        out.writeString(linkedInUrl);
+        out.writeString(twitterHandle);
+        out.writeString(designation);
+        out.writeString(profilePicUrl);
+
     }
 }

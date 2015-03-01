@@ -95,14 +95,14 @@ public class SpeakerAdapter extends BaseAdapter {
                 }
             });
         }
-
+        row.setTag(speaker);
         return row;
     }
 
-    @Override
-    public boolean isEnabled(int position) {
-        return false;
-    }
+//    @Override
+//    public boolean isEnabled(int position) {
+//        return false;
+//    }
 
     public static class SpeakerHolder {
         TextView name;

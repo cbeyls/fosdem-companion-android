@@ -69,7 +69,7 @@
         </activity>
         <activity
             android:name=".activities.PersonInfoActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme"/>
         <activity
             android:name=".activities.SearchResultActivity"
             android:launchMode="singleTop">

@@ -496,7 +496,8 @@ public class DatabaseManager {
         return fossasiaEventList;
     }
 
-    public ArrayList<FossasiaEvent> getScheduleByDate(String selectDate) {
+    public ArrayList<FossasiaEvent> getEventsByDate(String selectDate) {
+
         Cursor cursor = helper.getReadableDatabase().rawQuery("SELECT * FROM schedule WHERE date='" + selectDate + "'", null);
         ArrayList<FossasiaEvent> fossasiaEventList = new ArrayList<FossasiaEvent>();
         int id;
@@ -540,8 +541,66 @@ public class DatabaseManager {
         return fossasiaEventList;
     }
 
+    public ArrayList<FossasiaEvent> getEventBySpeaker(String name) {
 
-    public ArrayList<FossasiaEvent> getScheduleByDateandTrack(String selectDate, String track) {
+        Cursor cursorEvents = helper.getReadableDatabase().rawQuery(String.format("SELECT event FROM %s WHERE speaker='%s'", DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, name), null);
+        ArrayList<String> events = new ArrayList<String>();
+        if (cursorEvents.moveToFirst()) {
+            do {
+                events.add(cursorEvents.getString(0));
+            }
+            while (cursorEvents.moveToNext());
+        }
+        cursorEvents.close();
+        ArrayList<FossasiaEvent> fossasiaEventList = new ArrayList<FossasiaEvent>();
+
+        for (String event : events) {
+
+            Cursor cursor = helper.getReadableDatabase().rawQuery("SELECT * FROM schedule WHERE title='" + event + "'", null);
+            int id;
+            String title;
+            String subTitle;
+            String date;
+            String day;
+            String startTime;
+            String endTime;
+            String abstractText;
+            String description;
+            String venue;
+            String track;
+            if (cursor.moveToFirst()) {
+                do {
+                    id = cursor.getInt(0);
+                    title = cursor.getString(1);
+                    subTitle = cursor.getString(2);
+                    date = cursor.getString(3);
+                    day = cursor.getString(4);
+                    startTime = cursor.getString(5);
+                    endTime = cursor.getString(6);
+                    abstractText = cursor.getString(7);
+                    description = cursor.getString(8);
+                    venue = cursor.getString(9);
+                    track = cursor.getString(10);
+                    Cursor cursorSpeaker = helper.getReadableDatabase().rawQuery(String.format("SELECT speaker FROM %s WHERE event='%s'", DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, title), null);
+                    ArrayList<String> speakers = new ArrayList<String>();
+                    if (cursorSpeaker.moveToFirst()) {
+                        do {
+                            speakers.add(cursorSpeaker.getString(0));
+                        }
+                        while (cursorSpeaker.moveToNext());
+                    }
+
+                    fossasiaEventList.add(new FossasiaEvent(id, title, subTitle, speakers, date, day, startTime, endTime, abstractText, description, venue, track));
+                }
+                while (cursor.moveToNext());
+            }
+            cursor.close();
+        }
+        return fossasiaEventList;
+    }
+
+
+    public ArrayList<FossasiaEvent> getEventsByDateandTrack(String selectDate, String track) {
         Cursor cursor = helper.getReadableDatabase().rawQuery("SELECT * FROM schedule WHERE date='" + selectDate + "' AND track='" + track + "'", null);
         ArrayList<FossasiaEvent> fossasiaEventList = new ArrayList<FossasiaEvent>();
         int id;
@@ -808,46 +867,6 @@ public class DatabaseManager {
                                 + whereCondition.toString()
                                 + " GROUP BY e.id"
                                 + " ORDER BY e.start_time " + ascendingString, selectionArgs.toArray(new String[selectionArgs.size()]));
-        cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
-        return cursor;
-    }
-
-    /**
-     * Returns the events presented by the specified person.
-     *
-     * @param person
-     * @return A cursor to Events
-     */
-    public Cursor getEvents(Person person) {
-        String[] selectionArgs = new String[]{String.valueOf(person.getId())};
-        Cursor cursor = helper
-                .getReadableDatabase()
-                .rawQuery(
-                        "SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, b.event_id"
-                                + " FROM "
-                                + DatabaseHelper.EVENTS_TABLE_NAME
-                                + " e"
-                                + " JOIN "
-                                + DatabaseHelper.EVENTS_TITLES_TABLE_NAME
-                                + " et ON e.id = et.rowid"
-                                + " JOIN "
-                                + DatabaseHelper.DAYS_TABLE_NAME
-                                + " d ON e.day_index = d._index"
-                                + " JOIN "
-                                + DatabaseHelper.TRACKS_TABLE_NAME
-                                + " t ON e.track_id = t.id"
-                                + " LEFT JOIN "
-                                + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
-                                + " ep ON e.id = ep.event_id"
-                                + " LEFT JOIN "
-                                + DatabaseHelper.PERSONS_TABLE_NAME
-                                + " p ON ep.person_id = p.rowid"
-                                + " LEFT JOIN "
-                                + DatabaseHelper.BOOKMARKS_TABLE_NAME
-                                + " b ON e.id = b.event_id"
-                                + " JOIN "
-                                + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
-                                + " ep2 ON e.id = ep2.event_id" + " WHERE ep2.person_id = ?" + " GROUP BY e.id" + " ORDER BY e.start_time ASC", selectionArgs);
         cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
         return cursor;
     }
@@ -1157,7 +1176,4 @@ public class DatabaseManager {
         }
     }
 
-    public void getEventByDate(String date) {
-
-    }
 }
