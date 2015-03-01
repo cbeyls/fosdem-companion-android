@@ -541,6 +541,50 @@ public class DatabaseManager {
     }
 
 
+    public ArrayList<FossasiaEvent> getScheduleByDateandTrack(String selectDate, String track) {
+        Cursor cursor = helper.getReadableDatabase().rawQuery("SELECT * FROM schedule WHERE date='" + selectDate + "' AND track='" + track + "'", null);
+        ArrayList<FossasiaEvent> fossasiaEventList = new ArrayList<FossasiaEvent>();
+        int id;
+        String title;
+        String subTitle;
+        String date;
+        String day;
+        String startTime;
+        String endTime;
+        String abstractText;
+        String description;
+        String venue;
+        if (cursor.moveToFirst()) {
+            do {
+                id = cursor.getInt(0);
+                title = cursor.getString(1);
+                subTitle = cursor.getString(2);
+                date = cursor.getString(3);
+                day = cursor.getString(4);
+                startTime = cursor.getString(5);
+                endTime = cursor.getString(6);
+                abstractText = cursor.getString(7);
+                description = cursor.getString(8);
+                venue = cursor.getString(9);
+                track = cursor.getString(10);
+                Cursor cursorSpeaker = helper.getReadableDatabase().rawQuery(String.format("SELECT speaker FROM %s WHERE event='%s'", DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, title), null);
+                ArrayList<String> speakers = new ArrayList<String>();
+                if (cursorSpeaker.moveToFirst()) {
+                    do {
+                        speakers.add(cursorSpeaker.getString(0));
+                    }
+                    while (cursorSpeaker.moveToNext());
+                }
+
+                fossasiaEventList.add(new FossasiaEvent(id, title, subTitle, speakers, date, day, startTime, endTime, abstractText, description, venue, track));
+            }
+            while (cursor.moveToNext());
+        }
+        cursor.close();
+        return fossasiaEventList;
+    }
+
+
     public ArrayList<KeySpeaker> getKeySpeakers() {
         Cursor cursor = helper.getReadableDatabase().query(DatabaseHelper.TABLE_NAME_KEY_SPEAKERS, null, null, null, null, null, null);
         ArrayList<KeySpeaker> speakers = new ArrayList<KeySpeaker>();

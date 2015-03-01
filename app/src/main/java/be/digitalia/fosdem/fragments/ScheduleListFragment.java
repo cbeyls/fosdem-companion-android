@@ -20,11 +20,13 @@ import be.digitalia.fosdem.model.FossasiaEvent;
 public class ScheduleListFragment extends SmoothListFragment {
 
     private ArrayList<FossasiaEvent> events;
+    private String track;
 
-    public static Fragment newInstance(int day) {
+    public static Fragment newInstance(int day, String track) {
         Fragment fragment = new ScheduleListFragment();
         Bundle bundle = new Bundle();
         bundle.putInt("DAY", day);
+        bundle.putString("TRACK", track);
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -34,9 +36,14 @@ public class ScheduleListFragment extends SmoothListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         int day = getArguments().getInt("DAY") + 13;
+        track = null;
+        track = getArguments().getString("TRACK");
         DatabaseManager dbManager = DatabaseManager.getInstance();
-        events = dbManager.getSchedule();
-        events = dbManager.getScheduleByDate(day + "/03/2015");
+        if (track != null) {
+            events = dbManager.getScheduleByDateandTrack(day + "/03/2015", track);
+        } else {
+            events = dbManager.getScheduleByDate(day + "/03/2015");
+        }
         setListAdapter(new ScheduleAdapter(getActivity(), events));
 
     }
@@ -49,5 +56,15 @@ public class ScheduleListFragment extends SmoothListFragment {
         intent.putExtra("event", events.get(position));
         startActivity(intent);
         super.onListItemClick(l, v, position, id);
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        if (track != null) {
+            setEmptyText("No event on this day related to " + track);
+        } else {
+            setEmptyText("No event on this day");
+        }
     }
 }

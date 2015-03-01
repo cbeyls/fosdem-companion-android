@@ -209,7 +209,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
             currentSection = Section.TRACKS;
             String fragmentClassName = currentSection.getFragmentClassName();
             Fragment f = Fragment.instantiate(this, fragmentClassName);
-            getSupportFragmentManager().beginTransaction().add(R.id.content, f, fragmentClassName).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.content, f, fragmentClassName).addToBackStack(null).commit();
         } else {
             currentSection = Section.values()[savedInstanceState.getInt(STATE_CURRENT_SECTION)];
         }
@@ -418,7 +418,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
         LIVE(LiveFragment.class, R.string.menu_live, R.drawable.ic_play_circle_outline_grey600_24dp, false),
         KEY_SPEAKERS(KeySpeakerFragment.class, R.string.menu_key_speakers, R.drawable.ic_people_grey600_24dp, false),
         SPEAKERS(PersonsListFragment.class, R.string.menu_speakers, R.drawable.ic_people_grey600_24dp, false),
-        TRACKS(FossasiaTracksListFragment.class, R.string.menu_tracks, R.drawable.ic_event_grey600_24dp, true),
+        TRACKS(FossasiaTracksListFragment.class, R.string.menu_tracks, R.drawable.ic_event_grey600_24dp, false),
         MAP(MapFragment.class, R.string.menu_map, R.drawable.ic_map_grey600_24dp, false);
 
         private final String fragmentClassName;

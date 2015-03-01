@@ -20,13 +20,29 @@ import be.digitalia.fosdem.R;
  */
 public class ScheduleFragment extends Fragment {
 
+    public final static String TAG = "ScheduleFragment";
+
     private DayLoader daysAdapter;
     private ViewHolder holder;
+
+    public static Fragment newInstance(String track) {
+        ScheduleFragment fragment = new ScheduleFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("TRACK", track);
+        fragment.setArguments(bundle);
+        return fragment;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        daysAdapter = new DayLoader(getChildFragmentManager());
+        if (getArguments() != null) {
+            String track = getArguments().getString("TRACK");
+            daysAdapter = new DayLoader(getChildFragmentManager(), track);
+        } else {
+            daysAdapter = new DayLoader(getChildFragmentManager(), null);
+        }
+
     }
 
     @Override
@@ -64,16 +80,18 @@ public class ScheduleFragment extends Fragment {
     private static class DayLoader extends FragmentStatePagerAdapter {
 
         private ArrayList<String> mPageTitle;
+        private String track;
 
-        public DayLoader(FragmentManager fm) {
+        public DayLoader(FragmentManager fm, String track) {
             super(fm);
             mPageTitle = new ArrayList<String>();
+            this.track = track;
 
         }
 
         @Override
         public Fragment getItem(int position) {
-            return ScheduleListFragment.newInstance(position);
+            return ScheduleListFragment.newInstance(position, track);
         }
 
         @Override
