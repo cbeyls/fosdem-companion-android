@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 import be.digitalia.fosdem.api.FossasiaUrls;
 import be.digitalia.fosdem.model.FossasiaEvent;
-import be.digitalia.fosdem.model.KeySpeaker;
+import be.digitalia.fosdem.model.Speaker;
 import be.digitalia.fosdem.utils.VolleySingleton;
 
 /**
@@ -243,6 +243,7 @@ public class JsonToDatabase {
                 String information;
                 String twitterHandle;
                 String linkedInUrl;
+                int isKeySpeaker;
                 for (int i = 0; i < jsonArray.length(); i++) {
                     try {
                         name = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(0)
@@ -257,7 +258,9 @@ public class JsonToDatabase {
                                 .getString("v");
                         profilePicUrl = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(5)
                                 .getString("v");
-                        KeySpeaker temp = new KeySpeaker(i + 1, name, information, linkedInUrl, twitterHandle, designation, profilePicUrl);
+                        isKeySpeaker = (int) jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(6)
+                                .getLong("v");
+                        Speaker temp = new Speaker(i + 1, name, information, linkedInUrl, twitterHandle, designation, profilePicUrl, isKeySpeaker);
 //                        Log.d(TAG, temp.generateSqlQuery());
                         queries.add(temp.generateSqlQuery());
                     } catch (JSONException e) {

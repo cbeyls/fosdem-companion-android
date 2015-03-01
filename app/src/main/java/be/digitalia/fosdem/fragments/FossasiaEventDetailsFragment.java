@@ -42,8 +42,8 @@ import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.loaders.BookmarkStatusLoader;
 import be.digitalia.fosdem.loaders.LocalCacheLoader;
 import be.digitalia.fosdem.model.FossasiaEvent;
-import be.digitalia.fosdem.model.KeySpeaker;
 import be.digitalia.fosdem.model.Link;
+import be.digitalia.fosdem.model.Speaker;
 import be.digitalia.fosdem.utils.DateUtils;
 import be.digitalia.fosdem.utils.StringUtils;
 
@@ -444,9 +444,9 @@ public class FossasiaEventDetailsFragment extends Fragment {
 
     private static class PersonClickableSpan extends ClickableSpan {
 
-        private final KeySpeaker person;
+        private final Speaker person;
 
-        public PersonClickableSpan(KeySpeaker person) {
+        public PersonClickableSpan(Speaker person) {
             this.person = person;
         }
 

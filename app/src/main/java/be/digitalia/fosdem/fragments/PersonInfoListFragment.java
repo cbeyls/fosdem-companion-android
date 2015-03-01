@@ -22,61 +22,61 @@ import be.digitalia.fosdem.adapters.EventsAdapter;
 import be.digitalia.fosdem.adapters.ScheduleAdapter;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.model.FossasiaEvent;
-import be.digitalia.fosdem.model.KeySpeaker;
+import be.digitalia.fosdem.model.Speaker;
 
 public class PersonInfoListFragment extends SmoothListFragment {
 
-	private static final int PERSON_EVENTS_LOADER_ID = 1;
-	private static final String ARG_PERSON = "person";
+    private static final int PERSON_EVENTS_LOADER_ID = 1;
+    private static final String ARG_PERSON = "person";
 
-    private KeySpeaker person;
+    private Speaker person;
     private EventsAdapter adapter;
     private ArrayList<FossasiaEvent> events;
 
-    public static PersonInfoListFragment newInstance(KeySpeaker speaker) {
+    public static PersonInfoListFragment newInstance(Speaker speaker) {
         PersonInfoListFragment f = new PersonInfoListFragment();
-		Bundle args = new Bundle();
+        Bundle args = new Bundle();
         args.putParcelable(ARG_PERSON, speaker);
         f.setArguments(args);
-		return f;
-	}
+        return f;
+    }
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-		person = getArguments().getParcelable(ARG_PERSON);
-		setHasOptionsMenu(true);
-	}
+        person = getArguments().getParcelable(ARG_PERSON);
+        setHasOptionsMenu(true);
+    }
 
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.person, menu);
-	}
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.person, menu);
+    }
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.more_info:
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.more_info:
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(person.getLinkedInUrl()));
                 startActivity(intent);
-				return true;
-		}
-		return false;
-	}
+                return true;
+        }
+        return false;
+    }
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
-		setEmptyText(getString(R.string.no_data));
+        setEmptyText(getString(R.string.no_data));
 
-		int contentMargin = getResources().getDimensionPixelSize(R.dimen.content_margin);
-		ListView listView = getListView();
-		listView.setClipToPadding(false);
-		listView.setScrollBarStyle(ListView.SCROLLBARS_OUTSIDE_OVERLAY);
+        int contentMargin = getResources().getDimensionPixelSize(R.dimen.content_margin);
+        ListView listView = getListView();
+        listView.setClipToPadding(false);
+        listView.setScrollBarStyle(ListView.SCROLLBARS_OUTSIDE_OVERLAY);
 
-		View headerView = LayoutInflater.from(getActivity()).inflate(R.layout.header_person_info, null);
+        View headerView = LayoutInflater.from(getActivity()).inflate(R.layout.header_person_info, null);
 
         TextView name;
         TextView designation;
@@ -108,7 +108,7 @@ public class PersonInfoListFragment extends SmoothListFragment {
         setListAdapter(new ScheduleAdapter(getActivity(), events));
         ;
 
-	}
+    }
 
 
     @Override

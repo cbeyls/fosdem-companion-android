@@ -14,7 +14,7 @@ import com.android.volley.toolbox.NetworkImageView;
 import java.util.ArrayList;
 
 import be.digitalia.fosdem.R;
-import be.digitalia.fosdem.model.KeySpeaker;
+import be.digitalia.fosdem.model.Speaker;
 import be.digitalia.fosdem.utils.VolleySingleton;
 
 /**
@@ -22,11 +22,11 @@ import be.digitalia.fosdem.utils.VolleySingleton;
  */
 public class SpeakerAdapter extends BaseAdapter {
 
-    private ArrayList<KeySpeaker> mSpeakerList;
+    private ArrayList<Speaker> mSpeakerList;
     private Context mContext;
     private LayoutInflater mInflater;
 
-    public SpeakerAdapter(Context context, ArrayList<KeySpeaker> speakerList) {
+    public SpeakerAdapter(Context context, ArrayList<Speaker> speakerList) {
         this.mSpeakerList = speakerList;
         this.mContext = context;
     }
@@ -37,7 +37,7 @@ public class SpeakerAdapter extends BaseAdapter {
     }
 
     @Override
-    public KeySpeaker getItem(int position) {
+    public Speaker getItem(int position) {
         return mSpeakerList.get(position);
     }
 
@@ -67,7 +67,7 @@ public class SpeakerAdapter extends BaseAdapter {
         holder.information = (TextView) row.findViewById(R.id.textView_speaker_information);
         holder.linkedIn = (ImageView) row.findViewById(R.id.imageView_linkedin);
         holder.twitter = (ImageView) row.findViewById(R.id.imageView_twitter);
-        KeySpeaker speaker = getItem(position);
+        Speaker speaker = getItem(position);
         holder.speakerImage.setImageUrl(speaker.getProfilePicUrl(), VolleySingleton.getImageLoader(mContext));
         holder.name.setText(speaker.getName());
         holder.designation.setText(speaker.getDesignation());

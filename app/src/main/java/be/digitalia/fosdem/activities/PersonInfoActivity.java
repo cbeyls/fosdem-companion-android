@@ -8,7 +8,7 @@ import android.view.MenuItem;
 
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.PersonInfoListFragment;
-import be.digitalia.fosdem.model.KeySpeaker;
+import be.digitalia.fosdem.model.Speaker;
 
 public class PersonInfoActivity extends ActionBarActivity {
 
@@ -18,7 +18,7 @@ public class PersonInfoActivity extends ActionBarActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.content_extended_title);
-        KeySpeaker person = getIntent().getParcelableExtra(SPEAKER);
+        Speaker person = getIntent().getParcelableExtra(SPEAKER);
 
 		ActionBar bar = getSupportActionBar();
 		bar.setDisplayHomeAsUpEnabled(true);

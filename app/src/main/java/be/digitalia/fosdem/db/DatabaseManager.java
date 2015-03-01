@@ -27,9 +27,9 @@ import java.util.Set;
 import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.FossasiaEvent;
-import be.digitalia.fosdem.model.KeySpeaker;
 import be.digitalia.fosdem.model.Link;
 import be.digitalia.fosdem.model.Person;
+import be.digitalia.fosdem.model.Speaker;
 import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.DateUtils;
 
@@ -644,9 +644,9 @@ public class DatabaseManager {
     }
 
 
-    public ArrayList<KeySpeaker> getKeySpeakers() {
+    public ArrayList<Speaker> getSpeakers(boolean fetchKeySpeaker) {
         Cursor cursor = helper.getReadableDatabase().query(DatabaseHelper.TABLE_NAME_KEY_SPEAKERS, null, null, null, null, null, null);
-        ArrayList<KeySpeaker> speakers = new ArrayList<KeySpeaker>();
+        ArrayList<Speaker> speakers = new ArrayList<Speaker>();
         int id;
         String name;
         String designation;
@@ -654,6 +654,7 @@ public class DatabaseManager {
         String information;
         String twitterHandle;
         String linkedInUrl;
+        int isKeySpeaker;
         if (cursor.moveToFirst()) {
             do {
                 id = cursor.getInt(0);
@@ -663,7 +664,12 @@ public class DatabaseManager {
                 twitterHandle = cursor.getString(4);
                 linkedInUrl = cursor.getString(5);
                 profilePicUrl = cursor.getString(6);
-                speakers.add(new KeySpeaker(id, name, information, linkedInUrl, twitterHandle, designation, profilePicUrl));
+                isKeySpeaker = cursor.getInt(7);
+                if (isKeySpeaker == 1 && fetchKeySpeaker) {
+                    speakers.add(new Speaker(id, name, information, linkedInUrl, twitterHandle, designation, profilePicUrl, isKeySpeaker));
+                } else if (isKeySpeaker == 0 && !fetchKeySpeaker) {
+                    speakers.add(new Speaker(id, name, information, linkedInUrl, twitterHandle, designation, profilePicUrl, isKeySpeaker));
+                }
             }
             while (cursor.moveToNext());
 

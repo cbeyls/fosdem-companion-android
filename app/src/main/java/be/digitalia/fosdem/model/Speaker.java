@@ -8,15 +8,15 @@ import be.digitalia.fosdem.db.DatabaseHelper;
 /**
  * Created by Abhishek on 17/02/15.
  */
-public class KeySpeaker implements Parcelable {
+public class Speaker implements Parcelable {
 
-    public static final Parcelable.Creator<KeySpeaker> CREATOR = new Parcelable.Creator<KeySpeaker>() {
-        public KeySpeaker createFromParcel(Parcel in) {
-            return new KeySpeaker(in);
+    public static final Parcelable.Creator<Speaker> CREATOR = new Parcelable.Creator<Speaker>() {
+        public Speaker createFromParcel(Parcel in) {
+            return new Speaker(in);
         }
 
-        public KeySpeaker[] newArray(int size) {
-            return new KeySpeaker[size];
+        public Speaker[] newArray(int size) {
+            return new Speaker[size];
         }
     };
     private int id;
@@ -26,8 +26,9 @@ public class KeySpeaker implements Parcelable {
     private String twitterHandle;
     private String designation;
     private String profilePicUrl;
+    private boolean isKeySpeaker;
 
-    public KeySpeaker(int id, String name, String information, String linkedInUrl, String twitterHandle, String designation, String profilePicUrl) {
+    public Speaker(int id, String name, String information, String linkedInUrl, String twitterHandle, String designation, String profilePicUrl, int isKeySpeaker) {
         this.id = id;
         this.name = name;
         this.information = information;
@@ -35,9 +36,14 @@ public class KeySpeaker implements Parcelable {
         this.twitterHandle = twitterHandle;
         this.designation = designation;
         this.profilePicUrl = profilePicUrl;
+        if (isKeySpeaker == 0) {
+            this.isKeySpeaker = false;
+        } else {
+            this.isKeySpeaker = true;
+        }
     }
 
-    public KeySpeaker(Parcel in) {
+    public Speaker(Parcel in) {
         this.id = in.readInt();
         this.name = in.readString();
         this.information = in.readString();
@@ -45,6 +51,7 @@ public class KeySpeaker implements Parcelable {
         this.twitterHandle = in.readString();
         this.designation = in.readString();
         this.profilePicUrl = in.readString();
+        this.isKeySpeaker = in.readByte() != 0;
     }
 
     public String getProfilePicUrl() {
@@ -103,8 +110,12 @@ public class KeySpeaker implements Parcelable {
         this.designation = designation;
     }
 
+    public boolean isKeySpeaker() {
+        return isKeySpeaker;
+    }
+
     public String generateSqlQuery() {
-        String query = String.format("INSERT INTO %s VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s');", DatabaseHelper.TABLE_NAME_KEY_SPEAKERS, id, name, designation, information, twitterHandle, linkedInUrl, profilePicUrl);
+        String query = String.format("INSERT INTO %s VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', %d);", DatabaseHelper.TABLE_NAME_KEY_SPEAKERS, id, name, designation, information, twitterHandle, linkedInUrl, profilePicUrl, (isKeySpeaker ? 1 : 0));
         return query;
     }
 
@@ -122,6 +133,7 @@ public class KeySpeaker implements Parcelable {
         out.writeString(twitterHandle);
         out.writeString(designation);
         out.writeString(profilePicUrl);
+        out.writeByte((byte) (isKeySpeaker ? 1 : 0));
 
     }
 }

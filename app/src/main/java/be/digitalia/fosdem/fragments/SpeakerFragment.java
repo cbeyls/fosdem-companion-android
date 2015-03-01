@@ -1,5 +1,9 @@
 package be.digitalia.fosdem.fragments;
 
+/**
+ * Created by Abhishek on 01/03/15.
+ */
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -10,17 +14,14 @@ import be.digitalia.fosdem.adapters.SpeakerAdapter;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.model.Speaker;
 
-/**
- * Created by Abhishek on 14/02/15.
- */
-public class KeySpeakerFragment extends SmoothListFragment {
+public class SpeakerFragment extends SmoothListFragment {
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         DatabaseManager dbManager = DatabaseManager.getInstance();
-        SpeakerAdapter adapter = new SpeakerAdapter(getActivity().getApplicationContext(), dbManager.getSpeakers(true));
+        SpeakerAdapter adapter = new SpeakerAdapter(getActivity().getApplicationContext(), dbManager.getSpeakers(false));
         setListAdapter(adapter);
     }
 

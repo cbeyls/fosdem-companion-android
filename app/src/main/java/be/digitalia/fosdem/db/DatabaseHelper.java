@@ -17,7 +17,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLE_NAME_KEY_SPEAKERS = "key_speakers";
     private static final String TABLE_KEY_SPEAKERS = "CREATE TABLE " + TABLE_NAME_KEY_SPEAKERS
             + " (id INTEGER PRIMARY KEY, name TEXT, designation TEXT, information TEXT, twitter_handle TEXT,"
-            + " linkedin_url TEXT, profile_pic_url TEXT);";
+            + " linkedin_url TEXT, profile_pic_url TEXT, is_key_speaker INTEGER);";
     public static final String TABLE_NAME_SCHEDULE = "schedule";
 
     private static final String TABLE_SCHEDULE = "CREATE TABLE " + TABLE_NAME_SCHEDULE
