@@ -33,14 +33,11 @@ public class JsonToDatabase {
     private boolean speakerEventRelation;
     private boolean tracks;
     private ArrayList<String> queries;
+    private JsonToDatabaseCallback mCallback;
 
     public JsonToDatabase(Context context) {
         this.context = context;
         this.keySpeakerLoaded = false;
-        fetchKeySpeakers(FossasiaUrls.KEY_SPEAKER_URL);
-        fetchSchedule(FossasiaUrls.SCHEDULE_URL);
-        fetchSpeakerEventRelation(FossasiaUrls.SPEAKER_EVENT_URL);
-        fetchTracks(FossasiaUrls.TRACKS_URL);
         queries = new ArrayList<String>();
         keySpeakerLoaded = false;
         scheduleLoaded = false;
@@ -48,6 +45,17 @@ public class JsonToDatabase {
         tracks = false;
 
 
+    }
+
+    public void setOnJsonToDatabaseCallback(JsonToDatabaseCallback callback) {
+        this.mCallback = callback;
+    }
+
+    public void startDataDownload() {
+        fetchKeySpeakers(FossasiaUrls.KEY_SPEAKER_URL);
+        fetchSchedule(FossasiaUrls.SCHEDULE_URL);
+        fetchSpeakerEventRelation(FossasiaUrls.SPEAKER_EVENT_URL);
+        fetchTracks(FossasiaUrls.TRACKS_URL);
     }
 
     private void fetchTracks(String url) {
@@ -98,7 +106,6 @@ public class JsonToDatabase {
         queue.add(stringRequest);
     }
 
-
     private void fetchSpeakerEventRelation(String url) {
 
         RequestQueue queue = VolleySingleton.getReqQueue(context);
@@ -146,9 +153,6 @@ public class JsonToDatabase {
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
-
-
-
 
     private void fetchSchedule(String url) {
 
@@ -224,7 +228,6 @@ public class JsonToDatabase {
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
-    
 
     private void fetchKeySpeakers(String url) {
 
@@ -295,6 +298,9 @@ public class JsonToDatabase {
             dbManager.performInsertQueries(queries);
 
             //Implement callbacks
+            if (mCallback != null) {
+                mCallback.onDataLoaded();
+            }
         }
     }
 
@@ -313,6 +319,10 @@ public class JsonToDatabase {
 
         return null;
 
+    }
+
+    public static interface JsonToDatabaseCallback {
+        public void onDataLoaded();
     }
 
 

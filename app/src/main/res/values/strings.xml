@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <string name="app_name">FOSDEM Companion</string>
@@ -122,5 +123,8 @@
 \n- <a href="http://developer.android.com/tools/support-library/">Android Support Library</a><i> by The Android Open Source Project</i>\n- <a href="http://viewpagerindicator.com/">ViewPagerIndicator</a><i> by Jake Wharton</i>\n- <a href="https://github.com/chrisbanes/PhotoView">PhotoView</a><i> by Chris Banes</i></small></string>
     <string name="placeholder_speaker">Placeholder Speaker Name</string>
     <string name="placeholder_speaker_designation">Placeholder Speaker Designation</string>
+    <string name="title_activity_splash">Fossaisa</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
 
 </resources>

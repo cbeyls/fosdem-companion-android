@@ -23,8 +23,16 @@
         android:name="android.hardware.touchscreen"
         android:required="false"/>
 
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="18"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="18"/>
+
     <application
-        android:name="be.digitalia.fosdem.FosdemApplication"
+        android:name=".FosdemApplication"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:icon="@drawable/ic_launcher"
@@ -34,11 +42,11 @@
             android:name=".activities.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+            <!--<intent-filter>-->
+            <!--<action android:name="android.intent.action.MAIN" />-->
 
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
+            <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
 
             <meta-data
                 android:name="android.app.default_searchable"
@@ -63,6 +71,7 @@
 
                 <data android:mimeType="application/be.digitalia.fosdem"/>
             </intent-filter>
+
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.TrackScheduleActivity"/>
@@ -78,6 +87,7 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="com.google.android.gms.actions.SEARCH_ACTION"/>
+
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
 
@@ -111,6 +121,17 @@
             android:name=".providers.SearchSuggestionProvider"
             android:authorities="be.digitalia.fosdem.search"
             android:exported="true"/>
+
+        <activity
+            android:name=".activities.SplashActivity"
+            android:label="@string/title_activity_splash"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

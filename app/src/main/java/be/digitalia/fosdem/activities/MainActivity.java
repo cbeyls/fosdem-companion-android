@@ -57,7 +57,6 @@ import java.util.Locale;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemApi;
 import be.digitalia.fosdem.db.DatabaseManager;
-import be.digitalia.fosdem.db.JsonToDatabase;
 import be.digitalia.fosdem.fragments.BookmarksListFragment;
 import be.digitalia.fosdem.fragments.KeySpeakerFragment;
 import be.digitalia.fosdem.fragments.LiveFragment;
@@ -153,7 +152,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
         //Test
-        new JsonToDatabase(getApplicationContext());
+
 
         progressBar = (ProgressBar) findViewById(R.id.progress);
 
@@ -209,7 +208,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
             currentSection = Section.TRACKS;
             String fragmentClassName = currentSection.getFragmentClassName();
             Fragment f = Fragment.instantiate(this, fragmentClassName);
-            getSupportFragmentManager().beginTransaction().add(R.id.content, f, fragmentClassName).addToBackStack(null).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.content, f, fragmentClassName).commit();
         } else {
             currentSection = Section.values()[savedInstanceState.getInt(STATE_CURRENT_SECTION)];
         }
@@ -366,18 +365,6 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
         return false;
     }
 
-    @SuppressLint("NewApi")
-    public void startDownloadSchedule() {
-        // Start by displaying indeterminate progress, determinate will come later
-        progressBar.clearAnimation();
-        progressBar.setIndeterminate(true);
-        progressBar.setVisibility(View.VISIBLE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            new DownloadScheduleAsyncTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        } else {
-            new DownloadScheduleAsyncTask(this).execute();
-        }
-    }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -411,14 +398,29 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
         drawerLayout.closeDrawer(mainMenu);
     }
 
-    private enum Section {
+    @SuppressLint("NewApi")
+    public void startDownloadSchedule() {
+        // Start by displaying indeterminate progress, determinate will come later
+        progressBar.clearAnimation();
+        progressBar.setIndeterminate(true);
+        progressBar.setVisibility(View.VISIBLE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            new DownloadScheduleAsyncTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        } else {
+            new DownloadScheduleAsyncTask(this).execute();
+        }
+    }
 
+    // MAIN MENU
+
+    private enum Section {
+        TRACKS(TracksListFragment.class, R.string.menu_tracks, R.drawable.ic_event_grey600_24dp, false),
         SCHEDULE(ScheduleFragment.class, R.string.menu_schedule, R.drawable.ic_event_grey600_24dp, true),
         BOOKMARKS(BookmarksListFragment.class, R.string.menu_bookmarks, R.drawable.ic_bookmark_grey600_24dp, false),
         LIVE(LiveFragment.class, R.string.menu_live, R.drawable.ic_play_circle_outline_grey600_24dp, false),
         KEY_SPEAKERS(KeySpeakerFragment.class, R.string.menu_key_speakers, R.drawable.ic_people_grey600_24dp, false),
         SPEAKERS(SpeakerFragment.class, R.string.menu_speakers, R.drawable.ic_people_grey600_24dp, false),
-        TRACKS(TracksListFragment.class, R.string.menu_tracks, R.drawable.ic_event_grey600_24dp, false),
+
         MAP(MapFragment.class, R.string.menu_map, R.drawable.ic_map_grey600_24dp, false);
 
         private final String fragmentClassName;
@@ -451,7 +453,20 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
         }
     }
 
-    // MAIN MENU
+    private static class DownloadScheduleAsyncTask extends AsyncTask<Void, Void, Void> {
+
+        private final Context appContext;
+
+        public DownloadScheduleAsyncTask(Context context) {
+            appContext = context.getApplicationContext();
+        }
+
+        @Override
+        protected Void doInBackground(Void... args) {
+            FosdemApi.downloadSchedule(appContext);
+            return null;
+        }
+    }
 
     public static class DownloadScheduleReminderDialogFragment extends DialogFragment {
 
@@ -470,20 +485,6 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
         }
     }
 
-    private static class DownloadScheduleAsyncTask extends AsyncTask<Void, Void, Void> {
-
-        private final Context appContext;
-
-        public DownloadScheduleAsyncTask(Context context) {
-            appContext = context.getApplicationContext();
-        }
-
-        @Override
-        protected Void doInBackground(Void... args) {
-            FosdemApi.downloadSchedule(appContext);
-            return null;
-        }
-    }
 
     public static class AboutDialogFragment extends DialogFragment {
 
