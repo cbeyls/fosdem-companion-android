@@ -29,156 +29,156 @@ import org.fossasia.widgets.BookmarksMultiChoiceModeListener;
  */
 public class BookmarksListFragment extends SmoothListFragment implements LoaderCallbacks<Cursor> {
 
-	private static final int BOOKMARKS_LOADER_ID = 1;
-	private static final String PREF_UPCOMING_ONLY = "bookmarks_upcoming_only";
+    private static final int BOOKMARKS_LOADER_ID = 1;
+    private static final String PREF_UPCOMING_ONLY = "bookmarks_upcoming_only";
 
-	private EventsAdapter adapter;
-	private boolean upcomingOnly;
+    private EventsAdapter adapter;
+    private boolean upcomingOnly;
 
-	private MenuItem filterMenuItem;
-	private MenuItem upcomingOnlyMenuItem;
+    private MenuItem filterMenuItem;
+    private MenuItem upcomingOnlyMenuItem;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-		adapter = new EventsAdapter(getActivity());
-		setListAdapter(adapter);
+        adapter = new EventsAdapter(getActivity());
+        setListAdapter(adapter);
 
-		upcomingOnly = getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean(PREF_UPCOMING_ONLY, false);
+        upcomingOnly = getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean(PREF_UPCOMING_ONLY, false);
 
-		setHasOptionsMenu(true);
-	}
+        setHasOptionsMenu(true);
+    }
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			BookmarksMultiChoiceModeListener.register(getListView());
-		}
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            BookmarksMultiChoiceModeListener.register(getListView());
+        }
 
-		setEmptyText(getString(R.string.no_bookmark));
-		setListShown(false);
+        setEmptyText(getString(R.string.no_bookmark));
+        setListShown(false);
 
-		getLoaderManager().initLoader(BOOKMARKS_LOADER_ID, null, this);
-	}
+        getLoaderManager().initLoader(BOOKMARKS_LOADER_ID, null, this);
+    }
 
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.bookmarks, menu);
-		filterMenuItem = menu.findItem(R.id.filter);
-		upcomingOnlyMenuItem = menu.findItem(R.id.upcoming_only);
-		updateOptionsMenu();
-	}
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.bookmarks, menu);
+        filterMenuItem = menu.findItem(R.id.filter);
+        upcomingOnlyMenuItem = menu.findItem(R.id.upcoming_only);
+        updateOptionsMenu();
+    }
 
-	private void updateOptionsMenu() {
-		if (filterMenuItem != null) {
-			filterMenuItem.setIcon(upcomingOnly ?
-					R.drawable.ic_filter_list_selected_white_24dp
-					: R.drawable.ic_filter_list_white_24dp);
-			upcomingOnlyMenuItem.setChecked(upcomingOnly);
-		}
-	}
+    private void updateOptionsMenu() {
+        if (filterMenuItem != null) {
+            filterMenuItem.setIcon(upcomingOnly ?
+                    R.drawable.ic_filter_list_selected_white_24dp
+                    : R.drawable.ic_filter_list_white_24dp);
+            upcomingOnlyMenuItem.setChecked(upcomingOnly);
+        }
+    }
 
-	@Override
-	public void onDestroyOptionsMenu() {
-		super.onDestroyOptionsMenu();
-		filterMenuItem = null;
-		upcomingOnlyMenuItem = null;
-	}
+    @Override
+    public void onDestroyOptionsMenu() {
+        super.onDestroyOptionsMenu();
+        filterMenuItem = null;
+        upcomingOnlyMenuItem = null;
+    }
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.upcoming_only:
-				upcomingOnly = !upcomingOnly;
-				updateOptionsMenu();
-				getActivity().getPreferences(Context.MODE_PRIVATE).edit().putBoolean(PREF_UPCOMING_ONLY, upcomingOnly).commit();
-				getLoaderManager().restartLoader(BOOKMARKS_LOADER_ID, null, this);
-				return true;
-		}
-		return false;
-	}
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.upcoming_only:
+                upcomingOnly = !upcomingOnly;
+                updateOptionsMenu();
+                getActivity().getPreferences(Context.MODE_PRIVATE).edit().putBoolean(PREF_UPCOMING_ONLY, upcomingOnly).commit();
+                getLoaderManager().restartLoader(BOOKMARKS_LOADER_ID, null, this);
+                return true;
+        }
+        return false;
+    }
 
-	private static class BookmarksLoader extends SimpleCursorLoader {
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new BookmarksLoader(getActivity(), upcomingOnly);
+    }
 
-		// Events that just started are still shown for 5 minutes
-		private static final long TIME_OFFSET = 5L * 60L * 1000L;
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (data != null) {
+            adapter.swapCursor(data);
+        }
 
-		private final boolean upcomingOnly;
-		private final Handler handler;
-		private final Runnable timeoutRunnable = new Runnable() {
+        setListShown(true);
+    }
 
-			@Override
-			public void run() {
-				onContentChanged();
-			}
-		};
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        adapter.swapCursor(null);
+    }
 
-		public BookmarksLoader(Context context, boolean upcomingOnly) {
-			super(context);
-			this.upcomingOnly = upcomingOnly;
-			this.handler = new Handler();
-		}
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        Event event = adapter.getItem(position);
+        Intent intent = new Intent(getActivity(), EventDetailsActivity.class).putExtra(EventDetailsActivity.EXTRA_EVENT, event);
+        startActivity(intent);
+    }
 
-		@Override
-		public void deliverResult(Cursor cursor) {
-			if (upcomingOnly && !isReset()) {
-				handler.removeCallbacks(timeoutRunnable);
-				// The loader will be refreshed when the start time of the first bookmark in the list is reached
-				if ((cursor != null) && cursor.moveToFirst()) {
-					long startTime = DatabaseManager.toEventStartTimeMillis(cursor);
-					if (startTime != -1L) {
-						long delay = startTime - (System.currentTimeMillis() - TIME_OFFSET);
-						if (delay > 0L) {
-							handler.postDelayed(timeoutRunnable, delay);
-						} else {
-							onContentChanged();
-						}
-					}
-				}
-			}
-			super.deliverResult(cursor);
-		}
+    private static class BookmarksLoader extends SimpleCursorLoader {
 
-		@Override
-		protected void onReset() {
-			super.onReset();
-			if (upcomingOnly) {
-				handler.removeCallbacks(timeoutRunnable);
-			}
-		}
+        // Events that just started are still shown for 5 minutes
+        private static final long TIME_OFFSET = 5L * 60L * 1000L;
 
-		@Override
-		protected Cursor getCursor() {
-			return DatabaseManager.getInstance().getBookmarks(upcomingOnly ? System.currentTimeMillis() - TIME_OFFSET : -1L);
-		}
-	}
+        private final boolean upcomingOnly;
+        private final Handler handler;
+        private final Runnable timeoutRunnable = new Runnable() {
 
-	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		return new BookmarksLoader(getActivity(), upcomingOnly);
-	}
+            @Override
+            public void run() {
+                onContentChanged();
+            }
+        };
 
-	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-		if (data != null) {
-			adapter.swapCursor(data);
-		}
+        public BookmarksLoader(Context context, boolean upcomingOnly) {
+            super(context);
+            this.upcomingOnly = upcomingOnly;
+            this.handler = new Handler();
+        }
 
-		setListShown(true);
-	}
+        @Override
+        public void deliverResult(Cursor cursor) {
+            if (upcomingOnly && !isReset()) {
+                handler.removeCallbacks(timeoutRunnable);
+                // The loader will be refreshed when the start time of the first bookmark in the list is reached
+                if ((cursor != null) && cursor.moveToFirst()) {
+                    long startTime = DatabaseManager.toEventStartTimeMillis(cursor);
+                    if (startTime != -1L) {
+                        long delay = startTime - (System.currentTimeMillis() - TIME_OFFSET);
+                        if (delay > 0L) {
+                            handler.postDelayed(timeoutRunnable, delay);
+                        } else {
+                            onContentChanged();
+                        }
+                    }
+                }
+            }
+            super.deliverResult(cursor);
+        }
 
-	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
-		adapter.swapCursor(null);
-	}
+        @Override
+        protected void onReset() {
+            super.onReset();
+            if (upcomingOnly) {
+                handler.removeCallbacks(timeoutRunnable);
+            }
+        }
 
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		Event event = adapter.getItem(position);
-		Intent intent = new Intent(getActivity(), EventDetailsActivity.class).putExtra(EventDetailsActivity.EXTRA_EVENT, event);
-		startActivity(intent);
-	}
+        @Override
+        protected Cursor getCursor() {
+            return DatabaseManager.getInstance().getBookmarks(upcomingOnly ? System.currentTimeMillis() - TIME_OFFSET : -1L);
+        }
+    }
 }

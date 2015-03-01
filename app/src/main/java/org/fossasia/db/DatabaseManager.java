@@ -14,6 +14,15 @@ import android.provider.BaseColumns;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
+import org.fossasia.model.Day;
+import org.fossasia.model.Event;
+import org.fossasia.model.FossasiaEvent;
+import org.fossasia.model.Link;
+import org.fossasia.model.Person;
+import org.fossasia.model.Speaker;
+import org.fossasia.model.Track;
+import org.fossasia.utils.DateUtils;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -23,15 +32,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
-import org.fossasia.model.Day;
-import org.fossasia.model.Event;
-import org.fossasia.model.FossasiaEvent;
-import org.fossasia.model.Link;
-import org.fossasia.model.Person;
-import org.fossasia.model.Speaker;
-import org.fossasia.model.Track;
-import org.fossasia.utils.DateUtils;
 
 /**
  * Here comes the badass SQL.

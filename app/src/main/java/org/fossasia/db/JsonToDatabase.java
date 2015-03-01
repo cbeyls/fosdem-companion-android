@@ -9,16 +9,15 @@ import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 
+import org.fossasia.api.FossasiaUrls;
+import org.fossasia.model.FossasiaEvent;
+import org.fossasia.model.Speaker;
+import org.fossasia.utils.VolleySingleton;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-
-import org.fossasia.model.FossasiaEvent;
-import org.fossasia.model.Speaker;
-import org.fossasia.api.FossasiaUrls;
-import org.fossasia.utils.VolleySingleton;
 
 /**
  * Created by Abhishek on 17/02/15.

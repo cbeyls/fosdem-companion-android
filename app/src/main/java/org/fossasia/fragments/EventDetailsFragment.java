@@ -26,19 +26,19 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.List;
-
+import org.fossasia.R;
 import org.fossasia.activities.PersonInfoActivity;
+import org.fossasia.db.DatabaseManager;
 import org.fossasia.model.Building;
 import org.fossasia.model.Event;
 import org.fossasia.model.Link;
 import org.fossasia.model.Person;
-import org.fossasia.R;
-import org.fossasia.db.DatabaseManager;
 import org.fossasia.utils.DateUtils;
 import org.fossasia.utils.StringUtils;
+
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.List;
 
 public class EventDetailsFragment extends Fragment {
 

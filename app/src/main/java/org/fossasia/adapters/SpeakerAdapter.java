@@ -11,11 +11,11 @@ import android.widget.Toast;
 
 import com.android.volley.toolbox.NetworkImageView;
 
-import java.util.ArrayList;
-
-import org.fossasia.model.Speaker;
 import org.fossasia.R;
+import org.fossasia.model.Speaker;
 import org.fossasia.utils.VolleySingleton;
+
+import java.util.ArrayList;
 
 /**
  * Created by Abhishek on 14/02/15.

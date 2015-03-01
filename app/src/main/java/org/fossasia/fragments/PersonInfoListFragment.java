@@ -120,5 +120,4 @@ public class PersonInfoListFragment extends SmoothListFragment {
     }
 
 
-
 }

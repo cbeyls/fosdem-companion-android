@@ -6,9 +6,9 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 
+import org.fossasia.R;
 import org.fossasia.fragments.PersonInfoListFragment;
 import org.fossasia.model.Speaker;
-import org.fossasia.R;
 
 public class PersonInfoActivity extends ActionBarActivity {
 

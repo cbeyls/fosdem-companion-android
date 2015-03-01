@@ -15,11 +15,11 @@ import android.widget.ListView;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
 
-import org.fossasia.activities.PersonInfoActivity;
-import org.fossasia.model.Person;
 import org.fossasia.R;
+import org.fossasia.activities.PersonInfoActivity;
 import org.fossasia.db.DatabaseManager;
 import org.fossasia.loaders.SimpleCursorLoader;
+import org.fossasia.model.Person;
 
 public class PersonsListFragment extends SmoothListFragment implements LoaderCallbacks<Cursor> {
 

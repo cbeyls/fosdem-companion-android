@@ -50,11 +50,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.Locale;
-
-
+import org.fossasia.R;
+import org.fossasia.api.FosdemApi;
+import org.fossasia.db.DatabaseManager;
 import org.fossasia.fragments.BookmarksListFragment;
 import org.fossasia.fragments.KeySpeakerFragment;
 import org.fossasia.fragments.LiveFragment;
@@ -62,9 +60,10 @@ import org.fossasia.fragments.MapFragment;
 import org.fossasia.fragments.ScheduleFragment;
 import org.fossasia.fragments.SpeakerFragment;
 import org.fossasia.fragments.TracksListFragment;
-import org.fossasia.R;
-import org.fossasia.api.FosdemApi;
-import org.fossasia.db.DatabaseManager;
+
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Main entry point of the application. Allows to switch between section fragments and update the database.

@@ -7,8 +7,8 @@ import android.widget.ListView;
 
 import org.fossasia.activities.PersonInfoActivity;
 import org.fossasia.adapters.SpeakerAdapter;
-import org.fossasia.model.Speaker;
 import org.fossasia.db.DatabaseManager;
+import org.fossasia.model.Speaker;
 
 /**
  * Created by Abhishek on 14/02/15.
