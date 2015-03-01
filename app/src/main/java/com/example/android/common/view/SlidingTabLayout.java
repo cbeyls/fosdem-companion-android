@@ -37,7 +37,7 @@ import android.widget.TextView;
 
 import java.util.Locale;
 
-import be.digitalia.fosdem.R;
+import org.fossasia.R;
 
 /**
  */
