@@ -15,7 +15,6 @@
  */
 package com.viewpagerindicator;
 
-import be.digitalia.fosdem.R;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -32,6 +31,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+
+import org.fossasia.R;
 
 /**
  * Draws a line for each page. The current page line is colored differently
