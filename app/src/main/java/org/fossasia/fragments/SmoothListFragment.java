@@ -8,12 +8,12 @@ import android.support.v4.app.ListFragment;
  */
 public class SmoothListFragment extends ListFragment {
 
-	@Override
-	public void setListShown(boolean shown) {
-		if ((Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) && isResumed()) {
-			super.setListShown(shown);
-		} else {
-			setListShownNoAnimation(shown);
-		}
-	}
+    @Override
+    public void setListShown(boolean shown) {
+        if ((Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) && isResumed()) {
+            super.setListShown(shown);
+        } else {
+            setListShownNoAnimation(shown);
+        }
+    }
 }

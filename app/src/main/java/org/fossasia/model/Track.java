@@ -8,99 +8,98 @@ import org.fossasia.R;
 
 public class Track implements Parcelable {
 
-	public static enum Type {
-		other(R.string.other),
-		keynote(R.string.keynote),
-		maintrack(R.string.main_track),
-		devroom(R.string.developer_room),
-		lightningtalk(R.string.lightning_talk),
-		certification(R.string.certification_exam);
+    public static final Parcelable.Creator<Track> CREATOR = new Parcelable.Creator<Track>() {
+        public Track createFromParcel(Parcel in) {
+            return new Track(in);
+        }
 
-		private final int nameResId;
+        public Track[] newArray(int size) {
+            return new Track[size];
+        }
+    };
+    private String name;
+    private Type type;
 
-		private Type(@StringRes int nameResId) {
-			this.nameResId = nameResId;
-		}
+    public Track() {
+    }
 
-		public int getNameResId() {
-			return nameResId;
-		}
-	}
+    public Track(String name, Type type) {
+        this.name = name;
+        this.type = type;
+    }
 
-	private String name;
-	private Type type;
+    private Track(Parcel in) {
+        name = in.readString();
+        type = Type.values()[in.readInt()];
+    }
 
-	public Track() {
-	}
+    public String getName() {
+        return name;
+    }
 
-	public Track(String name, Type type) {
-		this.name = name;
-		this.type = type;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public Type getType() {
+        return type;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setType(Type type) {
+        this.type = type;
+    }
 
-	public Type getType() {
-		return type;
-	}
+    @Override
+    public String toString() {
+        return name;
+    }
 
-	public void setType(Type type) {
-		this.type = type;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + name.hashCode();
+        result = prime * result + type.hashCode();
+        return result;
+    }
 
-	@Override
-	public String toString() {
-		return name;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        Track other = (Track) obj;
+        return name.equals(other.name) && (type == other.type);
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + name.hashCode();
-		result = prime * result + type.hashCode();
-		return result;
-	}
+    @Override
+    public int describeContents() {
+        return 0;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		Track other = (Track) obj;
-		return name.equals(other.name) && (type == other.type);
-	}
+    @Override
+    public void writeToParcel(Parcel out, int flags) {
+        out.writeString(name);
+        out.writeInt(type.ordinal());
+    }
 
-	@Override
-	public int describeContents() {
-		return 0;
-	}
+    public static enum Type {
+        other(R.string.other),
+        keynote(R.string.keynote),
+        maintrack(R.string.main_track),
+        devroom(R.string.developer_room),
+        lightningtalk(R.string.lightning_talk),
+        certification(R.string.certification_exam);
 
-	@Override
-	public void writeToParcel(Parcel out, int flags) {
-		out.writeString(name);
-		out.writeInt(type.ordinal());
-	}
+        private final int nameResId;
 
-	public static final Parcelable.Creator<Track> CREATOR = new Parcelable.Creator<Track>() {
-		public Track createFromParcel(Parcel in) {
-			return new Track(in);
-		}
+        private Type(@StringRes int nameResId) {
+            this.nameResId = nameResId;
+        }
 
-		public Track[] newArray(int size) {
-			return new Track[size];
-		}
-	};
-
-	private Track(Parcel in) {
-		name = in.readString();
-		type = Type.values()[in.readInt()];
-	}
+        public int getNameResId() {
+            return nameResId;
+        }
+    }
 }

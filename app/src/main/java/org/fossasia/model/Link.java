@@ -5,71 +5,70 @@ import android.os.Parcelable;
 
 public class Link implements Parcelable {
 
-	private String url;
-	private String description;
+    public static final Parcelable.Creator<Link> CREATOR = new Parcelable.Creator<Link>() {
+        public Link createFromParcel(Parcel in) {
+            return new Link(in);
+        }
 
-	public Link() {
-	}
+        public Link[] newArray(int size) {
+            return new Link[size];
+        }
+    };
+    private String url;
+    private String description;
 
-	public String getUrl() {
-		return url;
-	}
+    public Link() {
+    }
 
-	public void setUrl(String url) {
-		this.url = url;
-	}
+    private Link(Parcel in) {
+        url = in.readString();
+        description = in.readString();
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public String getUrl() {
+        return url;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
-	@Override
-	public String toString() {
-		return description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	@Override
-	public int hashCode() {
-		return url.hashCode();
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		Link other = (Link) obj;
-		return url.equals(other.url);
-	}
+    @Override
+    public String toString() {
+        return description;
+    }
 
-	@Override
-	public int describeContents() {
-		return 0;
-	}
+    @Override
+    public int hashCode() {
+        return url.hashCode();
+    }
 
-	@Override
-	public void writeToParcel(Parcel out, int flags) {
-		out.writeString(url);
-		out.writeString(description);
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        Link other = (Link) obj;
+        return url.equals(other.url);
+    }
 
-	public static final Parcelable.Creator<Link> CREATOR = new Parcelable.Creator<Link>() {
-		public Link createFromParcel(Parcel in) {
-			return new Link(in);
-		}
+    @Override
+    public int describeContents() {
+        return 0;
+    }
 
-		public Link[] newArray(int size) {
-			return new Link[size];
-		}
-	};
-
-	private Link(Parcel in) {
-		url = in.readString();
-		description = in.readString();
-	}
+    @Override
+    public void writeToParcel(Parcel out, int flags) {
+        out.writeString(url);
+        out.writeString(description);
+    }
 }

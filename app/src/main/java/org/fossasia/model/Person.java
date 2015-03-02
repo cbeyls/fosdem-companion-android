@@ -1,84 +1,84 @@
 package org.fossasia.model;
 
-import org.fossasia.api.FosdemUrls;
-import org.fossasia.db.DatabaseManager;
-import org.fossasia.utils.StringUtils;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import org.fossasia.api.FosdemUrls;
+import org.fossasia.db.DatabaseManager;
+import org.fossasia.utils.StringUtils;
+
 public class Person implements Parcelable {
 
-	private long id;
-	private String name;
+    public static final Parcelable.Creator<Person> CREATOR = new Parcelable.Creator<Person>() {
+        public Person createFromParcel(Parcel in) {
+            return new Person(in);
+        }
 
-	public Person() {
-	}
+        public Person[] newArray(int size) {
+            return new Person[size];
+        }
+    };
+    private long id;
+    private String name;
 
-	public long getId() {
-		return id;
-	}
+    public Person() {
+    }
 
-	public void setId(long id) {
-		this.id = id;
-	}
+    private Person(Parcel in) {
+        id = in.readLong();
+        name = in.readString();
+    }
 
-	public String getName() {
-		return name;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	public String getUrl() {
-		return FosdemUrls.getPerson(StringUtils.toSlug(name), DatabaseManager.getInstance().getYear());
-	}
+    public String getName() {
+        return name;
+    }
 
-	@Override
-	public String toString() {
-		return name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	@Override
-	public int hashCode() {
-		return (int) (id ^ (id >>> 32));
-	}
+    public String getUrl() {
+        return FosdemUrls.getPerson(StringUtils.toSlug(name), DatabaseManager.getInstance().getYear());
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Person other = (Person) obj;
-		return (id == other.id);
-	}
+    @Override
+    public String toString() {
+        return name;
+    }
 
-	@Override
-	public int describeContents() {
-		return 0;
-	}
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
+    }
 
-	@Override
-	public void writeToParcel(Parcel out, int flags) {
-		out.writeLong(id);
-		out.writeString(name);
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Person other = (Person) obj;
+        return (id == other.id);
+    }
 
-	public static final Parcelable.Creator<Person> CREATOR = new Parcelable.Creator<Person>() {
-		public Person createFromParcel(Parcel in) {
-			return new Person(in);
-		}
+    @Override
+    public int describeContents() {
+        return 0;
+    }
 
-		public Person[] newArray(int size) {
-			return new Person[size];
-		}
-	};
-
-	private Person(Parcel in) {
-		id = in.readLong();
-		name = in.readString();
-	}
+    @Override
+    public void writeToParcel(Parcel out, int flags) {
+        out.writeLong(id);
+        out.writeString(name);
+    }
 }

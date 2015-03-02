@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,7 +17,7 @@
             android:layout_margin="10dp"
             android:adjustViewBounds="true"
             android:scaleType="centerInside"
-            android:src="@drawable/default_user" />
+            android:src="@drawable/default_user"/>
 
 
         <LinearLayout
@@ -36,7 +36,7 @@
                 android:text="@string/placeholder_speaker"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="#000"
-                android:textStyle="bold" />
+                android:textStyle="bold"/>
 
             <TextView
                 android:id="@+id/textView_speaker_designation"
@@ -47,7 +47,7 @@
                 android:text="@string/placeholder_speaker_designation"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="#000"
-                android:textStyle="bold" />
+                android:textStyle="bold"/>
 
         </LinearLayout>
 
@@ -66,7 +66,7 @@
                 android:adjustViewBounds="true"
                 android:clickable="true"
                 android:scaleType="centerCrop"
-                android:src="@drawable/linkedin" />
+                android:src="@drawable/linkedin"/>
 
             <ImageView
                 android:id="@+id/imageView_twitter"
@@ -76,7 +76,7 @@
                 android:adjustViewBounds="true"
                 android:clickable="true"
                 android:scaleType="centerCrop"
-                android:src="@drawable/twitter" />
+                android:src="@drawable/twitter"/>
         </LinearLayout>
 
 
@@ -89,7 +89,7 @@
         android:layout_margin="10dp"
         android:text="@string/placeholder_speaker_designation"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="#000" />
+        android:textColor="#000"/>
 
 
 </LinearLayout>

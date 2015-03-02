@@ -11,6 +11,7 @@
         android:layout_width="80dp"
         android:layout_height="match_parent"
         android:background="@color/schedule_time_background"
+        android:gravity="center"
         android:padding="@dimen/list_item_padding"
         android:textColor="@color/schedule_time_foreground"
         android:textSize="@dimen/list_item_small_text_size"

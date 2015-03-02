@@ -1,138 +1,46 @@
 package org.fossasia.fragments;
 
-import android.content.Context;
-import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
-import android.view.LayoutInflater;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import org.fossasia.R;
-import org.fossasia.activities.TrackScheduleActivity;
+import org.fossasia.db.DatabaseHelper;
 import org.fossasia.db.DatabaseManager;
-import org.fossasia.loaders.SimpleCursorLoader;
-import org.fossasia.model.Day;
-import org.fossasia.model.Track;
 
-public class TracksListFragment extends SmoothListFragment implements LoaderCallbacks<Cursor> {
 
-	private static final int TRACKS_LOADER_ID = 1;
-	private static final String ARG_DAY = "day";
+/**
+ * Created by Abhishek on 01/03/15.
+ */
+public class TracksListFragment extends SmoothListFragment {
 
-	private Day day;
-	private TracksAdapter adapter;
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        String[] columns = new String[]{DatabaseHelper.TABLE_COLUMN_NAME, DatabaseHelper.TABLE_COLOUMN_INFORMATION};
+        // THE XML DEFINED VIEWS WHICH THE DATA WILL BE BOUND TO
+        int[] to = new int[]{R.id.textView_track_title, R.id.textView_track_information};
+        DatabaseManager db = DatabaseManager.getInstance();
+        SimpleCursorAdapter mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.list_tracks, db.getTracks(), columns, to, CursorAdapter.NO_SELECTION);
+        setListAdapter(mAdapter);
 
-	public static TracksListFragment newInstance(Day day) {
-		TracksListFragment f = new TracksListFragment();
-		Bundle args = new Bundle();
-		args.putParcelable(ARG_DAY, day);
-		f.setArguments(args);
-		return f;
-	}
+    }
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		adapter = new TracksAdapter(getActivity());
-		day = getArguments().getParcelable(ARG_DAY);
-		setListAdapter(adapter);
-	}
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        super.onListItemClick(l, v, position, id);
+        String text = ((TextView) v.findViewById(R.id.textView_track_title)).getText().toString();
+        Toast.makeText(getActivity(), text, Toast.LENGTH_LONG).show();
+        getFragmentManager().beginTransaction().replace(R.id.content, ScheduleFragment.newInstance(text), ScheduleFragment.TAG).addToBackStack(null).commit();
+    }
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-
-		setEmptyText(getString(R.string.no_data));
-		setListShown(false);
-
-		getLoaderManager().initLoader(TRACKS_LOADER_ID, null, this);
-	}
-
-	private static class TracksLoader extends SimpleCursorLoader {
-
-		private final Day day;
-
-		public TracksLoader(Context context, Day day) {
-			super(context);
-			this.day = day;
-		}
-
-		@Override
-		protected Cursor getCursor() {
-			return DatabaseManager.getInstance().getTracks(day);
-		}
-	}
-
-	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		return new TracksLoader(getActivity(), day);
-	}
-
-	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-		if (data != null) {
-			adapter.swapCursor(data);
-		}
-
-		setListShown(true);
-	}
-
-	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
-		adapter.swapCursor(null);
-	}
-
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		Track track = adapter.getItem(position);
-		Intent intent = new Intent(getActivity(), TrackScheduleActivity.class).putExtra(TrackScheduleActivity.EXTRA_DAY, day).putExtra(
-				TrackScheduleActivity.EXTRA_TRACK, track);
-		startActivity(intent);
-	}
-
-	private static class TracksAdapter extends CursorAdapter {
-
-		private final LayoutInflater inflater;
-
-		public TracksAdapter(Context context) {
-			super(context, null, 0);
-			inflater = LayoutInflater.from(context);
-		}
-
-		@Override
-		public Track getItem(int position) {
-			return DatabaseManager.toTrack((Cursor) super.getItem(position));
-		}
-
-		@Override
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View view = inflater.inflate(android.R.layout.simple_list_item_2, parent, false);
-
-			ViewHolder holder = new ViewHolder();
-			holder.name = (TextView) view.findViewById(android.R.id.text1);
-			holder.type = (TextView) view.findViewById(android.R.id.text2);
-			view.setTag(holder);
-
-			return view;
-		}
-
-		@Override
-		public void bindView(View view, Context context, Cursor cursor) {
-			ViewHolder holder = (ViewHolder) view.getTag();
-			holder.track = DatabaseManager.toTrack(cursor, holder.track);
-			holder.name.setText(holder.track.getName());
-			holder.type.setText(holder.track.getType().getNameResId());
-		}
-
-		private static class ViewHolder {
-			TextView name;
-			TextView type;
-			Track track;
-		}
-	}
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setEmptyText("No data present");
+    }
 }

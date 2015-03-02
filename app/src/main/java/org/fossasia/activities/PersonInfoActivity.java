@@ -4,30 +4,25 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.widget.TextView;
 
 import org.fossasia.R;
 import org.fossasia.fragments.PersonInfoListFragment;
-import org.fossasia.model.Person;
+import org.fossasia.model.Speaker;
 
 public class PersonInfoActivity extends ActionBarActivity {
 
-	public static final String EXTRA_PERSON = "person";
+    public static final String SPEAKER = "speaker";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.content_extended_title);
-		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
-
-		Person person = getIntent().getParcelableExtra(EXTRA_PERSON);
+        Speaker person = getIntent().getParcelableExtra(SPEAKER);
 
 		ActionBar bar = getSupportActionBar();
 		bar.setDisplayHomeAsUpEnabled(true);
-		bar.setDisplayShowTitleEnabled(false);
-		((TextView) findViewById(R.id.title)).setText(person.getName());
+        bar.setTitle(person.getName());
 
 		if (savedInstanceState == null) {
 			Fragment f = PersonInfoListFragment.newInstance(person);
