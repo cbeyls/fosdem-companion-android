@@ -33,4 +33,6 @@ The result apk file will be placed in ```app/build/outputs/apk/```.
 
 * Christophe Beyls
 * Abhishek Batra
+* Manan Wason
 * Pratik Todi
+
