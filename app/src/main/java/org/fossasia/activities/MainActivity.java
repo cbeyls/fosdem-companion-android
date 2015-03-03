@@ -6,7 +6,6 @@ import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -15,7 +14,6 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.DrawableRes;
@@ -398,18 +396,6 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
         drawerLayout.closeDrawer(mainMenu);
     }
 
-    @SuppressLint("NewApi")
-    public void startDownloadSchedule() {
-        // Start by displaying indeterminate progress, determinate will come later
-        progressBar.clearAnimation();
-        progressBar.setIndeterminate(true);
-        progressBar.setVisibility(View.VISIBLE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            new DownloadScheduleAsyncTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        } else {
-            new DownloadScheduleAsyncTask(this).execute();
-        }
-    }
 
     // MAIN MENU
 
@@ -452,39 +438,6 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
             return keep;
         }
     }
-
-    private static class DownloadScheduleAsyncTask extends AsyncTask<Void, Void, Void> {
-
-        private final Context appContext;
-
-        public DownloadScheduleAsyncTask(Context context) {
-            appContext = context.getApplicationContext();
-        }
-
-        @Override
-        protected Void doInBackground(Void... args) {
-            FosdemApi.downloadSchedule(appContext);
-            return null;
-        }
-    }
-
-    public static class DownloadScheduleReminderDialogFragment extends DialogFragment {
-
-        @NonNull
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            return new AlertDialog.Builder(getActivity()).setTitle(R.string.download_reminder_title).setMessage(R.string.download_reminder_message)
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            ((MainActivity) getActivity()).startDownloadSchedule();
-                        }
-
-                    }).setNegativeButton(android.R.string.cancel, null).create();
-        }
-    }
-
 
     public static class AboutDialogFragment extends DialogFragment {
 

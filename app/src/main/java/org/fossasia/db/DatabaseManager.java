@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
@@ -26,12 +25,8 @@ import org.fossasia.utils.DateUtils;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Here comes the badass SQL.
@@ -250,162 +245,6 @@ public class DatabaseManager {
         db.setTransactionSuccessful();
         db.endTransaction();
 
-    }
-
-    /**
-     * Stores the schedule to the database.
-     *
-     * @param events
-     * @return The number of events processed.
-     */
-    public int storeSchedule(Iterable<Event> events, String lastModifiedTag) {
-        boolean isComplete = false;
-
-        SQLiteDatabase db = helper.getWritableDatabase();
-        db.beginTransaction();
-        try {
-            // 1: Delete the previous schedule
-            clearDatabase(db);
-
-            // Compile the insert statements for the big tables
-            final SQLiteStatement trackInsertStatement = db.compileStatement(TRACK_INSERT_STATEMENT);
-            final SQLiteStatement eventInsertStatement = db.compileStatement(EVENT_INSERT_STATEMENT);
-            final SQLiteStatement eventTitlesInsertStatement = db.compileStatement(EVENT_TITLES_INSERT_STATEMENT);
-            final SQLiteStatement eventPersonInsertStatement = db.compileStatement(EVENT_PERSON_INSERT_STATEMENT);
-            final SQLiteStatement personInsertStatement = db.compileStatement(PERSON_INSERT_STATEMENT);
-            final SQLiteStatement linkInsertStatement = db.compileStatement(LINK_INSERT_STATEMENT);
-
-            // 2: Insert the events
-            int totalEvents = 0;
-            Map<Track, Long> tracks = new HashMap<>();
-            long nextTrackId = 0L;
-            long minEventId = Long.MAX_VALUE;
-            Set<Day> days = new HashSet<>(2);
-
-            for (Event event : events) {
-                // 2a: Retrieve or insert Track
-                Track track = event.getTrack();
-                Long trackId = tracks.get(track);
-                if (trackId == null) {
-                    // New track
-                    nextTrackId++;
-                    trackId = nextTrackId;
-                    trackInsertStatement.clearBindings();
-                    trackInsertStatement.bindLong(1, nextTrackId);
-                    bindString(trackInsertStatement, 2, track.getName());
-                    bindString(trackInsertStatement, 3, track.getType().name());
-                    if (trackInsertStatement.executeInsert() != -1L) {
-                        tracks.put(track, trackId);
-                    }
-                }
-
-                // 2b: Insert main event
-                eventInsertStatement.clearBindings();
-                long eventId = event.getId();
-                if (eventId < minEventId) {
-                    minEventId = eventId;
-                }
-                eventInsertStatement.bindLong(1, eventId);
-                Day day = event.getDay();
-                days.add(day);
-                eventInsertStatement.bindLong(2, day.getIndex());
-                Date time = event.getStartTime();
-                if (time == null) {
-                    eventInsertStatement.bindNull(3);
-                } else {
-                    eventInsertStatement.bindLong(3, time.getTime());
-                }
-                time = event.getEndTime();
-                if (time == null) {
-                    eventInsertStatement.bindNull(4);
-                } else {
-                    eventInsertStatement.bindLong(4, time.getTime());
-                }
-                bindString(eventInsertStatement, 5, event.getRoomName());
-                bindString(eventInsertStatement, 6, event.getSlug());
-                eventInsertStatement.bindLong(7, trackId);
-                bindString(eventInsertStatement, 8, event.getAbstractText());
-                bindString(eventInsertStatement, 9, event.getDescription());
-
-                if (eventInsertStatement.executeInsert() != -1L) {
-                    // 2c: Insert fulltext fields
-                    eventTitlesInsertStatement.clearBindings();
-                    eventTitlesInsertStatement.bindLong(1, eventId);
-                    bindString(eventTitlesInsertStatement, 2, event.getTitle());
-                    bindString(eventTitlesInsertStatement, 3, event.getSubTitle());
-                    eventTitlesInsertStatement.executeInsert();
-
-                    // 2d: Insert persons
-                    for (Person person : event.getPersons()) {
-                        eventPersonInsertStatement.clearBindings();
-                        eventPersonInsertStatement.bindLong(1, eventId);
-                        long personId = person.getId();
-                        eventPersonInsertStatement.bindLong(2, personId);
-                        eventPersonInsertStatement.executeInsert();
-
-                        personInsertStatement.clearBindings();
-                        personInsertStatement.bindLong(1, personId);
-                        bindString(personInsertStatement, 2, person.getName());
-                        try {
-                            personInsertStatement.executeInsert();
-                        } catch (SQLiteConstraintException e) {
-                            // Older Android versions may not ignore an existing person
-                        }
-                    }
-
-                    // 2e: Insert links
-                    for (Link link : event.getLinks()) {
-                        linkInsertStatement.clearBindings();
-                        linkInsertStatement.bindLong(1, eventId);
-                        bindString(linkInsertStatement, 2, link.getUrl());
-                        bindString(linkInsertStatement, 3, link.getDescription());
-                        linkInsertStatement.executeInsert();
-                    }
-                }
-
-                totalEvents++;
-            }
-
-            // 3: Insert collected days
-            ContentValues values = new ContentValues();
-            for (Day day : days) {
-                values.clear();
-                values.put("_index", day.getIndex());
-                Date date = day.getDate();
-                values.put("date", (date == null) ? 0L : date.getTime());
-                db.insert(DatabaseHelper.DAYS_TABLE_NAME, null, values);
-            }
-
-            // 4: Purge outdated bookmarks
-            if (minEventId < Long.MAX_VALUE) {
-                String[] whereArgs = new String[]{String.valueOf(minEventId)};
-                db.delete(DatabaseHelper.BOOKMARKS_TABLE_NAME, "event_id < ?", whereArgs);
-            }
-
-            if (totalEvents > 0) {
-                db.setTransactionSuccessful();
-                isComplete = true;
-            }
-
-            return totalEvents;
-        } finally {
-            db.endTransaction();
-
-            if (isComplete) {
-                // Clear cache
-                cachedDays = null;
-                year = -1;
-                // Set last update time and server's last modified tag
-                getSharedPreferences().edit()
-                        .putLong(LAST_UPDATE_TIME_PREF, System.currentTimeMillis())
-                        .putString(LAST_MODIFIED_TAG_PREF, lastModifiedTag)
-                        .commit();
-
-                context.getContentResolver().notifyChange(URI_TRACKS, null);
-                context.getContentResolver().notifyChange(URI_EVENTS, null);
-                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ACTION_SCHEDULE_REFRESHED));
-            }
-        }
     }
 
     public void clearDatabase() {
