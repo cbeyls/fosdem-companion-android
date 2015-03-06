@@ -42,7 +42,7 @@ public class JsonToDatabase {
         this.keySpeakerLoaded = false;
         queries = new ArrayList<String>();
         keySpeakerLoaded = false;
-        scheduleLoaded = false;
+        scheduleLoaded = true;
         speakerEventRelation = false;
         tracks = false;
 
@@ -56,7 +56,7 @@ public class JsonToDatabase {
 
     public void startDataDownload() {
         fetchKeySpeakers(FossasiaUrls.KEY_SPEAKER_URL);
-        fetchSchedule(FossasiaUrls.SCHEDULE_URL);
+//        fetchSchedule(FossasiaUrls.SCHEDULE_URL);
         fetchSpeakerEventRelation(FossasiaUrls.SPEAKER_EVENT_URL);
         fetchTracks(FossasiaUrls.TRACKS_URL);
         startTrackUrlFetch(FossasiaUrls.VERSION_TRACK_URL);
@@ -257,7 +257,7 @@ public class JsonToDatabase {
                         trackInformation = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(1)
                                 .getString("v");
                         String query = "INSERT INTO %s VALUES (%d, '%s', '%s');";
-                        query = String.format(query, DatabaseHelper.TABLE_NAME_TRACK, i, trackName, trackInformation);
+                        query = String.format(query, DatabaseHelper.TABLE_NAME_TRACK, i, StringUtils.replaceUnicode(trackName), StringUtils.replaceUnicode(trackInformation));
                         Log.d(TAG, query);
                         queries.add(query);
                     } catch (JSONException e) {
@@ -332,80 +332,6 @@ public class JsonToDatabase {
         queue.add(stringRequest);
     }
 
-    private void fetchSchedule(String url) {
-
-        RequestQueue queue = VolleySingleton.getReqQueue(context);
-
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(url, new Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                JSONArray jsonArray = removePaddingFromString(response);
-                Log.d(TAG, jsonArray.toString());
-                int id;
-                String title;
-                String subTitle;
-                String date;
-                String day;
-                String startTime;
-                String endTime;
-                String abstractText;
-                String description;
-                String venue;
-                String track;
-
-                for (int i = 1; i < jsonArray.length(); i++) {
-                    // Starting from 1 not 0, because 1st row contains columns name and actual data is from second row
-                    try {
-                        title = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(0)
-                                .getString("v");
-                        subTitle = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(1)
-                                .getString("v");
-                        date = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(2)
-                                .getString("v");
-                        day = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(3)
-                                .getString("v");
-                        startTime = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(4)
-                                .getString("v");
-                        endTime = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(5)
-                                .getString("v");
-                        abstractText = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(6)
-                                .getString("v");
-                        description = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(7)
-                                .getString("v");
-                        venue = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(8)
-                                .getString("v");
-                        track = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(9)
-                                .getString("v");
-                        id = i - 1;
-
-                        FossasiaEvent temp = new FossasiaEvent(id, title, subTitle, date, day, startTime, endTime, abstractText, description, venue, track);
-                        queries.add(temp.generateSqlQuery());
-                        Log.d(TAG, temp.generateSqlQuery());
-                    } catch (JSONException e) {
-                        Log.e(TAG, "JSON Error: " + e.getMessage() + "\nResponse" + response);
-                    }
-
-                }
-                scheduleLoaded = true;
-                checkStatus();
-            }
-        }
-
-                , new ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                scheduleLoaded = true;
-                checkStatus();
-            }
-        }
-
-        );
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
-    }
 
     private void fetchKeySpeakers(String url) {
 
