@@ -194,7 +194,7 @@ public class JsonToDatabase {
                         String[] dayDate = date.split(" ");
                         day = dayDate[0];
                         date = dayDate[1] + " " + dayDate[2];
-                        FossasiaEvent temp = new FossasiaEvent(id2, topicName, field, date, day, time, time, proposalAbstract, description, venue, forceTrack);
+                        FossasiaEvent temp = new FossasiaEvent(id2, topicName, field, date, day, time, proposalAbstract, description, venue, forceTrack);
 
 
                         fullName = firstName + " " + lastName;

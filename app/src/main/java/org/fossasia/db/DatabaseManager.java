@@ -321,14 +321,12 @@ public class DatabaseManager {
                 date = cursor.getString(3);
                 day = cursor.getString(4);
                 startTime = cursor.getString(5);
-                endTime = cursor.getString(6);
-                abstractText = cursor.getString(7);
-                description = cursor.getString(8);
-                venue = cursor.getString(9);
-                track = cursor.getString(10);
+                abstractText = cursor.getString(6);
+                description = cursor.getString(7);
+                venue = cursor.getString(8);
+                track = cursor.getString(9);
 
-
-                fossasiaEventList.add(new FossasiaEvent(id, title, subTitle, date, day, startTime, endTime, abstractText, description, venue, track));
+                fossasiaEventList.add(new FossasiaEvent(id, title, subTitle, date, day, startTime, abstractText, description, venue, track));
             }
             while (cursor.moveToNext());
         }
@@ -347,7 +345,6 @@ public class DatabaseManager {
         String date;
         String day;
         String startTime;
-        String endTime;
         String abstractText;
         String description;
         String venue;
@@ -360,11 +357,10 @@ public class DatabaseManager {
                 date = cursor.getString(3);
                 day = cursor.getString(4);
                 startTime = cursor.getString(5);
-                endTime = cursor.getString(6);
-                abstractText = cursor.getString(7);
-                description = cursor.getString(8);
-                venue = cursor.getString(9);
-                track = cursor.getString(10);
+                abstractText = cursor.getString(6);
+                description = cursor.getString(7);
+                venue = cursor.getString(8);
+                track = cursor.getString(9);
                 Cursor cursorSpeaker = helper.getReadableDatabase().rawQuery(String.format("SELECT speaker FROM %s WHERE event='%s'", DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, StringUtils.replaceUnicode(title)), null);
                 ArrayList<String> speakers = new ArrayList<String>();
                 if (cursorSpeaker.moveToFirst()) {
@@ -374,7 +370,7 @@ public class DatabaseManager {
                     while (cursorSpeaker.moveToNext());
                 }
 
-                fossasiaEventList.add(new FossasiaEvent(id, title, subTitle, speakers, date, day, startTime, endTime, abstractText, description, venue, track));
+                fossasiaEventList.add(new FossasiaEvent(id, title, subTitle, speakers, date, day, startTime, abstractText, description, venue, track));
             }
             while (cursor.moveToNext());
         }
@@ -404,7 +400,6 @@ public class DatabaseManager {
             String date;
             String day;
             String startTime;
-            String endTime;
             String abstractText;
             String description;
             String venue;
@@ -417,11 +412,10 @@ public class DatabaseManager {
                     date = cursor.getString(3);
                     day = cursor.getString(4);
                     startTime = cursor.getString(5);
-                    endTime = cursor.getString(6);
-                    abstractText = cursor.getString(7);
-                    description = cursor.getString(8);
-                    venue = cursor.getString(9);
-                    track = cursor.getString(10);
+                    abstractText = cursor.getString(6);
+                    description = cursor.getString(7);
+                    venue = cursor.getString(8);
+                    track = cursor.getString(9);
                     Cursor cursorSpeaker = helper.getReadableDatabase().rawQuery(String.format("SELECT speaker FROM %s WHERE event='%s'", DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, title), null);
                     ArrayList<String> speakers = new ArrayList<String>();
                     if (cursorSpeaker.moveToFirst()) {
@@ -431,7 +425,7 @@ public class DatabaseManager {
                         while (cursorSpeaker.moveToNext());
                     }
 
-                    fossasiaEventList.add(new FossasiaEvent(id, title, subTitle, speakers, date, day, startTime, endTime, abstractText, description, venue, track));
+                    fossasiaEventList.add(new FossasiaEvent(id, title, subTitle, speakers, date, day, startTime, abstractText, description, venue, track));
                 }
                 while (cursor.moveToNext());
             }
@@ -450,7 +444,6 @@ public class DatabaseManager {
         String date;
         String day;
         String startTime;
-        String endTime;
         String abstractText;
         String description;
         String venue;
@@ -462,11 +455,10 @@ public class DatabaseManager {
                 date = cursor.getString(3);
                 day = cursor.getString(4);
                 startTime = cursor.getString(5);
-                endTime = cursor.getString(6);
-                abstractText = cursor.getString(7);
-                description = cursor.getString(8);
-                venue = cursor.getString(9);
-                track = cursor.getString(10);
+                abstractText = cursor.getString(6);
+                description = cursor.getString(7);
+                venue = cursor.getString(8);
+                track = cursor.getString(9);
                 Cursor cursorSpeaker = helper.getReadableDatabase().rawQuery(String.format("SELECT speaker FROM %s WHERE event='%s'", DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, StringUtils.replaceUnicode(title)), null);
                 ArrayList<String> speakers = new ArrayList<String>();
                 if (cursorSpeaker.moveToFirst()) {
@@ -476,7 +468,7 @@ public class DatabaseManager {
                     while (cursorSpeaker.moveToNext());
                 }
 
-                fossasiaEventList.add(new FossasiaEvent(id, title, subTitle, speakers, date, day, startTime, endTime, abstractText, description, venue, track));
+                fossasiaEventList.add(new FossasiaEvent(id, title, subTitle, speakers, date, day, startTime, abstractText, description, venue, track));
             }
             while (cursor.moveToNext());
         }

@@ -198,9 +198,7 @@ public class FossasiaEventDetailsFragment extends Fragment {
 //		Date startTime = event.getStartTime();
 //		Date endTime = event.getEndTime();
         String startTime = event.getStartTime();
-        String endTime = event.getEndTime();
-        text = String.format("%1$s, %2$s ― %3$s", event.getDay(), (startTime != null) ? startTime : "?",
-                (endTime != null) ? endTime : "?");
+        text = String.format("%1$s, %2$s", event.getDay(), (startTime != null) ? startTime : "?");
         ((TextView) view.findViewById(R.id.time)).setText(text);
         final String venue = event.getVenue();
         TextView roomTextView = (TextView) view.findViewById(R.id.room);
@@ -373,10 +371,6 @@ public class FossasiaEventDetailsFragment extends Fragment {
         Date time = StringUtils.StringToDate(event.getDate(), event.getStartTime());
         if (time != null) {
             intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, time.getTime());
-        }
-        time = StringUtils.StringToDate(event.getDate(), event.getEndTime());
-        if (time != null) {
-            intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, time.getTime());
         }
         try {
             startActivity(intent);
