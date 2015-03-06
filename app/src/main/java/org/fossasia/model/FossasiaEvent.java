@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import org.fossasia.db.DatabaseHelper;
+import org.fossasia.utils.StringUtils;
 
 import java.util.ArrayList;
 
@@ -197,7 +198,8 @@ public class FossasiaEvent implements Parcelable {
     }
 
     public String generateSqlQuery() {
-        String query = String.format("INSERT INTO %s VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');", DatabaseHelper.TABLE_NAME_SCHEDULE, id, title, subTitle, date, day, startTime, endTime, abstractText, description, venue, track);
+
+        String query = String.format("INSERT INTO %s VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');", DatabaseHelper.TABLE_NAME_SCHEDULE, id, StringUtils.replaceUnicode(title), StringUtils.replaceUnicode(subTitle), StringUtils.replaceUnicode(date), StringUtils.replaceUnicode(day), StringUtils.replaceUnicode(startTime), StringUtils.replaceUnicode(endTime), StringUtils.replaceUnicode(abstractText), StringUtils.replaceUnicode(description), StringUtils.replaceUnicode(venue), StringUtils.replaceUnicode(track));
         return query;
     }
 

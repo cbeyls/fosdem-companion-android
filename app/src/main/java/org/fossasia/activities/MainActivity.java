@@ -55,7 +55,6 @@ import org.fossasia.fragments.BookmarksListFragment;
 import org.fossasia.fragments.KeySpeakerFragment;
 import org.fossasia.fragments.LiveFragment;
 import org.fossasia.fragments.MapFragment;
-import org.fossasia.fragments.ScheduleFragment;
 import org.fossasia.fragments.SpeakerFragment;
 import org.fossasia.fragments.TracksListFragment;
 
@@ -401,7 +400,6 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 
     private enum Section {
         TRACKS(TracksListFragment.class, R.string.menu_tracks, R.drawable.ic_event_grey600_24dp, false),
-        SCHEDULE(ScheduleFragment.class, R.string.menu_schedule, R.drawable.ic_event_grey600_24dp, true),
         BOOKMARKS(BookmarksListFragment.class, R.string.menu_bookmarks, R.drawable.ic_bookmark_grey600_24dp, false),
         LIVE(LiveFragment.class, R.string.menu_live, R.drawable.ic_play_circle_outline_grey600_24dp, false),
         KEY_SPEAKERS(KeySpeakerFragment.class, R.string.menu_key_speakers, R.drawable.ic_people_grey600_24dp, false),

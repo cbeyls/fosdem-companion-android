@@ -42,9 +42,9 @@ public class ScheduleListFragment extends SmoothListFragment {
         track = getArguments().getString("TRACK");
         DatabaseManager dbManager = DatabaseManager.getInstance();
         if (track != null) {
-            events = dbManager.getEventsByDateandTrack(day + "/03/2015", track);
+            events = dbManager.getEventsByDateandTrack(day, track);
         } else {
-            events = dbManager.getEventsByDate(day + "/03/2015");
+            events = dbManager.getEventsByDate(day);
         }
         setListAdapter(new ScheduleAdapter(getActivity(), events));
     }

@@ -162,4 +162,8 @@ public class StringUtils {
         }
         return cal.getTime();
     }
+
+    public static String replaceUnicode(String data) {
+        return data.replaceAll("'", "''");
+    }
 }

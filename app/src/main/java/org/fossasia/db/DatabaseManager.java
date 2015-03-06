@@ -21,6 +21,7 @@ import org.fossasia.model.Person;
 import org.fossasia.model.Speaker;
 import org.fossasia.model.Track;
 import org.fossasia.utils.DateUtils;
+import org.fossasia.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -335,9 +336,10 @@ public class DatabaseManager {
         return fossasiaEventList;
     }
 
-    public ArrayList<FossasiaEvent> getEventsByDate(String selectDate) {
+    public ArrayList<FossasiaEvent> getEventsByDate(int selectDate) {
 
-        Cursor cursor = helper.getReadableDatabase().rawQuery("SELECT * FROM schedule WHERE date='" + selectDate + "'", null);
+
+        Cursor cursor = helper.getReadableDatabase().rawQuery("SELECT * FROM schedule WHERE date='March " + selectDate + "'", null);
         ArrayList<FossasiaEvent> fossasiaEventList = new ArrayList<FossasiaEvent>();
         int id;
         String title;
@@ -363,7 +365,7 @@ public class DatabaseManager {
                 description = cursor.getString(8);
                 venue = cursor.getString(9);
                 track = cursor.getString(10);
-                Cursor cursorSpeaker = helper.getReadableDatabase().rawQuery(String.format("SELECT speaker FROM %s WHERE event='%s'", DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, title), null);
+                Cursor cursorSpeaker = helper.getReadableDatabase().rawQuery(String.format("SELECT speaker FROM %s WHERE event='%s'", DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, StringUtils.replaceUnicode(title)), null);
                 ArrayList<String> speakers = new ArrayList<String>();
                 if (cursorSpeaker.moveToFirst()) {
                     do {
@@ -439,8 +441,8 @@ public class DatabaseManager {
     }
 
 
-    public ArrayList<FossasiaEvent> getEventsByDateandTrack(String selectDate, String track) {
-        Cursor cursor = helper.getReadableDatabase().rawQuery("SELECT * FROM schedule WHERE date='" + selectDate + "' AND track='" + track + "'", null);
+    public ArrayList<FossasiaEvent> getEventsByDateandTrack(int selectDate, String track) {
+        Cursor cursor = helper.getReadableDatabase().rawQuery("SELECT * FROM schedule WHERE date='March " + selectDate + "' AND track='" + track + "'", null);
         ArrayList<FossasiaEvent> fossasiaEventList = new ArrayList<FossasiaEvent>();
         int id;
         String title;
@@ -465,7 +467,7 @@ public class DatabaseManager {
                 description = cursor.getString(8);
                 venue = cursor.getString(9);
                 track = cursor.getString(10);
-                Cursor cursorSpeaker = helper.getReadableDatabase().rawQuery(String.format("SELECT speaker FROM %s WHERE event='%s'", DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, title), null);
+                Cursor cursorSpeaker = helper.getReadableDatabase().rawQuery(String.format("SELECT speaker FROM %s WHERE event='%s'", DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, StringUtils.replaceUnicode(title)), null);
                 ArrayList<String> speakers = new ArrayList<String>();
                 if (cursorSpeaker.moveToFirst()) {
                     do {
