@@ -116,7 +116,7 @@ public class Speaker implements Parcelable {
     }
 
     public String generateSqlQuery() {
-        String query = String.format("INSERT INTO %s VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', %d);", DatabaseHelper.TABLE_NAME_KEY_SPEAKERS, id, name, designation, information, twitterHandle, linkedInUrl, profilePicUrl, (isKeySpeaker ? 1 : 0));
+        String query = String.format("INSERT OR IGNORE INTO %s VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', %d);", DatabaseHelper.TABLE_NAME_KEY_SPEAKERS, id, name, designation, information, twitterHandle, linkedInUrl, profilePicUrl, (isKeySpeaker ? 1 : 0));
         return query;
     }
 

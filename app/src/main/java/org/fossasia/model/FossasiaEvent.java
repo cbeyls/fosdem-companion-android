@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import org.fossasia.db.DatabaseHelper;
+import org.fossasia.utils.StringUtils;
 
 import java.util.ArrayList;
 
@@ -33,13 +34,12 @@ public class FossasiaEvent implements Parcelable {
     private String day;
     //TODO: Convert time to date object, will be later used to save as reminder
     private String startTime;
-    private String endTime;
     private String abstractText;
     private String description;
     private String venue;
     private String track;
 
-    public FossasiaEvent(int id, String title, String subTitle, ArrayList<String> keyNoteList, String date, String day, String startTime, String endTime, String abstractText, String description, String venue, String track) {
+    public FossasiaEvent(int id, String title, String subTitle, ArrayList<String> keyNoteList, String date, String day, String startTime, String abstractText, String description, String venue, String track) {
         this.id = id;
         this.title = title;
         this.subTitle = subTitle;
@@ -47,21 +47,19 @@ public class FossasiaEvent implements Parcelable {
         this.date = date;
         this.day = day;
         this.startTime = startTime;
-        this.endTime = endTime;
         this.abstractText = abstractText;
         this.description = description;
         this.venue = venue;
         this.track = track;
     }
 
-    public FossasiaEvent(int id, String title, String subTitle, String date, String day, String startTime, String endTime, String abstractText, String description, String venue, String track) {
+    public FossasiaEvent(int id, String title, String subTitle, String date, String day, String startTime, String abstractText, String description, String venue, String track) {
         this.id = id;
         this.title = title;
         this.subTitle = subTitle;
         this.date = date;
         this.day = day;
         this.startTime = startTime;
-        this.endTime = endTime;
         this.abstractText = abstractText;
         this.description = description;
         this.venue = venue;
@@ -76,7 +74,6 @@ public class FossasiaEvent implements Parcelable {
         this.date = in.readString();
         this.day = in.readString();
         this.startTime = in.readString();
-        this.endTime = in.readString();
         this.abstractText = in.readString();
         this.description = in.readString();
         this.venue = in.readString();
@@ -141,14 +138,6 @@ public class FossasiaEvent implements Parcelable {
         this.startTime = startTime;
     }
 
-    public String getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(String endTime) {
-        this.endTime = endTime;
-    }
-
     public String getAbstractText() {
         return abstractText;
     }
@@ -197,7 +186,8 @@ public class FossasiaEvent implements Parcelable {
     }
 
     public String generateSqlQuery() {
-        String query = String.format("INSERT INTO %s VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');", DatabaseHelper.TABLE_NAME_SCHEDULE, id, title, subTitle, date, day, startTime, endTime, abstractText, description, venue, track);
+
+        String query = String.format("INSERT INTO %s VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');", DatabaseHelper.TABLE_NAME_SCHEDULE, id, StringUtils.replaceUnicode(title), StringUtils.replaceUnicode(subTitle), StringUtils.replaceUnicode(date), StringUtils.replaceUnicode(day), StringUtils.replaceUnicode(startTime), StringUtils.replaceUnicode(abstractText), StringUtils.replaceUnicode(description), StringUtils.replaceUnicode(venue), StringUtils.replaceUnicode(track));
         return query;
     }
 
@@ -214,7 +204,6 @@ public class FossasiaEvent implements Parcelable {
         out.writeString(date);
         out.writeString(day);
         out.writeString(startTime);
-        out.writeString(endTime);
         out.writeString(abstractText);
         out.writeString(description);
         out.writeString(venue);

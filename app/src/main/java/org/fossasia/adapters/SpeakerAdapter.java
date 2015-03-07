@@ -68,10 +68,21 @@ public class SpeakerAdapter extends BaseAdapter {
         holder.linkedIn = (ImageView) row.findViewById(R.id.imageView_linkedin);
         holder.twitter = (ImageView) row.findViewById(R.id.imageView_twitter);
         Speaker speaker = getItem(position);
-        holder.speakerImage.setImageUrl(speaker.getProfilePicUrl(), VolleySingleton.getImageLoader(mContext));
+        if (speaker.getProfilePicUrl() != null && speaker.getProfilePicUrl().equals("")) {
+            holder.speakerImage.setImageUrl("http://forschdb.verwaltung.uni-freiburg.de/pix/forschdb/mitarbeiter_12821_20141208121645.png", VolleySingleton.getImageLoader(mContext));
+        } else {
+            holder.speakerImage.setImageUrl(speaker.getProfilePicUrl(), VolleySingleton.getImageLoader(mContext));
+        }
+
         holder.name.setText(speaker.getName());
         holder.designation.setText(speaker.getDesignation());
-        holder.information.setText(speaker.getInformation());
+
+        if (speaker.getInformation().equals("")) {
+            holder.information.setVisibility(View.GONE);
+        } else {
+            holder.information.setVisibility(View.VISIBLE);
+            holder.information.setText(speaker.getInformation());
+        }
         if (speaker.getLinkedInUrl().length() == 0) {
             holder.linkedIn.setVisibility(View.GONE);
         } else {

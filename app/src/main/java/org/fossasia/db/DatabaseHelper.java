@@ -17,11 +17,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLE_NAME_KEY_SPEAKERS = "key_speakers";
     private static final String TABLE_KEY_SPEAKERS = "CREATE TABLE " + TABLE_NAME_KEY_SPEAKERS
             + " (id INTEGER PRIMARY KEY, name TEXT, designation TEXT, information TEXT, twitter_handle TEXT,"
-            + " linkedin_url TEXT, profile_pic_url TEXT, is_key_speaker INTEGER);";
+            + " linkedin_url TEXT, profile_pic_url TEXT, is_key_speaker INTEGER, UNIQUE(name));";
     public static final String TABLE_NAME_SCHEDULE = "schedule";
 
     private static final String TABLE_SCHEDULE = "CREATE TABLE " + TABLE_NAME_SCHEDULE
-            + " (id INTEGER PRIMARY KEY, title TEXT, sub_title TEXT, date TEXT, day TEXT, start_time TEXT, end_time TEXT, abstract_text TEXT, description TEXT, venue TEXT, track TEXT);";
+            + " (id INTEGER PRIMARY KEY, title TEXT, sub_title TEXT, date TEXT, day TEXT, start_time TEXT, abstract_text TEXT, description TEXT, venue TEXT, track TEXT);";
 
     public static final String TABLE_NAME_SPEAKER_EVENT_RELATION = "speaker_event_relation";
     private static final String TABLE_SPEAKER_EVENT_RELATION = "CREATE TABLE " + TABLE_NAME_SPEAKER_EVENT_RELATION

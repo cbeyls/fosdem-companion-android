@@ -14,15 +14,21 @@ public class SplashActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-        JsonToDatabase dataDownload = new JsonToDatabase(getApplicationContext());
-        dataDownload.setOnJsonToDatabaseCallback(new JsonToDatabase.JsonToDatabaseCallback() {
+        new Thread(new Runnable() {
             @Override
-            public void onDataLoaded() {
-                startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                finish();
+            public void run() {
+                JsonToDatabase dataDownload = new JsonToDatabase(getApplicationContext());
+                dataDownload.setOnJsonToDatabaseCallback(new JsonToDatabase.JsonToDatabaseCallback() {
+                    @Override
+                    public void onDataLoaded() {
+                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                        finish();
+                    }
+
+                });
+                dataDownload.startDataDownload();
             }
-        });
-        dataDownload.startDataDownload();
+        }).start();
     }
 
 }

@@ -12,6 +12,7 @@ import com.android.volley.toolbox.StringRequest;
 import org.fossasia.api.FossasiaUrls;
 import org.fossasia.model.FossasiaEvent;
 import org.fossasia.model.Speaker;
+import org.fossasia.utils.StringUtils;
 import org.fossasia.utils.VolleySingleton;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,13 +34,15 @@ public class JsonToDatabase {
     private boolean tracks;
     private ArrayList<String> queries;
     private JsonToDatabaseCallback mCallback;
+    private int count;
 
     public JsonToDatabase(Context context) {
+        count = 0;
         this.context = context;
         this.keySpeakerLoaded = false;
         queries = new ArrayList<String>();
         keySpeakerLoaded = false;
-        scheduleLoaded = false;
+        scheduleLoaded = true;
         speakerEventRelation = false;
         tracks = false;
 
@@ -50,12 +53,188 @@ public class JsonToDatabase {
         this.mCallback = callback;
     }
 
+
     public void startDataDownload() {
         fetchKeySpeakers(FossasiaUrls.KEY_SPEAKER_URL);
-        fetchSchedule(FossasiaUrls.SCHEDULE_URL);
+//        fetchSchedule(FossasiaUrls.SCHEDULE_URL);
         fetchSpeakerEventRelation(FossasiaUrls.SPEAKER_EVENT_URL);
         fetchTracks(FossasiaUrls.TRACKS_URL);
+        startTrackUrlFetch(FossasiaUrls.VERSION_TRACK_URL);
     }
+
+    private void startTrackUrlFetch(String url) {
+
+
+        RequestQueue queue = VolleySingleton.getReqQueue(context);
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(url, new Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                JSONArray jsonArray = removePaddingFromString(response);
+                Log.d(TAG, jsonArray.toString());
+                String name;
+                String url;
+                String venue;
+                String version;
+                String forceTrack;
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    try {
+                        name = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(0)
+                                .getString("v");
+                        url = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(1)
+                                .getString("f");
+                        venue = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(2)
+                                .getString("v");
+                        version = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(3)
+                                .getString("v");
+
+                        Log.d(TAG, name);
+
+                        fetchData(FossasiaUrls.PART_URL + url, venue, name, (i + 50) * 100);
+
+
+                    } catch (JSONException e) {
+                        Log.e(TAG, "JSON Error: " + e.getMessage() + "\nResponse" + response);
+                    }
+
+                }
+                count--;
+                checkStatus();
+
+            }
+        }
+
+                , new ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                count--;
+                checkStatus();
+            }
+        }
+
+        );
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+        count++;
+
+    }
+
+
+    private void fetchData(String url, final String venue, final String forceTrack, final int id) {
+
+        final RequestQueue queue = VolleySingleton.getReqQueue(context);
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(url, new Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                JSONArray jsonArray = removePaddingFromString(response);
+                Log.d(TAG, jsonArray.toString());
+
+                String firstName;
+                String lastName;
+                String time;
+                String date;
+                String organization;
+                String email;
+                String blog;
+                String twitter;
+                String typeOfProposal;
+                String topicName;
+                String field;
+                String day;
+                String proposalAbstract;
+                String description;
+                String url;
+                String fullName;
+
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    try {
+                        firstName = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(Constants.FIRST_NAME)
+                                .getString("v");
+                        lastName = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(Constants.LAST_NAME)
+                                .getString("v");
+                        time = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(Constants.TIME)
+                                .getString("f");
+                        date = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(Constants.DATE)
+                                .getString("v");
+                        organization = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(Constants.ORGANIZATION)
+                                .getString("v");
+                        email = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(Constants.EMAIL)
+                                .getString("v");
+                        blog = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(Constants.BLOG)
+                                .getString("v");
+                        twitter = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(Constants.TWITTER)
+                                .getString("v");
+                        typeOfProposal = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(Constants.TYPE_OF_PROPOSAL)
+                                .getString("v");
+                        topicName = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(Constants.TOPIC_NAME)
+                                .getString("v");
+                        field = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(Constants.TRACK)
+                                .getString("v");
+                        proposalAbstract = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(Constants.ABSTRACT)
+                                .getString("v");
+                        description = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(Constants.DESCRIPTION)
+                                .getString("v");
+                        url = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(Constants.URL)
+                                .getString("v");
+                        String logData = "First Name: %s\nLast Name: %s\nDate: %s\nTime: %s\nOrganization: %s\nEmail: %s\nBlog: %s\nTwitter: %s\nType Of Proposal: %s\nTopic Name:%s\nTrack: %s\nAbstarct: %s\nDescription: %s\nURL: %s";
+                        logData = String.format(logData, firstName, lastName, date, time, organization, email, blog, twitter, typeOfProposal, topicName, field, proposalAbstract, description, url);
+//                        Log.d(TAG, logData);
+                        int id2 = id + i;
+                        if (date.equals("") || firstName.equals("") || time.equals("") || topicName.equals("")) {
+                            continue;
+                        }
+                        String[] dayDate = date.split(" ");
+                        day = dayDate[0];
+                        date = dayDate[1] + " " + dayDate[2];
+                        FossasiaEvent temp = new FossasiaEvent(id2, topicName, field, date, day, time, proposalAbstract, description, venue, forceTrack);
+
+
+                        fullName = firstName + " " + lastName;
+                        Speaker tempSpeaker = new Speaker(id2, fullName, "", "", twitter, organization, url, 0);
+                        queries.add(tempSpeaker.generateSqlQuery());
+                        queries.add(temp.generateSqlQuery());
+                        String query = "INSERT INTO %s VALUES ('%s', '%s');";
+                        query = String.format(query, DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, fullName, StringUtils.replaceUnicode(topicName));
+//                        Log.d(TAG, query);
+                        queries.add(query);
+
+
+                    } catch (JSONException e) {
+                        Log.e(TAG, "JSON Error: " + e.getMessage() + "\nResponse" + response);
+                    }
+
+                }
+
+                count--;
+                checkStatus();
+
+            }
+        }
+
+                , new ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                count--;
+                checkStatus();
+            }
+        }
+
+        );
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+        count++;
+
+    }
+
 
     private void fetchTracks(String url) {
 
@@ -78,7 +257,7 @@ public class JsonToDatabase {
                         trackInformation = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(1)
                                 .getString("v");
                         String query = "INSERT INTO %s VALUES (%d, '%s', '%s');";
-                        query = String.format(query, DatabaseHelper.TABLE_NAME_TRACK, i, trackName, trackInformation);
+                        query = String.format(query, DatabaseHelper.TABLE_NAME_TRACK, i, StringUtils.replaceUnicode(trackName), StringUtils.replaceUnicode(trackInformation));
                         Log.d(TAG, query);
                         queries.add(query);
                     } catch (JSONException e) {
@@ -153,80 +332,6 @@ public class JsonToDatabase {
         queue.add(stringRequest);
     }
 
-    private void fetchSchedule(String url) {
-
-        RequestQueue queue = VolleySingleton.getReqQueue(context);
-
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(url, new Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                JSONArray jsonArray = removePaddingFromString(response);
-                Log.d(TAG, jsonArray.toString());
-                int id;
-                String title;
-                String subTitle;
-                String date;
-                String day;
-                String startTime;
-                String endTime;
-                String abstractText;
-                String description;
-                String venue;
-                String track;
-
-                for (int i = 1; i < jsonArray.length(); i++) {
-                    // Starting from 1 not 0, because 1st row contains columns name and actual data is from second row
-                    try {
-                        title = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(0)
-                                .getString("v");
-                        subTitle = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(1)
-                                .getString("v");
-                        date = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(2)
-                                .getString("v");
-                        day = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(3)
-                                .getString("v");
-                        startTime = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(4)
-                                .getString("v");
-                        endTime = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(5)
-                                .getString("v");
-                        abstractText = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(6)
-                                .getString("v");
-                        description = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(7)
-                                .getString("v");
-                        venue = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(8)
-                                .getString("v");
-                        track = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(9)
-                                .getString("v");
-                        id = i - 1;
-
-                        FossasiaEvent temp = new FossasiaEvent(id, title, subTitle, date, day, startTime, endTime, abstractText, description, venue, track);
-                        Log.d(TAG, temp.generateSqlQuery());
-                        queries.add(temp.generateSqlQuery());
-                    } catch (JSONException e) {
-                        Log.e(TAG, "JSON Error: " + e.getMessage() + "\nResponse" + response);
-                    }
-
-                }
-                scheduleLoaded = true;
-                checkStatus();
-            }
-        }
-
-                , new ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                scheduleLoaded = true;
-                checkStatus();
-            }
-        }
-
-        );
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
-    }
 
     private void fetchKeySpeakers(String url) {
 
@@ -290,7 +395,7 @@ public class JsonToDatabase {
     }
 
     private void checkStatus() {
-        if (keySpeakerLoaded && scheduleLoaded && speakerEventRelation && tracks) {
+        if (keySpeakerLoaded && scheduleLoaded && speakerEventRelation && tracks && count == 0) {
             DatabaseManager dbManager = DatabaseManager.getInstance();
             //Temporary clearing database for testing only
             dbManager.clearDatabase();
@@ -304,6 +409,8 @@ public class JsonToDatabase {
     }
 
     private JSONArray removePaddingFromString(String response) {
+        response = response.replaceAll("\"v\":null", "\"v\":\"\"");
+        response = response.replaceAll("null", "{\"v\": \"\"}");
         response = response.substring(response.indexOf("(") + 1, response.length() - 2);
         try {
             JSONObject jObj = new JSONObject(response);

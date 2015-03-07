@@ -16,7 +16,7 @@
             android:layout_height="60dp"
             android:layout_margin="10dp"
             android:adjustViewBounds="true"
-            android:scaleType="centerInside"
+            android:scaleType="centerCrop"
             android:src="@drawable/default_user"/>
 
 
