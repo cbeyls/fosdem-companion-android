@@ -13,10 +13,10 @@ import android.provider.BaseColumns;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
+import org.fossasia.model.Day;
 import org.fossasia.model.FossasiaEvent;
 import org.fossasia.model.Person;
 import org.fossasia.model.Speaker;
-import org.fossasia.model.Track;
 import org.fossasia.utils.StringUtils;
 
 import java.util.ArrayList;
@@ -39,22 +39,11 @@ public class DatabaseManager {
     private static final Uri URI_EVENTS = Uri.parse("sqlite://be.digitalia.fosdem/events");
     private static final String DB_PREFS_FILE = "database";
     private static final String LAST_UPDATE_TIME_PREF = "last_update_time";
-    private static final String LAST_MODIFIED_TAG_PREF = "last_modified_tag";
     private static final String[] COUNT_PROJECTION = new String[]{"count(*)"};
-    private static final String TRACK_INSERT_STATEMENT = "INSERT INTO " + DatabaseHelper.TRACKS_TABLE_NAME + " (id, name, type) VALUES (?, ?, ?);";
-    private static final String EVENT_INSERT_STATEMENT = "INSERT INTO " + DatabaseHelper.EVENTS_TABLE_NAME
-            + " (id, day_index, start_time, end_time, room_name, slug, track_id, abstract, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
-    private static final String EVENT_TITLES_INSERT_STATEMENT = "INSERT INTO " + DatabaseHelper.EVENTS_TITLES_TABLE_NAME
-            + " (rowid, title, subtitle) VALUES (?, ?, ?);";
-    private static final String EVENT_PERSON_INSERT_STATEMENT = "INSERT INTO " + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
-            + " (event_id, person_id) VALUES (?, ?);";
     // Ignore conflicts in case of existing person
-    private static final String PERSON_INSERT_STATEMENT = "INSERT OR IGNORE INTO " + DatabaseHelper.PERSONS_TABLE_NAME + " (rowid, name) VALUES (?, ?);";
-    private static final String LINK_INSERT_STATEMENT = "INSERT INTO " + DatabaseHelper.LINKS_TABLE_NAME + " (event_id, url, description) VALUES (?, ?, ?);";
     private static DatabaseManager instance;
     private Context context;
     private DatabaseHelper helper;
-    private int year = -1;
 
     private DatabaseManager(Context context) {
         this.context = context;
@@ -105,16 +94,20 @@ public class DatabaseManager {
 
     }
 
-    public static Track toTrack(Cursor cursor, Track track) {
-        if (track == null) {
-            track = new Track();
+    public ArrayList<FossasiaEvent> getBookmarkEvents() {
+
+        ArrayList<FossasiaEvent> bookmarkedEvents = new ArrayList<>();
+        Cursor cursor = helper.getReadableDatabase().rawQuery("SELECT * FROM " + DatabaseHelper.BOOKMARKS_TABLE_NAME, null);
+        if(cursor.moveToFirst()) {
+            do {
+                bookmarkedEvents.add(getEventById(cursor.getInt(0)));
+            }
+            while (cursor.moveToNext());
         }
-        track.setName(cursor.getString(1));
-        track.setType(Enum.valueOf(Track.Type.class, cursor.getString(2)));
+        cursor.close();
+        return bookmarkedEvents;
 
-        return track;
     }
-
 
     public static long toEventId(Cursor cursor) {
         return cursor.getLong(0);
@@ -122,10 +115,6 @@ public class DatabaseManager {
 
     public static long toEventStartTimeMillis(Cursor cursor) {
         return cursor.isNull(1) ? -1L : cursor.getLong(1);
-    }
-
-    public static boolean toBookmarkStatus(Cursor cursor) {
-        return !cursor.isNull(14);
     }
 
     public static Person toPerson(Cursor cursor, Person person) {
@@ -164,8 +153,6 @@ public class DatabaseManager {
             clearDatabase(db);
 
             db.setTransactionSuccessful();
-
-            year = -1;
             getSharedPreferences().edit().remove(LAST_UPDATE_TIME_PREF).commit();
         } finally {
             db.endTransaction();
@@ -176,10 +163,68 @@ public class DatabaseManager {
         }
     }
 
-    public ArrayList<FossasiaEvent> getEventsByDate(int selectDate) {
+    public ArrayList<Day> getDates(String track) {
+
+        ArrayList<Day> days = new ArrayList<Day>();
+        String query = "SELECT date FROM schedule WHERE track='%s' GROUP BY date";
+        Cursor cursor = helper.getReadableDatabase().rawQuery(String.format(query, track), null);
+        int count = 0;
+        if(cursor.moveToFirst()) {
+            do {
+                days.add(new Day(count, cursor.getString(0)));
+                count++;
+            }
+            while(cursor.moveToNext());
+        }
+        cursor.close();
+        return days;
+    }
+
+    public FossasiaEvent getEventById(int id) {
+        FossasiaEvent temp = null;
+        Cursor cursor = helper.getReadableDatabase().rawQuery("SELECT * FROM schedule WHERE id=" + id , null);
+        String title;
+        String subTitle;
+        String date;
+        String day;
+        String startTime;
+        String abstractText;
+        String description;
+        String venue;
+        String track;
+        if (cursor.moveToFirst()) {
+            do {
+                id = cursor.getInt(0);
+                title = cursor.getString(1);
+                subTitle = cursor.getString(2);
+                date = cursor.getString(3);
+                day = cursor.getString(4);
+                startTime = cursor.getString(5);
+                abstractText = cursor.getString(6);
+                description = cursor.getString(7);
+                venue = cursor.getString(8);
+                track = cursor.getString(9);
+                Cursor cursorSpeaker = helper.getReadableDatabase().rawQuery(String.format("SELECT speaker FROM %s WHERE event='%s'", DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, StringUtils.replaceUnicode(title)), null);
+                ArrayList<String> speakers = new ArrayList<String>();
+                if (cursorSpeaker.moveToFirst()) {
+                    do {
+                        speakers.add(cursorSpeaker.getString(0));
+                    }
+                    while (cursorSpeaker.moveToNext());
+                }
+
+                temp = new FossasiaEvent(id, title, subTitle, speakers, date, day, date + " " +startTime, abstractText, description, venue, track);
+            }
+            while (cursor.moveToNext());
+        }
+        cursor.close();
+        return temp;
+    }
+
+    public ArrayList<FossasiaEvent> getEventsByDate(String selectDate) {
 
 
-        Cursor cursor = helper.getReadableDatabase().rawQuery("SELECT * FROM schedule WHERE date='March " + selectDate + "'", null);
+        Cursor cursor = helper.getReadableDatabase().rawQuery("SELECT * FROM schedule WHERE date='" + selectDate + "'", null);
         ArrayList<FossasiaEvent> fossasiaEventList = new ArrayList<FossasiaEvent>();
         int id;
         String title;
@@ -267,7 +312,7 @@ public class DatabaseManager {
                         while (cursorSpeaker.moveToNext());
                     }
 
-                    fossasiaEventList.add(new FossasiaEvent(id, title, subTitle, speakers, date, day, startTime, abstractText, description, venue, track));
+                    fossasiaEventList.add(new FossasiaEvent(id, title, subTitle, speakers, date, day, date + " " + startTime, abstractText, description, venue, track));
                 }
                 while (cursor.moveToNext());
             }
@@ -277,8 +322,8 @@ public class DatabaseManager {
     }
 
 
-    public ArrayList<FossasiaEvent> getEventsByDateandTrack(int selectDate, String track) {
-        Cursor cursor = helper.getReadableDatabase().rawQuery("SELECT * FROM schedule WHERE date='March " + selectDate + "' AND track='" + track + "'", null);
+    public ArrayList<FossasiaEvent> getEventsByDateandTrack(String selectDate, String track) {
+        Cursor cursor = helper.getReadableDatabase().rawQuery("SELECT * FROM schedule WHERE date='" + selectDate + "' AND track='" + track + "'", null);
         ArrayList<FossasiaEvent> fossasiaEventList = new ArrayList<FossasiaEvent>();
         int id;
         String title;

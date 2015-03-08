@@ -22,10 +22,10 @@ public class ScheduleListFragment extends SmoothListFragment {
     private ArrayList<FossasiaEvent> events;
     private String track;
 
-    public static Fragment newInstance(int day, String track) {
+    public static Fragment newInstance(String day, String track) {
         Fragment fragment = new ScheduleListFragment();
         Bundle bundle = new Bundle();
-        bundle.putInt("DAY", day);
+        bundle.putString("DAY", day);
         bundle.putString("TRACK", track);
         fragment.setArguments(bundle);
         return fragment;
@@ -37,7 +37,7 @@ public class ScheduleListFragment extends SmoothListFragment {
         super.onCreate(savedInstanceState);
 
 
-        int day = getArguments().getInt("DAY") + 13;
+        String day = getArguments().getString("DAY");
         track = null;
         track = getArguments().getString("TRACK");
         DatabaseManager dbManager = DatabaseManager.getInstance();

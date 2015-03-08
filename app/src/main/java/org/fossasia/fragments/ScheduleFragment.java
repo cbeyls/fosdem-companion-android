@@ -12,6 +12,8 @@ import android.view.ViewGroup;
 import com.example.android.common.view.SlidingTabLayout;
 
 import org.fossasia.R;
+import org.fossasia.db.DatabaseManager;
+import org.fossasia.model.Day;
 
 import java.util.ArrayList;
 
@@ -39,10 +41,10 @@ public class ScheduleFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             String track = getArguments().getString("TRACK");
-            daysAdapter = new DayLoader(getChildFragmentManager(), track);
-        } else {
-            daysAdapter = new DayLoader(getChildFragmentManager(), null);
+            DatabaseManager db = DatabaseManager.getInstance();
+            daysAdapter = new DayLoader(getChildFragmentManager(), track, db.getDates(track));
         }
+
 
     }
 
@@ -81,30 +83,30 @@ public class ScheduleFragment extends Fragment {
     private static class DayLoader extends FragmentStatePagerAdapter {
 
         private ArrayList<String> mPageTitle;
+        private ArrayList<Day> days;
         private String track;
 
-        public DayLoader(FragmentManager fm, String track) {
+        public DayLoader(FragmentManager fm, String track, ArrayList<Day> days) {
             super(fm);
             mPageTitle = new ArrayList<String>();
             this.track = track;
+            this.days = days;
 
         }
 
         @Override
         public Fragment getItem(int position) {
-            return ScheduleListFragment.newInstance(position, track);
+            return ScheduleListFragment.newInstance(days.get(position).getDate(), track);
         }
 
         @Override
         public int getCount() {
-            return 3;
+            return days.size();
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            //TODO: Remove this hard coding
-            int dayNo = position + 13;
-            return dayNo + " March";
+            return days.get(position).getDate();
         }
     }
 }

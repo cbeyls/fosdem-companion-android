@@ -28,9 +28,9 @@ public class JsonToDatabase {
     private final static String TAG = "JSON_TO_DATABASE";
 
     private Context context;
-    private boolean keySpeakerLoaded;
-    private boolean scheduleLoaded;
-    private boolean speakerEventRelation;
+//    private boolean keySpeakerLoaded;
+//    private boolean scheduleLoaded;
+//    private boolean speakerEventRelation;
     private boolean tracks;
     private ArrayList<String> queries;
     private JsonToDatabaseCallback mCallback;
@@ -39,11 +39,11 @@ public class JsonToDatabase {
     public JsonToDatabase(Context context) {
         count = 0;
         this.context = context;
-        this.keySpeakerLoaded = false;
+//        this.keySpeakerLoaded = false;
         queries = new ArrayList<String>();
-        keySpeakerLoaded = false;
-        scheduleLoaded = true;
-        speakerEventRelation = false;
+//        keySpeakerLoaded = false;
+//        scheduleLoaded = true;
+//        speakerEventRelation = false;
         tracks = false;
 
 
@@ -55,9 +55,9 @@ public class JsonToDatabase {
 
 
     public void startDataDownload() {
-        fetchKeySpeakers(FossasiaUrls.KEY_SPEAKER_URL);
+//        fetchKeySpeakers(FossasiaUrls.KEY_SPEAKER_URL);
 //        fetchSchedule(FossasiaUrls.SCHEDULE_URL);
-        fetchSpeakerEventRelation(FossasiaUrls.SPEAKER_EVENT_URL);
+//        fetchSpeakerEventRelation(FossasiaUrls.SPEAKER_EVENT_URL);
         fetchTracks(FossasiaUrls.TRACKS_URL);
         startTrackUrlFetch(FossasiaUrls.VERSION_TRACK_URL);
     }
@@ -313,7 +313,7 @@ public class JsonToDatabase {
                     }
 
                 }
-                speakerEventRelation = true;
+//                speakerEventRelation = true;
                 checkStatus();
             }
         }
@@ -322,7 +322,7 @@ public class JsonToDatabase {
 
             @Override
             public void onErrorResponse(VolleyError error) {
-                speakerEventRelation = true;
+//                speakerEventRelation = true;
                 checkStatus();
             }
         }
@@ -375,7 +375,7 @@ public class JsonToDatabase {
                     }
 
                 }
-                keySpeakerLoaded = true;
+//                keySpeakerLoaded = true;
                 checkStatus();
             }
         }
@@ -384,7 +384,7 @@ public class JsonToDatabase {
 
             @Override
             public void onErrorResponse(VolleyError error) {
-                keySpeakerLoaded = true;
+//                keySpeakerLoaded = true;
                 checkStatus();
             }
         }
@@ -395,7 +395,7 @@ public class JsonToDatabase {
     }
 
     private void checkStatus() {
-        if (keySpeakerLoaded && scheduleLoaded && speakerEventRelation && tracks && count == 0) {
+        if (tracks && count == 0) {
             DatabaseManager dbManager = DatabaseManager.getInstance();
             //Temporary clearing database for testing only
             dbManager.clearDatabase();

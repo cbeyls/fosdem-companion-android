@@ -1,20 +1,24 @@
 package org.fossasia.fragments;
 
 import android.content.Context;
-import android.database.Cursor;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.fossasia.R;
+import org.fossasia.activities.EventDetailsActivity;
+import org.fossasia.adapters.ScheduleAdapter;
 import org.fossasia.db.DatabaseManager;
-import org.fossasia.loaders.SimpleCursorLoader;
+import org.fossasia.model.FossasiaEvent;
 import org.fossasia.widgets.BookmarksMultiChoiceModeListener;
+
+import java.util.ArrayList;
 
 /**
  * Bookmarks list, optionally filterable.
@@ -23,20 +27,20 @@ import org.fossasia.widgets.BookmarksMultiChoiceModeListener;
  */
 public class BookmarksListFragment extends SmoothListFragment {
 
-    private static final int BOOKMARKS_LOADER_ID = 1;
     private static final String PREF_UPCOMING_ONLY = "bookmarks_upcoming_only";
 
     private boolean upcomingOnly;
 
     private MenuItem filterMenuItem;
     private MenuItem upcomingOnlyMenuItem;
+    private ArrayList<FossasiaEvent> events;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-        upcomingOnly = getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean(PREF_UPCOMING_ONLY, false);
+        DatabaseManager db = DatabaseManager.getInstance();
+        setListAdapter(new ScheduleAdapter(getActivity(), events = db.getBookmarkEvents()));
 
         setHasOptionsMenu(true);
     }
@@ -50,7 +54,6 @@ public class BookmarksListFragment extends SmoothListFragment {
         }
 
         setEmptyText(getString(R.string.no_bookmark));
-        setListShown(false);
 
     }
 
@@ -93,61 +96,13 @@ public class BookmarksListFragment extends SmoothListFragment {
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-
+        long idNew = (long) v.getTag();
+        Toast.makeText(getActivity(), "Position: " + idNew, Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(getActivity().getApplicationContext(), EventDetailsActivity.class);
+        intent.putExtra("event", events.get(position));
+        startActivity(intent);
+        super.onListItemClick(l, v, position, id);
     }
 
-    private static class BookmarksLoader extends SimpleCursorLoader {
 
-        // Events that just started are still shown for 5 minutes
-        private static final long TIME_OFFSET = 5L * 60L * 1000L;
-
-        private final boolean upcomingOnly;
-        private final Handler handler;
-        private final Runnable timeoutRunnable = new Runnable() {
-
-            @Override
-            public void run() {
-                onContentChanged();
-            }
-        };
-
-        public BookmarksLoader(Context context, boolean upcomingOnly) {
-            super(context);
-            this.upcomingOnly = upcomingOnly;
-            this.handler = new Handler();
-        }
-
-        @Override
-        public void deliverResult(Cursor cursor) {
-            if (upcomingOnly && !isReset()) {
-                handler.removeCallbacks(timeoutRunnable);
-                // The loader will be refreshed when the start time of the first bookmark in the list is reached
-                if ((cursor != null) && cursor.moveToFirst()) {
-                    long startTime = DatabaseManager.toEventStartTimeMillis(cursor);
-                    if (startTime != -1L) {
-                        long delay = startTime - (System.currentTimeMillis() - TIME_OFFSET);
-                        if (delay > 0L) {
-                            handler.postDelayed(timeoutRunnable, delay);
-                        } else {
-                            onContentChanged();
-                        }
-                    }
-                }
-            }
-            super.deliverResult(cursor);
-        }
-
-        @Override
-        protected void onReset() {
-            super.onReset();
-            if (upcomingOnly) {
-                handler.removeCallbacks(timeoutRunnable);
-            }
-        }
-
-        @Override
-        protected Cursor getCursor() {
-            return DatabaseManager.getInstance().getBookmarks(upcomingOnly ? System.currentTimeMillis() - TIME_OFFSET : -1L);
-        }
-    }
 }

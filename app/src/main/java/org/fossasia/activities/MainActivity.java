@@ -45,8 +45,6 @@ import android.widget.Toast;
 
 import org.fossasia.R;
 import org.fossasia.fragments.BookmarksListFragment;
-import org.fossasia.fragments.KeySpeakerFragment;
-import org.fossasia.fragments.LiveFragment;
 import org.fossasia.fragments.MapFragment;
 import org.fossasia.fragments.SpeakerFragment;
 import org.fossasia.fragments.TracksListFragment;
@@ -308,10 +306,9 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
     private enum Section {
         TRACKS(TracksListFragment.class, R.string.menu_tracks, R.drawable.ic_event_grey600_24dp, false),
         BOOKMARKS(BookmarksListFragment.class, R.string.menu_bookmarks, R.drawable.ic_bookmark_grey600_24dp, false),
-        LIVE(LiveFragment.class, R.string.menu_live, R.drawable.ic_play_circle_outline_grey600_24dp, false),
-        KEY_SPEAKERS(KeySpeakerFragment.class, R.string.menu_key_speakers, R.drawable.ic_people_grey600_24dp, false),
+        //        LIVE(LiveFragment.class, R.string.menu_live, R.drawable.ic_play_circle_outline_grey600_24dp, false),
+//        KEY_SPEAKERS(KeySpeakerFragment.class, R.string.menu_key_speakers, R.drawable.ic_people_grey600_24dp, false),
         SPEAKERS(SpeakerFragment.class, R.string.menu_speakers, R.drawable.ic_people_grey600_24dp, false),
-
         MAP(MapFragment.class, R.string.menu_map, R.drawable.ic_map_grey600_24dp, false);
 
         private final String fragmentClassName;

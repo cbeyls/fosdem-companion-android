@@ -36,6 +36,7 @@ public class TracksListFragment extends SmoothListFragment {
         String text = ((TextView) v.findViewById(R.id.textView_track_title)).getText().toString();
         Toast.makeText(getActivity(), text, Toast.LENGTH_LONG).show();
         getFragmentManager().beginTransaction().replace(R.id.content, ScheduleFragment.newInstance(text), ScheduleFragment.TAG).addToBackStack(null).commit();
+
     }
 
     @Override
