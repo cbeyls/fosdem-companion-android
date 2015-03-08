@@ -14,14 +14,12 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
 import org.fossasia.model.FossasiaEvent;
-import org.fossasia.model.Link;
 import org.fossasia.model.Person;
 import org.fossasia.model.Speaker;
 import org.fossasia.model.Track;
 import org.fossasia.utils.StringUtils;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Here comes the badass SQL.
@@ -146,20 +144,6 @@ public class DatabaseManager {
 
     private SharedPreferences getSharedPreferences() {
         return context.getSharedPreferences(DB_PREFS_FILE, Context.MODE_PRIVATE);
-    }
-
-    /**
-     * @return The last update time in milliseconds since EPOCH, or -1 if not available.
-     */
-    public long getLastUpdateTime() {
-        return getSharedPreferences().getLong(LAST_UPDATE_TIME_PREF, -1L);
-    }
-
-    /**
-     * @return The time identifier of the current version of the database.
-     */
-    public String getLastModifiedTag() {
-        return getSharedPreferences().getString(LAST_MODIFIED_TAG_PREF, null);
     }
 
     public void performInsertQueries(ArrayList<String> queries) {
@@ -373,83 +357,9 @@ public class DatabaseManager {
     public Cursor getTracks() {
         Cursor cursor = helper.getReadableDatabase().rawQuery(
                 "SELECT * FROM " + DatabaseHelper.TABLE_NAME_TRACK, null);
-//        cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
         return cursor;
     }
 
-    public long getEventsCount() {
-        return queryNumEntries(helper.getReadableDatabase(), DatabaseHelper.EVENTS_TABLE_NAME, null, null);
-    }
-
-
-    /**
-     * Returns the events in the specified time window, ordered by start time. All parameters are optional but at least one must be provided.
-     *
-     * @param minStartTime Minimum start time, or -1
-     * @param maxStartTime Maximum start time, or -1
-     * @param minEndTime   Minimum end time, or -1
-     * @param ascending    If true, order results from start time ascending, else order from start time descending
-     * @return
-     */
-    public Cursor getEvents(long minStartTime, long maxStartTime, long minEndTime, boolean ascending) {
-        ArrayList<String> selectionArgs = new ArrayList<>(3);
-        StringBuilder whereCondition = new StringBuilder();
-
-        if (minStartTime > 0L) {
-            whereCondition.append("e.start_time > ?");
-            selectionArgs.add(String.valueOf(minStartTime));
-        }
-        if (maxStartTime > 0L) {
-            if (whereCondition.length() > 0) {
-                whereCondition.append(" AND ");
-            }
-            whereCondition.append("e.start_time < ?");
-            selectionArgs.add(String.valueOf(maxStartTime));
-        }
-        if (minEndTime > 0L) {
-            if (whereCondition.length() > 0) {
-                whereCondition.append(" AND ");
-            }
-            whereCondition.append("e.end_time > ?");
-            selectionArgs.add(String.valueOf(minEndTime));
-        }
-        if (whereCondition.length() == 0) {
-            throw new IllegalArgumentException("At least one filter must be provided");
-        }
-        String ascendingString = ascending ? "ASC" : "DESC";
-
-        Cursor cursor = helper
-                .getReadableDatabase()
-                .rawQuery(
-                        "SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, b.event_id"
-                                + " FROM "
-                                + DatabaseHelper.EVENTS_TABLE_NAME
-                                + " e"
-                                + " JOIN "
-                                + DatabaseHelper.EVENTS_TITLES_TABLE_NAME
-                                + " et ON e.id = et.rowid"
-                                + " JOIN "
-                                + DatabaseHelper.DAYS_TABLE_NAME
-                                + " d ON e.day_index = d._index"
-                                + " JOIN "
-                                + DatabaseHelper.TRACKS_TABLE_NAME
-                                + " t ON e.track_id = t.id"
-                                + " LEFT JOIN "
-                                + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
-                                + " ep ON e.id = ep.event_id"
-                                + " LEFT JOIN "
-                                + DatabaseHelper.PERSONS_TABLE_NAME
-                                + " p ON ep.person_id = p.rowid"
-                                + " LEFT JOIN "
-                                + DatabaseHelper.BOOKMARKS_TABLE_NAME
-                                + " b ON e.id = b.event_id"
-                                + " WHERE "
-                                + whereCondition.toString()
-                                + " GROUP BY e.id"
-                                + " ORDER BY e.start_time " + ascendingString, selectionArgs.toArray(new String[selectionArgs.size()]));
-        cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
-        return cursor;
-    }
 
     /**
      * Returns the bookmarks.
@@ -593,24 +503,6 @@ public class DatabaseManager {
         return cursor;
     }
 
-
-    public List<Link> getLinks(FossasiaEvent event) {
-        String[] selectionArgs = new String[]{String.valueOf(event.getId())};
-        Cursor cursor = helper.getReadableDatabase().rawQuery(
-                "SELECT url, description" + " FROM " + DatabaseHelper.LINKS_TABLE_NAME + " WHERE event_id = ?" + " ORDER BY rowid ASC", selectionArgs);
-        try {
-            List<Link> result = new ArrayList<>(cursor.getCount());
-            while (cursor.moveToNext()) {
-                Link link = new Link();
-                link.setUrl(cursor.getString(0));
-                link.setDescription(cursor.getString(1));
-                result.add(link);
-            }
-            return result;
-        } finally {
-            cursor.close();
-        }
-    }
 
     public boolean isBookmarked(FossasiaEvent event) {
         String[] selectionArgs = new String[]{String.valueOf(event.getId())};
