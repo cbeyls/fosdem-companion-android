@@ -55,7 +55,10 @@ public class PersonInfoListFragment extends SmoothListFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.more_info:
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(person.getLinkedInUrl()));
+                Intent intent;
+
+                intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://fossasia.org/"));
+
                 startActivity(intent);
                 return true;
         }
@@ -87,16 +90,17 @@ public class PersonInfoListFragment extends SmoothListFragment {
         speakerImage = (NetworkImageView) headerView.findViewById(R.id.imageView_speaker_pic);
         speakerImage.setDefaultImageResId(R.drawable.default_user);
         information = (TextView) headerView.findViewById(R.id.textView_speaker_information);
+        information.setVisibility(View.GONE);
         linkedIn = (ImageView) headerView.findViewById(R.id.imageView_linkedin);
         twitter = (ImageView) headerView.findViewById(R.id.imageView_twitter);
         getListView().addHeaderView(headerView, null, false);
         name.setText(person.getName());
         designation.setText(person.getDesignation());
         information.setText(person.getInformation());
-        if (person.getLinkedInUrl() == null) {
+        if (person.getLinkedInUrl() == null || person.getLinkedInUrl().equals("")) {
             linkedIn.setVisibility(View.GONE);
         }
-        if (person.getTwitterHandle() == null) {
+        if (person.getTwitterHandle() == null || person.getTwitterHandle().equals("")) {
             twitter.setVisibility(View.GONE);
         }
 

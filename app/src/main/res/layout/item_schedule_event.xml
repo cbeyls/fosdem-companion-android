@@ -21,10 +21,11 @@
     <TextView
         android:id="@+id/text"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="1"
         android:drawablePadding="8dp"
         android:padding="@dimen/list_item_padding"
+        android:gravity="center_vertical"
         android:textColor="?android:textColorPrimary"
         android:textSize="@dimen/list_item_small_text_size"
         tools:text="Welcome to FOSDEM 2015\nFOSDEM Staff"
