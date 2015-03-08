@@ -17,7 +17,6 @@ import com.viewpagerindicator.PageIndicator;
 import org.fossasia.R;
 import org.fossasia.db.DatabaseManager;
 import org.fossasia.fragments.EventDetailsFragment;
-import org.fossasia.model.Day;
 import org.fossasia.model.Track;
 import org.fossasia.utils.NfcUtils;
 import org.fossasia.utils.NfcUtils.CreateNfcAppDataCallback;
@@ -35,7 +34,6 @@ public class TrackScheduleEventActivity extends ActionBarActivity implements Cre
 
     private static final int EVENTS_LOADER_ID = 1;
 
-    private Day day;
     private Track track;
     private int initialPosition = -1;
     private View progress;
@@ -67,7 +65,6 @@ public class TrackScheduleEventActivity extends ActionBarActivity implements Cre
         ActionBar bar = getSupportActionBar();
         bar.setDisplayHomeAsUpEnabled(true);
         bar.setTitle(track.toString());
-        bar.setSubtitle(day.toString());
 
         // Enable Android Beam
         NfcUtils.setAppDataPushMessageCallbackIfAvailable(this, this);

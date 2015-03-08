@@ -3,10 +3,6 @@ package org.fossasia.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import org.fossasia.api.FosdemUrls;
-import org.fossasia.db.DatabaseManager;
-import org.fossasia.utils.StringUtils;
-
 public class Person implements Parcelable {
 
     public static final Parcelable.Creator<Person> CREATOR = new Parcelable.Creator<Person>() {
@@ -46,7 +42,7 @@ public class Person implements Parcelable {
     }
 
     public String getUrl() {
-        return FosdemUrls.getPerson(StringUtils.toSlug(name), DatabaseManager.getInstance().getYear());
+        return null;
     }
 
     @Override

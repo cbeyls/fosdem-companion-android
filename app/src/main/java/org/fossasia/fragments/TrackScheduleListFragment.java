@@ -22,7 +22,6 @@ import android.widget.TextView;
 
 import org.fossasia.R;
 import org.fossasia.db.DatabaseManager;
-import org.fossasia.model.Day;
 import org.fossasia.model.Event;
 import org.fossasia.model.Track;
 import org.fossasia.utils.DateUtils;
@@ -37,14 +36,13 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
     private static final String ARG_DAY = "day";
     private static final String ARG_TRACK = "track";
     private static final String ARG_FROM_EVENT_ID = "from_event_id";
-    private Day day;
     private Handler handler;
     private TrackScheduleAdapter adapter;
     private Callbacks listener;
     private boolean selectionEnabled = false;
     private boolean isListAlreadyShown = false;
 
-    public static TrackScheduleListFragment newInstance(Day day, Track track) {
+    public static TrackScheduleListFragment newInstance(Track track) {
         TrackScheduleListFragment f = new TrackScheduleListFragment();
         Bundle args = new Bundle();
 //        args.putParcelable(ARG_DAY, day);
@@ -53,7 +51,7 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
         return f;
     }
 
-    public static TrackScheduleListFragment newInstance(Day day, Track track, long fromEventId) {
+    public static TrackScheduleListFragment newInstance(Track track, long fromEventId) {
         TrackScheduleListFragment f = new TrackScheduleListFragment();
         Bundle args = new Bundle();
 //        args.putParcelable(ARG_DAY, day);

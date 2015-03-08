@@ -13,21 +13,17 @@ import android.provider.BaseColumns;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
-import org.fossasia.model.Day;
 import org.fossasia.model.Event;
 import org.fossasia.model.FossasiaEvent;
 import org.fossasia.model.Link;
 import org.fossasia.model.Person;
 import org.fossasia.model.Speaker;
 import org.fossasia.model.Track;
-import org.fossasia.utils.DateUtils;
 import org.fossasia.utils.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Here comes the badass SQL.
@@ -62,7 +58,6 @@ public class DatabaseManager {
     private static DatabaseManager instance;
     private Context context;
     private DatabaseHelper helper;
-    private List<Day> cachedDays;
     private int year = -1;
 
     private DatabaseManager(Context context) {
@@ -247,7 +242,6 @@ public class DatabaseManager {
 
             db.setTransactionSuccessful();
 
-            cachedDays = null;
             year = -1;
             getSharedPreferences().edit().remove(LAST_UPDATE_TIME_PREF).commit();
         } finally {
@@ -257,70 +251,6 @@ public class DatabaseManager {
             context.getContentResolver().notifyChange(URI_EVENTS, null);
             LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ACTION_SCHEDULE_REFRESHED));
         }
-    }
-
-    /**
-     * Returns the cached days list or null. Can be safely called on the main thread without blocking it.
-     *
-     * @return
-     */
-    public List<Day> getCachedDays() {
-        return cachedDays;
-    }
-
-    /**
-     * @return The Days the events span to.
-     */
-    public List<Day> getDays() {
-        Cursor cursor = helper.getReadableDatabase().query(DatabaseHelper.DAYS_TABLE_NAME, new String[]{"_index", "date"}, null, null, null, null,
-                "_index ASC");
-        try {
-            List<Day> result = new ArrayList<>(cursor.getCount());
-            while (cursor.moveToNext()) {
-                Day day = new Day();
-                result.add(day);
-            }
-            cachedDays = result;
-            return result;
-        } finally {
-            cursor.close();
-        }
-    }
-
-    public ArrayList<FossasiaEvent> getSchedule() {
-        Cursor cursor = helper.getReadableDatabase().query(DatabaseHelper.TABLE_NAME_SCHEDULE, null, null, null, null, null, null);
-        ArrayList<FossasiaEvent> fossasiaEventList = new ArrayList<FossasiaEvent>();
-        int id;
-        String title;
-        String subTitle;
-        String date;
-        String day;
-        String startTime;
-        String endTime;
-        String abstractText;
-        String description;
-        String venue;
-        String track;
-
-        if (cursor.moveToFirst()) {
-            do {
-                id = cursor.getInt(0);
-                title = cursor.getString(1);
-                subTitle = cursor.getString(2);
-                date = cursor.getString(3);
-                day = cursor.getString(4);
-                startTime = cursor.getString(5);
-                abstractText = cursor.getString(6);
-                description = cursor.getString(7);
-                venue = cursor.getString(8);
-                track = cursor.getString(9);
-
-                fossasiaEventList.add(new FossasiaEvent(id, title, subTitle, date, day, startTime, abstractText, description, venue, track));
-            }
-            while (cursor.moveToNext());
-        }
-        cursor.close();
-        return fossasiaEventList;
     }
 
     public ArrayList<FossasiaEvent> getEventsByDate(int selectDate) {
@@ -498,36 +428,6 @@ public class DatabaseManager {
         }
         cursor.close();
         return speakers;
-    }
-
-    public int getYear() {
-        // Try to get the cached value first
-        if (year != -1) {
-            return year;
-        }
-
-        Calendar cal = Calendar.getInstance(DateUtils.getBelgiumTimeZone(), Locale.US);
-
-        // Compute from cachedDays if available
-        if (cachedDays != null) {
-            if (cachedDays.size() > 0) {
-            }
-        } else {
-            // Perform a quick DB query to retrieve the time of the first day
-            Cursor cursor = helper.getReadableDatabase().query(DatabaseHelper.DAYS_TABLE_NAME, new String[]{"date"}, null, null, null, null,
-                    "_index ASC LIMIT 1");
-            try {
-                if (cursor.moveToFirst()) {
-                    cal.setTimeInMillis(cursor.getLong(0));
-                }
-            } finally {
-                cursor.close();
-            }
-        }
-
-        // If the calendar has not been set at this point, it will simply return the current year
-        year = cal.get(Calendar.YEAR);
-        return year;
     }
 
 
