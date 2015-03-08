@@ -53,7 +53,7 @@ public class TrackScheduleActivity extends ActionBarActivity
         floatingActionButton = (ImageView) findViewById(R.id.fab);
 
         Bundle extras = getIntent().getExtras();
-        day = extras.getParcelable(EXTRA_DAY);
+//        day = extras.getParcelable(EXTRA_DAY);
         track = extras.getParcelable(EXTRA_TRACK);
 
         ActionBar bar = getSupportActionBar();
@@ -145,7 +145,7 @@ public class TrackScheduleActivity extends ActionBarActivity
         } else {
             // Classic mode: Show event details in a new activity
             Intent intent = new Intent(this, TrackScheduleEventActivity.class);
-            intent.putExtra(TrackScheduleEventActivity.EXTRA_DAY, day);
+//            intent.putExtra(TrackScheduleEventActivity.EXTRA_DAY, day);
             intent.putExtra(TrackScheduleEventActivity.EXTRA_TRACK, track);
             intent.putExtra(TrackScheduleEventActivity.EXTRA_POSITION, position);
             startActivity(intent);

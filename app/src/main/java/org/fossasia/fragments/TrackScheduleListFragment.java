@@ -8,8 +8,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -24,7 +22,6 @@ import android.widget.TextView;
 
 import org.fossasia.R;
 import org.fossasia.db.DatabaseManager;
-import org.fossasia.loaders.TrackScheduleLoader;
 import org.fossasia.model.Day;
 import org.fossasia.model.Event;
 import org.fossasia.model.Track;
@@ -32,7 +29,7 @@ import org.fossasia.utils.DateUtils;
 
 import java.text.DateFormat;
 
-public class TrackScheduleListFragment extends SmoothListFragment implements Handler.Callback, LoaderCallbacks<Cursor> {
+public class TrackScheduleListFragment extends SmoothListFragment implements Handler.Callback {
 
     private static final int EVENTS_LOADER_ID = 1;
     private static final int REFRESH_TIME_WHAT = 1;
@@ -50,7 +47,7 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
     public static TrackScheduleListFragment newInstance(Day day, Track track) {
         TrackScheduleListFragment f = new TrackScheduleListFragment();
         Bundle args = new Bundle();
-        args.putParcelable(ARG_DAY, day);
+//        args.putParcelable(ARG_DAY, day);
         args.putParcelable(ARG_TRACK, track);
         f.setArguments(args);
         return f;
@@ -59,7 +56,7 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
     public static TrackScheduleListFragment newInstance(Day day, Track track, long fromEventId) {
         TrackScheduleListFragment f = new TrackScheduleListFragment();
         Bundle args = new Bundle();
-        args.putParcelable(ARG_DAY, day);
+//        args.putParcelable(ARG_DAY, day);
         args.putParcelable(ARG_TRACK, track);
         args.putLong(ARG_FROM_EVENT_ID, fromEventId);
         f.setArguments(args);
@@ -70,7 +67,7 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        day = getArguments().getParcelable(ARG_DAY);
+//        day = getArguments().getParcelable(ARG_DAY);
         handler = new Handler(this);
         adapter = new TrackScheduleAdapter(getActivity());
         setListAdapter(adapter);
@@ -118,27 +115,26 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
         setEmptyText(getString(R.string.no_data));
         setListShown(false);
 
-        getLoaderManager().initLoader(EVENTS_LOADER_ID, null, this);
     }
 
     @Override
     public void onStart() {
         super.onStart();
 
-        // Setup display auto-refresh during the track's day
-        long now = System.currentTimeMillis();
-        long dayStart = day.getDate().getTime();
-        if (now < dayStart) {
-            // Before track day, schedule refresh in the future
-            handler.sendEmptyMessageDelayed(REFRESH_TIME_WHAT, dayStart - now);
-        } else if (now < dayStart + android.text.format.DateUtils.DAY_IN_MILLIS) {
-            // During track day, start refresh immediately
-            adapter.setCurrentTime(now);
-            handler.sendEmptyMessageDelayed(REFRESH_TIME_WHAT, REFRESH_TIME_INTERVAL);
-        } else {
-            // After track day, disable refresh
-            adapter.setCurrentTime(-1L);
-        }
+//        // Setup display auto-refresh during the track's day
+//        long now = System.currentTimeMillis();
+////        long dayStart = day.getDate().getTime();
+//        if (now < dayStart) {
+//            // Before track day, schedule refresh in the future
+//            handler.sendEmptyMessageDelayed(REFRESH_TIME_WHAT, dayStart - now);
+//        } else if (now < dayStart + android.text.format.DateUtils.DAY_IN_MILLIS) {
+//            // During track day, start refresh immediately
+//            adapter.setCurrentTime(now);
+//            handler.sendEmptyMessageDelayed(REFRESH_TIME_WHAT, REFRESH_TIME_INTERVAL);
+//        } else {
+//            // After track day, disable refresh
+//            adapter.setCurrentTime(-1L);
+//        }
     }
 
     @Override
@@ -158,46 +154,8 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
         return false;
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Track track = getArguments().getParcelable(ARG_TRACK);
-        return new TrackScheduleLoader(getActivity(), day, track);
-    }
 
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (data != null) {
-            adapter.swapCursor(data);
 
-            if (selectionEnabled) {
-                final int count = adapter.getCount();
-                int checkedPosition = getListView().getCheckedItemPosition();
-                if ((checkedPosition == ListView.INVALID_POSITION) || (checkedPosition >= count)) {
-                    // There is no current valid selection, use the default one
-                    checkedPosition = getDefaultPosition();
-                    if (checkedPosition != ListView.INVALID_POSITION) {
-                        getListView().setItemChecked(checkedPosition, true);
-                    }
-                }
-
-                // Ensure the current selection is visible
-                if (checkedPosition != ListView.INVALID_POSITION) {
-                    setSelection(checkedPosition);
-                }
-                // Notify the parent of the current selection to synchronize its state
-                notifyEventSelected(checkedPosition);
-
-            } else if (!isListAlreadyShown) {
-                int position = getDefaultPosition();
-                if (position != ListView.INVALID_POSITION) {
-                    setSelection(position);
-                }
-            }
-            isListAlreadyShown = true;
-        }
-
-        setListShown(true);
-    }
 
     /**
      * @return The default position in the list, or -1 if the list is empty
@@ -219,10 +177,6 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
         return 0;
     }
 
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        adapter.swapCursor(null);
-    }
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
