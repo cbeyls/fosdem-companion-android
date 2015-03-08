@@ -1,9 +1,7 @@
 package org.fossasia.fragments;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -15,7 +13,6 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
-import android.text.style.ClickableSpan;
 import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,7 +24,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.fossasia.R;
-import org.fossasia.activities.PersonInfoActivity;
 import org.fossasia.db.DatabaseManager;
 import org.fossasia.model.Building;
 import org.fossasia.model.Event;
@@ -300,161 +296,4 @@ public class EventDetailsFragment extends Fragment {
         }
     }
 
-//	@SuppressLint("InlinedApi")
-//	private void addToAgenda() {
-//		Intent intent = new Intent(Intent.ACTION_EDIT);
-//		intent.setType("vnd.android.cursor.item/event");
-//		intent.putExtra(CalendarContract.Events.TITLE, event.getTitle());
-//		intent.putExtra(CalendarContract.Events.EVENT_LOCATION, "ULB - " + event.getRoomName());
-//		String description = event.getAbstractText();
-//		if (TextUtils.isEmpty(description)) {
-//			description = event.getDescription();
-//		}
-//		// Strip HTML
-//		description = StringUtils.trimEnd(Html.fromHtml(description)).toString();
-//		// Add speaker info if available
-//		if (personsCount > 0) {
-//			description = String.format("%1$s: %2$s\n\n%3$s", getResources().getQuantityString(R.plurals.speakers, personsCount), event.getPersonsSummary(),
-//					description);
-//		}
-//		intent.putExtra(CalendarContract.Events.DESCRIPTION, description);
-//		Date time = event.getStartTime();
-//		if (time != null) {
-//			intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, time.getTime());
-//		}
-//		time = event.getEndTime();
-//		if (time != null) {
-//			intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, time.getTime());
-//		}
-//		try {
-//			startActivity(intent);
-//		} catch (ActivityNotFoundException e) {
-//			Toast.makeText(getActivity(), R.string.calendar_not_found, Toast.LENGTH_LONG).show();
-//		}
-//	}
-
-//	private final LoaderCallbacks<Boolean> bookmarkStatusLoaderCallbacks = new LoaderCallbacks<Boolean>() {
-//
-//		@Override
-//		public Loader<Boolean> onCreateLoader(int id, Bundle args) {
-//			return new BookmarkStatusLoader(getActivity(), event);
-//		}
-//
-//		@Override
-//		public void onLoadFinished(Loader<Boolean> loader, Boolean data) {
-//			isBookmarked = data;
-//			updateOptionsMenu();
-//		}
-//
-//		@Override
-//		public void onLoaderReset(Loader<Boolean> loader) {
-//		}
-//	};
-
-//	private static class EventDetailsLoader extends LocalCacheLoader<EventDetails> {
-//
-//		private final Event event;
-//
-//		public EventDetailsLoader(Context context, Event event) {
-//			super(context);
-//			this.event = event;
-//		}
-//
-//		@Override
-//		public EventDetails loadInBackground() {
-//			EventDetails result = new EventDetails();
-//			DatabaseManager dbm = DatabaseManager.getInstance();
-//			result.persons = dbm.getPersons(event);
-//			result.links = dbm.getLinks(event);
-//			return result;
-//		}
-//	}
-
-//	private final LoaderCallbacks<EventDetails> eventDetailsLoaderCallbacks = new LoaderCallbacks<EventDetails>() {
-//
-//		@Override
-//		public Loader<EventDetails> onCreateLoader(int id, Bundle args) {
-//			return new EventDetailsLoader(getActivity(), event);
-//		}
-//
-//		@Override
-//		public void onLoadFinished(Loader<EventDetails> loader, EventDetails data) {
-//			// 1. Persons
-//			if (data.persons != null) {
-//				personsCount = data.persons.size();
-//				if (personsCount > 0) {
-//					// Build a list of clickable persons
-//					SpannableStringBuilder sb = new SpannableStringBuilder();
-//					int length = 0;
-//					for (Person person : data.persons) {
-//						if (length != 0) {
-//							sb.append(", ");
-//						}
-//						String name = person.getName();
-//						sb.append(name);
-//						length = sb.length();
-//						sb.setSpan(new PersonClickableSpan(person), length - name.length(), length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//					}
-//					holder.personsTextView.setText(sb);
-//					holder.personsTextView.setVisibility(View.VISIBLE);
-//				}
-//			}
-//
-//			// 2. Links
-//			// Keep the first view in links container (title) only
-//			int linkViewCount = holder.linksContainer.getChildCount();
-//			if (linkViewCount > 1) {
-//				holder.linksContainer.removeViews(1, linkViewCount - 1);
-//			}
-//			if ((data.links != null) && (data.links.size() > 0)) {
-//				holder.linksContainer.setVisibility(View.VISIBLE);
-//				for (Link link : data.links) {
-//					View view = holder.inflater.inflate(R.layout.item_link, holder.linksContainer, false);
-//					TextView tv = (TextView) view.findViewById(R.id.description);
-//					tv.setText(link.getDescription());
-//					view.setOnClickListener(new LinkClickListener(link));
-//					holder.linksContainer.addView(view);
-//					// Add a list divider
-//					holder.inflater.inflate(R.layout.list_divider, holder.linksContainer, true);
-//				}
-//			} else {
-//				holder.linksContainer.setVisibility(View.GONE);
-//			}
-//		}
-//
-//		@Override
-//		public void onLoaderReset(Loader<EventDetails> loader) {
-//		}
-//	};
-
-    private static class PersonClickableSpan extends ClickableSpan {
-
-        private final Person person;
-
-        public PersonClickableSpan(Person person) {
-            this.person = person;
-        }
-
-        @Override
-        public void onClick(View v) {
-            Context context = v.getContext();
-            Intent intent = new Intent(context, PersonInfoActivity.class).putExtra(PersonInfoActivity.SPEAKER, person);
-            context.startActivity(intent);
-        }
-    }
-
-    private static class LinkClickListener implements View.OnClickListener {
-
-        private final Link link;
-
-        public LinkClickListener(Link link) {
-            this.link = link;
-        }
-
-        @Override
-        public void onClick(View v) {
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link.getUrl()));
-            v.getContext().startActivity(intent);
-        }
-    }
 }

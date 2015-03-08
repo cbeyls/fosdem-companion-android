@@ -49,7 +49,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.fossasia.R;
-import org.fossasia.api.FosdemApi;
 import org.fossasia.db.DatabaseManager;
 import org.fossasia.fragments.BookmarksListFragment;
 import org.fossasia.fragments.KeySpeakerFragment;
@@ -79,7 +78,6 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
         @Override
         public void onReceive(Context context, Intent intent) {
             progressBar.setIndeterminate(false);
-            progressBar.setProgress(intent.getIntExtra(FosdemApi.EXTRA_PROGRESS, 0));
         }
     };
     private final BroadcastReceiver scheduleDownloadResultReceiver = new BroadcastReceiver() {
@@ -92,22 +90,6 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
             progressBar.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, android.R.anim.fade_out));
             progressBar.setVisibility(View.GONE);
 
-            int result = intent.getIntExtra(FosdemApi.EXTRA_RESULT, FosdemApi.RESULT_ERROR);
-            String message;
-            switch (result) {
-                case FosdemApi.RESULT_ERROR:
-                    message = getString(R.string.schedule_loading_error);
-                    break;
-                case FosdemApi.RESULT_UP_TO_DATE:
-                    message = getString(R.string.events_download_up_to_date);
-                    break;
-                case 0:
-                    message = getString(R.string.events_download_empty);
-                    break;
-                default:
-                    message = getResources().getQuantityString(R.plurals.events_download_completed, result, result);
-            }
-            Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
         }
     };
     private final BroadcastReceiver scheduleRefreshedReceiver = new BroadcastReceiver() {
@@ -260,10 +242,6 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
         // Ensure the progress bar is hidden when starting
         progressBar.setVisibility(View.GONE);
 
-        // Monitor the schedule download
-        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
-        lbm.registerReceiver(scheduleDownloadProgressReceiver, new IntentFilter(FosdemApi.ACTION_DOWNLOAD_SCHEDULE_PROGRESS));
-        lbm.registerReceiver(scheduleDownloadResultReceiver, new IntentFilter(FosdemApi.ACTION_DOWNLOAD_SCHEDULE_RESULT));
 
         // Download reminder
         long now = System.currentTimeMillis();
