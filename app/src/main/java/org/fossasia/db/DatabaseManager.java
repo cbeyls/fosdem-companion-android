@@ -13,7 +13,6 @@ import android.provider.BaseColumns;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
-import org.fossasia.model.Event;
 import org.fossasia.model.FossasiaEvent;
 import org.fossasia.model.Link;
 import org.fossasia.model.Person;
@@ -22,7 +21,6 @@ import org.fossasia.model.Track;
 import org.fossasia.utils.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -119,65 +117,6 @@ public class DatabaseManager {
         return track;
     }
 
-    public static Track toTrack(Cursor cursor) {
-        return toTrack(cursor, null);
-    }
-
-    public static Event toEvent(Cursor cursor, Event event) {
-        Track track;
-        Date startTime;
-        Date endTime;
-        if (event == null) {
-            event = new Event();
-            track = new Track();
-            event.setTrack(track);
-
-            startTime = null;
-            endTime = null;
-
-        } else {
-            track = event.getTrack();
-
-            startTime = event.getStartTime();
-            endTime = event.getEndTime();
-        }
-        event.setId(cursor.getLong(0));
-        if (cursor.isNull(1)) {
-            event.setStartTime(null);
-        } else {
-            if (startTime == null) {
-                event.setStartTime(new Date(cursor.getLong(1)));
-            } else {
-                startTime.setTime(cursor.getLong(1));
-            }
-        }
-        if (cursor.isNull(2)) {
-            event.setEndTime(null);
-        } else {
-            if (endTime == null) {
-                event.setEndTime(new Date(cursor.getLong(2)));
-            } else {
-                endTime.setTime(cursor.getLong(2));
-            }
-        }
-
-        event.setRoomName(cursor.getString(3));
-        event.setSlug(cursor.getString(4));
-        event.setTitle(cursor.getString(5));
-        event.setSubTitle(cursor.getString(6));
-        event.setAbstractText(cursor.getString(7));
-        event.setDescription(cursor.getString(8));
-        event.setPersonsSummary(cursor.getString(9));
-
-        track.setName(cursor.getString(12));
-        track.setType(Enum.valueOf(Track.Type.class, cursor.getString(13)));
-
-        return event;
-    }
-
-    public static Event toEvent(Cursor cursor) {
-        return toEvent(cursor, null);
-    }
 
     public static long toEventId(Cursor cursor) {
         return cursor.getLong(0);
@@ -442,45 +381,6 @@ public class DatabaseManager {
         return queryNumEntries(helper.getReadableDatabase(), DatabaseHelper.EVENTS_TABLE_NAME, null, null);
     }
 
-    /**
-     * Returns the event with the specified id.
-     */
-    public Event getEvent(long id) {
-        String[] selectionArgs = new String[]{String.valueOf(id)};
-        Cursor cursor = helper
-                .getReadableDatabase()
-                .rawQuery(
-                        "SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type"
-                                + " FROM "
-                                + DatabaseHelper.EVENTS_TABLE_NAME
-                                + " e"
-                                + " JOIN "
-                                + DatabaseHelper.EVENTS_TITLES_TABLE_NAME
-                                + " et ON e.id = et.rowid"
-                                + " JOIN "
-                                + DatabaseHelper.DAYS_TABLE_NAME
-                                + " d ON e.day_index = d._index"
-                                + " JOIN "
-                                + DatabaseHelper.TRACKS_TABLE_NAME
-                                + " t ON e.track_id = t.id"
-                                + " LEFT JOIN "
-                                + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
-                                + " ep ON e.id = ep.event_id"
-                                + " LEFT JOIN "
-                                + DatabaseHelper.PERSONS_TABLE_NAME
-                                + " p ON ep.person_id = p.rowid"
-                                + " WHERE e.id = ?" + " GROUP BY e.id", selectionArgs);
-        try {
-            if (cursor.moveToFirst()) {
-                return toEvent(cursor);
-            } else {
-                return null;
-            }
-        } finally {
-            cursor.close();
-        }
-    }
-
 
     /**
      * Returns the events in the specified time window, ordered by start time. All parameters are optional but at least one must be provided.
@@ -693,24 +593,6 @@ public class DatabaseManager {
         return cursor;
     }
 
-    /**
-     * Returns persons presenting the specified event.
-     */
-    public List<Person> getPersons(Event event) {
-        String[] selectionArgs = new String[]{String.valueOf(event.getId())};
-        Cursor cursor = helper.getReadableDatabase().rawQuery(
-                "SELECT p.rowid AS _id, p.name" + " FROM " + DatabaseHelper.PERSONS_TABLE_NAME + " p" + " JOIN " + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
-                        + " ep ON p.rowid = ep.person_id" + " WHERE ep.event_id = ?", selectionArgs);
-        try {
-            List<Person> result = new ArrayList<>(cursor.getCount());
-            while (cursor.moveToNext()) {
-                result.add(toPerson(cursor));
-            }
-            return result;
-        } finally {
-            cursor.close();
-        }
-    }
 
     public List<Link> getLinks(FossasiaEvent event) {
         String[] selectionArgs = new String[]{String.valueOf(event.getId())};
@@ -771,45 +653,6 @@ public class DatabaseManager {
         }
     }
 
-
-    public boolean addBookmark(Event event) {
-        boolean complete = false;
-
-        SQLiteDatabase db = helper.getWritableDatabase();
-        db.beginTransaction();
-        try {
-            ContentValues values = new ContentValues();
-            values.put("event_id", event.getId());
-            long result = db.insert(DatabaseHelper.BOOKMARKS_TABLE_NAME, null, values);
-
-            // If the bookmark is already present
-            if (result == -1L) {
-                return false;
-            }
-
-            db.setTransactionSuccessful();
-            complete = true;
-            return true;
-        } finally {
-            db.endTransaction();
-
-            if (complete) {
-                context.getContentResolver().notifyChange(URI_EVENTS, null);
-
-                Intent intent = new Intent(ACTION_ADD_BOOKMARK).putExtra(EXTRA_EVENT_ID, event.getId());
-                // TODO: For now commented this, must implement String to date converter.
-//                Date startTime = event.getStartTime();
-//                if (startTime != null) {
-//                    intent.putExtra(EXTRA_EVENT_START_TIME, startTime.getTime());
-//                }
-                LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-            }
-        }
-    }
-
-    public boolean removeBookmark(Event event) {
-        return removeBookmarks(new long[]{event.getId()});
-    }
 
     public boolean removeBookmark(FossasiaEvent event) {
         return removeBookmarks(new long[]{event.getId()});

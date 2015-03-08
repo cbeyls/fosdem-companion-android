@@ -2,32 +2,16 @@ package org.fossasia.services;
 
 import android.app.AlarmManager;
 import android.app.IntentService;
-import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
-import android.support.v4.app.TaskStackBuilder;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.TextUtils;
-import android.text.style.StyleSpan;
 
-import org.fossasia.R;
-import org.fossasia.activities.EventDetailsActivity;
-import org.fossasia.activities.MainActivity;
-import org.fossasia.activities.RoomImageDialogActivity;
 import org.fossasia.db.DatabaseManager;
 import org.fossasia.fragments.SettingsFragment;
-import org.fossasia.model.Event;
 import org.fossasia.receivers.AlarmReceiver;
-import org.fossasia.utils.StringUtils;
 
 /**
  * A service to schedule or unschedule alarms in the background, keeping the app responsive.
@@ -136,95 +120,95 @@ public class AlarmIntentService extends IntentService {
             case AlarmReceiver.ACTION_NOTIFY_EVENT: {
 
                 long eventId = Long.parseLong(intent.getDataString());
-                Event event = DatabaseManager.getInstance().getEvent(eventId);
-                if (event != null) {
-                    PendingIntent eventPendingIntent = TaskStackBuilder
-                            .create(this)
-                            .addNextIntent(new Intent(this, MainActivity.class))
-                            .addNextIntent(
-                                    new Intent(this, EventDetailsActivity.class).setData(Uri.parse(String.valueOf(event
-                                            .getId())))).getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-
-                    int defaultFlags = Notification.DEFAULT_SOUND;
-                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-                    if (sharedPreferences.getBoolean(SettingsFragment.KEY_PREF_NOTIFICATIONS_VIBRATE, false)) {
-                        defaultFlags |= Notification.DEFAULT_VIBRATE;
-                    }
-
-                    String personsSummary = event.getPersonsSummary();
-                    String trackName = event.getTrack().getName();
-                    String contentText;
-                    CharSequence bigText;
-                    if (TextUtils.isEmpty(personsSummary)) {
-                        contentText = trackName;
-                        bigText = event.getSubTitle();
-                    } else {
-                        contentText = String.format("%1$s - %2$s", trackName, personsSummary);
-                        String subTitle = event.getSubTitle();
-                        SpannableString spannableBigText;
-                        if (TextUtils.isEmpty(subTitle)) {
-                            spannableBigText = new SpannableString(personsSummary);
-                        } else {
-                            spannableBigText = new SpannableString(String.format("%1$s\n%2$s", subTitle, personsSummary));
-                        }
-                        // Set the persons summary in italic
-                        spannableBigText.setSpan(new StyleSpan(Typeface.ITALIC),
-                                spannableBigText.length() - personsSummary.length(), spannableBigText.length(),
-                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        bigText = spannableBigText;
-                    }
-
-                    int notificationColor = getResources().getColor(R.color.color_primary);
-
-                    NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                            .setSmallIcon(R.drawable.ic_stat_fosdem)
-                            .setColor(notificationColor)
-                            .setWhen(event.getStartTime().getTime())
-                            .setContentTitle(event.getTitle())
-                            .setContentText(contentText)
-                            .setStyle(new NotificationCompat.BigTextStyle().bigText(bigText).setSummaryText(trackName))
-                            .setContentInfo(event.getRoomName())
-                            .setContentIntent(eventPendingIntent)
-                            .setAutoCancel(true)
-                            .setDefaults(defaultFlags)
-                            .setPriority(NotificationCompat.PRIORITY_HIGH)
-                            .setCategory(NotificationCompat.CATEGORY_EVENT);
-
-                    // Blink the LED with FOSDEM color if enabled in the options
-                    if (sharedPreferences.getBoolean(SettingsFragment.KEY_PREF_NOTIFICATIONS_LED, false)) {
-                        notificationBuilder.setLights(notificationColor, 1000, 5000);
-                    }
-
-                    // Android Wear extensions
-                    NotificationCompat.WearableExtender wearableExtender = new NotificationCompat.WearableExtender();
-
-                    // Add an optional action button to show the room map image
-                    String roomName = event.getRoomName();
-                    int roomImageResId = getResources().getIdentifier(StringUtils.roomNameToResourceName(roomName),
-                            "drawable", getPackageName());
-                    if (roomImageResId != 0) {
-                        // The room name is the unique Id of a RoomImageDialogActivity
-                        Intent mapIntent = new Intent(this, RoomImageDialogActivity.class).setFlags(
-                                Intent.FLAG_ACTIVITY_NEW_TASK).setData(Uri.parse(roomName));
-                        mapIntent.putExtra(RoomImageDialogActivity.EXTRA_ROOM_NAME, roomName);
-                        mapIntent.putExtra(RoomImageDialogActivity.EXTRA_ROOM_IMAGE_RESOURCE_ID, roomImageResId);
-                        PendingIntent mapPendingIntent = PendingIntent.getActivity(this, 0, mapIntent,
-                                PendingIntent.FLAG_UPDATE_CURRENT);
-                        CharSequence mapTitle = getString(R.string.room_map);
-                        notificationBuilder.addAction(new NotificationCompat.Action(R.drawable.ic_place_white_24dp, mapTitle,
-                                mapPendingIntent));
-                        // Use bigger action icon for wearable notification
-                        wearableExtender.addAction(new NotificationCompat.Action(R.drawable.ic_place_white_wear, mapTitle,
-                                mapPendingIntent));
-                    }
-
-                    notificationBuilder.extend(wearableExtender);
-
-                    NotificationManagerCompat.from(this).notify((int) eventId, notificationBuilder.build());
-                }
-
-                AlarmReceiver.completeWakefulIntent(intent);
-                break;
+//                Event event = DatabaseManager.getInstance().getEvent(eventId);
+//                if (event != null) {
+//                    PendingIntent eventPendingIntent = TaskStackBuilder
+//                            .create(this)
+//                            .addNextIntent(new Intent(this, MainActivity.class))
+//                            .addNextIntent(
+//                                    new Intent(this, EventDetailsActivity.class).setData(Uri.parse(String.valueOf(event
+//                                            .getId())))).getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+//
+//                    int defaultFlags = Notification.DEFAULT_SOUND;
+//                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+//                    if (sharedPreferences.getBoolean(SettingsFragment.KEY_PREF_NOTIFICATIONS_VIBRATE, false)) {
+//                        defaultFlags |= Notification.DEFAULT_VIBRATE;
+//                    }
+//
+//                    String personsSummary = event.getPersonsSummary();
+//                    String trackName = event.getTrack().getName();
+//                    String contentText;
+//                    CharSequence bigText;
+//                    if (TextUtils.isEmpty(personsSummary)) {
+//                        contentText = trackName;
+//                        bigText = event.getSubTitle();
+//                    } else {
+//                        contentText = String.format("%1$s - %2$s", trackName, personsSummary);
+//                        String subTitle = event.getSubTitle();
+//                        SpannableString spannableBigText;
+//                        if (TextUtils.isEmpty(subTitle)) {
+//                            spannableBigText = new SpannableString(personsSummary);
+//                        } else {
+//                            spannableBigText = new SpannableString(String.format("%1$s\n%2$s", subTitle, personsSummary));
+//                        }
+//                        // Set the persons summary in italic
+//                        spannableBigText.setSpan(new StyleSpan(Typeface.ITALIC),
+//                                spannableBigText.length() - personsSummary.length(), spannableBigText.length(),
+//                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//                        bigText = spannableBigText;
+//                    }
+//
+//                    int notificationColor = getResources().getColor(R.color.color_primary);
+//
+//                    NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+//                            .setSmallIcon(R.drawable.ic_stat_fosdem)
+//                            .setColor(notificationColor)
+//                            .setWhen(event.getStartTime().getTime())
+//                            .setContentTitle(event.getTitle())
+//                            .setContentText(contentText)
+//                            .setStyle(new NotificationCompat.BigTextStyle().bigText(bigText).setSummaryText(trackName))
+//                            .setContentInfo(event.getRoomName())
+//                            .setContentIntent(eventPendingIntent)
+//                            .setAutoCancel(true)
+//                            .setDefaults(defaultFlags)
+//                            .setPriority(NotificationCompat.PRIORITY_HIGH)
+//                            .setCategory(NotificationCompat.CATEGORY_EVENT);
+//
+//                    // Blink the LED with FOSDEM color if enabled in the options
+//                    if (sharedPreferences.getBoolean(SettingsFragment.KEY_PREF_NOTIFICATIONS_LED, false)) {
+//                        notificationBuilder.setLights(notificationColor, 1000, 5000);
+//                    }
+//
+//                    // Android Wear extensions
+//                    NotificationCompat.WearableExtender wearableExtender = new NotificationCompat.WearableExtender();
+//
+//                    // Add an optional action button to show the room map image
+//                    String roomName = event.getRoomName();
+//                    int roomImageResId = getResources().getIdentifier(StringUtils.roomNameToResourceName(roomName),
+//                            "drawable", getPackageName());
+//                    if (roomImageResId != 0) {
+//                        // The room name is the unique Id of a RoomImageDialogActivity
+//                        Intent mapIntent = new Intent(this, RoomImageDialogActivity.class).setFlags(
+//                                Intent.FLAG_ACTIVITY_NEW_TASK).setData(Uri.parse(roomName));
+//                        mapIntent.putExtra(RoomImageDialogActivity.EXTRA_ROOM_NAME, roomName);
+//                        mapIntent.putExtra(RoomImageDialogActivity.EXTRA_ROOM_IMAGE_RESOURCE_ID, roomImageResId);
+//                        PendingIntent mapPendingIntent = PendingIntent.getActivity(this, 0, mapIntent,
+//                                PendingIntent.FLAG_UPDATE_CURRENT);
+//                        CharSequence mapTitle = getString(R.string.room_map);
+//                        notificationBuilder.addAction(new NotificationCompat.Action(R.drawable.ic_place_white_24dp, mapTitle,
+//                                mapPendingIntent));
+//                        // Use bigger action icon for wearable notification
+//                        wearableExtender.addAction(new NotificationCompat.Action(R.drawable.ic_place_white_wear, mapTitle,
+//                                mapPendingIntent));
+//                    }
+//
+//                    notificationBuilder.extend(wearableExtender);
+//
+//                    NotificationManagerCompat.from(this).notify((int) eventId, notificationBuilder.build());
+//                }
+//
+//                AlarmReceiver.completeWakefulIntent(intent);
+//                break;
             }
         }
     }

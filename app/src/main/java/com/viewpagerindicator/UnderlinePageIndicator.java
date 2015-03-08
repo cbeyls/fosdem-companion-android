@@ -78,7 +78,7 @@ public class UnderlinePageIndicator extends View implements PageIndicator {
     }
 
     @SuppressWarnings("deprecation")
-	public UnderlinePageIndicator(Context context, AttributeSet attrs, int defStyle) {
+    public UnderlinePageIndicator(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         if (isInEditMode()) return;
 
@@ -100,7 +100,7 @@ public class UnderlinePageIndicator extends View implements PageIndicator {
 
         Drawable background = a.getDrawable(R.styleable.UnderlinePageIndicator_android_background);
         if (background != null) {
-          setBackgroundDrawable(background);
+            setBackgroundDrawable(background);
         }
 
         a.recycle();
@@ -179,7 +179,7 @@ public class UnderlinePageIndicator extends View implements PageIndicator {
     }
 
     @Override
-	public boolean onTouchEvent(@NonNull MotionEvent ev) {
+    public boolean onTouchEvent(@NonNull MotionEvent ev) {
         if (super.onTouchEvent(ev)) {
             return true;
         }
@@ -278,7 +278,8 @@ public class UnderlinePageIndicator extends View implements PageIndicator {
         mViewPager.setOnPageChangeListener(this);
         invalidate();
         post(new Runnable() {
-            @Override public void run() {
+            @Override
+            public void run() {
                 if (mFades) {
                     post(mFadeRunnable);
                 }
@@ -355,7 +356,7 @@ public class UnderlinePageIndicator extends View implements PageIndicator {
 
     @Override
     public void onRestoreInstanceState(Parcelable state) {
-        SavedState savedState = (SavedState)state;
+        SavedState savedState = (SavedState) state;
         super.onRestoreInstanceState(savedState.getSuperState());
         mCurrentPage = savedState.currentPage;
         requestLayout();

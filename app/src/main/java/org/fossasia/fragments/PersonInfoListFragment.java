@@ -16,7 +16,6 @@ import com.android.volley.toolbox.NetworkImageView;
 
 import org.fossasia.R;
 import org.fossasia.activities.EventDetailsActivity;
-import org.fossasia.adapters.EventsAdapter;
 import org.fossasia.adapters.ScheduleAdapter;
 import org.fossasia.db.DatabaseManager;
 import org.fossasia.model.FossasiaEvent;
@@ -29,7 +28,6 @@ public class PersonInfoListFragment extends SmoothListFragment {
     private static final String ARG_PERSON = "person";
 
     private Speaker person;
-    private EventsAdapter adapter;
     private ArrayList<FossasiaEvent> events;
 
     public static PersonInfoListFragment newInstance(Speaker speaker) {
