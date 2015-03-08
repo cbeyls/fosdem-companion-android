@@ -6,8 +6,6 @@ import android.provider.BaseColumns;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -19,7 +17,6 @@ import com.viewpagerindicator.PageIndicator;
 import org.fossasia.R;
 import org.fossasia.db.DatabaseManager;
 import org.fossasia.fragments.EventDetailsFragment;
-import org.fossasia.loaders.TrackScheduleLoader;
 import org.fossasia.model.Day;
 import org.fossasia.model.Track;
 import org.fossasia.utils.NfcUtils;
@@ -30,7 +27,7 @@ import org.fossasia.utils.NfcUtils.CreateNfcAppDataCallback;
  *
  * @author Christophe Beyls
  */
-public class TrackScheduleEventActivity extends ActionBarActivity implements LoaderCallbacks<Cursor>, CreateNfcAppDataCallback {
+public class TrackScheduleEventActivity extends ActionBarActivity implements CreateNfcAppDataCallback {
 
     public static final String EXTRA_DAY = "day";
     public static final String EXTRA_TRACK = "track";
@@ -53,7 +50,7 @@ public class TrackScheduleEventActivity extends ActionBarActivity implements Loa
         setContentView(R.layout.track_schedule_event);
 
         Bundle extras = getIntent().getExtras();
-        day = extras.getParcelable(EXTRA_DAY);
+//        day = extras.getParcelable(EXTRA_DAY);
         track = extras.getParcelable(EXTRA_TRACK);
 
         progress = findViewById(R.id.progress);
@@ -76,7 +73,6 @@ public class TrackScheduleEventActivity extends ActionBarActivity implements Loa
         NfcUtils.setAppDataPushMessageCallbackIfAvailable(this, this);
 
         setCustomProgressVisibility(true);
-        getSupportLoaderManager().initLoader(EVENTS_LOADER_ID, null, this);
     }
 
     private void setCustomProgressVisibility(boolean isVisible) {
@@ -105,36 +101,6 @@ public class TrackScheduleEventActivity extends ActionBarActivity implements Loa
         return false;
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new TrackScheduleLoader(this, day, track);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        setCustomProgressVisibility(false);
-
-        if (data != null) {
-            adapter.setCursor(data);
-
-            // Delay setting the adapter when the instance state is restored
-            // to ensure the current position is restored properly
-            if (pager.getAdapter() == null) {
-                pager.setAdapter(adapter);
-                pageIndicator.setViewPager(pager);
-            }
-
-            if (initialPosition != -1) {
-                pager.setCurrentItem(initialPosition, false);
-                initialPosition = -1;
-            }
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        adapter.setCursor(null);
-    }
 
     public static class TrackScheduleEventAdapter extends FragmentStatePagerAdapter {
 

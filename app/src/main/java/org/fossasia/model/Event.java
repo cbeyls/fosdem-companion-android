@@ -41,7 +41,7 @@ public class Event implements Parcelable {
 
     private Event(Parcel in) {
         id = in.readLong();
-        day = Day.CREATOR.createFromParcel(in);
+//        day = Day.CREATOR.createFromParcel(in);
         long time = in.readLong();
         if (time != 0L) {
             startTime = new Date(time);
@@ -230,7 +230,7 @@ public class Event implements Parcelable {
     @Override
     public void writeToParcel(Parcel out, int flags) {
         out.writeLong(id);
-        day.writeToParcel(out, flags);
+//        day.writeToParcel(out, flags);
         out.writeLong((startTime == null) ? 0L : startTime.getTime());
         out.writeLong((endTime == null) ? 0L : endTime.getTime());
         out.writeString(roomName);

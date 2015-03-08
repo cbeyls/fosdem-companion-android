@@ -129,29 +129,22 @@ public class DatabaseManager {
     }
 
     public static Event toEvent(Cursor cursor, Event event) {
-        Day day;
         Track track;
         Date startTime;
         Date endTime;
         if (event == null) {
             event = new Event();
-            day = new Day();
-            event.setDay(day);
             track = new Track();
             event.setTrack(track);
 
             startTime = null;
             endTime = null;
 
-            day.setDate(new Date(cursor.getLong(11)));
         } else {
-            day = event.getDay();
             track = event.getTrack();
 
             startTime = event.getStartTime();
             endTime = event.getEndTime();
-
-            day.getDate().setTime(cursor.getLong(11));
         }
         event.setId(cursor.getLong(0));
         if (cursor.isNull(1)) {
@@ -180,8 +173,6 @@ public class DatabaseManager {
         event.setAbstractText(cursor.getString(7));
         event.setDescription(cursor.getString(8));
         event.setPersonsSummary(cursor.getString(9));
-
-        day.setIndex(cursor.getInt(10));
 
         track.setName(cursor.getString(12));
         track.setType(Enum.valueOf(Track.Type.class, cursor.getString(13)));
@@ -287,8 +278,6 @@ public class DatabaseManager {
             List<Day> result = new ArrayList<>(cursor.getCount());
             while (cursor.moveToNext()) {
                 Day day = new Day();
-                day.setIndex(cursor.getInt(0));
-                day.setDate(new Date(cursor.getLong(1)));
                 result.add(day);
             }
             cachedDays = result;
@@ -393,7 +382,7 @@ public class DatabaseManager {
 
         for (String event : events) {
 
-            Cursor cursor = helper.getReadableDatabase().rawQuery("SELECT * FROM schedule WHERE title='" + event + "'", null);
+            Cursor cursor = helper.getReadableDatabase().rawQuery("SELECT * FROM schedule WHERE title='" + StringUtils.removeDiacritics(event) + "'", null);
             int id;
             String title;
             String subTitle;
@@ -522,7 +511,6 @@ public class DatabaseManager {
         // Compute from cachedDays if available
         if (cachedDays != null) {
             if (cachedDays.size() > 0) {
-                cal.setTime(cachedDays.get(0).getDate());
             }
         } else {
             // Perform a quick DB query to retrieve the time of the first day
@@ -542,14 +530,6 @@ public class DatabaseManager {
         return year;
     }
 
-    public Cursor getTracks(Day day) {
-        String[] selectionArgs = new String[]{String.valueOf(day.getIndex())};
-        Cursor cursor = helper.getReadableDatabase().rawQuery(
-                "SELECT t.id AS _id, t.name, t.type" + " FROM " + DatabaseHelper.TRACKS_TABLE_NAME + " t" + " JOIN " + DatabaseHelper.EVENTS_TABLE_NAME
-                        + " e ON t.id = e.track_id" + " WHERE e.day_index = ?" + " GROUP BY t.id" + " ORDER BY t.name ASC", selectionArgs);
-        cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
-        return cursor;
-    }
 
     public Cursor getTracks() {
         Cursor cursor = helper.getReadableDatabase().rawQuery(
@@ -601,45 +581,6 @@ public class DatabaseManager {
         }
     }
 
-    /**
-     * Returns the events for a specified track.
-     *
-     * @param day
-     * @param track
-     * @return A cursor to Events
-     */
-    public Cursor getEvents(Day day, Track track) {
-        String[] selectionArgs = new String[]{String.valueOf(day.getIndex()), track.getName(), track.getType().name()};
-        Cursor cursor = helper
-                .getReadableDatabase()
-                .rawQuery(
-                        "SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, b.event_id"
-                                + " FROM "
-                                + DatabaseHelper.EVENTS_TABLE_NAME
-                                + " e"
-                                + " JOIN "
-                                + DatabaseHelper.EVENTS_TITLES_TABLE_NAME
-                                + " et ON e.id = et.rowid"
-                                + " JOIN "
-                                + DatabaseHelper.DAYS_TABLE_NAME
-                                + " d ON e.day_index = d._index"
-                                + " JOIN "
-                                + DatabaseHelper.TRACKS_TABLE_NAME
-                                + " t ON e.track_id = t.id"
-                                + " LEFT JOIN "
-                                + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
-                                + " ep ON e.id = ep.event_id"
-                                + " LEFT JOIN "
-                                + DatabaseHelper.PERSONS_TABLE_NAME
-                                + " p ON ep.person_id = p.rowid"
-                                + " LEFT JOIN "
-                                + DatabaseHelper.BOOKMARKS_TABLE_NAME
-                                + " b ON e.id = b.event_id"
-                                + " WHERE e.day_index = ? AND t.name = ? AND t.type = ?"
-                                + " GROUP BY e.id" + " ORDER BY e.start_time ASC", selectionArgs);
-        cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
-        return cursor;
-    }
 
     /**
      * Returns the events in the specified time window, ordered by start time. All parameters are optional but at least one must be provided.
