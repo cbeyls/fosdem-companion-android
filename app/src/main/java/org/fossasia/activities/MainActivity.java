@@ -261,7 +261,8 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
                 }
             case R.id.refresh:
 //                startDownloadSchedule();
-                Toast.makeText(getApplication(), "Disabled database refresh, Uncomment line 361 in MainActivity.java", Toast.LENGTH_SHORT).show();
+                // TODO: resolve this
+                Toast.makeText(getApplication(), "Updating database", Toast.LENGTH_SHORT).show();
                 return true;
         }
         return false;
