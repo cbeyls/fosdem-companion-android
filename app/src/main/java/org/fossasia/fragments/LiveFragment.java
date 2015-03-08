@@ -5,12 +5,9 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.example.android.common.view.SlidingTabLayout;
 
 import org.fossasia.R;
 
@@ -27,11 +24,11 @@ public class LiveFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_live, container, false);
-
-        ViewPager pager = (ViewPager) view.findViewById(R.id.pager);
-        pager.setAdapter(livePagerAdapter);
-        SlidingTabLayout slidingTabs = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
-        slidingTabs.setViewPager(pager);
+//
+//        ViewPager pager = (ViewPager) view.findViewById(R.id.pager);
+//        pager.setAdapter(livePagerAdapter);
+//        SlidingTabLayout slidingTabs = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
+//        slidingTabs.setViewPager(pager);
 
         return view;
     }
@@ -52,12 +49,6 @@ public class LiveFragment extends Fragment {
 
         @Override
         public Fragment getItem(int position) {
-            switch (position) {
-                case 0:
-                    return new NextLiveListFragment();
-                case 1:
-                    return new NowLiveListFragment();
-            }
             return null;
         }
 

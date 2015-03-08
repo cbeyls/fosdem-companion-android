@@ -1,13 +1,10 @@
 package org.fossasia.fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.Loader;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -15,11 +12,8 @@ import android.view.View;
 import android.widget.ListView;
 
 import org.fossasia.R;
-import org.fossasia.activities.EventDetailsActivity;
-import org.fossasia.adapters.EventsAdapter;
 import org.fossasia.db.DatabaseManager;
 import org.fossasia.loaders.SimpleCursorLoader;
-import org.fossasia.model.Event;
 import org.fossasia.widgets.BookmarksMultiChoiceModeListener;
 
 /**
@@ -27,12 +21,11 @@ import org.fossasia.widgets.BookmarksMultiChoiceModeListener;
  *
  * @author Christophe Beyls
  */
-public class BookmarksListFragment extends SmoothListFragment implements LoaderCallbacks<Cursor> {
+public class BookmarksListFragment extends SmoothListFragment {
 
     private static final int BOOKMARKS_LOADER_ID = 1;
     private static final String PREF_UPCOMING_ONLY = "bookmarks_upcoming_only";
 
-    private EventsAdapter adapter;
     private boolean upcomingOnly;
 
     private MenuItem filterMenuItem;
@@ -42,8 +35,6 @@ public class BookmarksListFragment extends SmoothListFragment implements LoaderC
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        adapter = new EventsAdapter(getActivity());
-        setListAdapter(adapter);
 
         upcomingOnly = getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean(PREF_UPCOMING_ONLY, false);
 
@@ -61,7 +52,6 @@ public class BookmarksListFragment extends SmoothListFragment implements LoaderC
         setEmptyText(getString(R.string.no_bookmark));
         setListShown(false);
 
-        getLoaderManager().initLoader(BOOKMARKS_LOADER_ID, null, this);
     }
 
     @Override
@@ -95,36 +85,15 @@ public class BookmarksListFragment extends SmoothListFragment implements LoaderC
                 upcomingOnly = !upcomingOnly;
                 updateOptionsMenu();
                 getActivity().getPreferences(Context.MODE_PRIVATE).edit().putBoolean(PREF_UPCOMING_ONLY, upcomingOnly).commit();
-                getLoaderManager().restartLoader(BOOKMARKS_LOADER_ID, null, this);
                 return true;
         }
         return false;
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new BookmarksLoader(getActivity(), upcomingOnly);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (data != null) {
-            adapter.swapCursor(data);
-        }
-
-        setListShown(true);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        adapter.swapCursor(null);
-    }
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        Event event = adapter.getItem(position);
-        Intent intent = new Intent(getActivity(), EventDetailsActivity.class).putExtra(EventDetailsActivity.EXTRA_EVENT, event);
-        startActivity(intent);
+
     }
 
     private static class BookmarksLoader extends SimpleCursorLoader {
