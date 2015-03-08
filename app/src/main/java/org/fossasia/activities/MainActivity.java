@@ -4,11 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.SearchManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -23,7 +20,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -40,7 +36,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
@@ -49,17 +44,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.fossasia.R;
-import org.fossasia.db.DatabaseManager;
 import org.fossasia.fragments.BookmarksListFragment;
 import org.fossasia.fragments.KeySpeakerFragment;
 import org.fossasia.fragments.LiveFragment;
 import org.fossasia.fragments.MapFragment;
 import org.fossasia.fragments.SpeakerFragment;
 import org.fossasia.fragments.TracksListFragment;
-
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 /**
  * Main entry point of the application. Allows to switch between section fragments and update the database.
@@ -68,37 +58,8 @@ import java.util.Locale;
  */
 public class MainActivity extends ActionBarActivity implements ListView.OnItemClickListener {
 
-    private static final long DATABASE_VALIDITY_DURATION = 24L * 60L * 60L * 1000L; // 24h
-    private static final long DOWNLOAD_REMINDER_SNOOZE_DURATION = 24L * 60L * 60L * 1000L; // 24h
-    private static final String PREF_LAST_DOWNLOAD_REMINDER_TIME = "last_download_reminder_time";
     private static final String STATE_CURRENT_SECTION = "current_section";
-    private static final DateFormat LAST_UPDATE_DATE_FORMAT = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, Locale.getDefault());
-    private final BroadcastReceiver scheduleDownloadProgressReceiver = new BroadcastReceiver() {
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            progressBar.setIndeterminate(false);
-        }
-    };
-    private final BroadcastReceiver scheduleDownloadResultReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // Hide the progress bar with a fill and fade out animation
-            progressBar.setIndeterminate(false);
-            progressBar.setProgress(100);
-            progressBar.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, android.R.anim.fade_out));
-            progressBar.setVisibility(View.GONE);
-
-        }
-    };
-    private final BroadcastReceiver scheduleRefreshedReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            updateLastUpdateTime();
-        }
-    };
     private Section currentSection;
     private ProgressBar progressBar;
     private DrawerLayout drawerLayout;
@@ -172,15 +133,12 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
         menuFooterView.findViewById(R.id.about).setOnClickListener(menuFooterClickListener);
         menuListView.addFooterView(menuFooterView, null, false);
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(scheduleRefreshedReceiver, new IntentFilter(DatabaseManager.ACTION_SCHEDULE_REFRESHED));
 
         menuAdapter = new MainMenuAdapter(inflater);
         menuListView.setAdapter(menuAdapter);
         menuListView.setOnItemClickListener(this);
 
-        // Last update date, below the menu
         lastUpdateTextView = (TextView) findViewById(R.id.last_update);
-        updateLastUpdateTime();
 
         // Restore current section
         if (savedInstanceState == null) {
@@ -204,11 +162,6 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
         }
     }
 
-    private void updateLastUpdateTime() {
-        long lastUpdateTime = DatabaseManager.getInstance().getLastUpdateTime();
-        lastUpdateTextView.setText(getString(R.string.last_update,
-                (lastUpdateTime == -1L) ? getString(R.string.never) : LAST_UPDATE_DATE_FORMAT.format(new Date(lastUpdateTime))));
-    }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -238,26 +191,8 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
     @Override
     protected void onStart() {
         super.onStart();
-
-        // Ensure the progress bar is hidden when starting
         progressBar.setVisibility(View.GONE);
 
-
-        // Download reminder
-        long now = System.currentTimeMillis();
-        long time = DatabaseManager.getInstance().getLastUpdateTime();
-        if ((time == -1L) || (time < (now - DATABASE_VALIDITY_DURATION))) {
-            SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
-            time = prefs.getLong(PREF_LAST_DOWNLOAD_REMINDER_TIME, -1L);
-            if ((time == -1L) || (time < (now - DOWNLOAD_REMINDER_SNOOZE_DURATION))) {
-                prefs.edit().putLong(PREF_LAST_DOWNLOAD_REMINDER_TIME, now).commit();
-
-                FragmentManager fm = getSupportFragmentManager();
-                if (fm.findFragmentByTag("download_reminder") == null) {
-//                    new DownloadScheduleReminderDialogFragment().show(fm, "download_reminder");
-                }
-            }
-        }
     }
 
     @Override
@@ -265,18 +200,12 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
         if ((searchMenuItem != null) && (MenuItemCompat.isActionViewExpanded(searchMenuItem))) {
             MenuItemCompat.collapseActionView(searchMenuItem);
         }
-
-        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
-        lbm.unregisterReceiver(scheduleDownloadProgressReceiver);
-        lbm.unregisterReceiver(scheduleDownloadResultReceiver);
-
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(scheduleRefreshedReceiver);
     }
 
     @SuppressLint("NewApi")
