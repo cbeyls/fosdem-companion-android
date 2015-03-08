@@ -112,8 +112,6 @@ public class EventDetailsFragment extends Fragment {
         ((TextView) view.findViewById(R.id.track)).setText(event.getTrack().getName());
         Date startTime = event.getStartTime();
         Date endTime = event.getEndTime();
-        text = String.format("%1$s, %2$s ― %3$s", event.getDay().toString(), (startTime != null) ? TIME_DATE_FORMAT.format(startTime) : "?",
-                (endTime != null) ? TIME_DATE_FORMAT.format(endTime) : "?");
         ((TextView) view.findViewById(R.id.time)).setText(text);
         final String roomName = event.getRoomName();
         TextView roomTextView = (TextView) view.findViewById(R.id.room);

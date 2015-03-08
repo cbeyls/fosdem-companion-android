@@ -4,9 +4,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
-import org.fossasia.api.FosdemUrls;
-import org.fossasia.db.DatabaseManager;
-
 import java.util.Date;
 import java.util.List;
 
@@ -22,7 +19,6 @@ public class Event implements Parcelable {
         }
     };
     private long id;
-    private Day day;
     private Date startTime;
     private Date endTime;
     private String roomName;
@@ -74,14 +70,6 @@ public class Event implements Parcelable {
         this.id = id;
     }
 
-    public Day getDay() {
-        return day;
-    }
-
-    public void setDay(Day day) {
-        this.day = day;
-    }
-
     public Date getStartTime() {
         return startTime;
     }
@@ -129,7 +117,7 @@ public class Event implements Parcelable {
     }
 
     public String getUrl() {
-        return FosdemUrls.getEvent(slug, DatabaseManager.getInstance().getYear());
+        return null;
     }
 
     public String getTitle() {

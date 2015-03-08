@@ -14,12 +14,9 @@ import android.widget.ImageView;
 
 import org.fossasia.R;
 import org.fossasia.fragments.EventDetailsFragment;
-import org.fossasia.fragments.RoomImageDialogFragment;
 import org.fossasia.fragments.TrackScheduleListFragment;
-import org.fossasia.model.Day;
 import org.fossasia.model.Event;
 import org.fossasia.model.Track;
-import org.fossasia.utils.NfcUtils;
 import org.fossasia.utils.NfcUtils.CreateNfcAppDataCallback;
 
 /**
@@ -37,7 +34,6 @@ public class TrackScheduleActivity extends ActionBarActivity
     // Optional extra used as a hint for up navigation from an event
     public static final String EXTRA_FROM_EVENT_ID = "from_event_id";
 
-    private Day day;
     private Track track;
     private boolean isTabletLandscape;
     private Event lastSelectedEvent;
@@ -59,54 +55,9 @@ public class TrackScheduleActivity extends ActionBarActivity
         ActionBar bar = getSupportActionBar();
         bar.setDisplayHomeAsUpEnabled(true);
         bar.setTitle(track.toString());
-        bar.setSubtitle(day.toString());
 
         isTabletLandscape = getResources().getBoolean(R.bool.tablet_landscape);
 
-        TrackScheduleListFragment trackScheduleListFragment;
-        FragmentManager fm = getSupportFragmentManager();
-        if (savedInstanceState == null) {
-            long fromEventId = extras.getLong(EXTRA_FROM_EVENT_ID, -1L);
-            if (fromEventId != -1L) {
-                trackScheduleListFragment = TrackScheduleListFragment.newInstance(day, track, fromEventId);
-            } else {
-                trackScheduleListFragment = TrackScheduleListFragment.newInstance(day, track);
-            }
-            fm.beginTransaction().add(R.id.schedule, trackScheduleListFragment).commit();
-        } else {
-            trackScheduleListFragment = (TrackScheduleListFragment) fm.findFragmentById(R.id.schedule);
-
-            // Cleanup after switching from dual pane to single pane mode
-            if (!isTabletLandscape) {
-                FragmentTransaction ft = null;
-
-                Fragment eventDetailsFragment = fm.findFragmentById(R.id.event);
-                if (eventDetailsFragment != null) {
-                    if (ft == null) {
-                        ft = fm.beginTransaction();
-                    }
-                    ft.remove(eventDetailsFragment);
-                }
-
-                Fragment roomImageDialogFragment = fm.findFragmentByTag(RoomImageDialogFragment.TAG);
-                if (roomImageDialogFragment != null) {
-                    if (ft == null) {
-                        ft = fm.beginTransaction();
-                    }
-                    ft.remove(roomImageDialogFragment);
-                }
-
-                if (ft != null) {
-                    ft.commit();
-                }
-            }
-        }
-        trackScheduleListFragment.setSelectionEnabled(isTabletLandscape);
-
-        if (isTabletLandscape) {
-            // Enable Android Beam
-            NfcUtils.setAppDataPushMessageCallbackIfAvailable(this, this);
-        }
     }
 
     @Override
