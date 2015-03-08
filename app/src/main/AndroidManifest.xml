@@ -54,29 +54,17 @@
                 android:value=".activities.SearchResultActivity"/>
         </activity>
         <activity
-            android:name="org.fossasia.activities.TrackScheduleActivity"
-            android:parentActivityName="org.fossasia.activities.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.fossasia.activities.MainActivity"/>
-        </activity>
-        <activity android:name="org.fossasia.activities.TrackScheduleEventActivity"/>
-        <activity
-            android:name="org.fossasia.activities.EventDetailsActivity"
-            android:parentActivityName="org.fossasia.activities.TrackScheduleActivity">
-            <intent-filter>
+            android:name="org.fossasia.activities.EventDetailsActivity">
+
+        <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
 
                 <category android:name="android.intent.category.DEFAULT"/>
 
                 <data android:mimeType="application/be.fosdem"/>
             </intent-filter>
-
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.fossasia.activities.TrackScheduleActivity"/>
         </activity>
+
         <activity
 
             android:name="org.fossasia.activities.PersonInfoActivity"
