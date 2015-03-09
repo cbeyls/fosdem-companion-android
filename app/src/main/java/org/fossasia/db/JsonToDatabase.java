@@ -204,8 +204,8 @@ public class JsonToDatabase {
                         Speaker tempSpeaker = new Speaker(id2, fullName, "", linkedIn, twitter, organization, url, 0);
                         queries.add(tempSpeaker.generateSqlQuery());
                         queries.add(temp.generateSqlQuery());
-                        String query = "INSERT INTO %s VALUES ('%s', '%s');";
-                        query = String.format(query, DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, fullName, StringUtils.replaceUnicode(topicName));
+                        String query = "INSERT INTO %s VALUES ('%s', %d, '%s');";
+                        query = String.format(query, DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, fullName, id2, StringUtils.replaceUnicode(topicName));
 //                        Log.d(TAG, query);
                         queries.add(query);
 

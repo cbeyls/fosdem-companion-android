@@ -25,13 +25,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public static final String TABLE_NAME_SPEAKER_EVENT_RELATION = "speaker_event_relation";
     private static final String TABLE_SPEAKER_EVENT_RELATION = "CREATE TABLE " + TABLE_NAME_SPEAKER_EVENT_RELATION
-            + " (speaker TEXT, event TEXT);";
+            + " (speaker TEXT, event_id INTEGER, event TEXT);";
     public static final String TABLE_NAME_TRACK = "tracks";
     public static final String TABLE_COLUMN_NAME = "track_name";
     public static final String TABLE_COLOUMN_INFORMATION = "information";
     private static final String TABLE_TRACKS = "CREATE TABLE " + TABLE_NAME_TRACK
             + " (_id INTEGER, " + TABLE_COLUMN_NAME + " TEXT, " + TABLE_COLOUMN_INFORMATION + " TEXT);";
-    private static final String DATABASE_NAME = "fosdem.sqlite";
+    private static final String DATABASE_NAME = "fosdem.sqlite1";
     private static final int DATABASE_VERSION = 1;
 
     public DatabaseHelper(Context context) {

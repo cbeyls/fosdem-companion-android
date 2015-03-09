@@ -204,7 +204,7 @@ public class DatabaseManager {
                 description = cursor.getString(7);
                 venue = cursor.getString(8);
                 track = cursor.getString(9);
-                Cursor cursorSpeaker = helper.getReadableDatabase().rawQuery(String.format("SELECT speaker FROM %s WHERE event='%s'", DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, StringUtils.replaceUnicode(title)), null);
+                Cursor cursorSpeaker = helper.getReadableDatabase().rawQuery(String.format("SELECT speaker FROM %s WHERE event_id=%d", DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, id), null);
                 ArrayList<String> speakers = new ArrayList<String>();
                 if (cursorSpeaker.moveToFirst()) {
                     do {
@@ -248,7 +248,7 @@ public class DatabaseManager {
                 description = cursor.getString(7);
                 venue = cursor.getString(8);
                 track = cursor.getString(9);
-                Cursor cursorSpeaker = helper.getReadableDatabase().rawQuery(String.format("SELECT speaker FROM %s WHERE event='%s'", DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, StringUtils.replaceUnicode(title)), null);
+                Cursor cursorSpeaker = helper.getReadableDatabase().rawQuery(String.format("SELECT speaker FROM %s WHERE event_id=%d", DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, id), null);
                 ArrayList<String> speakers = new ArrayList<String>();
                 if (cursorSpeaker.moveToFirst()) {
                     do {
@@ -303,7 +303,7 @@ public class DatabaseManager {
                     description = cursor.getString(7);
                     venue = cursor.getString(8);
                     track = cursor.getString(9);
-                    Cursor cursorSpeaker = helper.getReadableDatabase().rawQuery(String.format("SELECT speaker FROM %s WHERE event='%s'", DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, title), null);
+                    Cursor cursorSpeaker = helper.getReadableDatabase().rawQuery(String.format("SELECT speaker FROM %s WHERE event_id=%d", DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, id), null);
                     ArrayList<String> speakers = new ArrayList<String>();
                     if (cursorSpeaker.moveToFirst()) {
                         do {
@@ -346,7 +346,7 @@ public class DatabaseManager {
                 description = cursor.getString(7);
                 venue = cursor.getString(8);
                 track = cursor.getString(9);
-                Cursor cursorSpeaker = helper.getReadableDatabase().rawQuery(String.format("SELECT speaker FROM %s WHERE event='%s'", DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, StringUtils.replaceUnicode(title)), null);
+                Cursor cursorSpeaker = helper.getReadableDatabase().rawQuery(String.format("SELECT speaker FROM %s WHERE event_id=%d", DatabaseHelper.TABLE_NAME_SPEAKER_EVENT_RELATION, id), null);
                 ArrayList<String> speakers = new ArrayList<String>();
                 if (cursorSpeaker.moveToFirst()) {
                     do {
