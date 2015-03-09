@@ -62,10 +62,7 @@ public class ScheduleListFragment extends SmoothListFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (track != null) {
-            setEmptyText("No event on this day related to " + track);
-        } else {
-            setEmptyText("No event on this day");
-        }
+        setEmptyText("No sessions on this day");
+
     }
 }

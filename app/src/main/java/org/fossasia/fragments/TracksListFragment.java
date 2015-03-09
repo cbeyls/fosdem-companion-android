@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.fossasia.R;
 import org.fossasia.activities.TrackActivity;
@@ -36,13 +35,9 @@ public class TracksListFragment extends SmoothListFragment {
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
         String text = ((TextView) v.findViewById(R.id.textView_track_title)).getText().toString();
-        Toast.makeText(getActivity(), text, Toast.LENGTH_LONG).show();
         Intent intent = new Intent(getActivity(), TrackActivity.class);
         intent.putExtra("TRACK", text);
         startActivity(intent);
-//
-//        getFragmentManager().beginTransaction().replace(R.id.content, ScheduleFragment.newInstance(text), ScheduleFragment.TAG).addToBackStack(null).commit();
-
     }
 
     @Override

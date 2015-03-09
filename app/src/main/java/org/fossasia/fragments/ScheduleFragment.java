@@ -45,6 +45,10 @@ public class ScheduleFragment extends Fragment {
             DatabaseManager db = DatabaseManager.getInstance();
 
             ArrayList<Day> days = db.getDates(track);
+            ArrayList<Day> staticDays = new ArrayList<>();
+            staticDays.add(new Day(0, "March 13"));
+            staticDays.add(new Day(1, "March 14"));
+            staticDays.add(new Day(2, "March 15"));
             String subTitle = "";
             for(Day day : days) {
                 if(days.indexOf(day) != 0) {
@@ -54,7 +58,7 @@ public class ScheduleFragment extends Fragment {
 
             }
             ((ActionBarActivity)getActivity()).getSupportActionBar().setSubtitle(subTitle);
-            daysAdapter = new DayLoader(getChildFragmentManager(), track, days);
+            daysAdapter = new DayLoader(getChildFragmentManager(), track, staticDays);
         }
 
 
