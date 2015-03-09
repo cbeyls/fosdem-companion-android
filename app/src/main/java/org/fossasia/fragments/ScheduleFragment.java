@@ -1,12 +1,18 @@
 package org.fossasia.fragments;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -42,26 +48,37 @@ public class ScheduleFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             String track = getArguments().getString("TRACK");
-            DatabaseManager db = DatabaseManager.getInstance();
 
-            ArrayList<Day> days = db.getDates(track);
+
             ArrayList<Day> staticDays = new ArrayList<>();
             staticDays.add(new Day(0, "March 13"));
             staticDays.add(new Day(1, "March 14"));
             staticDays.add(new Day(2, "March 15"));
-            String subTitle = "";
-            for(Day day : days) {
-                if(days.indexOf(day) != 0) {
-                    subTitle += ", ";
-                }
-                subTitle += day.getDate();
 
-            }
-            ((ActionBarActivity)getActivity()).getSupportActionBar().setSubtitle(subTitle);
+
+
+
             daysAdapter = new DayLoader(getChildFragmentManager(), track, staticDays);
         }
 
 
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        DatabaseManager db = DatabaseManager.getInstance();
+        String track = getArguments().getString("TRACK");
+        ArrayList<Day> days = db.getDates(track);
+        String subTitle = "";
+        for(Day day : days) {
+            if(days.indexOf(day) != 0) {
+                subTitle += ", ";
+            }
+            subTitle += day.getDate();
+
+        }
+        ((ActionBarActivity)getActivity()).getSupportActionBar().setSubtitle(subTitle);
     }
 
     @Override
@@ -87,6 +104,31 @@ public class ScheduleFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         holder = null;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.map, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.directions:
+                launchDirections();
+                return true;
+        }
+        return false;
+    }
+
+    private void launchDirections() {
+        // Build intent to start Google Maps directions
+//        String uri = String.format(Locale.US,
+//                "https://www.google.com/maps/search/%1$s/@%2$f,%3$f,17z
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com.sg/maps/place/Biopolis/@1.304256,103.79179,16z/data=!4m2!3m1!1s0x0:0x9965b36cbf8d88c3"));
+
+        startActivity(intent);
     }
 
     private static class ViewHolder {
