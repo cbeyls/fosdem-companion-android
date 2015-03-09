@@ -152,6 +152,7 @@ public class JsonToDatabase {
                 String description;
                 String url;
                 String fullName;
+                String linkedIn;
 
 
                 for (int i = 0; i < jsonArray.length(); i++) {
@@ -184,6 +185,8 @@ public class JsonToDatabase {
                                 .getString("v");
                         url = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(Constants.URL)
                                 .getString("v");
+                        linkedIn = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(Constants.LINKEDIN)
+                                .getString("v");
                         String logData = "First Name: %s\nLast Name: %s\nDate: %s\nTime: %s\nOrganization: %s\nEmail: %s\nBlog: %s\nTwitter: %s\nType Of Proposal: %s\nTopic Name:%s\nTrack: %s\nAbstarct: %s\nDescription: %s\nURL: %s";
                         logData = String.format(logData, firstName, lastName, date, time, organization, email, blog, twitter, typeOfProposal, topicName, field, proposalAbstract, description, url);
 //                        Log.d(TAG, logData);
@@ -198,7 +201,7 @@ public class JsonToDatabase {
 
 
                         fullName = firstName + " " + lastName;
-                        Speaker tempSpeaker = new Speaker(id2, fullName, "", "", twitter, organization, url, 0);
+                        Speaker tempSpeaker = new Speaker(id2, fullName, "", linkedIn, twitter, organization, url, 0);
                         queries.add(tempSpeaker.generateSqlQuery());
                         queries.add(temp.generateSqlQuery());
                         String query = "INSERT INTO %s VALUES ('%s', '%s');";
