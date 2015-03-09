@@ -8,9 +8,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.URLUtil;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.toolbox.NetworkImageView;
 
@@ -20,6 +22,7 @@ import org.fossasia.adapters.ScheduleAdapter;
 import org.fossasia.db.DatabaseManager;
 import org.fossasia.model.FossasiaEvent;
 import org.fossasia.model.Speaker;
+import org.fossasia.utils.VolleySingleton;
 
 import java.util.ArrayList;
 
@@ -97,12 +100,69 @@ public class PersonInfoListFragment extends SmoothListFragment {
         name.setText(person.getName());
         designation.setText(person.getDesignation());
         information.setText(person.getInformation());
+        if (person.getProfilePicUrl() != null && person.getProfilePicUrl().equals("")) {
+            speakerImage.setImageUrl("http://forschdb.verwaltung.uni-freiburg.de/pix/forschdb/mitarbeiter_12821_20141208121645.png", VolleySingleton.getImageLoader(getActivity().getApplicationContext()));
+        } else {
+            speakerImage.setImageUrl(person.getProfilePicUrl(), VolleySingleton.getImageLoader(getActivity().getApplicationContext()));
+        }
         if (person.getLinkedInUrl() == null || person.getLinkedInUrl().equals("")) {
             linkedIn.setVisibility(View.GONE);
         }
         if (person.getTwitterHandle() == null || person.getTwitterHandle().equals("")) {
             twitter.setVisibility(View.GONE);
         }
+
+        //
+        if (person.getLinkedInUrl().length() == 0 || person.getLinkedInUrl().equals("")) {
+            linkedIn.setVisibility(View.GONE);
+        } else {
+            linkedIn.setVisibility(View.VISIBLE);
+            linkedIn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String url = person.getLinkedInUrl();
+                    if (URLUtil.isValidUrl(url)) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        getActivity().getApplicationContext().startActivity(intent);
+
+                    } else {
+                        Toast.makeText(getActivity().getApplicationContext(), "Invalid linkedin handle", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+
+        if (person.getTwitterHandle().length() == 0 || person.getTwitterHandle().equals("")) {
+            twitter.setVisibility(View.GONE);
+        } else {
+            twitter.setVisibility(View.VISIBLE);
+            twitter.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    String url = person.getTwitterHandle();
+                    if (URLUtil.isValidUrl(url)) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        getActivity().getApplicationContext().startActivity(intent);
+
+                    } else if (url.contains("@")) {
+                        url = url.replace("@", "");
+                        url = "http://twitter.com/" + url;
+                        if (URLUtil.isValidUrl(url)) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            getActivity().getApplicationContext().startActivity(intent);
+                        }
+                    } else {
+                        Toast.makeText(getActivity(), "Invalid twitter handle", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+
+        //
 
         DatabaseManager dbManager = DatabaseManager.getInstance();
         events = dbManager.getEventBySpeaker(person.getName());

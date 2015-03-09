@@ -86,14 +86,23 @@ public class SpeakerAdapter extends BaseAdapter {
             holder.information.setVisibility(View.VISIBLE);
             holder.information.setText(speaker.getInformation());
         }
-        if (speaker.getLinkedInUrl().length() == 0) {
+        if (speaker.getLinkedInUrl().length() == 0 || speaker.getLinkedInUrl().equals("")) {
             holder.linkedIn.setVisibility(View.GONE);
         } else {
             holder.linkedIn.setVisibility(View.VISIBLE);
             holder.linkedIn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(mContext, "LinkedIn Clicked at position: " + position, Toast.LENGTH_SHORT).show();
+                    String url = speaker.getLinkedInUrl();
+                    if(URLUtil.isValidUrl(url)) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        mContext.startActivity(intent);
+
+                    }
+                    else {
+                        Toast.makeText(mContext, "Invalid Linkedin handle", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
         }

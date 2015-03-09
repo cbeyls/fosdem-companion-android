@@ -41,4 +41,8 @@ public class PersonInfoActivity extends ActionBarActivity {
         return false;
     }
 
+    @Override
+    public void onBackPressed() {
+        finish();
+    }
 }
