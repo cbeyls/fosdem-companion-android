@@ -554,6 +554,15 @@ public class DatabaseManager {
         return queryNumEntries(helper.getReadableDatabase(), DatabaseHelper.BOOKMARKS_TABLE_NAME, "event_id = ?", selectionArgs) > 0L;
     }
 
+    public String getTrackMapUrl(String track) {
+        Cursor cursor = helper.getReadableDatabase().rawQuery(String.format("SELECT map FROM %s WHERE track='%s'", DatabaseHelper.TABLE_NAME_TRACK_VENUE, track), null);
+        String map = "htttp://maps.google.com/";
+        if(cursor.moveToFirst()) {
+            map = cursor.getString(0);
+        }
+        cursor.close();
+        return map;
+    }
 
     public boolean addBookmark(FossasiaEvent event) {
         boolean complete = false;

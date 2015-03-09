@@ -77,6 +77,7 @@ public class JsonToDatabase {
                 String name;
                 String url;
                 String venue;
+                String mapLocation;
                 String version;
                 String forceTrack;
 
@@ -88,8 +89,13 @@ public class JsonToDatabase {
                                 .getString("f");
                         venue = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(2)
                                 .getString("v");
-                        version = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(3)
+                        version = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(8)
                                 .getString("v");
+                        mapLocation = jsonArray.getJSONObject(i).getJSONArray("c").getJSONObject(5)
+                                .getString("v");
+                        String query = "INSERT INTO %s VALUES (%d, '%s', '%s', '%s');";
+                        query = String.format(query, DatabaseHelper.TABLE_NAME_TRACK_VENUE, i, name, venue, mapLocation);
+                        queries.add(query);
 
                         Log.d(TAG, name);
 
