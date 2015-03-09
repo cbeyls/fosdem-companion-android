@@ -69,8 +69,8 @@ public class ScheduleAdapter extends BaseAdapter {
         //
         String title = fossasiaEvent.getTitle();
         String subTitle = "";
-        if (fossasiaEvent.getSubTitle() != null && !fossasiaEvent.getSubTitle().equals("")) {
-            subTitle = "\n" + fossasiaEvent.getSubTitle();
+        if (fossasiaEvent.getPersonSummary() != null && !fossasiaEvent.getPersonSummary().equals("")) {
+            subTitle = "\n" + fossasiaEvent.getPersonSummary();
         }
         SpannableString styledString = new SpannableString(title + subTitle);
         styledString.setSpan(new StyleSpan(Typeface.BOLD), 0, title.length(), 0);
