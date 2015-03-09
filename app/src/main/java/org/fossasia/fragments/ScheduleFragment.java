@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +43,18 @@ public class ScheduleFragment extends Fragment {
         if (getArguments() != null) {
             String track = getArguments().getString("TRACK");
             DatabaseManager db = DatabaseManager.getInstance();
-            daysAdapter = new DayLoader(getChildFragmentManager(), track, db.getDates(track));
+
+            ArrayList<Day> days = db.getDates(track);
+            String subTitle = "";
+            for(Day day : days) {
+                if(days.indexOf(day) != 0) {
+                    subTitle += ", ";
+                }
+                subTitle += day.getDate();
+
+            }
+            ((ActionBarActivity)getActivity()).getSupportActionBar().setSubtitle(subTitle);
+            daysAdapter = new DayLoader(getChildFragmentManager(), track, days);
         }
 
 

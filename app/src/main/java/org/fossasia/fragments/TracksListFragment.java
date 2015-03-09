@@ -1,5 +1,6 @@
 package org.fossasia.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.fossasia.R;
+import org.fossasia.activities.TrackActivity;
 import org.fossasia.db.DatabaseHelper;
 import org.fossasia.db.DatabaseManager;
 
@@ -35,7 +37,11 @@ public class TracksListFragment extends SmoothListFragment {
         super.onListItemClick(l, v, position, id);
         String text = ((TextView) v.findViewById(R.id.textView_track_title)).getText().toString();
         Toast.makeText(getActivity(), text, Toast.LENGTH_LONG).show();
-        getFragmentManager().beginTransaction().replace(R.id.content, ScheduleFragment.newInstance(text), ScheduleFragment.TAG).addToBackStack(null).commit();
+        Intent intent = new Intent(getActivity(), TrackActivity.class);
+        intent.putExtra("TRACK", text);
+        startActivity(intent);
+//
+//        getFragmentManager().beginTransaction().replace(R.id.content, ScheduleFragment.newInstance(text), ScheduleFragment.TAG).addToBackStack(null).commit();
 
     }
 

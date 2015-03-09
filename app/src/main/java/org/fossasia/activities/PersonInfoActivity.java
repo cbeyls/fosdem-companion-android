@@ -26,7 +26,8 @@ public class PersonInfoActivity extends ActionBarActivity {
 
         if (savedInstanceState == null) {
             Fragment f = PersonInfoListFragment.newInstance(person);
-            getSupportFragmentManager().beginTransaction().add(R.id.content, f).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.content, f).addToBackStack(null).commit();
+
         }
     }
 
@@ -39,4 +40,5 @@ public class PersonInfoActivity extends ActionBarActivity {
         }
         return false;
     }
+
 }

@@ -18,7 +18,8 @@ public class Constants {
     public final static int TRACK = 19;
     public final static int ABSTRACT = 20;
     public final static int DESCRIPTION = 21;
-    public final static int URL = 23;
+    public final static int URL = 22;
+    public final static int LINKEDIN = 23;
 
 
 }

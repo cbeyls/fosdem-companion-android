@@ -1,9 +1,12 @@
 package org.fossasia.adapters;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.URLUtil;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -67,7 +70,7 @@ public class SpeakerAdapter extends BaseAdapter {
         holder.information = (TextView) row.findViewById(R.id.textView_speaker_information);
         holder.linkedIn = (ImageView) row.findViewById(R.id.imageView_linkedin);
         holder.twitter = (ImageView) row.findViewById(R.id.imageView_twitter);
-        Speaker speaker = getItem(position);
+        final Speaker speaker = getItem(position);
         if (speaker.getProfilePicUrl() != null && speaker.getProfilePicUrl().equals("")) {
             holder.speakerImage.setImageUrl("http://forschdb.verwaltung.uni-freiburg.de/pix/forschdb/mitarbeiter_12821_20141208121645.png", VolleySingleton.getImageLoader(mContext));
         } else {
@@ -95,14 +98,34 @@ public class SpeakerAdapter extends BaseAdapter {
             });
         }
 
-        if (speaker.getTwitterHandle().length() == 0) {
+        if (speaker.getTwitterHandle().length() == 0 || speaker.getTwitterHandle().equals("")) {
             holder.twitter.setVisibility(View.GONE);
         } else {
             holder.twitter.setVisibility(View.VISIBLE);
             holder.twitter.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(mContext, "Twitter Clicked at position: " + position, Toast.LENGTH_SHORT).show();
+
+                    String url = speaker.getTwitterHandle();
+                    if(URLUtil.isValidUrl(url)) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        mContext.startActivity(intent);
+
+                    }
+                    else if(url.contains("@")) {
+                        url = url.replace("@", "");
+                        url = "http://twitter.com/" + url;
+                        if(URLUtil.isValidUrl(url))
+                        {
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            mContext.startActivity(intent);
+                        }
+                    }
+                    else {
+                        Toast.makeText(mContext, "Invalid twitter handle", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
         }
