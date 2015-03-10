@@ -132,13 +132,14 @@ public class StringUtils {
 
 
     public static Date StringToDate(String sDate, String sTime) {
+        // TODO: Remove hard coding of month
         if (sTime != null) {
             sTime = sTime.replaceAll(" ", "");
             String amPm = sTime.substring(Math.max(sTime.length() - 2, 0));
             String time = sTime.substring(0, sTime.length() - 2);
             String[] hrMin = time.split(":");
             Calendar cal = Calendar.getInstance();
-            String[] date = sDate.split("/");
+            String[] date = sDate.split(" ");
             int hour = Integer.parseInt(hrMin[0]);
             int min = Integer.parseInt(hrMin[1]);
 
@@ -150,14 +151,14 @@ public class StringUtils {
                 if (hour == 12) {
                     hour = 0;
                 }
-            cal.set(Integer.parseInt(date[2]), Integer.parseInt(date[1]) - 1, Integer.parseInt(date[0]), hour, min);
+            cal.set(2015, Calendar.MARCH, Integer.parseInt(date[1]), hour, min);
             return cal.getTime();
         }
 
 
         Calendar cal = Calendar.getInstance();
-        String[] date = sDate.split("/");
-        cal.set(Integer.parseInt(date[2]), Integer.parseInt(date[1]) - 1, Integer.parseInt(date[0]));
+        String[] date = sDate.split(" ");
+        cal.set(2015, Calendar.MARCH, Integer.parseInt(date[1]));
         if (sTime != null) {
         }
         return cal.getTime();
