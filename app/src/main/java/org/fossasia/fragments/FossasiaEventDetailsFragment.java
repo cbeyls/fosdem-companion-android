@@ -146,10 +146,11 @@ public class FossasiaEventDetailsFragment extends Fragment {
     private MenuItem bookmarkMenuItem;
     private ImageView actionButton;
 
-    public static FossasiaEventDetailsFragment newInstance(FossasiaEvent event) {
+    public static FossasiaEventDetailsFragment newInstance(FossasiaEvent event, String map) {
         FossasiaEventDetailsFragment f = new FossasiaEventDetailsFragment();
         Bundle args = new Bundle();
         args.putParcelable(ARG_EVENT, event);
+        args.putString("MAP", map);
         f.setArguments(args);
         return f;
     }
@@ -205,17 +206,19 @@ public class FossasiaEventDetailsFragment extends Fragment {
         Spannable roomText = new SpannableString(String.format("%1$s", venue));
         final int roomImageResId = getResources().getIdentifier(StringUtils.roomNameToResourceName(venue), "drawable", getActivity().getPackageName());
         // If the room image exists, make the room text clickable to display it
-        if (roomImageResId != 0) {
-            roomText.setSpan(new UnderlineSpan(), 0, roomText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            roomTextView.setOnClickListener(new View.OnClickListener() {
+        roomText.setSpan(new UnderlineSpan(), 0, roomText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        final String map = getArguments().getString("MAP");
+        roomTextView.setOnClickListener(new View.OnClickListener() {
 
-                @Override
-                public void onClick(View view) {
-                    RoomImageDialogFragment.newInstance(venue, roomImageResId).show(getFragmentManager());
-                }
-            });
-            roomTextView.setFocusable(true);
-        }
+            @Override
+            public void onClick(View view) {
+
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(map));
+
+                startActivity(intent);
+            }
+        });
+        roomTextView.setFocusable(true);
         roomTextView.setText(roomText);
 
         textView = (TextView) view.findViewById(R.id.abstract_text);

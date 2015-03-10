@@ -149,6 +149,7 @@ public class ScheduleFragment extends Fragment {
 
         @Override
         public Fragment getItem(int position) {
+
             return ScheduleListFragment.newInstance(days.get(position).getDate(), track);
         }
 

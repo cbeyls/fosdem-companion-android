@@ -34,13 +34,15 @@ public class EventDetailsActivity extends ActionBarActivity implements CreateNfc
 
 
         FossasiaEvent event = getIntent().getParcelableExtra(EXTRA_EVENT);
+        String map = getIntent().getStringExtra("MAP");
         bar.setTitle(event.getTitle());
         bar.setSubtitle(event.getSubTitle());
 
         // The event has been passed as parameter, it can be displayed immediately
         initEvent(event);
+
         if (savedInstanceState == null) {
-            Fragment f = FossasiaEventDetailsFragment.newInstance(event);
+            Fragment f = FossasiaEventDetailsFragment.newInstance(event, map);
             getSupportFragmentManager().beginTransaction().add(R.id.content, f).commit();
         }
 

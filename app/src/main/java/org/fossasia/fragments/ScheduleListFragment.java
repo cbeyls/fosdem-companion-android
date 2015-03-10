@@ -55,6 +55,9 @@ public class ScheduleListFragment extends SmoothListFragment {
         Toast.makeText(getActivity(), "Position: " + idNew, Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(getActivity().getApplicationContext(), EventDetailsActivity.class);
         intent.putExtra("event", events.get(position));
+        DatabaseManager db = DatabaseManager.getInstance();
+        String map = db.getTrackMapUrl(track);
+        intent.putExtra("MAP", map);
         startActivity(intent);
         super.onListItemClick(l, v, position, id);
     }
