@@ -25,66 +25,64 @@ import android.widget.LinearLayout;
 
 class SlidingTabStrip extends LinearLayout {
 
-	private static final int DEFAULT_INDICATOR_HEIGHT_DIPS = 3;
+    private static final int DEFAULT_INDICATOR_HEIGHT_DIPS = 3;
+    private final Paint mSelectedIndicatorPaint;
+    private int mSelectedIndicatorHeight;
+    private int mSelectedPosition;
+    private float mSelectionOffset;
 
-	private int mSelectedIndicatorHeight;
-	private final Paint mSelectedIndicatorPaint;
+    SlidingTabStrip(Context context) {
+        this(context, null);
+    }
 
-	private int mSelectedPosition;
-	private float mSelectionOffset;
+    SlidingTabStrip(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        setWillNotDraw(false);
 
-	SlidingTabStrip(Context context) {
-		this(context, null);
-	}
+        final float density = getResources().getDisplayMetrics().density;
+        mSelectedIndicatorHeight = (int) (DEFAULT_INDICATOR_HEIGHT_DIPS * density);
+        mSelectedIndicatorPaint = new Paint();
+    }
 
-	SlidingTabStrip(Context context, AttributeSet attrs) {
-		super(context, attrs);
-		setWillNotDraw(false);
+    void setSelectedIndicatorColor(int color) {
+        mSelectedIndicatorPaint.setColor(color);
+        invalidate();
+    }
 
-		final float density = getResources().getDisplayMetrics().density;
-		mSelectedIndicatorHeight = (int) (DEFAULT_INDICATOR_HEIGHT_DIPS * density);
-		mSelectedIndicatorPaint = new Paint();
-	}
+    void setSelectedIndicatorHeight(int height) {
+        mSelectedIndicatorHeight = height;
+        invalidate();
+    }
 
-	void setSelectedIndicatorColor(int color) {
-		mSelectedIndicatorPaint.setColor(color);
-		invalidate();
-	}
+    void onViewPagerPageChanged(int position, float positionOffset) {
+        mSelectedPosition = position;
+        mSelectionOffset = positionOffset;
+        invalidate();
+    }
 
-	void setSelectedIndicatorHeight(int height) {
-		mSelectedIndicatorHeight = height;
-		invalidate();
-	}
+    @Override
+    protected void onDraw(Canvas canvas) {
+        final int height = getHeight();
+        final int childCount = getChildCount();
 
-	void onViewPagerPageChanged(int position, float positionOffset) {
-		mSelectedPosition = position;
-		mSelectionOffset = positionOffset;
-		invalidate();
-	}
+        // Thick colored underline below the current selection
+        if (childCount > 0) {
+            View selectedTitle = getChildAt(mSelectedPosition);
+            int left = selectedTitle.getLeft();
+            int right = selectedTitle.getRight();
 
-	@Override
-	protected void onDraw(Canvas canvas) {
-		final int height = getHeight();
-		final int childCount = getChildCount();
+            if (mSelectionOffset > 0f && mSelectedPosition < (getChildCount() - 1)) {
+                // Draw the selection partway between the tabs
+                View nextTitle = getChildAt(mSelectedPosition + 1);
+                left = (int) (mSelectionOffset * nextTitle.getLeft() +
+                        (1.0f - mSelectionOffset) * left);
+                right = (int) (mSelectionOffset * nextTitle.getRight() +
+                        (1.0f - mSelectionOffset) * right);
+            }
 
-		// Thick colored underline below the current selection
-		if (childCount > 0) {
-			View selectedTitle = getChildAt(mSelectedPosition);
-			int left = selectedTitle.getLeft();
-			int right = selectedTitle.getRight();
-
-			if (mSelectionOffset > 0f && mSelectedPosition < (getChildCount() - 1)) {
-				// Draw the selection partway between the tabs
-				View nextTitle = getChildAt(mSelectedPosition + 1);
-				left = (int) (mSelectionOffset * nextTitle.getLeft() +
-						(1.0f - mSelectionOffset) * left);
-				right = (int) (mSelectionOffset * nextTitle.getRight() +
-						(1.0f - mSelectionOffset) * right);
-			}
-
-			canvas.drawRect(left, height - mSelectedIndicatorHeight, right,
-					height, mSelectedIndicatorPaint);
-		}
-	}
+            canvas.drawRect(left, height - mSelectedIndicatorHeight, right,
+                    height, mSelectedIndicatorPaint);
+        }
+    }
 
 }
