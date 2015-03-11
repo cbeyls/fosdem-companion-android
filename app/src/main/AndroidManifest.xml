@@ -6,16 +6,32 @@
     android:versionName="1.0b" >
 
     <uses-sdk
-        android:minSdkVersion="7"
+        android:minSdkVersion="9"
         android:targetSdkVersion="21" />
 
+    <permission
+        android:name="org.fossasia.permission.MAPS_RECEIVE"
+        android:protectionLevel="signature" />
+
+    <!-- Permission to receive Google Maps -->
+    <uses-permission android:name="org.fossasia.permission.MAPS_RECEIVE" />
+
+    <!-- Permission to read Google Services -->
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission  android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.NFC" />
 
     <!-- Permissions required for alarms -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
+
 
     <!-- Make touch screen optional since all screens can be used with a pad -->
     <uses-feature
@@ -24,7 +40,7 @@
 
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="18" />
+          />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
@@ -127,6 +143,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.fossasia.activities.MainActivity" />
         </activity>
+
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyCBsOt_xE05CaQ5JoQb_7CJ6vFuv-7Zl4I"/>
     </application>
 
 </manifest>

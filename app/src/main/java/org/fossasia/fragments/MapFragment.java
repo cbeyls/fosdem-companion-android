@@ -1,6 +1,11 @@
 package org.fossasia.fragments;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,6 +16,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import org.fossasia.R;
 
 import java.util.Locale;
@@ -20,6 +34,8 @@ public class MapFragment extends Fragment {
     private static final double DESTINATION_LATITUDE = 1.29677;
     private static final double DESTINATION_LONGITUDE = 103.786914;
     private static final String DESTINATION_NAME = "Plug-In@Blk71";
+    private GoogleMap mMap;
+    private int resultCode;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -29,7 +45,78 @@ public class MapFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_map, container, false);
+        final View v = inflater.inflate(R.layout.fragment_map, container, false);
+
+        resultCode= GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity());
+        if(resultCode != ConnectionResult.SUCCESS)
+        {
+            Dialog dialog = GooglePlayServicesUtil.getErrorDialog(resultCode, getActivity(), 69);
+            dialog.setCancelable(true);
+
+            dialog.show();
+        }
+        else {
+            mMap = ((SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map)).getMap();
+
+
+            MarkerOptions markerOptions;
+            LatLng position;
+
+            markerOptions = new MarkerOptions();
+
+            if (isGoogleMapsInstalled()) {
+                position = new LatLng(DESTINATION_LATITUDE, DESTINATION_LONGITUDE);
+                markerOptions.position(position);
+                markerOptions.title(DESTINATION_NAME);
+                mMap.addMarker(markerOptions);
+                CameraUpdate cameraPosition = CameraUpdateFactory.newLatLngZoom(position, 15.0f);
+                mMap.animateCamera(cameraPosition);
+            }
+            else
+            {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setMessage("Please install Google Maps");
+                builder.setCancelable(true);
+                builder.setPositiveButton("Install", getGoogleMapsListener());
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        }
+        return v;
+    }
+
+    /*
+    *
+    * Check GoogleMaps App is installed or Not in phone
+    * */
+    public boolean isGoogleMapsInstalled()
+    {
+        try
+        {
+            ApplicationInfo info = getActivity().getPackageManager().getApplicationInfo("com.google.android.apps.maps", 0);
+            return true;
+        }
+        catch(PackageManager.NameNotFoundException e)
+        {
+            return false;
+        }
+    }
+
+    /*
+    *
+    * If GoogleMaps is not , then install from Google Playstore
+    *
+    * */
+    public DialogInterface.OnClickListener getGoogleMapsListener() {
+        return new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.google.android.apps.maps"));
+                startActivity(intent);
+
+
+            }
+        };
     }
 
     @Override
