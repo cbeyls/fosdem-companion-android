@@ -1,8 +1,8 @@
-# FOSDEM Companion
+# FOSSASIA Companion
 
-Advanced native Android schedule browser application for the [FOSDEM](http://fosdem.org/) conference in Brussels, Belgium.
+Advanced native Android schedule browser application for the [FOSSASIA](http://fossasia.org/) conference in Singapore.
 
-This is a new implementation of the [legacy FOSDEM app](https://github.com/rkallensee/fosdem-android/). The code has been rewritten from scratch and the features have been extended. It uses loaders and fragments extensively and is backward compatible up to Android 2.1 thanks to the support library.
+This is build upon the [FOSDEM Companion For android](https://github.com/cbeyls/fosdem-companion-android). It uses loaders and fragments extensively and is backward compatible up to Android 2.1 thanks to the support library.
 
 To get more information and install the app, look at the [Google Play Store](https://play.google.com/store/apps/details?id=be.digitalia.fosdem) page.
 
@@ -27,7 +27,14 @@ The result apk file will be placed in ```app/build/outputs/apk/```.
 * [Android Support Library](http://developer.android.com/tools/support-library/) by The Android Open Source Project
 * [ViewPagerIndicator](http://viewpagerindicator.com/) by Jake Wharton
 * [PhotoView](https://github.com/chrisbanes/PhotoView) by Chris Banes
+* [Volley Library](https://android.googlesource.com/platform/frameworks/volley)
 
 ## Contributors
 
 * Christophe Beyls
+* Abhishek Batra
+* Manan Wason
+* Pratik Todi
+* Mario Behling
+* Tymon Radzik
+
