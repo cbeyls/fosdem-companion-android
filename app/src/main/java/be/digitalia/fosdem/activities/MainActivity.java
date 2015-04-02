@@ -82,8 +82,7 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		private final int iconResId;
 		private final boolean keep;
 
-		private Section(Class<? extends Fragment> fragmentClass, @StringRes int titleResId,
-						@DrawableRes int iconResId, boolean keep) {
+		private Section(Class<? extends Fragment> fragmentClass, int titleResId, int iconResId, boolean keep) {
 			this.fragmentClassName = fragmentClass.getName();
 			this.titleResId = titleResId;
 			this.iconResId = iconResId;
@@ -94,10 +93,12 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 			return fragmentClassName;
 		}
 
+		@StringRes
 		public int getTitleResId() {
 			return titleResId;
 		}
 
+		@DrawableRes
 		public int getIconResId() {
 			return iconResId;
 		}
@@ -453,10 +454,10 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 
 	private class MainMenuAdapter extends BaseAdapter {
 
-		private Section[] sections = Section.values();
-		private LayoutInflater inflater;
-		private int currentSectionForegroundColor;
-		private int currentSectionBackgroundColor;
+		private final Section[] sections = Section.values();
+		private final LayoutInflater inflater;
+		private final int currentSectionForegroundColor;
+		private final int currentSectionBackgroundColor;
 
 		public MainMenuAdapter(LayoutInflater inflater) {
 			this.inflater = inflater;

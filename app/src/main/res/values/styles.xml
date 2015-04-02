@@ -20,7 +20,7 @@
         <item name="android:scrollViewStyle">@style/ScrollView.Fosdem</item>
     </style>
 
-    <style name="AppTheme.NoActionBar" tools:ignore="newApi">
+    <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
         <!-- Allows the action mode icons to be shown on top of the Toolbar -->
