@@ -1,5 +1,10 @@
 package be.digitalia.fosdem.utils;
 
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+import android.support.v4.content.LocalBroadcastManager;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,6 +12,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.zip.GZIPInputStream;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -14,11 +20,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-
-import android.content.Context;
-import android.content.Intent;
-import android.os.Build;
-import android.support.v4.content.LocalBroadcastManager;
 
 /**
  * Utility class to perform HTTP requests.
@@ -85,11 +86,14 @@ public class HttpUtils {
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setReadTimeout(DEFAULT_TIMEOUT);
 		connection.setConnectTimeout(DEFAULT_TIMEOUT);
+		// We handle gzip manually to avoid EOFException bug in many Android versions when server returns HTTP 304
+		connection.addRequestProperty("Accept-Encoding", "gzip");
 		if (lastModified != null) {
 			connection.addRequestProperty("If-Modified-Since", lastModified);
 		}
 		connection.connect();
 
+		String contentEncoding = connection.getHeaderField("Content-Encoding");
 		result.lastModified = connection.getHeaderField("Last-Modified");
 
 		int responseCode = connection.getResponseCode();
@@ -106,24 +110,26 @@ public class HttpUtils {
 
 		final int length = connection.getContentLength();
 		result.inputStream = new BufferedInputStream(connection.getInputStream());
-		if ((progressAction == null) || (length == -1)) {
-			// No progress support
-			return result;
+
+		if ((progressAction != null) && (length != -1)) {
+			// Broadcast the progression in percents, with a precision of 1/10 of the total file size
+			result.inputStream = new ByteCountInputStream(result.inputStream,
+					new ByteCountInputStream.ByteCountListener() {
+
+						private LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(context);
+
+						@Override
+						public void onNewCount(int byteCount) {
+							// Cap percent to 100
+							int percent = (byteCount >= length) ? 100 : byteCount * 100 / length;
+							lbm.sendBroadcast(new Intent(progressAction).putExtra(progressExtra, percent));
+						}
+					}, length / 10);
 		}
 
-		// Broadcast the progression in percents, with a precision of 1/10 of the total file size
-		result.inputStream = new ByteCountInputStream(result.inputStream,
-				new ByteCountInputStream.ByteCountListener() {
-
-					private LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(context);
-
-					@Override
-					public void onNewCount(int byteCount) {
-						// Cap percent to 100
-						int percent = (byteCount >= length) ? 100 : byteCount * 100 / length;
-						lbm.sendBroadcast(new Intent(progressAction).putExtra(progressExtra, percent));
-					}
-				}, length / 10);
+		if ("gzip".equals(contentEncoding)) {
+			result.inputStream = new GZIPInputStream(result.inputStream);
+		}
 		return result;
 	}
 }
