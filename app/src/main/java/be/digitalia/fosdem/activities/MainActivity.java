@@ -562,8 +562,12 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 				title = getString(R.string.app_name);
 			}
 
-			return new AlertDialog.Builder(context).setTitle(title).setIcon(R.drawable.ic_launcher).setMessage(getResources().getText(R.string.about_text))
-					.setPositiveButton(android.R.string.ok, null).create();
+			return new AlertDialog.Builder(context)
+					.setTitle(title)
+					.setIcon(R.mipmap.ic_launcher)
+					.setMessage(getResources().getText(R.string.about_text))
+					.setPositiveButton(android.R.string.ok, null)
+					.create();
 		}
 
 		@Override
