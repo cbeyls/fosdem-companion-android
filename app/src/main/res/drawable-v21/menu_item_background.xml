@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <selector>
+            <item
+                android:drawable="@color/translucent_grey"
+                android:state_selected="true"/>
+            <item android:drawable="@android:color/transparent"/>
+        </selector>
+    </item>
+    <!-- Usage of theme attributes in an XML drawable is only allowed in API 21+ -->
+    <item android:drawable="?attr/selectableItemBackground"/>
+</layer-list>

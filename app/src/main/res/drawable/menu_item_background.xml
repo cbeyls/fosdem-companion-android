@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <selector>
+            <item
+                android:drawable="@color/translucent_grey"
+                android:state_selected="true"/>
+            <item android:drawable="@android:color/transparent"/>
+        </selector>
+    </item>
+    <item android:drawable="@drawable/abc_item_background_holo_light"/>
+</layer-list>

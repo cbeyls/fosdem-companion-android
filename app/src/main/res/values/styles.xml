@@ -61,6 +61,8 @@
     <!-- Styles -->
 
     <style name="MainMenuItem" parent="TextAppearance.AppCompat.Body2">
+        <item name="android:background">@drawable/menu_item_background</item>
+        <item name="android:focusable">true</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">@dimen/main_menu_item_height</item>
         <item name="android:gravity">left|center_vertical</item>

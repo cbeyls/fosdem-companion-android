@@ -43,10 +43,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,13 +60,14 @@ import be.digitalia.fosdem.fragments.LiveFragment;
 import be.digitalia.fosdem.fragments.MapFragment;
 import be.digitalia.fosdem.fragments.PersonsListFragment;
 import be.digitalia.fosdem.fragments.TracksFragment;
+import be.digitalia.fosdem.widgets.AdapterLinearLayout;
 
 /**
  * Main entry point of the application. Allows to switch between section fragments and update the database.
  *
  * @author Christophe Beyls
  */
-public class MainActivity extends ActionBarActivity implements ListView.OnItemClickListener {
+public class MainActivity extends ActionBarActivity {
 
 	private enum Section {
 		TRACKS(TracksFragment.class, R.string.menu_tracks, R.drawable.ic_event_grey600_24dp, true),
@@ -225,23 +224,16 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 
 		// Setup Main menu
 		mainMenu = findViewById(R.id.main_menu);
-		ListView menuListView = (ListView) findViewById(R.id.main_menu_list);
-		LayoutInflater inflater = LayoutInflater.from(this);
-		View menuHeaderView = inflater.inflate(R.layout.header_main_menu, null);
-		menuListView.addHeaderView(menuHeaderView, null, false);
-		View menuFooterView = inflater.inflate(R.layout.footer_main_menu, null);
-		menuFooterView.findViewById(R.id.settings).setOnClickListener(menuFooterClickListener);
-		menuFooterView.findViewById(R.id.about).setOnClickListener(menuFooterClickListener);
-		menuListView.addFooterView(menuFooterView, null, false);
+		final AdapterLinearLayout sectionsList = (AdapterLinearLayout) findViewById(R.id.sections);
+		menuAdapter = new MainMenuAdapter(getLayoutInflater());
+		sectionsList.setAdapter(menuAdapter);
+		mainMenu.findViewById(R.id.settings).setOnClickListener(menuFooterClickListener);
+		mainMenu.findViewById(R.id.about).setOnClickListener(menuFooterClickListener);
 
 		LocalBroadcastManager.getInstance(this).registerReceiver(scheduleRefreshedReceiver, new IntentFilter(DatabaseManager.ACTION_SCHEDULE_REFRESHED));
 
-		menuAdapter = new MainMenuAdapter(inflater);
-		menuListView.setAdapter(menuAdapter);
-		menuListView.setOnItemClickListener(this);
-
-		// Last update date, below the menu
-		lastUpdateTextView = (TextView) findViewById(R.id.last_update);
+		// Last update date, below the list
+		lastUpdateTextView = (TextView) mainMenu.findViewById(R.id.last_update);
 		updateLastUpdateTime();
 
 		// Restore current section
@@ -254,7 +246,18 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 			currentSection = Section.values()[savedInstanceState.getInt(STATE_CURRENT_SECTION)];
 		}
 		// Ensure the current section is visible in the menu
-		menuListView.setSelection(currentSection.ordinal());
+		sectionsList.post(new Runnable() {
+			@Override
+			public void run() {
+				if (sectionsList.getChildCount() > currentSection.ordinal()) {
+					ScrollView mainMenuScrollView = (ScrollView) findViewById(R.id.main_menu_scroll);
+					int requiredScroll = sectionsList.getTop()
+							+ sectionsList.getChildAt(currentSection.ordinal()).getBottom()
+							- mainMenuScrollView.getHeight();
+					mainMenuScrollView.scrollTo(0, Math.max(0, requiredScroll));
+				}
+			}
+		});
 		updateActionBar();
 	}
 
@@ -452,12 +455,11 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		}
 	};
 
-	private class MainMenuAdapter extends BaseAdapter {
+	private class MainMenuAdapter extends AdapterLinearLayout.Adapter<Section> {
 
 		private final Section[] sections = Section.values();
 		private final LayoutInflater inflater;
 		private final int currentSectionForegroundColor;
-		private final int currentSectionBackgroundColor;
 
 		public MainMenuAdapter(LayoutInflater inflater) {
 			this.inflater = inflater;
@@ -468,7 +470,6 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 			} finally {
 				a.recycle();
 			}
-			currentSectionBackgroundColor = getResources().getColor(R.color.translucent_grey);
 		}
 
 		@Override
@@ -482,71 +483,64 @@ public class MainActivity extends ActionBarActivity implements ListView.OnItemCl
 		}
 
 		@Override
-		public long getItemId(int position) {
-			return position;
-		}
-
-		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			if (convertView == null) {
 				convertView = inflater.inflate(R.layout.item_main_menu, parent, false);
+				convertView.setOnClickListener(sectionClickListener);
 			}
 
 			Section section = getItem(position);
+			convertView.setSelected(section == currentSection);
 
 			TextView tv = (TextView) convertView.findViewById(R.id.section_text);
 			SpannableString sectionTitle = new SpannableString(getString(section.getTitleResId()));
 			Drawable sectionIcon = getResources().getDrawable(section.getIconResId());
-			int backgroundColor;
 			if (section == currentSection) {
 				// Special color for the current section
 				//sectionTitle.setSpan(new StyleSpan(Typeface.BOLD), 0, sectionTitle.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 				sectionTitle.setSpan(new ForegroundColorSpan(currentSectionForegroundColor), 0, sectionTitle.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 				// We need to mutate the drawable before applying the ColorFilter, or else all the similar drawable instances will be tinted.
 				sectionIcon.mutate().setColorFilter(currentSectionForegroundColor, PorterDuff.Mode.SRC_IN);
-				backgroundColor = currentSectionBackgroundColor;
-			} else {
-				backgroundColor = Color.TRANSPARENT;
 			}
 			tv.setText(sectionTitle);
 			tv.setCompoundDrawablesWithIntrinsicBounds(sectionIcon, null, null, null);
-			tv.setBackgroundColor(backgroundColor);
 
 			return convertView;
 		}
 	}
 
-	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		// Decrease position by 1 since the listView has a header view.
-		Section section = menuAdapter.getItem(position - 1);
-		if (section != currentSection) {
-			// Switch to new section
-			FragmentManager fm = getSupportFragmentManager();
-			FragmentTransaction ft = fm.beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-			Fragment f = fm.findFragmentById(R.id.content);
-			if (f != null) {
-				if (currentSection.shouldKeep()) {
-					ft.detach(f);
-				} else {
-					ft.remove(f);
+	private final View.OnClickListener sectionClickListener = new View.OnClickListener() {
+		@Override
+		public void onClick(View view) {
+			Section section = menuAdapter.getItem(((ViewGroup) view.getParent()).indexOfChild(view));
+			if (section != currentSection) {
+				// Switch to new section
+				FragmentManager fm = getSupportFragmentManager();
+				FragmentTransaction ft = fm.beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+				Fragment f = fm.findFragmentById(R.id.content);
+				if (f != null) {
+					if (currentSection.shouldKeep()) {
+						ft.detach(f);
+					} else {
+						ft.remove(f);
+					}
 				}
-			}
-			String fragmentClassName = section.getFragmentClassName();
-			if (section.shouldKeep() && ((f = fm.findFragmentByTag(fragmentClassName)) != null)) {
-				ft.attach(f);
-			} else {
-				f = Fragment.instantiate(this, fragmentClassName);
-				ft.add(R.id.content, f, fragmentClassName);
-			}
-			ft.commit();
+				String fragmentClassName = section.getFragmentClassName();
+				if (section.shouldKeep() && ((f = fm.findFragmentByTag(fragmentClassName)) != null)) {
+					ft.attach(f);
+				} else {
+					f = Fragment.instantiate(MainActivity.this, fragmentClassName);
+					ft.add(R.id.content, f, fragmentClassName);
+				}
+				ft.commit();
 
-			currentSection = section;
-			menuAdapter.notifyDataSetChanged();
+				currentSection = section;
+				menuAdapter.notifyDataSetChanged();
+			}
+
+			drawerLayout.closeDrawer(mainMenu);
 		}
-
-		drawerLayout.closeDrawer(mainMenu);
-	}
+	};
 
 	public static class AboutDialogFragment extends DialogFragment {
 
