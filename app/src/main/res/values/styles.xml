@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Main theme -->
 
@@ -77,16 +77,16 @@
         <item name="textColor">@color/tab_text</item>
     </style>
 
-    <style name="FloatingActionButton" tools:ignore="newApi">
+    <style name="FloatingActionButtonBase">
         <item name="android:layout_width">@dimen/fab_diameter</item>
         <item name="android:layout_height">@dimen/fab_diameter</item>
         <item name="android:background">@drawable/fab_background</item>
-        <item name="android:elevation">@dimen/fab_elevation_low</item>
-        <item name="android:stateListAnimator">@anim/fab_elevation</item>
         <item name="android:scaleType">center</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
     </style>
+
+    <style name="FloatingActionButton" parent="FloatingActionButtonBase"/>
 
     <style name="SeparatorLine">
         <item name="android:layout_width">match_parent</item>

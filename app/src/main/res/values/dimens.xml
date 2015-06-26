@@ -19,7 +19,7 @@
     <dimen name="detail_card_view_margin_top">54dp</dimen>
     <dimen name="detail_card_view_margin_bottom">-10dp</dimen>
     <dimen name="fab_diameter">56dp</dimen>
-    <dimen name="fab_elevation_low">2dp</dimen>
-    <dimen name="fab_elevation_high">4dp</dimen>
+    <dimen name="fab_elevation">8dp</dimen>
+    <dimen name="fab_press_translation_z">6dp</dimen>
 
 </resources>
