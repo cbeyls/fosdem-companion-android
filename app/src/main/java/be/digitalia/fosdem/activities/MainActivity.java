@@ -10,7 +10,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -52,6 +51,7 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemApi;
 import be.digitalia.fosdem.db.DatabaseManager;
@@ -547,16 +547,8 @@ public class MainActivity extends ActionBarActivity {
 		@NonNull
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
-			Context context = getActivity();
-			String title;
-			try {
-				String versionName = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
-				title = String.format("%1$s %2$s", getString(R.string.app_name), versionName);
-			} catch (NameNotFoundException e) {
-				title = getString(R.string.app_name);
-			}
-
-			return new AlertDialog.Builder(context)
+			String title = String.format("%1$s %2$s", getString(R.string.app_name), BuildConfig.VERSION_NAME);
+			return new AlertDialog.Builder(getActivity())
 					.setTitle(title)
 					.setIcon(R.mipmap.ic_launcher)
 					.setMessage(getResources().getText(R.string.about_text))
