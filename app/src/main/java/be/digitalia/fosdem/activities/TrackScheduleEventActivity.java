@@ -10,7 +10,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -31,7 +31,7 @@ import be.digitalia.fosdem.utils.NfcUtils.CreateNfcAppDataCallback;
  * @author Christophe Beyls
  * 
  */
-public class TrackScheduleEventActivity extends ActionBarActivity implements LoaderCallbacks<Cursor>, CreateNfcAppDataCallback {
+public class TrackScheduleEventActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>, CreateNfcAppDataCallback {
 
 	public static final String EXTRA_DAY = "day";
 	public static final String EXTRA_TRACK = "track";

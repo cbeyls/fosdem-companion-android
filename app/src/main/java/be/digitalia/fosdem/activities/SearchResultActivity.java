@@ -8,7 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,7 +17,7 @@ import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.MessageDialogFragment;
 import be.digitalia.fosdem.fragments.SearchResultListFragment;
 
-public class SearchResultActivity extends ActionBarActivity {
+public class SearchResultActivity extends AppCompatActivity {
 
 	public static final int MIN_SEARCH_LENGTH = 3;
 

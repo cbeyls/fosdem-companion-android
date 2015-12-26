@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
 
     defaultConfig {
         applicationId "be.digitalia.fosdem"
         minSdkVersion 7
-        targetSdkVersion 21
+        targetSdkVersion 23
         versionCode 700131
         versionName "1.3.1"
     }
@@ -21,12 +21,11 @@ android {
 }
 
 ext {
-    supportLibraryVersion = '21.0.3'
+    supportLibraryVersion = '23.1.1'
 }
 
 dependencies {
     compile "com.android.support:appcompat-v7:$supportLibraryVersion"
     compile "com.android.support:cardview-v7:$supportLibraryVersion"
-    // Version 1.2.3 has a bug and crashes when detecting 2-finger gestures. Use 1.2.2 instead.
-    compile 'com.github.chrisbanes.photoview:library:1.2.2'
+    compile 'com.github.chrisbanes.photoview:library:1.2.4'
 }

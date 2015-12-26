@@ -5,7 +5,6 @@
     <attr name="activatedBackgroundIndicator" format="reference"/>
 
     <declare-styleable name="SlidingTabLayout">
-        <attr name="theme"/>
         <attr name="indicatorColor" format="color"/>
         <attr name="indicatorHeight" format="reference|dimension"/>
         <attr name="textColor" format="color"/>

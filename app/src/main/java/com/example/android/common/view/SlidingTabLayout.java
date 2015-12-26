@@ -26,7 +26,6 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.TypedValue;
-import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,7 +64,6 @@ public class SlidingTabLayout extends HorizontalScrollView {
 	private int mItemBackground;
 
 	private ViewPager mViewPager;
-	private ViewPager.OnPageChangeListener mViewPagerPageChangeListener;
 
 	private TabListener mTabListener;
 
@@ -80,9 +78,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
 	}
 
 	public SlidingTabLayout(Context context, AttributeSet attrs, int defStyle) {
-		super(themifyContext(context, attrs, defStyle), attrs, defStyle);
-		// Ensure we use the wrapped Context
-		context = getContext();
+		super(context, attrs, defStyle);
 
 		// Disable the Scroll Bar
 		setHorizontalScrollBarEnabled(false);
@@ -150,17 +146,6 @@ public class SlidingTabLayout extends HorizontalScrollView {
 	}
 
 	/**
-	 * Set the {@link ViewPager.OnPageChangeListener}. When using {@link SlidingTabLayout} you are
-	 * required to set any {@link ViewPager.OnPageChangeListener} through this method. This is so
-	 * that the layout can update it's scroll position correctly.
-	 *
-	 * @see ViewPager#setOnPageChangeListener(ViewPager.OnPageChangeListener)
-	 */
-	public void setOnPageChangeListener(ViewPager.OnPageChangeListener listener) {
-		mViewPagerPageChangeListener = listener;
-	}
-
-	/**
 	 * Set the custom layout to be inflated for the tab views.
 	 *
 	 * @param layoutResId Layout id to be inflated
@@ -182,7 +167,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
 	public void setViewPager(ViewPager viewPager) {
 		mViewPager = viewPager;
 		if (viewPager != null) {
-			viewPager.setOnPageChangeListener(new InternalViewPagerListener());
+			viewPager.addOnPageChangeListener(new InternalViewPagerListener());
 		}
 		notifyDataSetChanged();
 	}
@@ -304,20 +289,11 @@ public class SlidingTabLayout extends HorizontalScrollView {
 
 
 			scrollToTab(position, positionOffset);
-
-			if (mViewPagerPageChangeListener != null) {
-				mViewPagerPageChangeListener.onPageScrolled(position, positionOffset,
-						positionOffsetPixels);
-			}
 		}
 
 		@Override
 		public void onPageScrollStateChanged(int state) {
 			mScrollState = state;
-
-			if (mViewPagerPageChangeListener != null) {
-				mViewPagerPageChangeListener.onPageScrollStateChanged(state);
-			}
 		}
 
 		@Override
@@ -328,9 +304,6 @@ public class SlidingTabLayout extends HorizontalScrollView {
 			}
 			for (int i = 0; i < mTabStrip.getChildCount(); i++) {
 				mTabStrip.getChildAt(i).setSelected(position == i);
-			}
-			if (mViewPagerPageChangeListener != null) {
-				mViewPagerPageChangeListener.onPageSelected(position);
 			}
 		}
 	}
@@ -355,19 +328,5 @@ public class SlidingTabLayout extends HorizontalScrollView {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Allows us to emulate the {@code android:theme} attribute for devices before L.
-	 */
-	private static Context themifyContext(Context context, AttributeSet attrs, int defStyleAttr) {
-		final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.Toolbar,
-				defStyleAttr, 0);
-		final int themeId = a.getResourceId(R.styleable.Toolbar_theme, 0);
-		if (themeId != 0) {
-			context = new ContextThemeWrapper(context, themeId);
-		}
-		a.recycle();
-		return context;
 	}
 }

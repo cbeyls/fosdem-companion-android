@@ -7,7 +7,7 @@
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorPrimaryDark">@color/color_primary_dark</item>
         <item name="colorAccent">@color/color_accent</item>
-        <item name="android:textColorLink">?attr/colorAccent</item>
+        <item name="alertDialogTheme">@style/AlertDialogTheme</item>
 
         <item name="activatedBackgroundIndicator">@drawable/activated_background</item>
     </style>
@@ -22,12 +22,12 @@
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
-        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
         <!-- Allows the action mode icons to be shown on top of the Toolbar -->
         <item name="windowActionModeOverlay">true</item>
     </style>
 
-    <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog">
+    <style name="AlertDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorPrimaryDark">@color/color_primary_dark</item>
         <item name="colorAccent">@color/color_accent</item>
@@ -71,7 +71,7 @@
     </style>
 
     <style name="SlidingTabs">
-        <item name="theme">@style/ThemeOverlay.AppCompat.Dark</item>
+        <item name="android:theme">@style/ThemeOverlay.AppCompat.Dark</item>
         <item name="android:background">?attr/colorPrimary</item>
         <item name="indicatorColor">@android:color/white</item>
         <item name="textColor">@color/tab_text</item>
