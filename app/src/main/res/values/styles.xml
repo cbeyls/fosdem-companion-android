@@ -49,7 +49,7 @@
     </style>
 
     <style name="ListView.Fosdem" parent="android:Widget.ListView.White">
-        <item name="android:listSelector">?attr/selectableItemBackground</item>
+        <item name="android:listSelector">?attr/listChoiceBackgroundIndicator</item>
         <item name="android:fadingEdge">none</item>
     </style>
 
