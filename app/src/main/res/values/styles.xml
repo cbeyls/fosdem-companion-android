@@ -13,8 +13,6 @@
     </style>
 
     <style name="AppTheme" parent="Base.AppTheme">
-        <!-- Secondary text color is used more prominently on older devices; use the classic one -->
-        <item name="android:textColorSecondary">@color/secondary_text</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBar.Fosdem</item>
         <item name="android:listViewStyle">@style/ListView.Fosdem</item>
         <item name="android:scrollViewStyle">@style/ScrollView.Fosdem</item>

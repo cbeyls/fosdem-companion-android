@@ -5,7 +5,6 @@
     <color name="color_primary_dark">#76005e</color>
     <color name="color_accent">#3479c4</color>
     <color name="fosdem_blue_translucent">#663479c4</color>
-    <color name="secondary_text">#323232</color>
     <color name="main_menu_background">#fffafafa</color>
     <color name="translucent_grey">#0c000000</color>
     <color name="schedule_time_background">#29000000</color>

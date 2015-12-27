@@ -4,7 +4,6 @@
     <!-- Main theme -->
 
     <style name="AppTheme" parent="Base.AppTheme">
-        <item name="android:textColorSecondary">@color/secondary_text</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBar.Fosdem</item>
         <item name="android:fastScrollThumbDrawable">@drawable/fosdem_fastscroll_thumb_holo</item>
         <item name="android:selectableItemBackground">?attr/selectableItemBackground</item>

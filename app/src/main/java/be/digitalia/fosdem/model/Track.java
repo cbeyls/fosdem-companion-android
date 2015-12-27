@@ -8,7 +8,7 @@ import be.digitalia.fosdem.R;
 
 public class Track implements Parcelable {
 
-	public static enum Type {
+	public enum Type {
 		other(R.string.other),
 		keynote(R.string.keynote),
 		maintrack(R.string.main_track),
@@ -18,10 +18,11 @@ public class Track implements Parcelable {
 
 		private final int nameResId;
 
-		private Type(@StringRes int nameResId) {
+		Type(@StringRes int nameResId) {
 			this.nameResId = nameResId;
 		}
 
+		@StringRes
 		public int getNameResId() {
 			return nameResId;
 		}
