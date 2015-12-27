@@ -1,8 +1,5 @@
 package be.digitalia.fosdem.adapters;
 
-import java.text.DateFormat;
-import java.util.Date;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
@@ -14,6 +11,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import java.text.DateFormat;
+import java.util.Date;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.model.Event;
@@ -21,9 +22,8 @@ import be.digitalia.fosdem.utils.DateUtils;
 
 public class EventsAdapter extends CursorAdapter {
 
-	private static final DateFormat TIME_DATE_FORMAT = DateUtils.getTimeDateFormat();
-
 	private final LayoutInflater inflater;
+	private final DateFormat timeDateFormat;
 	private final int titleTextSize;
 	private final boolean showDay;
 
@@ -34,6 +34,7 @@ public class EventsAdapter extends CursorAdapter {
 	public EventsAdapter(Context context, boolean showDay) {
 		super(context, null, 0);
 		inflater = LayoutInflater.from(context);
+		timeDateFormat = DateUtils.getTimeDateFormat(context);
 		titleTextSize = context.getResources().getDimensionPixelSize(R.dimen.list_item_title_text_size);
 		this.showDay = showDay;
 	}
@@ -80,8 +81,8 @@ public class EventsAdapter extends CursorAdapter {
 
 		Date startTime = event.getStartTime();
 		Date endTime = event.getEndTime();
-		String startTimeString = (startTime != null) ? TIME_DATE_FORMAT.format(startTime) : "?";
-		String endTimeString = (endTime != null) ? TIME_DATE_FORMAT.format(endTime) : "?";
+		String startTimeString = (startTime != null) ? timeDateFormat.format(startTime) : "?";
+		String endTimeString = (endTime != null) ? timeDateFormat.format(endTime) : "?";
 		String details;
 		if (showDay) {
 			details = String.format("%1$s, %2$s ― %3$s  |  %4$s", event.getDay().getShortName(), startTimeString, endTimeString, event.getRoomName());

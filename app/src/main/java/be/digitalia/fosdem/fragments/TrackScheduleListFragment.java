@@ -1,7 +1,5 @@
 package be.digitalia.fosdem.fragments;
 
-import java.text.DateFormat;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
@@ -23,6 +21,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import java.text.DateFormat;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.loaders.TrackScheduleLoader;
@@ -158,10 +159,10 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 	@Override
 	public boolean handleMessage(Message msg) {
 		switch (msg.what) {
-		case REFRESH_TIME_WHAT:
-			adapter.setCurrentTime(System.currentTimeMillis());
-			handler.sendEmptyMessageDelayed(REFRESH_TIME_WHAT, REFRESH_TIME_INTERVAL);
-			return true;
+			case REFRESH_TIME_WHAT:
+				adapter.setCurrentTime(System.currentTimeMillis());
+				handler.sendEmptyMessageDelayed(REFRESH_TIME_WHAT, REFRESH_TIME_INTERVAL);
+				return true;
 		}
 		return false;
 	}
@@ -239,9 +240,8 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 
 	private static class TrackScheduleAdapter extends CursorAdapter {
 
-		private static final DateFormat TIME_DATE_FORMAT = DateUtils.getTimeDateFormat();
-
 		private final LayoutInflater inflater;
+		private final DateFormat timeDateFormat;
 		private final int timeBackgroundColor;
 		private final int timeForegroundColor;
 		private final int timeRunningBackgroundColor;
@@ -252,6 +252,7 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 		public TrackScheduleAdapter(Context context) {
 			super(context, null, 0);
 			inflater = LayoutInflater.from(context);
+			timeDateFormat = DateUtils.getTimeDateFormat(context);
 			Resources res = context.getResources();
 			timeBackgroundColor = res.getColor(R.color.schedule_time_background);
 			timeForegroundColor = res.getColor(R.color.schedule_time_foreground);
@@ -292,7 +293,7 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 			Event event = DatabaseManager.toEvent(cursor, holder.event);
 			holder.event = event;
 
-			holder.time.setText(TIME_DATE_FORMAT.format(event.getStartTime()));
+			holder.time.setText(timeDateFormat.format(event.getStartTime()));
 			if ((currentTime != -1L) && event.isRunningAtTime(currentTime)) {
 				// Contrast colors for running event
 				holder.time.setBackgroundColor(timeRunningBackgroundColor);
