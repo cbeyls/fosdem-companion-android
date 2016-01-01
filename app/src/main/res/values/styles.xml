@@ -25,6 +25,8 @@
         <item name="windowActionModeOverlay">true</item>
     </style>
 
+    <style name="AppTheme.NoActionBar.WindowDrawsSystemBarBackgrounds"/>
+
     <style name="AlertDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorPrimaryDark">@color/color_primary_dark</item>
@@ -34,7 +36,7 @@
     <style name="Toolbar.Fosdem" parent="Widget.AppCompat.Toolbar">
         <item name="android:background">?attr/colorPrimary</item>
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
-        <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+        <item name="android:theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
     </style>
 
     <style name="ProgressBar.Fosdem" parent="android:Widget.ProgressBar.Horizontal">
@@ -57,6 +59,10 @@
     </style>
 
     <!-- Styles -->
+
+    <style name="Widget.Design.ScrimInsetsFrameLayout" parent="">
+        <item name="insetForeground">#4000</item>
+    </style>
 
     <style name="MainMenuItem" parent="TextAppearance.AppCompat.Body2">
         <item name="android:background">@drawable/menu_item_background</item>

@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
 		private final int iconResId;
 		private final boolean keep;
 
-		private Section(Class<? extends Fragment> fragmentClass, int titleResId, int iconResId, boolean keep) {
+		Section(Class<? extends Fragment> fragmentClass, int titleResId, int iconResId, boolean keep) {
 			this.fragmentClassName = fragmentClass.getName();
 			this.titleResId = titleResId;
 			this.iconResId = iconResId;
@@ -176,7 +176,9 @@ public class MainActivity extends AppCompatActivity {
 		@NonNull
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
-			return new AlertDialog.Builder(getActivity()).setTitle(R.string.download_reminder_title).setMessage(R.string.download_reminder_message)
+			return new AlertDialog.Builder(getActivity())
+					.setTitle(R.string.download_reminder_title)
+					.setMessage(R.string.download_reminder_message)
 					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 
 						@Override
@@ -184,7 +186,8 @@ public class MainActivity extends AppCompatActivity {
 							((MainActivity) getActivity()).startDownloadSchedule();
 						}
 
-					}).setNegativeButton(android.R.string.cancel, null).create();
+					}).setNegativeButton(android.R.string.cancel, null)
+					.create();
 		}
 	}
 
@@ -204,16 +207,8 @@ public class MainActivity extends AppCompatActivity {
 
 			@Override
 			public void onDrawerOpened(View drawerView) {
-				updateActionBar();
-				supportInvalidateOptionsMenu();
 				// Make keypad navigation easier
 				mainMenu.requestFocus();
-			}
-
-			@Override
-			public void onDrawerClosed(View drawerView) {
-				updateActionBar();
-				supportInvalidateOptionsMenu();
 			}
 		};
 		drawerToggle.setDrawerIndicatorEnabled(true);
@@ -262,11 +257,7 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private void updateActionBar() {
-		if (drawerLayout.isDrawerOpen(mainMenu)) {
-			getSupportActionBar().setTitle(null);
-		} else {
-			getSupportActionBar().setTitle(currentSection.getTitleResId());
-		}
+		getSupportActionBar().setTitle(currentSection.getTitleResId());
 	}
 
 	private void updateLastUpdateTime() {
@@ -278,10 +269,6 @@ public class MainActivity extends AppCompatActivity {
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-
-		if (drawerLayout.isDrawerOpen(mainMenu)) {
-			updateActionBar();
-		}
 		drawerToggle.syncState();
 	}
 
@@ -367,22 +354,6 @@ public class MainActivity extends AppCompatActivity {
 		}
 
 		return true;
-	}
-
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		// Hide & disable primary (contextual) action items when the main menu is opened
-		if (drawerLayout.isDrawerOpen(mainMenu)) {
-			final int size = menu.size();
-			for (int i = 0; i < size; ++i) {
-				MenuItem item = menu.getItem(i);
-				if ((item.getOrder() & 0xFFFF0000) == 0) {
-					item.setVisible(false).setEnabled(false);
-				}
-			}
-		}
-
-		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
@@ -535,6 +506,7 @@ public class MainActivity extends AppCompatActivity {
 				ft.commit();
 
 				currentSection = section;
+				updateActionBar();
 				menuAdapter.notifyDataSetChanged();
 			}
 
