@@ -13,7 +13,7 @@
         android:id="@+id/main_menu_scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="@dimen/main_menu_footer_height">
+        android:layout_marginBottom="@dimen/main_menu_footer_height">
 
         <LinearLayout
             android:layout_width="match_parent"
