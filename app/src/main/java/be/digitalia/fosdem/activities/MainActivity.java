@@ -33,6 +33,7 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
@@ -46,10 +47,6 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.R;
@@ -107,12 +104,12 @@ public class MainActivity extends AppCompatActivity {
 		}
 	}
 
-	private static final long DATABASE_VALIDITY_DURATION = 24L * 60L * 60L * 1000L; // 24h
-	private static final long DOWNLOAD_REMINDER_SNOOZE_DURATION = 24L * 60L * 60L * 1000L; // 24h
+	private static final long DATABASE_VALIDITY_DURATION = DateUtils.DAY_IN_MILLIS;
+	private static final long DOWNLOAD_REMINDER_SNOOZE_DURATION = DateUtils.DAY_IN_MILLIS;
 	private static final String PREF_LAST_DOWNLOAD_REMINDER_TIME = "last_download_reminder_time";
 	private static final String STATE_CURRENT_SECTION = "current_section";
 
-	private static final DateFormat LAST_UPDATE_DATE_FORMAT = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, Locale.getDefault());
+	private static final String LAST_UPDATE_DATE_FORMAT = "d MMM yyyy kk:mm:ss";
 
 	private Section currentSection;
 
@@ -263,7 +260,9 @@ public class MainActivity extends AppCompatActivity {
 	private void updateLastUpdateTime() {
 		long lastUpdateTime = DatabaseManager.getInstance().getLastUpdateTime();
 		lastUpdateTextView.setText(getString(R.string.last_update,
-				(lastUpdateTime == -1L) ? getString(R.string.never) : LAST_UPDATE_DATE_FORMAT.format(new Date(lastUpdateTime))));
+				(lastUpdateTime == -1L)
+						? getString(R.string.never)
+						: android.text.format.DateFormat.format(LAST_UPDATE_DATE_FORMAT, lastUpdateTime)));
 	}
 
 	@Override
