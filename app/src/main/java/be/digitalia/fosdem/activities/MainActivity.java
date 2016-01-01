@@ -67,21 +67,24 @@ import be.digitalia.fosdem.widgets.AdapterLinearLayout;
 public class MainActivity extends AppCompatActivity {
 
 	private enum Section {
-		TRACKS(TracksFragment.class, R.string.menu_tracks, R.drawable.ic_event_grey600_24dp, true),
-		BOOKMARKS(BookmarksListFragment.class, R.string.menu_bookmarks, R.drawable.ic_bookmark_grey600_24dp, false),
-		LIVE(LiveFragment.class, R.string.menu_live, R.drawable.ic_play_circle_outline_grey600_24dp, false),
-		SPEAKERS(PersonsListFragment.class, R.string.menu_speakers, R.drawable.ic_people_grey600_24dp, false),
-		MAP(MapFragment.class, R.string.menu_map, R.drawable.ic_map_grey600_24dp, false);
+		TRACKS(TracksFragment.class, R.string.menu_tracks, R.drawable.ic_event_grey600_24dp, true, true),
+		BOOKMARKS(BookmarksListFragment.class, R.string.menu_bookmarks, R.drawable.ic_bookmark_grey600_24dp, false, false),
+		LIVE(LiveFragment.class, R.string.menu_live, R.drawable.ic_play_circle_outline_grey600_24dp, true, false),
+		SPEAKERS(PersonsListFragment.class, R.string.menu_speakers, R.drawable.ic_people_grey600_24dp, false, false),
+		MAP(MapFragment.class, R.string.menu_map, R.drawable.ic_map_grey600_24dp, false, false);
 
 		private final String fragmentClassName;
 		private final int titleResId;
 		private final int iconResId;
+		private final boolean extendsAppBar;
 		private final boolean keep;
 
-		Section(Class<? extends Fragment> fragmentClass, int titleResId, int iconResId, boolean keep) {
+		Section(Class<? extends Fragment> fragmentClass, int titleResId, int iconResId,
+				boolean extendsAppBar, boolean keep) {
 			this.fragmentClassName = fragmentClass.getName();
 			this.titleResId = titleResId;
 			this.iconResId = iconResId;
+			this.extendsAppBar = extendsAppBar;
 			this.keep = keep;
 		}
 
@@ -99,6 +102,10 @@ public class MainActivity extends AppCompatActivity {
 			return iconResId;
 		}
 
+		public boolean extendsAppBar() {
+			return extendsAppBar;
+		}
+
 		public boolean shouldKeep() {
 			return keep;
 		}
@@ -111,9 +118,12 @@ public class MainActivity extends AppCompatActivity {
 
 	private static final String LAST_UPDATE_DATE_FORMAT = "d MMM yyyy kk:mm:ss";
 
-	private Section currentSection;
 
+	private Toolbar toolbar;
 	private ProgressBar progressBar;
+
+	// Main menu
+	private Section currentSection;
 	private DrawerLayout drawerLayout;
 	private ActionBarDrawerToggle drawerToggle;
 	private View mainMenu;
@@ -192,7 +202,9 @@ public class MainActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+
+		toolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(toolbar);
 
 		progressBar = (ProgressBar) findViewById(R.id.progress);
 
@@ -255,6 +267,10 @@ public class MainActivity extends AppCompatActivity {
 
 	private void updateActionBar() {
 		getSupportActionBar().setTitle(currentSection.getTitleResId());
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			toolbar.setElevation(currentSection.extendsAppBar()
+					? 0f : getResources().getDimension(R.dimen.toolbar_elevation));
+		}
 	}
 
 	private void updateLastUpdateTime() {
