@@ -14,6 +14,7 @@ import android.widget.AlphabetIndexer;
 import android.widget.ListView;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.PersonInfoActivity;
 import be.digitalia.fosdem.db.DatabaseManager;
@@ -102,7 +103,7 @@ public class PersonsListFragment extends SmoothListFragment implements LoaderCal
 
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View view = inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
+			View view = inflater.inflate(R.layout.simple_list_item_1_material, parent, false);
 
 			ViewHolder holder = new ViewHolder();
 			holder.textView = (TextView) view.findViewById(android.R.id.text1);
