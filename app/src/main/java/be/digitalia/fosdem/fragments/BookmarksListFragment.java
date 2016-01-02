@@ -65,6 +65,14 @@ public class BookmarksListFragment extends SmoothListFragment implements LoaderC
 	}
 
 	@Override
+	public void onDestroyView() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			BookmarksMultiChoiceModeListener.unregister(getListView());
+		}
+		super.onDestroyView();
+	}
+
+	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.bookmarks, menu);
 		filterMenuItem = menu.findItem(R.id.filter);
