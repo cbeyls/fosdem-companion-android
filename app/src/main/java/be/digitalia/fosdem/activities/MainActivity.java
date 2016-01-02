@@ -16,6 +16,8 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
@@ -64,7 +66,7 @@ import be.digitalia.fosdem.widgets.AdapterLinearLayout;
  *
  * @author Christophe Beyls
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Handler.Callback {
 
 	private enum Section {
 		TRACKS(TracksFragment.class, R.string.menu_tracks, R.drawable.ic_event_grey600_24dp, true, true),
@@ -111,6 +113,11 @@ public class MainActivity extends AppCompatActivity {
 		}
 	}
 
+	private static final int SELECT_MENU_SECTION_WHAT = 1;
+	private static final int SELECT_MENU_FOOTER_WHAT = 2;
+
+	private static final long MENU_ACTION_DELAY = 400L;
+
 	private static final long DATABASE_VALIDITY_DURATION = DateUtils.DAY_IN_MILLIS;
 	private static final long DOWNLOAD_REMINDER_SNOOZE_DURATION = DateUtils.DAY_IN_MILLIS;
 	private static final String PREF_LAST_DOWNLOAD_REMINDER_TIME = "last_download_reminder_time";
@@ -119,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
 	private static final String LAST_UPDATE_DATE_FORMAT = "d MMM yyyy kk:mm:ss";
 
 
+	private Handler handler;
 	private Toolbar toolbar;
 	private ProgressBar progressBar;
 
@@ -202,6 +210,8 @@ public class MainActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+
+		handler = new Handler(this);
 
 		toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
@@ -298,6 +308,8 @@ public class MainActivity extends AppCompatActivity {
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
+		// Ensure no fragment transaction attempt will occur after onSaveInstanceState()
+		handler.removeCallbacksAndMessages(null);
 		super.onSaveInstanceState(outState);
 		outState.putInt(STATE_CURRENT_SECTION, currentSection.ordinal());
 	}
@@ -350,7 +362,6 @@ public class MainActivity extends AppCompatActivity {
 		LocalBroadcastManager.getInstance(this).unregisterReceiver(scheduleRefreshedReceiver);
 	}
 
-	@SuppressLint("NewApi")
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.main, menu);
@@ -424,23 +435,6 @@ public class MainActivity extends AppCompatActivity {
 
 	// MAIN MENU
 
-	private final View.OnClickListener menuFooterClickListener = new View.OnClickListener() {
-
-		@Override
-		public void onClick(View view) {
-			switch (view.getId()) {
-				case R.id.settings:
-					startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-					overridePendingTransition(R.anim.slide_in_right, R.anim.partial_zoom_out);
-					break;
-				case R.id.about:
-					new AboutDialogFragment().show(getSupportFragmentManager(), "about");
-					break;
-			}
-			drawerLayout.closeDrawer(mainMenu);
-		}
-	};
-
 	private class MainMenuAdapter extends AdapterLinearLayout.Adapter<Section> {
 
 		private final Section[] sections = Section.values();
@@ -498,36 +492,76 @@ public class MainActivity extends AppCompatActivity {
 	private final View.OnClickListener sectionClickListener = new View.OnClickListener() {
 		@Override
 		public void onClick(View view) {
-			Section section = menuAdapter.getItem(((ViewGroup) view.getParent()).indexOfChild(view));
-			if (section != currentSection) {
-				// Switch to new section
-				FragmentManager fm = getSupportFragmentManager();
-				FragmentTransaction ft = fm.beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-				Fragment f = fm.findFragmentById(R.id.content);
-				if (f != null) {
-					if (currentSection.shouldKeep()) {
-						ft.detach(f);
-					} else {
-						ft.remove(f);
-					}
-				}
-				String fragmentClassName = section.getFragmentClassName();
-				if (section.shouldKeep() && ((f = fm.findFragmentByTag(fragmentClassName)) != null)) {
-					ft.attach(f);
-				} else {
-					f = Fragment.instantiate(MainActivity.this, fragmentClassName);
-					ft.add(R.id.content, f, fragmentClassName);
-				}
-				ft.commit();
-
-				currentSection = section;
-				updateActionBar();
-				menuAdapter.notifyDataSetChanged();
-			}
-
+			int sectionIndex = ((ViewGroup) view.getParent()).indexOfChild(view);
+			// Cancel pending section selection, if any
+			handler.removeMessages(SELECT_MENU_SECTION_WHAT);
+			handler.sendMessageDelayed(handler.obtainMessage(SELECT_MENU_SECTION_WHAT, sectionIndex, 0), MENU_ACTION_DELAY);
 			drawerLayout.closeDrawer(mainMenu);
 		}
 	};
+
+	private void selectMenuSection(int position) {
+		Section section = menuAdapter.getItem(position);
+		if (section != currentSection) {
+			// Switch to new section
+			FragmentManager fm = getSupportFragmentManager();
+			FragmentTransaction ft = fm.beginTransaction();
+			Fragment f = fm.findFragmentById(R.id.content);
+			if (f != null) {
+				if (currentSection.shouldKeep()) {
+					ft.detach(f);
+				} else {
+					ft.remove(f);
+				}
+			}
+			String fragmentClassName = section.getFragmentClassName();
+			if (section.shouldKeep() && ((f = fm.findFragmentByTag(fragmentClassName)) != null)) {
+				ft.attach(f);
+			} else {
+				f = Fragment.instantiate(MainActivity.this, fragmentClassName);
+				ft.add(R.id.content, f, fragmentClassName);
+			}
+			ft.commit();
+
+			currentSection = section;
+			updateActionBar();
+			menuAdapter.notifyDataSetChanged();
+		}
+	}
+
+	private final View.OnClickListener menuFooterClickListener = new View.OnClickListener() {
+
+		@Override
+		public void onClick(View view) {
+			handler.sendMessageDelayed(handler.obtainMessage(SELECT_MENU_FOOTER_WHAT, view.getId(), 0), MENU_ACTION_DELAY);
+			drawerLayout.closeDrawer(mainMenu);
+		}
+	};
+
+	private void selectMenuFooter(int id) {
+		switch (id) {
+			case R.id.settings:
+				startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+				overridePendingTransition(R.anim.slide_in_right, R.anim.partial_zoom_out);
+				break;
+			case R.id.about:
+				new AboutDialogFragment().show(getSupportFragmentManager(), "about");
+				break;
+		}
+	}
+
+	@Override
+	public boolean handleMessage(Message message) {
+		switch (message.what) {
+			case SELECT_MENU_SECTION_WHAT:
+				selectMenuSection(message.arg1);
+				return true;
+			case SELECT_MENU_FOOTER_WHAT:
+				selectMenuFooter(message.arg1);
+				return true;
+		}
+		return false;
+	}
 
 	public static class AboutDialogFragment extends DialogFragment {
 
