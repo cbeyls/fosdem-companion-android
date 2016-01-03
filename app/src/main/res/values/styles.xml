@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Main theme -->
 
@@ -70,8 +70,9 @@
         <item name="android:focusable">true</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">@dimen/main_menu_item_height</item>
-        <item name="android:gravity">left|center_vertical</item>
+        <item name="android:gravity">start|center_vertical</item>
         <item name="android:paddingLeft">@dimen/main_menu_padding</item>
+        <item name="android:paddingStart" tools:ignore="NewApi">@dimen/main_menu_padding</item>
         <item name="android:drawablePadding">@dimen/main_menu_drawable_padding</item>
     </style>
 

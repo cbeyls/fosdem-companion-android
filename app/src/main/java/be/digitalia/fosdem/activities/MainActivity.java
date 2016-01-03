@@ -28,6 +28,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.TextViewCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -483,7 +484,7 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 				sectionIcon.mutate().setColorFilter(currentSectionForegroundColor, PorterDuff.Mode.SRC_IN);
 			}
 			tv.setText(sectionTitle);
-			tv.setCompoundDrawablesWithIntrinsicBounds(sectionIcon, null, null, null);
+			TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(tv, sectionIcon, null, null, null);
 
 			return convertView;
 		}

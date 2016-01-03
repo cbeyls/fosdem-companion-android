@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
              xmlns:app="http://schemas.android.com/apk/res-auto"
+             xmlns:tools="http://schemas.android.com/tools"
              android:layout_width="match_parent"
-             android:layout_height="match_parent">
+             android:layout_height="match_parent"
+             tools:context=".activities.TrackScheduleActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,7 +23,7 @@
             android:id="@+id/schedule"
             android:layout_width="@dimen/schedule_column_width"
             android:layout_height="0dp"
-            android:layout_gravity="left"
+            android:layout_gravity="start"
             android:layout_weight="1"/>
     </LinearLayout>
 
@@ -30,15 +32,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="@dimen/detail_card_view_margin_bottom"
-        android:layout_marginLeft="@dimen/detail_card_view_margin_left"
-        android:layout_marginRight="@dimen/detail_card_view_margin_right"
+        android:layout_marginEnd="@dimen/detail_card_view_margin_end"
+        android:layout_marginLeft="@dimen/detail_card_view_margin_start"
+        android:layout_marginRight="@dimen/detail_card_view_margin_end"
+        android:layout_marginStart="@dimen/detail_card_view_margin_start"
         android:layout_marginTop="@dimen/detail_card_view_margin_top"
         app:cardElevation="@dimen/detail_card_view_elevation"/>
 
     <ImageView
         android:id="@+id/fab"
         style="@style/FloatingActionButton"
-        android:layout_gravity="top|right"
+        android:layout_gravity="top|end"
+        android:layout_marginEnd="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginTop="100dp"
         android:src="@drawable/ic_bookmark_outline_white_24dp"/>

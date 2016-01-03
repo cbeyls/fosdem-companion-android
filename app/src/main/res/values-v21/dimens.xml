@@ -2,8 +2,8 @@
 <resources>
 
     <!-- Use original values for native card view elevation -->
-    <dimen name="detail_card_view_margin_left">@dimen/schedule_column_width</dimen>
-    <dimen name="detail_card_view_margin_right">96dp</dimen>
+    <dimen name="detail_card_view_margin_start">@dimen/schedule_column_width</dimen>
+    <dimen name="detail_card_view_margin_end">96dp</dimen>
     <dimen name="detail_card_view_margin_top">64dp</dimen>
     <dimen name="detail_card_view_margin_bottom">0dp</dimen>
 
