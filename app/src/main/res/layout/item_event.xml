@@ -5,34 +5,40 @@
               android:layout_height="wrap_content"
               android:background="?attr/activatedBackgroundIndicator"
               android:orientation="vertical"
-              android:padding="@dimen/list_item_padding">
+              android:paddingBottom="@dimen/list_item_padding"
+              android:paddingLeft="?attr/listPreferredItemPaddingLeft"
+              android:paddingRight="?attr/listPreferredItemPaddingRight"
+              android:paddingTop="@dimen/list_item_padding">
 
     <TextView
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:drawablePadding="8dp"
-        android:textColor="?android:textColorPrimary"
-        android:textSize="@dimen/list_item_small_text_size"
-        android:textStyle="bold"
-        tools:text="Welcome to FOSDEM 2015\nFOSDEM Staff"
-        tools:textSize="@dimen/list_item_medium_text_size"/>
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        android:textSize="@dimen/abc_text_size_medium_material"
+        tools:text="Welcome to FOSDEM 2015"/>
+
+    <TextView
+        android:id="@+id/persons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        tools:text="FOSDEM Staff"/>
 
     <TextView
         android:id="@+id/track_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="?android:textColorPrimary"
-        android:textSize="@dimen/list_item_small_text_size"
-        android:textStyle="italic"
+        android:layout_marginTop="4dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
         tools:text="Keynotes"/>
 
     <TextView
         android:id="@+id/details"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="?android:textColorPrimary"
-        android:textSize="@dimen/list_item_small_text_size"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
         tools:text="Saturday, 09:30 - 09:55 | Janson"/>
 
 </LinearLayout>

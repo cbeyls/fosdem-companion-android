@@ -3,19 +3,16 @@ package be.digitalia.fosdem.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.database.Cursor;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
-import android.text.Spannable;
-import android.text.SpannableString;
+import android.support.v4.widget.TextViewCompat;
 import android.text.TextUtils;
-import android.text.style.AbsoluteSizeSpan;
-import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -240,13 +237,15 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 
 	private static class TrackScheduleAdapter extends CursorAdapter {
 
+		private static final int[] PRIMARY_TEXT_COLORS
+				= new int[]{android.R.attr.textColorPrimary, android.R.attr.textColorPrimaryInverse};
+
 		private final LayoutInflater inflater;
 		private final DateFormat timeDateFormat;
 		private final int timeBackgroundColor;
 		private final int timeForegroundColor;
 		private final int timeRunningBackgroundColor;
 		private final int timeRunningForegroundColor;
-		private final int titleTextSize;
 		private long currentTime = -1L;
 
 		public TrackScheduleAdapter(Context context) {
@@ -255,10 +254,12 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 			timeDateFormat = DateUtils.getTimeDateFormat(context);
 			Resources res = context.getResources();
 			timeBackgroundColor = res.getColor(R.color.schedule_time_background);
-			timeForegroundColor = res.getColor(R.color.schedule_time_foreground);
 			timeRunningBackgroundColor = res.getColor(R.color.schedule_time_running_background);
-			timeRunningForegroundColor = res.getColor(R.color.schedule_time_running_foreground);
-			titleTextSize = res.getDimensionPixelSize(R.dimen.list_item_title_text_size);
+
+			TypedArray a = context.getTheme().obtainStyledAttributes(PRIMARY_TEXT_COLORS);
+			timeForegroundColor = a.getColor(0, 0);
+			timeRunningForegroundColor = a.getColor(1, 0);
+			a.recycle();
 		}
 
 		public void setCurrentTime(long time) {
@@ -279,9 +280,9 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 
 			ViewHolder holder = new ViewHolder();
 			holder.time = (TextView) view.findViewById(R.id.time);
-			holder.text = (TextView) view.findViewById(R.id.text);
-			holder.titleSizeSpan = new AbsoluteSizeSpan(titleTextSize);
-			holder.boldStyleSpan = new StyleSpan(Typeface.BOLD);
+			holder.title = (TextView) view.findViewById(R.id.title);
+			holder.persons = (TextView) view.findViewById(R.id.persons);
+			holder.room = (TextView) view.findViewById(R.id.room);
 			view.setTag(holder);
 
 			return view;
@@ -304,27 +305,20 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 				holder.time.setTextColor(timeForegroundColor);
 			}
 
-			SpannableString spannableString;
-			String eventTitle = event.getTitle();
-			String personsSummary = event.getPersonsSummary();
-			if (TextUtils.isEmpty(personsSummary)) {
-				spannableString = new SpannableString(String.format("%1$s\n%2$s", eventTitle, event.getRoomName()));
-			} else {
-				spannableString = new SpannableString(String.format("%1$s\n%2$s\n%3$s", eventTitle, personsSummary, event.getRoomName()));
-			}
-			spannableString.setSpan(holder.titleSizeSpan, 0, eventTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			spannableString.setSpan(holder.boldStyleSpan, 0, eventTitle.length() + personsSummary.length() + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-			holder.text.setText(spannableString);
+			holder.title.setText(event.getTitle());
 			int bookmarkDrawable = DatabaseManager.toBookmarkStatus(cursor) ? R.drawable.ic_bookmark_grey600_24dp : 0;
-			holder.text.setCompoundDrawablesWithIntrinsicBounds(0, 0, bookmarkDrawable, 0);
+			TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(holder.title, 0, 0, bookmarkDrawable, 0);
+			String personsSummary = event.getPersonsSummary();
+			holder.persons.setText(personsSummary);
+			holder.persons.setVisibility(TextUtils.isEmpty(personsSummary) ? View.GONE : View.VISIBLE);
+			holder.room.setText(event.getRoomName());
 		}
 
 		private static class ViewHolder {
 			TextView time;
-			TextView text;
-			AbsoluteSizeSpan titleSizeSpan;
-			StyleSpan boldStyleSpan;
+			TextView title;
+			TextView persons;
+			TextView room;
 			Event event;
 		}
 	}

@@ -3,10 +3,8 @@ package be.digitalia.fosdem.adapters;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
-import android.text.Spannable;
-import android.text.SpannableString;
+import android.support.v4.widget.TextViewCompat;
 import android.text.TextUtils;
-import android.text.style.AbsoluteSizeSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +22,6 @@ public class EventsAdapter extends CursorAdapter {
 
 	private final LayoutInflater inflater;
 	private final DateFormat timeDateFormat;
-	private final int titleTextSize;
 	private final boolean showDay;
 
 	public EventsAdapter(Context context) {
@@ -35,7 +32,6 @@ public class EventsAdapter extends CursorAdapter {
 		super(context, null, 0);
 		inflater = LayoutInflater.from(context);
 		timeDateFormat = DateUtils.getTimeDateFormat(context);
-		titleTextSize = context.getResources().getDimensionPixelSize(R.dimen.list_item_title_text_size);
 		this.showDay = showDay;
 	}
 
@@ -50,7 +46,7 @@ public class EventsAdapter extends CursorAdapter {
 
 		ViewHolder holder = new ViewHolder();
 		holder.title = (TextView) view.findViewById(R.id.title);
-		holder.titleSizeSpan = new AbsoluteSizeSpan(titleTextSize);
+		holder.persons = (TextView) view.findViewById(R.id.persons);
 		holder.trackName = (TextView) view.findViewById(R.id.track_name);
 		holder.details = (TextView) view.findViewById(R.id.details);
 		view.setTag(holder);
@@ -64,19 +60,12 @@ public class EventsAdapter extends CursorAdapter {
 		Event event = DatabaseManager.toEvent(cursor, holder.event);
 		holder.event = event;
 
-		String eventTitle = event.getTitle();
-		SpannableString spannableString;
-		String personsSummary = event.getPersonsSummary();
-		if (TextUtils.isEmpty(personsSummary)) {
-			spannableString = new SpannableString(eventTitle);
-		} else {
-			spannableString = new SpannableString(String.format("%1$s\n%2$s", eventTitle, event.getPersonsSummary()));
-		}
-		spannableString.setSpan(holder.titleSizeSpan, 0, eventTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		holder.title.setText(spannableString);
+		holder.title.setText(event.getTitle());
 		int bookmarkDrawable = DatabaseManager.toBookmarkStatus(cursor) ? R.drawable.ic_bookmark_grey600_24dp : 0;
-		holder.title.setCompoundDrawablesWithIntrinsicBounds(0, 0, bookmarkDrawable, 0);
-
+		TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(holder.title, 0, 0, bookmarkDrawable, 0);
+		String personsSummary = event.getPersonsSummary();
+		holder.persons.setText(personsSummary);
+		holder.persons.setVisibility(TextUtils.isEmpty(personsSummary) ? View.GONE : View.VISIBLE);
 		holder.trackName.setText(event.getTrack().getName());
 
 		Date startTime = event.getStartTime();
@@ -94,7 +83,7 @@ public class EventsAdapter extends CursorAdapter {
 
 	private static class ViewHolder {
 		TextView title;
-		AbsoluteSizeSpan titleSizeSpan;
+		TextView persons;
 		TextView trackName;
 		TextView details;
 		Event event;

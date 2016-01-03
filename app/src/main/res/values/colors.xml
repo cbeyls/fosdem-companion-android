@@ -9,8 +9,6 @@
     <color name="main_menu_footer_background">#eaeaea</color>
     <color name="translucent_grey">#0c000000</color>
     <color name="schedule_time_background">#29000000</color>
-    <color name="schedule_time_foreground">#000</color>
     <color name="schedule_time_running_background">#d6000000</color>
-    <color name="schedule_time_running_foreground">#fff</color>
 
 </resources>
