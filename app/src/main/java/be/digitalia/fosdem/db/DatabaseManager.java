@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+
 import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Link;
@@ -32,9 +33,8 @@ import be.digitalia.fosdem.utils.DateUtils;
 
 /**
  * Here comes the badass SQL.
- * 
+ *
  * @author Christophe Beyls
- * 
  */
 public class DatabaseManager {
 
@@ -75,7 +75,7 @@ public class DatabaseManager {
 		helper = new DatabaseHelper(context);
 	}
 
-	private static final String[] COUNT_PROJECTION = new String[] { "count(*)" };
+	private static final String[] COUNT_PROJECTION = new String[]{"count(*)"};
 
 	private static long queryNumEntries(SQLiteDatabase db, String table, String selection, String[] selectionArgs) {
 		Cursor cursor = db.query(table, COUNT_PROJECTION, selection, selectionArgs, null, null, null);
@@ -111,7 +111,6 @@ public class DatabaseManager {
 	}
 
 	/**
-	 * 
 	 * @return The last update time in milliseconds since EPOCH, or -1 if not available.
 	 */
 	public long getLastUpdateTime() {
@@ -119,7 +118,6 @@ public class DatabaseManager {
 	}
 
 	/**
-	 *
 	 * @return The time identifier of the current version of the database.
 	 */
 	public String getLastModifiedTag() {
@@ -128,7 +126,7 @@ public class DatabaseManager {
 
 	/**
 	 * Stores the schedule to the database.
-	 * 
+	 *
 	 * @param events
 	 * @return The number of events processed.
 	 */
@@ -252,7 +250,7 @@ public class DatabaseManager {
 
 			// 4: Purge outdated bookmarks
 			if (minEventId < Long.MAX_VALUE) {
-				String[] whereArgs = new String[] { String.valueOf(minEventId) };
+				String[] whereArgs = new String[]{String.valueOf(minEventId)};
 				db.delete(DatabaseHelper.BOOKMARKS_TABLE_NAME, "event_id < ?", whereArgs);
 			}
 
@@ -314,7 +312,7 @@ public class DatabaseManager {
 
 	/**
 	 * Returns the cached days list or null. Can be safely called on the main thread without blocking it.
-	 * 
+	 *
 	 * @return
 	 */
 	public List<Day> getCachedDays() {
@@ -322,11 +320,10 @@ public class DatabaseManager {
 	}
 
 	/**
-	 * 
 	 * @return The Days the events span to.
 	 */
 	public List<Day> getDays() {
-		Cursor cursor = helper.getReadableDatabase().query(DatabaseHelper.DAYS_TABLE_NAME, new String[] { "_index", "date" }, null, null, null, null,
+		Cursor cursor = helper.getReadableDatabase().query(DatabaseHelper.DAYS_TABLE_NAME, new String[]{"_index", "date"}, null, null, null, null,
 				"_index ASC");
 		try {
 			List<Day> result = new ArrayList<>(cursor.getCount());
@@ -358,7 +355,7 @@ public class DatabaseManager {
 			}
 		} else {
 			// Perform a quick DB query to retrieve the time of the first day
-			Cursor cursor = helper.getReadableDatabase().query(DatabaseHelper.DAYS_TABLE_NAME, new String[] { "date" }, null, null, null, null,
+			Cursor cursor = helper.getReadableDatabase().query(DatabaseHelper.DAYS_TABLE_NAME, new String[]{"date"}, null, null, null, null,
 					"_index ASC LIMIT 1");
 			try {
 				if (cursor.moveToFirst()) {
@@ -375,10 +372,13 @@ public class DatabaseManager {
 	}
 
 	public Cursor getTracks(Day day) {
-		String[] selectionArgs = new String[] { String.valueOf(day.getIndex()) };
+		String[] selectionArgs = new String[]{String.valueOf(day.getIndex())};
 		Cursor cursor = helper.getReadableDatabase().rawQuery(
-				"SELECT t.id AS _id, t.name, t.type" + " FROM " + DatabaseHelper.TRACKS_TABLE_NAME + " t" + " JOIN " + DatabaseHelper.EVENTS_TABLE_NAME
-						+ " e ON t.id = e.track_id" + " WHERE e.day_index = ?" + " GROUP BY t.id" + " ORDER BY t.name ASC", selectionArgs);
+				"SELECT t.id AS _id, t.name, t.type" + " FROM " + DatabaseHelper.TRACKS_TABLE_NAME + " t"
+						+ " JOIN " + DatabaseHelper.EVENTS_TABLE_NAME + " e ON t.id = e.track_id"
+						+ " WHERE e.day_index = ?"
+						+ " GROUP BY t.id"
+						+ " ORDER BY t.name ASC", selectionArgs);
 		cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
 		return cursor;
 	}
@@ -405,30 +405,17 @@ public class DatabaseManager {
 	 * Returns the event with the specified id.
 	 */
 	public Event getEvent(long id) {
-		String[] selectionArgs = new String[] { String.valueOf(id) };
-		Cursor cursor = helper
-				.getReadableDatabase()
-				.rawQuery(
-						"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type"
-								+ " FROM "
-								+ DatabaseHelper.EVENTS_TABLE_NAME
-								+ " e"
-								+ " JOIN "
-								+ DatabaseHelper.EVENTS_TITLES_TABLE_NAME
-								+ " et ON e.id = et.rowid"
-								+ " JOIN "
-								+ DatabaseHelper.DAYS_TABLE_NAME
-								+ " d ON e.day_index = d._index"
-								+ " JOIN "
-								+ DatabaseHelper.TRACKS_TABLE_NAME
-								+ " t ON e.track_id = t.id"
-								+ " LEFT JOIN "
-								+ DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
-								+ " ep ON e.id = ep.event_id"
-								+ " LEFT JOIN "
-								+ DatabaseHelper.PERSONS_TABLE_NAME
-								+ " p ON ep.person_id = p.rowid"
-								+ " WHERE e.id = ?" + " GROUP BY e.id", selectionArgs);
+		String[] selectionArgs = new String[]{String.valueOf(id)};
+		Cursor cursor = helper.getReadableDatabase().rawQuery(
+				"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type"
+						+ " FROM " + DatabaseHelper.EVENTS_TABLE_NAME + " e"
+						+ " JOIN " + DatabaseHelper.EVENTS_TITLES_TABLE_NAME + " et ON e.id = et.rowid"
+						+ " JOIN " + DatabaseHelper.DAYS_TABLE_NAME + " d ON e.day_index = d._index"
+						+ " JOIN " + DatabaseHelper.TRACKS_TABLE_NAME + " t ON e.track_id = t.id"
+						+ " LEFT JOIN " + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME + " ep ON e.id = ep.event_id"
+						+ " LEFT JOIN " + DatabaseHelper.PERSONS_TABLE_NAME + " p ON ep.person_id = p.rowid"
+						+ " WHERE e.id = ?"
+						+ " GROUP BY e.id", selectionArgs);
 		try {
 			if (cursor.moveToFirst()) {
 				return toEvent(cursor);
@@ -442,55 +429,36 @@ public class DatabaseManager {
 
 	/**
 	 * Returns the events for a specified track.
-	 * 
+	 *
 	 * @param day
 	 * @param track
 	 * @return A cursor to Events
 	 */
 	public Cursor getEvents(Day day, Track track) {
-		String[] selectionArgs = new String[] { String.valueOf(day.getIndex()), track.getName(), track.getType().name() };
-		Cursor cursor = helper
-				.getReadableDatabase()
-				.rawQuery(
-						"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, b.event_id"
-								+ " FROM "
-								+ DatabaseHelper.EVENTS_TABLE_NAME
-								+ " e"
-								+ " JOIN "
-								+ DatabaseHelper.EVENTS_TITLES_TABLE_NAME
-								+ " et ON e.id = et.rowid"
-								+ " JOIN "
-								+ DatabaseHelper.DAYS_TABLE_NAME
-								+ " d ON e.day_index = d._index"
-								+ " JOIN "
-								+ DatabaseHelper.TRACKS_TABLE_NAME
-								+ " t ON e.track_id = t.id"
-								+ " LEFT JOIN "
-								+ DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
-								+ " ep ON e.id = ep.event_id"
-								+ " LEFT JOIN "
-								+ DatabaseHelper.PERSONS_TABLE_NAME
-								+ " p ON ep.person_id = p.rowid"
-								+ " LEFT JOIN "
-								+ DatabaseHelper.BOOKMARKS_TABLE_NAME
-								+ " b ON e.id = b.event_id"
-								+ " WHERE e.day_index = ? AND t.name = ? AND t.type = ?"
-								+ " GROUP BY e.id" + " ORDER BY e.start_time ASC", selectionArgs);
+		String[] selectionArgs = new String[]{String.valueOf(day.getIndex()), track.getName(), track.getType().name()};
+		Cursor cursor = helper.getReadableDatabase().rawQuery(
+				"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, b.event_id"
+						+ " FROM " + DatabaseHelper.EVENTS_TABLE_NAME + " e"
+						+ " JOIN " + DatabaseHelper.EVENTS_TITLES_TABLE_NAME + " et ON e.id = et.rowid"
+						+ " JOIN " + DatabaseHelper.DAYS_TABLE_NAME + " d ON e.day_index = d._index"
+						+ " JOIN " + DatabaseHelper.TRACKS_TABLE_NAME + " t ON e.track_id = t.id"
+						+ " LEFT JOIN " + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME + " ep ON e.id = ep.event_id"
+						+ " LEFT JOIN " + DatabaseHelper.PERSONS_TABLE_NAME + " p ON ep.person_id = p.rowid"
+						+ " LEFT JOIN " + DatabaseHelper.BOOKMARKS_TABLE_NAME + " b ON e.id = b.event_id"
+						+ " WHERE e.day_index = ? AND t.name = ? AND t.type = ?"
+						+ " GROUP BY e.id"
+						+ " ORDER BY e.start_time ASC", selectionArgs);
 		cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
 		return cursor;
 	}
 
 	/**
 	 * Returns the events in the specified time window, ordered by start time. All parameters are optional but at least one must be provided.
-	 * 
-	 * @param minStartTime
-	 *            Minimum start time, or -1
-	 * @param maxStartTime
-	 *            Maximum start time, or -1
-	 * @param minEndTime
-	 *            Minimum end time, or -1
-	 * @param ascending
-	 *            If true, order results from start time ascending, else order from start time descending
+	 *
+	 * @param minStartTime Minimum start time, or -1
+	 * @param maxStartTime Maximum start time, or -1
+	 * @param minEndTime   Minimum end time, or -1
+	 * @param ascending    If true, order results from start time ascending, else order from start time descending
 	 * @return
 	 */
 	public Cursor getEvents(long minStartTime, long maxStartTime, long minEndTime, boolean ascending) {
@@ -520,84 +488,52 @@ public class DatabaseManager {
 		}
 		String ascendingString = ascending ? "ASC" : "DESC";
 
-		Cursor cursor = helper
-				.getReadableDatabase()
-				.rawQuery(
-						"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, b.event_id"
-								+ " FROM "
-								+ DatabaseHelper.EVENTS_TABLE_NAME
-								+ " e"
-								+ " JOIN "
-								+ DatabaseHelper.EVENTS_TITLES_TABLE_NAME
-								+ " et ON e.id = et.rowid"
-								+ " JOIN "
-								+ DatabaseHelper.DAYS_TABLE_NAME
-								+ " d ON e.day_index = d._index"
-								+ " JOIN "
-								+ DatabaseHelper.TRACKS_TABLE_NAME
-								+ " t ON e.track_id = t.id"
-								+ " LEFT JOIN "
-								+ DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
-								+ " ep ON e.id = ep.event_id"
-								+ " LEFT JOIN "
-								+ DatabaseHelper.PERSONS_TABLE_NAME
-								+ " p ON ep.person_id = p.rowid"
-								+ " LEFT JOIN "
-								+ DatabaseHelper.BOOKMARKS_TABLE_NAME
-								+ " b ON e.id = b.event_id"
-								+ " WHERE "
-								+ whereCondition.toString()
-								+ " GROUP BY e.id"
-								+ " ORDER BY e.start_time " + ascendingString, selectionArgs.toArray(new String[selectionArgs.size()]));
+		Cursor cursor = helper.getReadableDatabase().rawQuery(
+				"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, b.event_id"
+						+ " FROM " + DatabaseHelper.EVENTS_TABLE_NAME + " e"
+						+ " JOIN " + DatabaseHelper.EVENTS_TITLES_TABLE_NAME + " et ON e.id = et.rowid"
+						+ " JOIN " + DatabaseHelper.DAYS_TABLE_NAME + " d ON e.day_index = d._index"
+						+ " JOIN " + DatabaseHelper.TRACKS_TABLE_NAME + " t ON e.track_id = t.id"
+						+ " LEFT JOIN " + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME + " ep ON e.id = ep.event_id"
+						+ " LEFT JOIN " + DatabaseHelper.PERSONS_TABLE_NAME + " p ON ep.person_id = p.rowid"
+						+ " LEFT JOIN " + DatabaseHelper.BOOKMARKS_TABLE_NAME + " b ON e.id = b.event_id"
+						+ " WHERE " + whereCondition.toString()
+						+ " GROUP BY e.id"
+						+ " ORDER BY e.start_time " + ascendingString,
+				selectionArgs.toArray(new String[selectionArgs.size()]));
 		cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
 		return cursor;
 	}
 
 	/**
 	 * Returns the events presented by the specified person.
-	 * 
+	 *
 	 * @param person
 	 * @return A cursor to Events
 	 */
 	public Cursor getEvents(Person person) {
-		String[] selectionArgs = new String[] { String.valueOf(person.getId()) };
-		Cursor cursor = helper
-				.getReadableDatabase()
-				.rawQuery(
-						"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, b.event_id"
-								+ " FROM "
-								+ DatabaseHelper.EVENTS_TABLE_NAME
-								+ " e"
-								+ " JOIN "
-								+ DatabaseHelper.EVENTS_TITLES_TABLE_NAME
-								+ " et ON e.id = et.rowid"
-								+ " JOIN "
-								+ DatabaseHelper.DAYS_TABLE_NAME
-								+ " d ON e.day_index = d._index"
-								+ " JOIN "
-								+ DatabaseHelper.TRACKS_TABLE_NAME
-								+ " t ON e.track_id = t.id"
-								+ " LEFT JOIN "
-								+ DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
-								+ " ep ON e.id = ep.event_id"
-								+ " LEFT JOIN "
-								+ DatabaseHelper.PERSONS_TABLE_NAME
-								+ " p ON ep.person_id = p.rowid"
-								+ " LEFT JOIN "
-								+ DatabaseHelper.BOOKMARKS_TABLE_NAME
-								+ " b ON e.id = b.event_id"
-								+ " JOIN "
-								+ DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
-								+ " ep2 ON e.id = ep2.event_id" + " WHERE ep2.person_id = ?" + " GROUP BY e.id" + " ORDER BY e.start_time ASC", selectionArgs);
+		String[] selectionArgs = new String[]{String.valueOf(person.getId())};
+		Cursor cursor = helper.getReadableDatabase().rawQuery(
+				"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, b.event_id"
+						+ " FROM " + DatabaseHelper.EVENTS_TABLE_NAME + " e"
+						+ " JOIN " + DatabaseHelper.EVENTS_TITLES_TABLE_NAME + " et ON e.id = et.rowid"
+						+ " JOIN " + DatabaseHelper.DAYS_TABLE_NAME + " d ON e.day_index = d._index"
+						+ " JOIN " + DatabaseHelper.TRACKS_TABLE_NAME + " t ON e.track_id = t.id"
+						+ " LEFT JOIN " + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME + " ep ON e.id = ep.event_id"
+						+ " LEFT JOIN " + DatabaseHelper.PERSONS_TABLE_NAME + " p ON ep.person_id = p.rowid"
+						+ " LEFT JOIN " + DatabaseHelper.BOOKMARKS_TABLE_NAME + " b ON e.id = b.event_id"
+						+ " JOIN " + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME + " ep2 ON e.id = ep2.event_id"
+						+ " WHERE ep2.person_id = ?"
+						+ " GROUP BY e.id"
+						+ " ORDER BY e.start_time ASC", selectionArgs);
 		cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
 		return cursor;
 	}
 
 	/**
 	 * Returns the bookmarks.
-	 * 
-	 * @param minStartTime
-	 *            When positive, only return the events starting after this time.
+	 *
+	 * @param minStartTime When positive, only return the events starting after this time.
 	 * @return A cursor to Events
 	 */
 	public Cursor getBookmarks(long minStartTime) {
@@ -605,37 +541,24 @@ public class DatabaseManager {
 		String[] selectionArgs;
 		if (minStartTime > 0L) {
 			whereCondition = " WHERE e.start_time > ?";
-			selectionArgs = new String[] { String.valueOf(minStartTime) };
+			selectionArgs = new String[]{String.valueOf(minStartTime)};
 		} else {
 			whereCondition = "";
 			selectionArgs = null;
 		}
 
-		Cursor cursor = helper
-				.getReadableDatabase()
-				.rawQuery(
-						"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, 1"
-								+ " FROM "
-								+ DatabaseHelper.BOOKMARKS_TABLE_NAME
-								+ " b"
-								+ " JOIN "
-								+ DatabaseHelper.EVENTS_TABLE_NAME
-								+ " e ON b.event_id = e.id"
-								+ " JOIN "
-								+ DatabaseHelper.EVENTS_TITLES_TABLE_NAME
-								+ " et ON e.id = et.rowid"
-								+ " JOIN "
-								+ DatabaseHelper.DAYS_TABLE_NAME
-								+ " d ON e.day_index = d._index"
-								+ " JOIN "
-								+ DatabaseHelper.TRACKS_TABLE_NAME
-								+ " t ON e.track_id = t.id"
-								+ " LEFT JOIN "
-								+ DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
-								+ " ep ON e.id = ep.event_id"
-								+ " LEFT JOIN "
-								+ DatabaseHelper.PERSONS_TABLE_NAME
-								+ " p ON ep.person_id = p.rowid" + whereCondition + " GROUP BY e.id" + " ORDER BY e.start_time ASC", selectionArgs);
+		Cursor cursor = helper.getReadableDatabase().rawQuery(
+				"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, 1"
+						+ " FROM " + DatabaseHelper.BOOKMARKS_TABLE_NAME + " b"
+						+ " JOIN " + DatabaseHelper.EVENTS_TABLE_NAME + " e ON b.event_id = e.id"
+						+ " JOIN " + DatabaseHelper.EVENTS_TITLES_TABLE_NAME + " et ON e.id = et.rowid"
+						+ " JOIN " + DatabaseHelper.DAYS_TABLE_NAME + " d ON e.day_index = d._index"
+						+ " JOIN " + DatabaseHelper.TRACKS_TABLE_NAME + " t ON e.track_id = t.id"
+						+ " LEFT JOIN " + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME + " ep ON e.id = ep.event_id"
+						+ " LEFT JOIN " + DatabaseHelper.PERSONS_TABLE_NAME + " p ON ep.person_id = p.rowid"
+						+ whereCondition
+						+ " GROUP BY e.id"
+						+ " ORDER BY e.start_time ASC", selectionArgs);
 		cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
 		return cursor;
 	}
@@ -643,87 +566,77 @@ public class DatabaseManager {
 	/**
 	 * Search through matching titles, subtitles, track names, person names. We need to use an union of 3 sub-queries because a "match" condition can not be
 	 * accompanied by other conditions in a "where" statement.
-	 * 
+	 *
 	 * @param query
 	 * @return A cursor to Events
 	 */
 	public Cursor getSearchResults(String query) {
 		final String matchQuery = query + "*";
-		String[] selectionArgs = new String[] { matchQuery, "%" + query + "%", matchQuery };
-		Cursor cursor = helper
-				.getReadableDatabase()
-				.rawQuery(
-						"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, b.event_id"
-								+ " FROM "
-								+ DatabaseHelper.EVENTS_TABLE_NAME
-								+ " e"
-								+ " JOIN "
-								+ DatabaseHelper.EVENTS_TITLES_TABLE_NAME
-								+ " et ON e.id = et.rowid"
-								+ " JOIN "
-								+ DatabaseHelper.DAYS_TABLE_NAME
-								+ " d ON e.day_index = d._index"
-								+ " JOIN "
-								+ DatabaseHelper.TRACKS_TABLE_NAME
-								+ " t ON e.track_id = t.id"
-								+ " LEFT JOIN "
-								+ DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
-								+ " ep ON e.id = ep.event_id"
-								+ " LEFT JOIN "
-								+ DatabaseHelper.PERSONS_TABLE_NAME
-								+ " p ON ep.person_id = p.rowid"
-								+ " LEFT JOIN "
-								+ DatabaseHelper.BOOKMARKS_TABLE_NAME
-								+ " b ON e.id = b.event_id"
-								+ " WHERE e.id IN ( "
-								+ "SELECT rowid"
-								+ " FROM "
-								+ DatabaseHelper.EVENTS_TITLES_TABLE_NAME
-								+ " WHERE "
-								+ DatabaseHelper.EVENTS_TITLES_TABLE_NAME
-								+ " MATCH ?"
-								+ " UNION "
-								+ "SELECT e.id"
-								+ " FROM "
-								+ DatabaseHelper.EVENTS_TABLE_NAME
-								+ " e"
-								+ " JOIN "
-								+ DatabaseHelper.TRACKS_TABLE_NAME
-								+ " t ON e.track_id = t.id"
-								+ " WHERE t.name LIKE ?"
-								+ " UNION "
-								+ "SELECT ep.event_id"
-								+ " FROM "
-								+ DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
-								+ " ep"
-								+ " JOIN "
-								+ DatabaseHelper.PERSONS_TABLE_NAME
-								+ " p ON ep.person_id = p.rowid" + " WHERE p.name MATCH ?" + " )" + " GROUP BY e.id" + " ORDER BY e.start_time ASC",
-						selectionArgs);
+		String[] selectionArgs = new String[]{matchQuery, "%" + query + "%", matchQuery};
+		Cursor cursor = helper.getReadableDatabase().rawQuery(
+				"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, b.event_id"
+						+ " FROM " + DatabaseHelper.EVENTS_TABLE_NAME + " e"
+						+ " JOIN " + DatabaseHelper.EVENTS_TITLES_TABLE_NAME + " et ON e.id = et.rowid"
+						+ " JOIN " + DatabaseHelper.DAYS_TABLE_NAME + " d ON e.day_index = d._index"
+						+ " JOIN " + DatabaseHelper.TRACKS_TABLE_NAME + " t ON e.track_id = t.id"
+						+ " LEFT JOIN " + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME + " ep ON e.id = ep.event_id"
+						+ " LEFT JOIN " + DatabaseHelper.PERSONS_TABLE_NAME + " p ON ep.person_id = p.rowid"
+						+ " LEFT JOIN " + DatabaseHelper.BOOKMARKS_TABLE_NAME + " b ON e.id = b.event_id"
+						+ " WHERE e.id IN ( "
+						+ "SELECT rowid"
+						+ " FROM " + DatabaseHelper.EVENTS_TITLES_TABLE_NAME
+						+ " WHERE " + DatabaseHelper.EVENTS_TITLES_TABLE_NAME + " MATCH ?"
+						+ " UNION "
+						+ "SELECT e.id"
+						+ " FROM " + DatabaseHelper.EVENTS_TABLE_NAME + " e"
+						+ " JOIN " + DatabaseHelper.TRACKS_TABLE_NAME + " t ON e.track_id = t.id"
+						+ " WHERE t.name LIKE ?"
+						+ " UNION "
+						+ "SELECT ep.event_id"
+						+ " FROM " + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME + " ep"
+						+ " JOIN " + DatabaseHelper.PERSONS_TABLE_NAME + " p ON ep.person_id = p.rowid"
+						+ " WHERE p.name MATCH ?"
+						+ " )"
+						+ " GROUP BY e.id"
+						+ " ORDER BY e.start_time ASC", selectionArgs);
 		cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
 		return cursor;
 	}
 
 	/**
 	 * Method called by SearchSuggestionProvider to return search results in the format expected by the search framework.
-	 * 
 	 */
 	public Cursor getSearchSuggestionResults(String query, int limit) {
 		final String matchQuery = query + "*";
-		String[] selectionArgs = new String[] { matchQuery, "%" + query + "%", matchQuery, String.valueOf(limit) };
+		String[] selectionArgs = new String[]{matchQuery, "%" + query + "%", matchQuery, String.valueOf(limit)};
 		// Query is similar to getSearchResults but returns different columns, does not join the Day table or the Bookmark table and limits the result set.
 		Cursor cursor = helper.getReadableDatabase().rawQuery(
-				"SELECT e.id AS " + BaseColumns._ID + ", et.title AS " + SearchManager.SUGGEST_COLUMN_TEXT_1
-						+ ", IFNULL(GROUP_CONCAT(p.name, ', '), '') || ' - ' || t.name AS " + SearchManager.SUGGEST_COLUMN_TEXT_2 + ", e.id AS "
-						+ SearchManager.SUGGEST_COLUMN_INTENT_DATA + " FROM " + DatabaseHelper.EVENTS_TABLE_NAME + " e" + " JOIN "
-						+ DatabaseHelper.EVENTS_TITLES_TABLE_NAME + " et ON e.id = et.rowid" + " JOIN " + DatabaseHelper.TRACKS_TABLE_NAME
-						+ " t ON e.track_id = t.id" + " LEFT JOIN " + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME + " ep ON e.id = ep.event_id" + " LEFT JOIN "
-						+ DatabaseHelper.PERSONS_TABLE_NAME + " p ON ep.person_id = p.rowid" + " WHERE e.id IN ( " + "SELECT rowid" + " FROM "
-						+ DatabaseHelper.EVENTS_TITLES_TABLE_NAME + " WHERE " + DatabaseHelper.EVENTS_TITLES_TABLE_NAME + " MATCH ?" + " UNION "
-						+ "SELECT e.id" + " FROM " + DatabaseHelper.EVENTS_TABLE_NAME + " e" + " JOIN " + DatabaseHelper.TRACKS_TABLE_NAME
-						+ " t ON e.track_id = t.id" + " WHERE t.name LIKE ?" + " UNION " + "SELECT ep.event_id" + " FROM "
-						+ DatabaseHelper.EVENTS_PERSONS_TABLE_NAME + " ep" + " JOIN " + DatabaseHelper.PERSONS_TABLE_NAME + " p ON ep.person_id = p.rowid"
-						+ " WHERE p.name MATCH ?" + " )" + " GROUP BY e.id" + " ORDER BY e.start_time ASC LIMIT ?", selectionArgs);
+				"SELECT e.id AS " + BaseColumns._ID
+						+ ", et.title AS " + SearchManager.SUGGEST_COLUMN_TEXT_1
+						+ ", IFNULL(GROUP_CONCAT(p.name, ', '), '') || ' - ' || t.name AS " + SearchManager.SUGGEST_COLUMN_TEXT_2
+						+ ", e.id AS " + SearchManager.SUGGEST_COLUMN_INTENT_DATA
+						+ " FROM " + DatabaseHelper.EVENTS_TABLE_NAME + " e"
+						+ " JOIN " + DatabaseHelper.EVENTS_TITLES_TABLE_NAME + " et ON e.id = et.rowid"
+						+ " JOIN " + DatabaseHelper.TRACKS_TABLE_NAME + " t ON e.track_id = t.id"
+						+ " LEFT JOIN " + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME + " ep ON e.id = ep.event_id"
+						+ " LEFT JOIN " + DatabaseHelper.PERSONS_TABLE_NAME + " p ON ep.person_id = p.rowid"
+						+ " WHERE e.id IN ( "
+						+ "SELECT rowid"
+						+ " FROM " + DatabaseHelper.EVENTS_TITLES_TABLE_NAME
+						+ " WHERE " + DatabaseHelper.EVENTS_TITLES_TABLE_NAME + " MATCH ?"
+						+ " UNION "
+						+ "SELECT e.id"
+						+ " FROM " + DatabaseHelper.EVENTS_TABLE_NAME + " e"
+						+ " JOIN " + DatabaseHelper.TRACKS_TABLE_NAME + " t ON e.track_id = t.id"
+						+ " WHERE t.name LIKE ?"
+						+ " UNION "
+						+ "SELECT ep.event_id"
+						+ " FROM " + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME + " ep"
+						+ " JOIN " + DatabaseHelper.PERSONS_TABLE_NAME + " p ON ep.person_id = p.rowid"
+						+ " WHERE p.name MATCH ?"
+						+ " )"
+						+ " GROUP BY e.id"
+						+ " ORDER BY e.start_time ASC LIMIT ?", selectionArgs);
 		return cursor;
 	}
 
@@ -809,7 +722,9 @@ public class DatabaseManager {
 	 */
 	public Cursor getPersons() {
 		Cursor cursor = helper.getReadableDatabase().rawQuery(
-				"SELECT rowid AS _id, name" + " FROM " + DatabaseHelper.PERSONS_TABLE_NAME + " ORDER BY name COLLATE NOCASE", null);
+				"SELECT rowid AS _id, name"
+						+ " FROM " + DatabaseHelper.PERSONS_TABLE_NAME
+						+ " ORDER BY name COLLATE NOCASE", null);
 		cursor.setNotificationUri(context.getContentResolver(), URI_EVENTS);
 		return cursor;
 	}
@@ -820,10 +735,12 @@ public class DatabaseManager {
 	 * Returns persons presenting the specified event.
 	 */
 	public List<Person> getPersons(Event event) {
-		String[] selectionArgs = new String[] { String.valueOf(event.getId()) };
+		String[] selectionArgs = new String[]{String.valueOf(event.getId())};
 		Cursor cursor = helper.getReadableDatabase().rawQuery(
-				"SELECT p.rowid AS _id, p.name" + " FROM " + DatabaseHelper.PERSONS_TABLE_NAME + " p" + " JOIN " + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME
-						+ " ep ON p.rowid = ep.person_id" + " WHERE ep.event_id = ?", selectionArgs);
+				"SELECT p.rowid AS _id, p.name"
+						+ " FROM " + DatabaseHelper.PERSONS_TABLE_NAME + " p"
+						+ " JOIN " + DatabaseHelper.EVENTS_PERSONS_TABLE_NAME + " ep ON p.rowid = ep.person_id"
+						+ " WHERE ep.event_id = ?", selectionArgs);
 		try {
 			List<Person> result = new ArrayList<>(cursor.getCount());
 			while (cursor.moveToNext()) {
@@ -850,9 +767,12 @@ public class DatabaseManager {
 	}
 
 	public List<Link> getLinks(Event event) {
-		String[] selectionArgs = new String[] { String.valueOf(event.getId()) };
+		String[] selectionArgs = new String[]{String.valueOf(event.getId())};
 		Cursor cursor = helper.getReadableDatabase().rawQuery(
-				"SELECT url, description" + " FROM " + DatabaseHelper.LINKS_TABLE_NAME + " WHERE event_id = ?" + " ORDER BY rowid ASC", selectionArgs);
+				"SELECT url, description"
+						+ " FROM " + DatabaseHelper.LINKS_TABLE_NAME
+						+ " WHERE event_id = ?"
+						+ " ORDER BY rowid ASC", selectionArgs);
 		try {
 			List<Link> result = new ArrayList<>(cursor.getCount());
 			while (cursor.moveToNext()) {
@@ -868,7 +788,7 @@ public class DatabaseManager {
 	}
 
 	public boolean isBookmarked(Event event) {
-		String[] selectionArgs = new String[] { String.valueOf(event.getId()) };
+		String[] selectionArgs = new String[]{String.valueOf(event.getId())};
 		return queryNumEntries(helper.getReadableDatabase(), DatabaseHelper.BOOKMARKS_TABLE_NAME, "event_id = ?", selectionArgs) > 0L;
 	}
 
@@ -907,11 +827,11 @@ public class DatabaseManager {
 	}
 
 	public boolean removeBookmark(Event event) {
-		return removeBookmarks(new long[] { event.getId() });
+		return removeBookmarks(new long[]{event.getId()});
 	}
 
 	public boolean removeBookmark(long eventId) {
-		return removeBookmarks(new long[] { eventId });
+		return removeBookmarks(new long[]{eventId});
 	}
 
 	public boolean removeBookmarks(long[] eventIds) {
