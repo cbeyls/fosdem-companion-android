@@ -15,6 +15,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -177,7 +178,7 @@ public class AlarmIntentService extends IntentService {
 						bigText = spannableBigText;
 					}
 
-					int notificationColor = getResources().getColor(R.color.color_primary);
+					int notificationColor = ContextCompat.getColor(this, R.color.color_primary);
 
 					NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
 							.setSmallIcon(R.drawable.ic_stat_fosdem)

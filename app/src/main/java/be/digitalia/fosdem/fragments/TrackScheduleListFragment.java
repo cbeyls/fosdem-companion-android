@@ -2,13 +2,13 @@ package be.digitalia.fosdem.fragments;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.TextViewCompat;
@@ -252,9 +252,8 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 			super(context, null, 0);
 			inflater = LayoutInflater.from(context);
 			timeDateFormat = DateUtils.getTimeDateFormat(context);
-			Resources res = context.getResources();
-			timeBackgroundColor = res.getColor(R.color.schedule_time_background);
-			timeRunningBackgroundColor = res.getColor(R.color.schedule_time_running_background);
+			timeBackgroundColor = ContextCompat.getColor(context, R.color.schedule_time_background);
+			timeRunningBackgroundColor = ContextCompat.getColor(context, R.color.schedule_time_running_background);
 
 			TypedArray a = context.getTheme().obtainStyledAttributes(PRIMARY_TEXT_COLORS);
 			timeForegroundColor = a.getColor(0, 0);
