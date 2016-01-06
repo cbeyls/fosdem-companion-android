@@ -16,6 +16,7 @@ import android.widget.ListView;
 
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.EventDetailsActivity;
+import be.digitalia.fosdem.adapters.BookmarksAdapter;
 import be.digitalia.fosdem.adapters.EventsAdapter;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.loaders.SimpleCursorLoader;
@@ -42,7 +43,7 @@ public class BookmarksListFragment extends SmoothListFragment implements LoaderC
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		adapter = new EventsAdapter(getActivity());
+		adapter = new BookmarksAdapter(getActivity());
 		setListAdapter(adapter);
 
 		upcomingOnly = getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean(PREF_UPCOMING_ONLY, false);

@@ -20,8 +20,8 @@ import be.digitalia.fosdem.utils.DateUtils;
 
 public class EventsAdapter extends CursorAdapter {
 
-	private final LayoutInflater inflater;
-	private final DateFormat timeDateFormat;
+	protected final LayoutInflater inflater;
+	protected final DateFormat timeDateFormat;
 	private final boolean showDay;
 
 	public EventsAdapter(Context context) {
@@ -81,7 +81,7 @@ public class EventsAdapter extends CursorAdapter {
 		holder.details.setText(details);
 	}
 
-	private static class ViewHolder {
+	protected static class ViewHolder {
 		TextView title;
 		TextView persons;
 		TextView trackName;

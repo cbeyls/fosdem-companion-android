@@ -713,6 +713,10 @@ public class DatabaseManager {
 		return cursor.isNull(1) ? -1L : cursor.getLong(1);
 	}
 
+	public static long toEventEndTimeMillis(Cursor cursor) {
+		return cursor.isNull(2) ? -1L : cursor.getLong(2);
+	}
+
 	public static boolean toBookmarkStatus(Cursor cursor) {
 		return !cursor.isNull(14);
 	}
