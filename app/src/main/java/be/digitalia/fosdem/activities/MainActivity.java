@@ -478,7 +478,6 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 			Drawable sectionIcon = getResources().getDrawable(section.getIconResId());
 			if (section == currentSection) {
 				// Special color for the current section
-				//sectionTitle.setSpan(new StyleSpan(Typeface.BOLD), 0, sectionTitle.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 				sectionTitle.setSpan(new ForegroundColorSpan(currentSectionForegroundColor), 0, sectionTitle.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 				// We need to mutate the drawable before applying the ColorFilter, or else all the similar drawable instances will be tinted.
 				sectionIcon.mutate().setColorFilter(currentSectionForegroundColor, PorterDuff.Mode.SRC_IN);
