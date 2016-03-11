@@ -1,11 +1,12 @@
 package be.digitalia.fosdem.model;
 
-import java.util.Date;
-import java.util.List;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
+
+import java.util.Date;
+import java.util.List;
+
 import be.digitalia.fosdem.api.FosdemUrls;
 import be.digitalia.fosdem.db.DatabaseManager;
 
@@ -66,7 +67,6 @@ public class Event implements Parcelable {
 	}
 
 	/**
-	 * 
 	 * @return The event duration in minutes
 	 */
 	public int getDuration() {
@@ -205,18 +205,8 @@ public class Event implements Parcelable {
 		out.writeString(abstractText);
 		out.writeString(description);
 		out.writeString(personsSummary);
-		if (persons == null) {
-			out.writeInt(0);
-		} else {
-			out.writeInt(1);
-			out.writeTypedList(persons);
-		}
-		if (links == null) {
-			out.writeInt(0);
-		} else {
-			out.writeInt(1);
-			out.writeTypedList(links);
-		}
+		out.writeTypedList(persons);
+		out.writeTypedList(links);
 	}
 
 	public static final Parcelable.Creator<Event> CREATOR = new Parcelable.Creator<Event>() {
@@ -248,11 +238,7 @@ public class Event implements Parcelable {
 		abstractText = in.readString();
 		description = in.readString();
 		personsSummary = in.readString();
-		if (in.readInt() == 1) {
-			persons = in.createTypedArrayList(Person.CREATOR);
-		}
-		if (in.readInt() == 1) {
-			links = in.createTypedArrayList(Link.CREATOR);
-		}
+		persons = in.createTypedArrayList(Person.CREATOR);
+		links = in.createTypedArrayList(Link.CREATOR);
 	}
 }
