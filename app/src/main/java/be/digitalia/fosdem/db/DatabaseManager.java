@@ -610,7 +610,7 @@ public class DatabaseManager {
 		final String matchQuery = query + "*";
 		String[] selectionArgs = new String[]{matchQuery, "%" + query + "%", matchQuery, String.valueOf(limit)};
 		// Query is similar to getSearchResults but returns different columns, does not join the Day table or the Bookmark table and limits the result set.
-		Cursor cursor = helper.getReadableDatabase().rawQuery(
+		return helper.getReadableDatabase().rawQuery(
 				"SELECT e.id AS " + BaseColumns._ID
 						+ ", et.title AS " + SearchManager.SUGGEST_COLUMN_TEXT_1
 						+ ", IFNULL(GROUP_CONCAT(p.name, ', '), '') || ' - ' || t.name AS " + SearchManager.SUGGEST_COLUMN_TEXT_2
@@ -637,7 +637,6 @@ public class DatabaseManager {
 						+ " )"
 						+ " GROUP BY e.id"
 						+ " ORDER BY e.start_time ASC LIMIT ?", selectionArgs);
-		return cursor;
 	}
 
 	public static Event toEvent(Cursor cursor, Event event) {

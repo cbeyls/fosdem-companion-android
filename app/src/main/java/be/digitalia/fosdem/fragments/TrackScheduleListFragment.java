@@ -1,6 +1,5 @@
 package be.digitalia.fosdem.fragments;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.Cursor;
@@ -93,10 +92,10 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 	}
 
 	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		if (activity instanceof Callbacks) {
-			listener = (Callbacks) activity;
+	public void onAttach(Context context) {
+		super.onAttach(context);
+		if (context instanceof Callbacks) {
+			listener = (Callbacks) context;
 		}
 	}
 
@@ -237,9 +236,6 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 
 	private static class TrackScheduleAdapter extends CursorAdapter {
 
-		private static final int[] PRIMARY_TEXT_COLORS
-				= new int[]{android.R.attr.textColorPrimary, android.R.attr.textColorPrimaryInverse};
-
 		private final LayoutInflater inflater;
 		private final DateFormat timeDateFormat;
 		private final int timeBackgroundColor;
@@ -255,9 +251,9 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 			timeBackgroundColor = ContextCompat.getColor(context, R.color.schedule_time_background);
 			timeRunningBackgroundColor = ContextCompat.getColor(context, R.color.schedule_time_running_background);
 
-			TypedArray a = context.getTheme().obtainStyledAttributes(PRIMARY_TEXT_COLORS);
-			timeForegroundColor = a.getColor(0, 0);
-			timeRunningForegroundColor = a.getColor(1, 0);
+			TypedArray a = context.getTheme().obtainStyledAttributes(R.styleable.PrimaryTextColors);
+			timeForegroundColor = a.getColor(R.styleable.PrimaryTextColors_android_textColorPrimary, 0);
+			timeRunningForegroundColor = a.getColor(R.styleable.PrimaryTextColors_android_textColorPrimaryInverse, 0);
 			a.recycle();
 		}
 

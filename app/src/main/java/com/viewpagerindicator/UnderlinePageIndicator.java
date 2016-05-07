@@ -272,13 +272,13 @@ public class UnderlinePageIndicator extends View implements PageIndicator {
         }
         if (mViewPager != null) {
             //Clear us from the old pager.
-            mViewPager.setOnPageChangeListener(null);
+            mViewPager.removeOnPageChangeListener(this);
         }
         if (viewPager.getAdapter() == null) {
             throw new IllegalStateException("ViewPager does not have adapter instance.");
         }
         mViewPager = viewPager;
-        mViewPager.setOnPageChangeListener(this);
+        mViewPager.addOnPageChangeListener(this);
         invalidate();
         post(new Runnable() {
             @Override public void run() {

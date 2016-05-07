@@ -16,4 +16,9 @@
         <attr name="insetForeground" format="color|reference"/>
     </declare-styleable>
 
+    <declare-styleable name="PrimaryTextColors">
+        <attr name="android:textColorPrimary"/>
+        <attr name="android:textColorPrimaryInverse"/>
+    </declare-styleable>
+
 </resources>

@@ -25,7 +25,9 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.TextViewCompat;
@@ -39,7 +41,6 @@ import android.text.Spanned;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -222,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 		// Setup drawer layout
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-		drawerLayout.setDrawerShadow(getResources().getDrawable(R.drawable.drawer_shadow), Gravity.LEFT);
+		drawerLayout.setDrawerShadow(ContextCompat.getDrawable(this, R.drawable.drawer_shadow), GravityCompat.START);
 		drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.main_menu, R.string.close_menu) {
 
 			@Override
@@ -475,7 +476,7 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 
 			TextView tv = (TextView) convertView.findViewById(R.id.section_text);
 			SpannableString sectionTitle = new SpannableString(getString(section.getTitleResId()));
-			Drawable sectionIcon = getResources().getDrawable(section.getIconResId());
+			Drawable sectionIcon = ContextCompat.getDrawable(MainActivity.this, section.getIconResId());
 			if (section == currentSection) {
 				// Special color for the current section
 				sectionTitle.setSpan(new ForegroundColorSpan(currentSectionForegroundColor), 0, sectionTitle.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

@@ -20,7 +20,7 @@ public class NfcUtils {
 		 * 
 		 * @return The app data, or null if no data is currently available for sharing.
 		 */
-		public byte[] createNfcAppData();
+		byte[] createNfcAppData();
 	}
 
 	/**

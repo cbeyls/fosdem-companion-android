@@ -1,7 +1,5 @@
 package be.digitalia.fosdem.fragments;
 
-import java.util.List;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,12 +16,15 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.example.android.common.view.SlidingTabLayout;
+
+import java.util.List;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.loaders.GlobalCacheLoader;
 import be.digitalia.fosdem.model.Day;
-
-import com.example.android.common.view.SlidingTabLayout;
 
 public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day>> {
 
@@ -136,7 +137,7 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 		if (totalPages == 0) {
 			holder.contentView.setVisibility(View.GONE);
 			holder.emptyView.setVisibility(View.VISIBLE);
-			holder.pager.setOnPageChangeListener(null);
+			holder.pager.clearOnPageChangeListeners();
 		} else {
 			holder.contentView.setVisibility(View.VISIBLE);
 			holder.emptyView.setVisibility(View.GONE);

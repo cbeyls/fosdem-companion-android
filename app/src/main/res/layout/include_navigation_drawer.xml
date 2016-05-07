@@ -23,6 +23,7 @@
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/main_menu_header_height"
+                android:contentDescription="@string/app_name"
                 android:padding="@dimen/main_menu_padding"
                 android:scaleType="center"
                 android:src="@drawable/fosdem_title"/>
