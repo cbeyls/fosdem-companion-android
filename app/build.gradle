@@ -10,11 +10,14 @@ android {
         targetSdkVersion 23
         versionCode 700136
         versionName "1.3.6"
+        // Supported languages
+        resConfigs "en"
     }
 
     buildTypes {
         release {
             minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
