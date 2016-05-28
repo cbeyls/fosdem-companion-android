@@ -15,9 +15,7 @@
  */
 package com.viewpagerindicator;
 
-import be.digitalia.fosdem.R;
 import android.content.Context;
-import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -32,6 +30,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+
+import be.digitalia.fosdem.R;
 
 /**
  * Draws a line for each page. The current page line is colored differently
@@ -49,7 +49,6 @@ public class UnderlinePageIndicator extends View implements PageIndicator {
     private int mFadeBy;
 
     private ViewPager mViewPager;
-    private ViewPager.OnPageChangeListener mListener;
     private int mScrollState;
     private int mCurrentPage;
     private float mPositionOffset;
@@ -85,25 +84,17 @@ public class UnderlinePageIndicator extends View implements PageIndicator {
         super(context, attrs, defStyle);
         if (isInEditMode()) return;
 
-        final Resources res = getResources();
-
-        //Load defaults from resources
-        final boolean defaultFades = res.getBoolean(R.bool.default_underline_indicator_fades);
-        final int defaultFadeDelay = res.getInteger(R.integer.default_underline_indicator_fade_delay);
-        final int defaultFadeLength = res.getInteger(R.integer.default_underline_indicator_fade_length);
-        final int defaultSelectedColor = res.getColor(R.color.default_underline_indicator_selected_color);
-
         //Retrieve styles attributes
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.UnderlinePageIndicator, defStyle, 0);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.UnderlinePageIndicator, defStyle, R.style.UnderlinePageIndicator);
 
-        setFades(a.getBoolean(R.styleable.UnderlinePageIndicator_fades, defaultFades));
-        setSelectedColor(a.getColor(R.styleable.UnderlinePageIndicator_selectedColor, defaultSelectedColor));
-        setFadeDelay(a.getInteger(R.styleable.UnderlinePageIndicator_fadeDelay, defaultFadeDelay));
-        setFadeLength(a.getInteger(R.styleable.UnderlinePageIndicator_fadeLength, defaultFadeLength));
+        setFades(a.getBoolean(R.styleable.UnderlinePageIndicator_fades, false));
+        setSelectedColor(a.getColor(R.styleable.UnderlinePageIndicator_selectedColor, 0));
+        setFadeDelay(a.getInteger(R.styleable.UnderlinePageIndicator_fadeDelay, 0));
+        setFadeLength(a.getInteger(R.styleable.UnderlinePageIndicator_fadeLength, 0));
 
         Drawable background = a.getDrawable(R.styleable.UnderlinePageIndicator_android_background);
         if (background != null) {
-          setBackgroundDrawable(background);
+            setBackgroundDrawable(background);
         }
 
         a.recycle();
@@ -313,10 +304,6 @@ public class UnderlinePageIndicator extends View implements PageIndicator {
     @Override
     public void onPageScrollStateChanged(int state) {
         mScrollState = state;
-
-        if (mListener != null) {
-            mListener.onPageScrollStateChanged(state);
-        }
     }
 
     @Override
@@ -332,10 +319,6 @@ public class UnderlinePageIndicator extends View implements PageIndicator {
             }
         }
         invalidate();
-
-        if (mListener != null) {
-            mListener.onPageScrolled(position, positionOffset, positionOffsetPixels);
-        }
     }
 
     @Override
@@ -346,14 +329,6 @@ public class UnderlinePageIndicator extends View implements PageIndicator {
             invalidate();
             mFadeRunnable.run();
         }
-        if (mListener != null) {
-            mListener.onPageSelected(position);
-        }
-    }
-
-    @Override
-    public void setOnPageChangeListener(ViewPager.OnPageChangeListener listener) {
-        mListener = listener;
     }
 
     @Override

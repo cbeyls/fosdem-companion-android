@@ -17,9 +17,11 @@
 
 <resources>
 
-    <bool name="default_underline_indicator_fades">true</bool>
-    <integer name="default_underline_indicator_fade_delay">300</integer>
-    <integer name="default_underline_indicator_fade_length">400</integer>
-    <color name="default_underline_indicator_selected_color">@color/color_primary</color>
+    <style name="UnderlinePageIndicator" parent="android:Widget">
+        <item name="fades">true</item>
+        <item name="fadeDelay">300</item>
+        <item name="fadeLength">400</item>
+        <item name="selectedColor">?attr/colorPrimary</item>
+    </style>
 
 </resources>
