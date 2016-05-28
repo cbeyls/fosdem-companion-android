@@ -19,13 +19,12 @@ package com.example.android.common.view;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.support.annotation.ColorInt;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
 
 class SlidingTabStrip extends LinearLayout {
-
-	private static final int DEFAULT_INDICATOR_HEIGHT_DIPS = 3;
 
 	private int mSelectedIndicatorHeight;
 	private final Paint mSelectedIndicatorPaint;
@@ -40,13 +39,10 @@ class SlidingTabStrip extends LinearLayout {
 	SlidingTabStrip(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		setWillNotDraw(false);
-
-		final float density = getResources().getDisplayMetrics().density;
-		mSelectedIndicatorHeight = (int) (DEFAULT_INDICATOR_HEIGHT_DIPS * density);
 		mSelectedIndicatorPaint = new Paint();
 	}
 
-	void setSelectedIndicatorColor(int color) {
+	void setSelectedIndicatorColor(@ColorInt int color) {
 		mSelectedIndicatorPaint.setColor(color);
 		invalidate();
 	}

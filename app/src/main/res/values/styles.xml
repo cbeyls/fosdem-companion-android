@@ -76,11 +76,10 @@
         <item name="android:drawablePadding">@dimen/main_menu_drawable_padding</item>
     </style>
 
-    <style name="SlidingTabs">
+    <style name="SlidingTabs" parent="SlidingTabLayout">
         <item name="android:theme">@style/ThemeOverlay.AppCompat.Dark</item>
         <item name="android:background">?attr/colorPrimary</item>
         <item name="indicatorColor">@android:color/white</item>
-        <item name="textColor">@color/tab_text</item>
     </style>
 
     <style name="FloatingActionButtonBase">

@@ -6,8 +6,9 @@
 
     <declare-styleable name="SlidingTabLayout">
         <attr name="indicatorColor" format="color"/>
-        <attr name="indicatorHeight" format="reference|dimension"/>
-        <attr name="textColor" format="color"/>
+        <attr name="indicatorHeight" format="dimension"/>
+        <attr name="textColor" format="color|reference"/>
+        <attr name="selectedTextColor" format="color"/>
         <attr name="contentInsetStart"/>
         <attr name="distributeEvenly" format="boolean"/>
     </declare-styleable>
