@@ -168,11 +168,12 @@ public class SlidingTabLayout extends HorizontalScrollView {
 
 	private void populateTabStrip() {
 		final PagerAdapter adapter = mViewPager.getAdapter();
+		final int adapterCount = adapter.getCount();
 		final View.OnClickListener tabClickListener = new TabClickListener();
 		final LayoutInflater inflater = LayoutInflater.from(getContext());
 		final int currentItem = mViewPager.getCurrentItem();
 
-		for (int i = 0; i < adapter.getCount(); i++) {
+		for (int i = 0; i < adapterCount; i++) {
 			View tabView;
 			TextView tabTitleView;
 
@@ -264,7 +265,8 @@ public class SlidingTabLayout extends HorizontalScrollView {
 				mTabStrip.onViewPagerPageChanged(position, 0f);
 				scrollToTab(position, 0);
 			}
-			for (int i = 0; i < mTabStrip.getChildCount(); i++) {
+			final int childCount = mTabStrip.getChildCount();
+			for (int i = 0; i < childCount; i++) {
 				mTabStrip.getChildAt(i).setSelected(position == i);
 			}
 		}
@@ -273,7 +275,8 @@ public class SlidingTabLayout extends HorizontalScrollView {
 	private class TabClickListener implements View.OnClickListener {
 		@Override
 		public void onClick(View v) {
-			for (int i = 0; i < mTabStrip.getChildCount(); i++) {
+			final int childCount = mTabStrip.getChildCount();
+			for (int i = 0; i < childCount; i++) {
 				if (v == mTabStrip.getChildAt(i)) {
 					final int previousPos = mViewPager.getCurrentItem();
 					mViewPager.setCurrentItem(i);
