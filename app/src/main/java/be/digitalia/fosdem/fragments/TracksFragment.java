@@ -33,19 +33,18 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 		View emptyView;
 		ViewPager pager;
 		SlidingTabLayout slidingTabs;
+		DaysAdapter daysAdapter;
 	}
 
 	private static final int DAYS_LOADER_ID = 1;
 	private static final String PREF_CURRENT_PAGE = "tracks_current_page";
 
-	private DaysAdapter daysAdapter;
 	private ViewHolder holder;
 	private int savedCurrentPage = -1;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		daysAdapter = new DaysAdapter(getChildFragmentManager());
 
 		if (savedInstanceState == null) {
 			// Restore the current page from preferences
@@ -62,6 +61,7 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 		holder.emptyView = view.findViewById(android.R.id.empty);
 		holder.pager = (ViewPager) view.findViewById(R.id.pager);
 		holder.slidingTabs = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
+		holder.daysAdapter = new DaysAdapter(getChildFragmentManager());
 
 		return view;
 	}
@@ -131,20 +131,19 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 
 	@Override
 	public void onLoadFinished(Loader<List<Day>> loader, List<Day> data) {
-		daysAdapter.setDays(data);
+		holder.daysAdapter.setDays(data);
 
-		final int totalPages = daysAdapter.getCount();
+		final int totalPages = holder.daysAdapter.getCount();
 		if (totalPages == 0) {
 			holder.contentView.setVisibility(View.GONE);
 			holder.emptyView.setVisibility(View.VISIBLE);
-			holder.pager.clearOnPageChangeListeners();
 		} else {
 			holder.contentView.setVisibility(View.VISIBLE);
 			holder.emptyView.setVisibility(View.GONE);
 			if (holder.pager.getAdapter() == null) {
-				holder.pager.setAdapter(daysAdapter);
+				holder.pager.setAdapter(holder.daysAdapter);
+				holder.slidingTabs.setViewPager(holder.pager);
 			}
-			holder.slidingTabs.setViewPager(holder.pager);
 			if (savedCurrentPage != -1) {
 				holder.pager.setCurrentItem(Math.min(savedCurrentPage, totalPages - 1), false);
 				savedCurrentPage = -1;

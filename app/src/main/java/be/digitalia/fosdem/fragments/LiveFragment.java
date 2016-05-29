@@ -9,26 +9,19 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import be.digitalia.fosdem.R;
 
 import com.example.android.common.view.SlidingTabLayout;
 
+import be.digitalia.fosdem.R;
+
 public class LiveFragment extends Fragment {
-
-	private LivePagerAdapter livePagerAdapter;
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		livePagerAdapter = new LivePagerAdapter(getChildFragmentManager(), getResources());
-	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_live, container, false);
 
 		ViewPager pager = (ViewPager) view.findViewById(R.id.pager);
-		pager.setAdapter(livePagerAdapter);
+		pager.setAdapter(new LivePagerAdapter(getChildFragmentManager(), getResources()));
 		SlidingTabLayout slidingTabs = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
 		slidingTabs.setViewPager(pager);
 
@@ -52,10 +45,10 @@ public class LiveFragment extends Fragment {
 		@Override
 		public Fragment getItem(int position) {
 			switch (position) {
-			case 0:
-				return new NextLiveListFragment();
-			case 1:
-				return new NowLiveListFragment();
+				case 0:
+					return new NextLiveListFragment();
+				case 1:
+					return new NowLiveListFragment();
 			}
 			return null;
 		}
@@ -63,10 +56,10 @@ public class LiveFragment extends Fragment {
 		@Override
 		public CharSequence getPageTitle(int position) {
 			switch (position) {
-			case 0:
-				return resources.getString(R.string.next);
-			case 1:
-				return resources.getString(R.string.now);
+				case 0:
+					return resources.getString(R.string.next);
+				case 1:
+					return resources.getString(R.string.now);
 			}
 			return null;
 		}

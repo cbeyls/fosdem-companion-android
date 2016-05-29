@@ -20,6 +20,7 @@ package com.example.android.common.view;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
+import android.database.DataSetObserver;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.support.annotation.ColorInt;
@@ -59,6 +60,9 @@ public class SlidingTabLayout extends HorizontalScrollView {
 	private ColorStateList mTextColor;
 
 	private ViewPager mViewPager;
+	private PagerAdapter mAdapter;
+	private final InternalViewPagerListener mPageChangeListener = new InternalViewPagerListener();
+	private final PagerAdapterObserver mPagerAdapterObserver = new PagerAdapterObserver();
 
 	private TabListener mTabListener;
 
@@ -148,18 +152,32 @@ public class SlidingTabLayout extends HorizontalScrollView {
 	}
 
 	/**
-	 * Sets the associated view pager. Note that the assumption here is that the pager content
-	 * (number of tabs and tab titles) does not change after this call has been made.
+	 * Sets the associated view pager. The ViewPager must have an adapter set.
+	 * The SlidingTabLayout will then listen for changes and update the tabs automatically.
 	 */
 	public void setViewPager(ViewPager viewPager) {
-		mViewPager = viewPager;
+		if (mViewPager != null) {
+			mViewPager.removeOnPageChangeListener(mPageChangeListener);
+			mAdapter.unregisterDataSetObserver(mPagerAdapterObserver);
+		}
 		if (viewPager != null) {
-			viewPager.addOnPageChangeListener(new InternalViewPagerListener());
+			PagerAdapter adapter = viewPager.getAdapter();
+			if (adapter == null) {
+				throw new IllegalArgumentException("ViewPager does not have a PagerAdapter set");
+			}
+			mViewPager = viewPager;
+			mAdapter = adapter;
+			mPageChangeListener.reset();
+			viewPager.addOnPageChangeListener(mPageChangeListener);
+			adapter.registerDataSetObserver(mPagerAdapterObserver);
+		} else {
+			mViewPager = null;
+			mAdapter = null;
 		}
 		notifyDataSetChanged();
 	}
 
-	public void notifyDataSetChanged() {
+	private void notifyDataSetChanged() {
 		mTabStrip.removeAllViews();
 		if (mViewPager != null) {
 			populateTabStrip();
@@ -167,8 +185,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
 	}
 
 	private void populateTabStrip() {
-		final PagerAdapter adapter = mViewPager.getAdapter();
-		final int adapterCount = adapter.getCount();
+		final int adapterCount = mAdapter.getCount();
 		final View.OnClickListener tabClickListener = new TabClickListener();
 		final LayoutInflater inflater = LayoutInflater.from(getContext());
 		final int currentItem = mViewPager.getCurrentItem();
@@ -203,7 +220,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
 				lp.weight = 1;
 			}
 
-			tabTitleView.setText(adapter.getPageTitle(i));
+			tabTitleView.setText(mAdapter.getPageTitle(i));
 			tabView.setFocusable(true);
 			tabView.setOnClickListener(tabClickListener);
 
@@ -269,6 +286,22 @@ public class SlidingTabLayout extends HorizontalScrollView {
 			for (int i = 0; i < childCount; i++) {
 				mTabStrip.getChildAt(i).setSelected(position == i);
 			}
+		}
+
+		public void reset() {
+			mScrollState = ViewPager.SCROLL_STATE_IDLE;
+		}
+	}
+
+	private class PagerAdapterObserver extends DataSetObserver {
+		@Override
+		public void onChanged() {
+			notifyDataSetChanged();
+		}
+
+		@Override
+		public void onInvalidated() {
+			notifyDataSetChanged();
 		}
 	}
 
