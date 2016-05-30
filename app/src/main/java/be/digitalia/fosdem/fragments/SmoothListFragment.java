@@ -16,4 +16,11 @@ public class SmoothListFragment extends ListFragment {
 			setListShownNoAnimation(shown);
 		}
 	}
+
+	@Override
+	public void onDestroyView() {
+		// Ensure the ListView is properly unregistered as an observer of the adapter
+		getListView().setAdapter(null);
+		super.onDestroyView();
+	}
 }
