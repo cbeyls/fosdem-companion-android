@@ -186,12 +186,11 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 		}
 
 		@Override
-		public void setPrimaryItem(ViewGroup container, int position, Object object) {
-			super.setPrimaryItem(container, position, object);
-			// Hack to allow the non-primary fragments to start properly
-			if (object != null) {
-				((Fragment) object).setUserVisibleHint(false);
-			}
+		public Object instantiateItem(ViewGroup container, int position) {
+			// Allow the non-primary fragments to start as soon as they are visible
+			Fragment f = (Fragment) super.instantiateItem(container, position);
+			f.setUserVisibleHint(true);
+			return f;
 		}
 	}
 }
