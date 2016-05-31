@@ -15,12 +15,14 @@
  * limitations under the License.
  */
 
-package com.example.android.common.view;
+package be.digitalia.fosdem.widgets;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.database.DataSetObserver;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.support.annotation.ColorInt;
@@ -324,6 +326,63 @@ public class SlidingTabLayout extends HorizontalScrollView {
 
 					return;
 				}
+			}
+		}
+	}
+
+
+	class SlidingTabStrip extends LinearLayout {
+
+		private int mSelectedIndicatorHeight;
+		private final Paint mSelectedIndicatorPaint;
+
+		private int mSelectedPosition;
+		private float mSelectionOffset;
+
+		SlidingTabStrip(Context context) {
+			super(context);
+			setWillNotDraw(false);
+			mSelectedIndicatorPaint = new Paint();
+		}
+
+		void setSelectedIndicatorColor(@ColorInt int color) {
+			mSelectedIndicatorPaint.setColor(color);
+			invalidate();
+		}
+
+		void setSelectedIndicatorHeight(int height) {
+			mSelectedIndicatorHeight = height;
+			invalidate();
+		}
+
+		void onViewPagerPageChanged(int position, float positionOffset) {
+			mSelectedPosition = position;
+			mSelectionOffset = positionOffset;
+			invalidate();
+		}
+
+		@Override
+		protected void onDraw(Canvas canvas) {
+			final int height = getHeight();
+			final int childCount = getChildCount();
+
+			// Thick colored underline below the current selection
+			if (childCount > 0) {
+				View selectedTitle = getChildAt(mSelectedPosition);
+				int left = selectedTitle.getLeft();
+				int right = selectedTitle.getRight();
+
+				if (mSelectionOffset > 0f && mSelectedPosition < (getChildCount() - 1)) {
+					// Draw the selection partway between the tabs
+					View nextTitle = getChildAt(mSelectedPosition + 1);
+					left = (int) (mSelectionOffset * nextTitle.getLeft() +
+							(1.0f - mSelectionOffset) * left);
+					right = (int) (mSelectionOffset * nextTitle.getRight() +
+							(1.0f - mSelectionOffset) * right);
+				}
+
+				canvas.drawRect(left, height - mSelectedIndicatorHeight, right,
+						height, mSelectedIndicatorPaint);
 			}
 		}
 	}

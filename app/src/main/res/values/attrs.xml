@@ -13,6 +13,15 @@
         <attr name="distributeEvenly" format="boolean"/>
     </declare-styleable>
 
+    <style name="SlidingTabLayout" parent="android:Widget">
+        <item name="indicatorColor">?attr/colorAccent</item>
+        <item name="indicatorHeight">2dp</item>
+        <item name="textColor">?android:textColorSecondary</item>
+        <item name="selectedTextColor">?android:textColorPrimary</item>
+        <item name="contentInsetStart">24dp</item>
+        <item name="distributeEvenly">false</item>
+    </style>
+
     <declare-styleable name="ScrimInsetsFrameLayout">
         <attr name="insetForeground" format="color|reference"/>
     </declare-styleable>

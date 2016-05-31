@@ -10,7 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.android.common.view.SlidingTabLayout;
+import be.digitalia.fosdem.widgets.SlidingTabLayout;
 
 import be.digitalia.fosdem.R;
 
