@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -86,7 +87,9 @@ public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day
 		final int page = holder.pager.getCurrentItem();
 		SharedPreferences prefs = getActivity().getPreferences(Context.MODE_PRIVATE);
 		if (prefs.getInt(PREF_CURRENT_PAGE, -1) != page) {
-			prefs.edit().putInt(PREF_CURRENT_PAGE, page).commit();
+			SharedPreferencesCompat.EditorCompat.getInstance().apply(
+					prefs.edit().putInt(PREF_CURRENT_PAGE, page)
+			);
 		}
 	}
 

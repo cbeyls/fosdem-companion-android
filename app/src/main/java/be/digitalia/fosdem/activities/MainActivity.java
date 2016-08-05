@@ -27,6 +27,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -335,7 +336,9 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 			SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
 			time = prefs.getLong(PREF_LAST_DOWNLOAD_REMINDER_TIME, -1L);
 			if ((time == -1L) || (time < (now - DOWNLOAD_REMINDER_SNOOZE_DURATION))) {
-				prefs.edit().putLong(PREF_LAST_DOWNLOAD_REMINDER_TIME, now).commit();
+				SharedPreferencesCompat.EditorCompat.getInstance().apply(
+						prefs.edit().putLong(PREF_LAST_DOWNLOAD_REMINDER_TIME, now)
+				);
 
 				FragmentManager fm = getSupportFragmentManager();
 				if (fm.findFragmentByTag("download_reminder") == null) {

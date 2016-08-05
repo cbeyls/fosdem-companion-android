@@ -22,6 +22,7 @@ import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.content.SharedPreferencesCompat;
 import android.text.TextUtils;
 
 import be.digitalia.fosdem.model.Day;
@@ -268,10 +269,11 @@ public class DatabaseManager {
 				cachedDays = null;
 				year = -1;
 				// Set last update time and server's last modified tag
-				getSharedPreferences().edit()
-						.putLong(LAST_UPDATE_TIME_PREF, System.currentTimeMillis())
-						.putString(LAST_MODIFIED_TAG_PREF, lastModifiedTag)
-						.commit();
+				SharedPreferencesCompat.EditorCompat.getInstance().apply(
+						getSharedPreferences().edit()
+								.putLong(LAST_UPDATE_TIME_PREF, System.currentTimeMillis())
+								.putString(LAST_MODIFIED_TAG_PREF, lastModifiedTag)
+				);
 
 				context.getContentResolver().notifyChange(URI_TRACKS, null);
 				context.getContentResolver().notifyChange(URI_EVENTS, null);
@@ -290,7 +292,9 @@ public class DatabaseManager {
 
 			cachedDays = null;
 			year = -1;
-			getSharedPreferences().edit().remove(LAST_UPDATE_TIME_PREF).commit();
+			SharedPreferencesCompat.EditorCompat.getInstance().apply(
+					getSharedPreferences().edit().remove(LAST_UPDATE_TIME_PREF)
+			);
 		} finally {
 			db.endTransaction();
 

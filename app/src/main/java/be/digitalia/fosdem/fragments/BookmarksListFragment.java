@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
+import android.support.v4.content.SharedPreferencesCompat;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -103,7 +104,9 @@ public class BookmarksListFragment extends SmoothListFragment implements LoaderC
 			case R.id.upcoming_only:
 				upcomingOnly = !upcomingOnly;
 				updateOptionsMenu();
-				getActivity().getPreferences(Context.MODE_PRIVATE).edit().putBoolean(PREF_UPCOMING_ONLY, upcomingOnly).commit();
+				SharedPreferencesCompat.EditorCompat.getInstance().apply(
+						getActivity().getPreferences(Context.MODE_PRIVATE).edit().putBoolean(PREF_UPCOMING_ONLY, upcomingOnly)
+				);
 				getLoaderManager().restartLoader(BOOKMARKS_LOADER_ID, null, this);
 				return true;
 		}
