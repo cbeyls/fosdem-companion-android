@@ -21,15 +21,7 @@ public class AdapterLinearLayout extends LinearLayout {
 	 */
 	public static abstract class Adapter<T> {
 
-		private final DataSetObservable mDataSetObservable = new DataSetObservable();
-
-		private void registerDataSetObserver(DataSetObserver observer) {
-			mDataSetObservable.registerObserver(observer);
-		}
-
-		private void unregisterDataSetObserver(DataSetObserver observer) {
-			mDataSetObservable.unregisterObserver(observer);
-		}
+		final DataSetObservable mDataSetObservable = new DataSetObservable();
 
 		public void notifyDataSetChanged() {
 			mDataSetObservable.notifyChanged();
@@ -42,7 +34,7 @@ public class AdapterLinearLayout extends LinearLayout {
 		public abstract View getView(int position, View convertView, ViewGroup parent);
 	}
 
-	private class AdapterLinearLayoutDataSetObserver extends DataSetObserver {
+	class AdapterLinearLayoutDataSetObserver extends DataSetObserver {
 		@Override
 		public void onChanged() {
 			populateFromAdapter();
@@ -67,13 +59,13 @@ public class AdapterLinearLayout extends LinearLayout {
 			return;
 		}
 		if (mAdapter != null && mDataSetObserver != null) {
-			mAdapter.unregisterDataSetObserver(mDataSetObserver);
+			mAdapter.mDataSetObservable.unregisterObserver(mDataSetObserver);
 		}
 		removeAllViews();
 		mAdapter = adapter;
 		if (adapter != null && mDataSetObserver != null) {
 			populateFromAdapter();
-			adapter.registerDataSetObserver(mDataSetObserver);
+			adapter.mDataSetObservable.registerObserver(mDataSetObserver);
 		}
 	}
 
@@ -83,7 +75,7 @@ public class AdapterLinearLayout extends LinearLayout {
 		mDataSetObserver = new AdapterLinearLayoutDataSetObserver();
 		if (mAdapter != null) {
 			populateFromAdapter();
-			mAdapter.registerDataSetObserver(mDataSetObserver);
+			mAdapter.mDataSetObservable.registerObserver(mDataSetObserver);
 		}
 	}
 
@@ -91,12 +83,12 @@ public class AdapterLinearLayout extends LinearLayout {
 	protected void onDetachedFromWindow() {
 		super.onDetachedFromWindow();
 		if (mAdapter != null) {
-			mAdapter.unregisterDataSetObserver(mDataSetObserver);
+			mAdapter.mDataSetObservable.unregisterObserver(mDataSetObserver);
 		}
 		mDataSetObserver = null;
 	}
 
-	private void populateFromAdapter() {
+	void populateFromAdapter() {
 		final Adapter adapter = mAdapter;
 		final int currentCount = getChildCount();
 		final int newCount = adapter.getCount();

@@ -18,7 +18,7 @@ import android.support.v4.content.LocalBroadcastManager;
  */
 public class BookmarkStatusLoader extends AsyncTaskLoader<Boolean> {
 
-	private final Event event;
+	final Event event;
 	private Boolean isBookmarked;
 
 	private final BroadcastReceiver addBookmarkReceiver = new BroadcastReceiver() {
@@ -51,7 +51,7 @@ public class BookmarkStatusLoader extends AsyncTaskLoader<Boolean> {
 		lbm.registerReceiver(removeBookmarksReceiver, new IntentFilter(DatabaseManager.ACTION_REMOVE_BOOKMARKS));
 	}
 
-	private void updateBookmark(Boolean result) {
+	void updateBookmark(Boolean result) {
 		if (isStarted()) {
 			cancelLoad();
 		}

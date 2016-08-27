@@ -100,7 +100,7 @@ public class Track implements Parcelable {
 		}
 	};
 
-	private Track(Parcel in) {
+	Track(Parcel in) {
 		name = in.readString();
 		type = Type.values()[in.readInt()];
 	}

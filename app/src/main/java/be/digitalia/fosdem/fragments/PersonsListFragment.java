@@ -140,7 +140,7 @@ public class PersonsListFragment extends SmoothListFragment implements LoaderCal
 			return indexer.getSections();
 		}
 
-		private static class ViewHolder {
+		static class ViewHolder {
 			public TextView textView;
 			public Person person;
 		}

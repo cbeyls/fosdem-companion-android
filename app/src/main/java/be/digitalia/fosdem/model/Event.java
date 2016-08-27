@@ -219,7 +219,7 @@ public class Event implements Parcelable {
 		}
 	};
 
-	private Event(Parcel in) {
+	Event(Parcel in) {
 		id = in.readLong();
 		day = Day.CREATOR.createFromParcel(in);
 		long time = in.readLong();

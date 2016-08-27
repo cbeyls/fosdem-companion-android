@@ -59,12 +59,12 @@ public class EventDetailsFragment extends Fragment {
 		ImageView getActionButton();
 	}
 
-	private static class EventDetails {
+	static class EventDetails {
 		List<Person> persons;
 		List<Link> links;
 	}
 
-	private static class ViewHolder {
+	static class ViewHolder {
 		LayoutInflater inflater;
 		TextView personsTextView;
 		ViewGroup linksContainer;
@@ -75,10 +75,10 @@ public class EventDetailsFragment extends Fragment {
 
 	private static final String ARG_EVENT = "event";
 
-	private Event event;
-	private int personsCount = 1;
-	private Boolean isBookmarked;
-	private ViewHolder holder;
+	Event event;
+	int personsCount = 1;
+	Boolean isBookmarked;
+	ViewHolder holder;
 
 	private MenuItem bookmarkMenuItem;
 	private ImageView actionButton;
@@ -239,7 +239,7 @@ public class EventDetailsFragment extends Fragment {
 				.createChooserIntent();
 	}
 
-	private void updateOptionsMenu() {
+	void updateOptionsMenu() {
 		if (actionButton != null) {
 			// Action Button is used as bookmark button
 

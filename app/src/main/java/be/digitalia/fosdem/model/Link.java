@@ -68,7 +68,7 @@ public class Link implements Parcelable {
 		}
 	};
 
-	private Link(Parcel in) {
+	Link(Parcel in) {
 		url = in.readString();
 		description = in.readString();
 	}

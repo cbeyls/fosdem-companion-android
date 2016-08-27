@@ -31,8 +31,8 @@ import android.widget.FrameLayout;
 import be.digitalia.fosdem.R;
 
 public class ScrimInsetsFrameLayout extends FrameLayout {
-	private Drawable mInsetForeground;
-	private Rect mInsets;
+	Drawable mInsetForeground;
+	Rect mInsets;
 	private Rect mTempRect = new Rect();
 
 	public ScrimInsetsFrameLayout(Context context) {

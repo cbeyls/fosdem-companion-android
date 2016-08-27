@@ -61,14 +61,14 @@ public class SlidingTabLayout extends HorizontalScrollView {
 
 	private ColorStateList mTextColor;
 
-	private ViewPager mViewPager;
+	ViewPager mViewPager;
 	private PagerAdapter mAdapter;
 	private final InternalViewPagerListener mPageChangeListener = new InternalViewPagerListener();
 	private final PagerAdapterObserver mPagerAdapterObserver = new PagerAdapterObserver();
 
-	private TabListener mTabListener;
+	TabListener mTabListener;
 
-	private final SlidingTabStrip mTabStrip;
+	final SlidingTabStrip mTabStrip;
 
 	public SlidingTabLayout(Context context) {
 		this(context, null);
@@ -179,7 +179,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
 		notifyDataSetChanged();
 	}
 
-	private void notifyDataSetChanged() {
+	void notifyDataSetChanged() {
 		mTabStrip.removeAllViews();
 		if (mViewPager != null) {
 			populateTabStrip();
@@ -242,7 +242,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
 		}
 	}
 
-	private void scrollToTab(int tabIndex, float positionOffset) {
+	void scrollToTab(int tabIndex, float positionOffset) {
 		final int tabStripChildCount = mTabStrip.getChildCount();
 		if (tabStripChildCount == 0 || tabIndex < 0 || tabIndex >= tabStripChildCount) {
 			return;
@@ -257,7 +257,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
 		}
 	}
 
-	private class InternalViewPagerListener implements ViewPager.OnPageChangeListener {
+	class InternalViewPagerListener implements ViewPager.OnPageChangeListener {
 		private int mScrollState;
 
 		@Override
@@ -295,7 +295,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
 		}
 	}
 
-	private class PagerAdapterObserver extends DataSetObserver {
+	class PagerAdapterObserver extends DataSetObserver {
 		@Override
 		public void onChanged() {
 			notifyDataSetChanged();
@@ -307,7 +307,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
 		}
 	}
 
-	private class TabClickListener implements View.OnClickListener {
+	class TabClickListener implements View.OnClickListener {
 		@Override
 		public void onClick(View v) {
 			final int childCount = mTabStrip.getChildCount();

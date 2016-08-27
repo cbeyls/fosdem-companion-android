@@ -75,7 +75,7 @@ public class BookmarksMultiChoiceModeListener implements MultiChoiceModeListener
 	public void onDestroyActionMode(ActionMode mode) {
 	}
 
-	private static class RemoveBookmarksAsyncTask extends AsyncTask<long[], Void, Void> {
+	static class RemoveBookmarksAsyncTask extends AsyncTask<long[], Void, Void> {
 
 		@Override
 		protected Void doInBackground(long[]... params) {

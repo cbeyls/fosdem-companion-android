@@ -130,7 +130,7 @@ public class TracksListFragment extends SmoothListFragment implements LoaderCall
 			holder.type.setText(holder.track.getType().getNameResId());
 		}
 
-		private static class ViewHolder {
+		static class ViewHolder {
 			TextView name;
 			TextView type;
 			Track track;

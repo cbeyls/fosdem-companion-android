@@ -44,7 +44,7 @@ class NfcSenderUtils {
 		return true;
 	}
 
-	private static NdefRecord createMimeRecord(String mimeType, byte[] payload) {
+	static NdefRecord createMimeRecord(String mimeType, byte[] payload) {
 		byte[] mimeBytes = mimeType.getBytes(Charset.forName("US-ASCII"));
 		return new NdefRecord(NdefRecord.TNF_MIME_MEDIA, mimeBytes, new byte[0], payload);
 	}

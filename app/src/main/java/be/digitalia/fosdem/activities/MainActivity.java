@@ -116,10 +116,10 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 		}
 	}
 
-	private static final int SELECT_MENU_SECTION_WHAT = 1;
-	private static final int SELECT_MENU_FOOTER_WHAT = 2;
+	static final int SELECT_MENU_SECTION_WHAT = 1;
+	static final int SELECT_MENU_FOOTER_WHAT = 2;
 
-	private static final long MENU_ACTION_DELAY = 400L;
+	static final long MENU_ACTION_DELAY = 400L;
 
 	private static final long DATABASE_VALIDITY_DURATION = DateUtils.DAY_IN_MILLIS;
 	private static final long DOWNLOAD_REMINDER_SNOOZE_DURATION = DateUtils.DAY_IN_MILLIS;
@@ -129,15 +129,15 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 	private static final String LAST_UPDATE_DATE_FORMAT = "d MMM yyyy kk:mm:ss";
 
 
-	private Handler handler;
+	Handler handler;
 	private Toolbar toolbar;
-	private ProgressBar progressBar;
+	ProgressBar progressBar;
 
 	// Main menu
-	private Section currentSection;
-	private DrawerLayout drawerLayout;
+	Section currentSection;
+	DrawerLayout drawerLayout;
 	private ActionBarDrawerToggle drawerToggle;
-	private View mainMenu;
+	View mainMenu;
 	private TextView lastUpdateTextView;
 	private MainMenuAdapter menuAdapter;
 
@@ -286,7 +286,7 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 		}
 	}
 
-	private void updateLastUpdateTime() {
+	void updateLastUpdateTime() {
 		long lastUpdateTime = DatabaseManager.getInstance().getLastUpdateTime();
 		lastUpdateTextView.setText(getString(R.string.last_update,
 				(lastUpdateTime == -1L)
@@ -493,7 +493,7 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 		}
 	}
 
-	private final View.OnClickListener sectionClickListener = new View.OnClickListener() {
+	final View.OnClickListener sectionClickListener = new View.OnClickListener() {
 		@Override
 		public void onClick(View view) {
 			int sectionIndex = ((ViewGroup) view.getParent()).indexOfChild(view);

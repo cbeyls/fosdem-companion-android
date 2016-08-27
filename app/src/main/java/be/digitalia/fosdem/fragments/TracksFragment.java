@@ -29,7 +29,7 @@ import be.digitalia.fosdem.model.Day;
 
 public class TracksFragment extends Fragment implements LoaderCallbacks<List<Day>> {
 
-	private static class ViewHolder {
+	static class ViewHolder {
 		View contentView;
 		View emptyView;
 		ViewPager pager;

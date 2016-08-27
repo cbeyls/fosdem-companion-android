@@ -39,14 +39,14 @@ import be.digitalia.fosdem.R;
  */
 public class UnderlinePageIndicator extends View implements PageIndicator {
     private static final int INVALID_POINTER = -1;
-    private static final int FADE_FRAME_MS = 30;
+    static final int FADE_FRAME_MS = 30;
 
-    private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
-    private boolean mFades;
+    boolean mFades;
     private int mFadeDelay;
     private int mFadeLength;
-    private int mFadeBy;
+    int mFadeBy;
 
     private ViewPager mViewPager;
     private int mScrollState;
@@ -58,7 +58,7 @@ public class UnderlinePageIndicator extends View implements PageIndicator {
     private int mActivePointerId = INVALID_POINTER;
     private boolean mIsDragging;
 
-    private final Runnable mFadeRunnable = new Runnable() {
+    final Runnable mFadeRunnable = new Runnable() {
       @Override public void run() {
         if (!mFades) return;
 
@@ -354,7 +354,7 @@ public class UnderlinePageIndicator extends View implements PageIndicator {
             super(superState);
         }
 
-        private SavedState(Parcel in) {
+        SavedState(Parcel in) {
             super(in);
             currentPage = in.readInt();
         }

@@ -29,8 +29,8 @@ import android.widget.ListView;
 public abstract class PreferenceFragment extends Fragment {
 
 	private static final int FIRST_REQUEST_CODE = 100;
-	private static final int MSG_BIND_PREFERENCES = 1;
-	private static final int MSG_REQUEST_FOCUS = 2;
+	static final int MSG_BIND_PREFERENCES = 1;
+	static final int MSG_REQUEST_FOCUS = 2;
 	private static final String PREFERENCES_TAG = "android:preferences";
 	private static final float HC_HORIZONTAL_PADDING = 16;
 
@@ -51,7 +51,7 @@ public abstract class PreferenceFragment extends Fragment {
 
 	private boolean mHavePrefs;
 	private boolean mInitDone;
-	private ListView mList;
+	ListView mList;
 	private PreferenceManager mPreferenceManager;
 
 	@Override
@@ -213,7 +213,7 @@ public abstract class PreferenceFragment extends Fragment {
 		}
 	}
 
-	private void bindPreferences() {
+	void bindPreferences() {
 		final PreferenceScreen preferenceScreen = getPreferenceScreen();
 		if (preferenceScreen != null) {
 			preferenceScreen.bind(getListView());

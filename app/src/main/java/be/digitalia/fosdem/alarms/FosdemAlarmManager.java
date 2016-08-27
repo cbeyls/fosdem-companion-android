@@ -101,7 +101,7 @@ public class FosdemAlarmManager implements OnSharedPreferenceChangeListener {
 		lbm.unregisterReceiver(bookmarksReceiver);
 	}
 
-	private void startUpdateAlarms() {
+	void startUpdateAlarms() {
 		Intent serviceIntent = new Intent(context, AlarmIntentService.class);
 		serviceIntent.setAction(AlarmIntentService.ACTION_UPDATE_ALARMS);
 		context.startService(serviceIntent);

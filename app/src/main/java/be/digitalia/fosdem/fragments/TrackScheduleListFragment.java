@@ -309,7 +309,7 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 			holder.room.setText(event.getRoomName());
 		}
 
-		private static class ViewHolder {
+		static class ViewHolder {
 			TextView time;
 			TextView title;
 			TextView persons;

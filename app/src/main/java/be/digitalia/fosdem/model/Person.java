@@ -77,7 +77,7 @@ public class Person implements Parcelable {
 		}
 	};
 
-	private Person(Parcel in) {
+	Person(Parcel in) {
 		id = in.readLong();
 		name = in.readString();
 	}
