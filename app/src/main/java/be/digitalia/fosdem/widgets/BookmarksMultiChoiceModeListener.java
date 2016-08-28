@@ -39,7 +39,7 @@ public class BookmarksMultiChoiceModeListener implements MultiChoiceModeListener
 
 	@Override
 	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-		updateSelectedCountDisplay(mode);
+		mode.getMenuInflater().inflate(R.menu.action_mode_bookmarks, menu);
 		return true;
 	}
 
@@ -50,7 +50,7 @@ public class BookmarksMultiChoiceModeListener implements MultiChoiceModeListener
 
 	@Override
 	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-		mode.getMenuInflater().inflate(R.menu.action_mode_bookmarks, menu);
+		updateSelectedCountDisplay(mode);
 		return true;
 	}
 
