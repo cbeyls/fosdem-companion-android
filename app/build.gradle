@@ -8,8 +8,8 @@ android {
         applicationId "be.digitalia.fosdem"
         minSdkVersion 7
         targetSdkVersion 23
-        versionCode 700136
-        versionName "1.3.6"
+        versionCode 700138
+        versionName "1.3.8"
         // Supported languages
         resConfigs "en"
     }
