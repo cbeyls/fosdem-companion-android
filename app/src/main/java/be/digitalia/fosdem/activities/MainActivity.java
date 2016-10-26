@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -385,6 +386,11 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 			MenuItemCompat.setShowAsAction(searchMenuItem, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
 		}
 
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			// Animated refresh icon
+			menu.findItem(R.id.refresh).setIcon(R.drawable.animated_ic_sync_white_24dp);
+		}
+
 		return true;
 	}
 
@@ -405,6 +411,10 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 					return true;
 				}
 			case R.id.refresh:
+				Drawable icon = item.getIcon();
+				if (icon instanceof Animatable) {
+					((Animatable) icon).start();
+				}
 				startDownloadSchedule();
 				return true;
 		}
