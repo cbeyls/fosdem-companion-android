@@ -2,6 +2,7 @@
 <be.digitalia.fosdem.widgets.ScrimInsetsFrameLayout
     android:id="@+id/main_menu"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="@dimen/main_menu_width"
     android:layout_height="match_parent"
@@ -26,7 +27,7 @@
                 android:contentDescription="@string/app_name"
                 android:padding="@dimen/main_menu_padding"
                 android:scaleType="center"
-                android:src="@drawable/fosdem_title"/>
+                app:srcCompat="@drawable/fosdem_title"/>
 
             <be.digitalia.fosdem.widgets.AdapterLinearLayout
                 android:id="@+id/sections"

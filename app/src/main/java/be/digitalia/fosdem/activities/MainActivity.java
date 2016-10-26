@@ -35,6 +35,7 @@ import android.support.v4.widget.TextViewCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatDrawableManager;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.SpannableString;
@@ -479,7 +480,7 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 
 			TextView tv = (TextView) convertView.findViewById(R.id.section_text);
 			SpannableString sectionTitle = new SpannableString(getString(section.getTitleResId()));
-			Drawable sectionIcon = ContextCompat.getDrawable(MainActivity.this, section.getIconResId());
+			Drawable sectionIcon = AppCompatDrawableManager.get().getDrawable(MainActivity.this, section.getIconResId());
 			if (section == currentSection) {
 				// Special color for the current section
 				sectionTitle.setSpan(new ForegroundColorSpan(currentSectionForegroundColor), 0, sectionTitle.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

@@ -47,6 +47,6 @@
         android:layout_marginRight="20dp"
         android:layout_marginTop="100dp"
         android:contentDescription="@string/add_bookmark"
-        android:src="@drawable/ic_bookmark_outline_white_24dp"/>
+        app:srcCompat="@drawable/ic_bookmark_outline_white_24dp"/>
 
 </merge>

@@ -2,8 +2,10 @@ package be.digitalia.fosdem.adapters;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.TextViewCompat;
+import android.support.v7.widget.AppCompatDrawableManager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,8 +63,10 @@ public class EventsAdapter extends CursorAdapter {
 		holder.event = event;
 
 		holder.title.setText(event.getTitle());
-		int bookmarkDrawable = DatabaseManager.toBookmarkStatus(cursor) ? R.drawable.ic_bookmark_grey600_24dp : 0;
-		TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(holder.title, 0, 0, bookmarkDrawable, 0);
+		Drawable bookmarkDrawable = DatabaseManager.toBookmarkStatus(cursor)
+				? AppCompatDrawableManager.get().getDrawable(context, R.drawable.ic_bookmark_grey600_24dp)
+				: null;
+		TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(holder.title, null, null, bookmarkDrawable, null);
 		String personsSummary = event.getPersonsSummary();
 		holder.persons.setText(personsSummary);
 		holder.persons.setVisibility(TextUtils.isEmpty(personsSummary) ? View.GONE : View.VISIBLE);
