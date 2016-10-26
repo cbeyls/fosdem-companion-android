@@ -82,7 +82,7 @@ public class AdapterLinearLayout extends LinearLayout {
 	@Override
 	protected void onDetachedFromWindow() {
 		super.onDetachedFromWindow();
-		if (mAdapter != null) {
+		if ((mAdapter != null) && (mDataSetObserver != null)) {
 			mAdapter.mDataSetObservable.unregisterObserver(mDataSetObserver);
 		}
 		mDataSetObserver = null;
