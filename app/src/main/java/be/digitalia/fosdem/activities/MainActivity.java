@@ -1,6 +1,5 @@
 package be.digitalia.fosdem.activities;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
@@ -29,6 +28,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.content.SharedPreferencesCompat;
+import android.support.v4.os.AsyncTaskCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -421,17 +421,12 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 		return false;
 	}
 
-	@SuppressLint("NewApi")
 	public void startDownloadSchedule() {
 		// Start by displaying indeterminate progress, determinate will come later
 		progressBar.clearAnimation();
 		progressBar.setIndeterminate(true);
 		progressBar.setVisibility(View.VISIBLE);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			new DownloadScheduleAsyncTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		} else {
-			new DownloadScheduleAsyncTask(this).execute();
-		}
+		AsyncTaskCompat.executeParallel(new DownloadScheduleAsyncTask(this));
 	}
 
 	private static class DownloadScheduleAsyncTask extends AsyncTask<Void, Void, Void> {
