@@ -14,7 +14,7 @@
 
     <style name="FloatingActionButton" parent="FloatingActionButtonBase">
         <item name="android:elevation">@dimen/fab_elevation</item>
-        <item name="android:stateListAnimator">@anim/fab_state_list</item>
+        <item name="android:stateListAnimator">@animator/fab_state_list</item>
     </style>
 
 </resources>

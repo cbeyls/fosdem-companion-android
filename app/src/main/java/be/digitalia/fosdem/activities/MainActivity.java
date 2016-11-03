@@ -388,7 +388,7 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			// Animated refresh icon
-			menu.findItem(R.id.refresh).setIcon(R.drawable.animated_ic_sync_white_24dp);
+			menu.findItem(R.id.refresh).setIcon(R.drawable.avd_sync_white_24dp);
 		}
 
 		return true;
