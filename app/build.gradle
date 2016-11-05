@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion "24.0.3"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
 
     defaultConfig {
         applicationId "be.digitalia.fosdem"
         minSdkVersion 7
-        targetSdkVersion 24
+        targetSdkVersion 23
         versionCode 700138
         versionName "1.3.8"
         // Supported languages
@@ -29,7 +29,7 @@ android {
 }
 
 ext {
-    supportLibraryVersion = '24.1.1'
+    supportLibraryVersion = '23.4.0'
 }
 
 dependencies {
