@@ -231,12 +231,13 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 
 			@Override
 			public void onDrawerOpened(View drawerView) {
+				super.onDrawerOpened(drawerView);
 				// Make keypad navigation easier
 				mainMenu.requestFocus();
 			}
 		};
 		drawerToggle.setDrawerIndicatorEnabled(true);
-		drawerLayout.setDrawerListener(drawerToggle);
+		drawerLayout.addDrawerListener(drawerToggle);
 		// Disable drawerLayout focus to allow trackball navigation.
 		// We handle the drawer closing on back press ourselves.
 		drawerLayout.setFocusable(false);
