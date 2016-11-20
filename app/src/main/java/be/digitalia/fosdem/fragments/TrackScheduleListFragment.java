@@ -189,7 +189,7 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 
 				// Ensure the current selection is visible
 				if (checkedPosition != ListView.INVALID_POSITION) {
-					setSelection(checkedPosition);
+					getListView().setSelection(checkedPosition);
 				}
 				// Notify the parent of the current selection to synchronize its state
 				notifyEventSelected(checkedPosition);
@@ -197,7 +197,7 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 			} else if (!isListAlreadyShown) {
 				int position = getDefaultPosition();
 				if (position != ListView.INVALID_POSITION) {
-					setSelection(position);
+					getListView().setSelection(position);
 				}
 			}
 			isListAlreadyShown = true;

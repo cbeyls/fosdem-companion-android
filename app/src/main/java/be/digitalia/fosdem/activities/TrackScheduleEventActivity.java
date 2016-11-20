@@ -12,7 +12,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.viewpagerindicator.PageIndicator;
 
@@ -24,12 +23,12 @@ import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.NfcUtils;
 import be.digitalia.fosdem.utils.NfcUtils.CreateNfcAppDataCallback;
+import be.digitalia.fosdem.widgets.ContentLoadingProgressBar;
 
 /**
  * Event view of the track schedule; allows to slide between events of the same track using a ViewPager.
- * 
+ *
  * @author Christophe Beyls
- * 
  */
 public class TrackScheduleEventActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>, CreateNfcAppDataCallback {
 
@@ -42,7 +41,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Loa
 	private Day day;
 	private Track track;
 	private int initialPosition = -1;
-	private View progress;
+	private ContentLoadingProgressBar progress;
 	private ViewPager pager;
 	private PageIndicator pageIndicator;
 	private TrackScheduleEventAdapter adapter;
@@ -57,7 +56,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Loa
 		day = extras.getParcelable(EXTRA_DAY);
 		track = extras.getParcelable(EXTRA_TRACK);
 
-		progress = findViewById(R.id.progress);
+		progress = (ContentLoadingProgressBar) findViewById(R.id.progress);
 		pager = (ViewPager) findViewById(R.id.pager);
 		adapter = new TrackScheduleEventAdapter(getSupportFragmentManager());
 		pageIndicator = (PageIndicator) findViewById(R.id.indicator);
@@ -81,7 +80,11 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Loa
 	}
 
 	private void setCustomProgressVisibility(boolean isVisible) {
-		progress.setVisibility(isVisible ? View.VISIBLE : View.GONE);
+		if (isVisible) {
+			progress.show();
+		} else {
+			progress.hide();
+		}
 	}
 
 	@Override
@@ -99,9 +102,9 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Loa
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case android.R.id.home:
-			finish();
-			return true;
+			case android.R.id.home:
+				finish();
+				return true;
 		}
 		return false;
 	}
