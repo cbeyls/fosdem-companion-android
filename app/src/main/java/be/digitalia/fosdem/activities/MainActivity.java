@@ -413,6 +413,8 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 			case R.id.refresh:
 				Drawable icon = item.getIcon();
 				if (icon instanceof Animatable) {
+					// Hack: reset the icon to make sure the MenuItem will redraw itself properly
+					item.setIcon(icon);
 					((Animatable) icon).start();
 				}
 				startDownloadSchedule();
