@@ -291,26 +291,36 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 			Event event = DatabaseManager.toEvent(cursor, holder.event);
 			holder.event = event;
 
-			holder.time.setText(timeDateFormat.format(event.getStartTime()));
+			String formattedTime = timeDateFormat.format(event.getStartTime());
+			holder.time.setText(formattedTime);
 			if ((currentTime != -1L) && event.isRunningAtTime(currentTime)) {
 				// Contrast colors for running event
 				holder.time.setBackgroundColor(timeRunningBackgroundColor);
 				holder.time.setTextColor(timeRunningForegroundColor);
+				holder.time.setContentDescription(context.getString(R.string.in_progress_content_description, formattedTime));
 			} else {
 				// Normal colors
 				holder.time.setBackgroundColor(timeBackgroundColor);
 				holder.time.setTextColor(timeForegroundColor);
+				// Use text as content description
+				holder.time.setContentDescription(null);
 			}
 
 			holder.title.setText(event.getTitle());
-			Drawable bookmarkDrawable = DatabaseManager.toBookmarkStatus(cursor)
+			boolean isBookmarked = DatabaseManager.toBookmarkStatus(cursor);
+			Drawable bookmarkDrawable = isBookmarked
 					? AppCompatDrawableManager.get().getDrawable(context, R.drawable.ic_bookmark_grey600_24dp)
 					: null;
 			TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(holder.title, null, null, bookmarkDrawable, null);
+			holder.title.setContentDescription(isBookmarked
+					? context.getString(R.string.in_bookmarks_content_description, event.getTitle())
+					: null
+			);
 			String personsSummary = event.getPersonsSummary();
 			holder.persons.setText(personsSummary);
 			holder.persons.setVisibility(TextUtils.isEmpty(personsSummary) ? View.GONE : View.VISIBLE);
 			holder.room.setText(event.getRoomName());
+			holder.room.setContentDescription(context.getString(R.string.room_content_description, event.getRoomName()));
 		}
 
 		static class ViewHolder {

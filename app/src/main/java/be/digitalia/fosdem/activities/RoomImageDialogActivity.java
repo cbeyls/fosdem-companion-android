@@ -26,6 +26,7 @@ public class RoomImageDialogActivity extends AppCompatActivity {
 
 		ImageView imageView = new ImageView(this);
 		imageView.setImageResource(intent.getIntExtra(EXTRA_ROOM_IMAGE_RESOURCE_ID, 0));
+		imageView.setContentDescription(getString(R.string.room_map));
 		int padding = getResources().getDimensionPixelSize(R.dimen.content_margin);
 		imageView.setPadding(padding, padding, padding, padding);
 

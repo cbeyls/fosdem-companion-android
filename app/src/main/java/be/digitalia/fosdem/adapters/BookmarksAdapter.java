@@ -39,12 +39,14 @@ public class BookmarksAdapter extends EventsAdapter {
 		holder.persons.setText(personsSummary);
 		holder.persons.setVisibility(TextUtils.isEmpty(personsSummary) ? View.GONE : View.VISIBLE);
 		holder.trackName.setText(event.getTrack().getName());
+		holder.trackName.setContentDescription(context.getString(R.string.track_content_description, event.getTrack().getName()));
 
 		Date startTime = event.getStartTime();
 		Date endTime = event.getEndTime();
 		String startTimeString = (startTime != null) ? timeDateFormat.format(startTime) : "?";
 		String endTimeString = (endTime != null) ? timeDateFormat.format(endTime) : "?";
 		String details = String.format("%1$s, %2$s ― %3$s  |  %4$s", event.getDay().getShortName(), startTimeString, endTimeString, event.getRoomName());
+		String detailsContentDescription = details;
 
 		// Highlight the date and time with error color in case of conflicting schedules
 		if (isOverlapping(cursor, startTime, endTime)) {
@@ -53,9 +55,11 @@ public class BookmarksAdapter extends EventsAdapter {
 			detailsSpannable.setSpan(new ForegroundColorSpan(errorColor), 0, endPosition, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 			detailsSpannable.setSpan(new StyleSpan(Typeface.BOLD), 0, endPosition, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 			holder.details.setText(detailsSpannable);
+			detailsContentDescription = context.getString(R.string.bookmark_conflict_content_description, detailsContentDescription);
 		} else {
 			holder.details.setText(details);
 		}
+		holder.details.setContentDescription(context.getString(R.string.details_content_description, detailsContentDescription));
 	}
 
 	/**

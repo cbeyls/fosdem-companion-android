@@ -130,7 +130,13 @@ public class EventDetailsFragment extends Fragment {
 			holder.personsTextView.setVisibility(View.VISIBLE);
 		}
 
-		((TextView) view.findViewById(R.id.track)).setText(event.getTrack().getName());
+
+		textView = ((TextView) view.findViewById(R.id.track));
+		text = event.getTrack().getName();
+		textView.setText(text);
+		textView.setContentDescription(getString(R.string.track_content_description, text));
+
+		textView = ((TextView) view.findViewById(R.id.time));
 		Date startTime = event.getStartTime();
 		Date endTime = event.getEndTime();
 		DateFormat timeDateFormat = DateUtils.getTimeDateFormat(getActivity());
@@ -138,24 +144,28 @@ public class EventDetailsFragment extends Fragment {
 				event.getDay().toString(),
 				(startTime != null) ? timeDateFormat.format(startTime) : "?",
 				(endTime != null) ? timeDateFormat.format(endTime) : "?");
-		((TextView) view.findViewById(R.id.time)).setText(text);
+		textView.setText(text);
+		textView.setContentDescription(getString(R.string.time_content_description, text));
+
+		textView = (TextView) view.findViewById(R.id.room);
 		final String roomName = event.getRoomName();
-		TextView roomTextView = (TextView) view.findViewById(R.id.room);
 		Spannable roomText = new SpannableString(String.format("%1$s (Building %2$s)", roomName, Building.fromRoomName(roomName)));
 		final int roomImageResId = getResources().getIdentifier(StringUtils.roomNameToResourceName(roomName), "drawable", getActivity().getPackageName());
 		// If the room image exists, make the room text clickable to display it
 		if (roomImageResId != 0) {
 			roomText.setSpan(new UnderlineSpan(), 0, roomText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			roomTextView.setOnClickListener(new View.OnClickListener() {
+			textView.setOnClickListener(new View.OnClickListener() {
 
 				@Override
 				public void onClick(View view) {
 					RoomImageDialogFragment.newInstance(roomName, roomImageResId).show(getFragmentManager());
 				}
 			});
-			roomTextView.setFocusable(true);
+			textView.setFocusable(true);
 		}
-		roomTextView.setText(roomText);
+		textView.setText(roomText);
+		textView.setContentDescription(getString(R.string.room_content_description, roomText));
+
 
 		textView = (TextView) view.findViewById(R.id.abstract_text);
 		text = event.getAbstractText();

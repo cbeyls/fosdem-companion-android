@@ -16,8 +16,6 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
@@ -71,7 +69,7 @@ import be.digitalia.fosdem.widgets.AdapterLinearLayout;
  *
  * @author Christophe Beyls
  */
-public class MainActivity extends AppCompatActivity implements Handler.Callback {
+public class MainActivity extends AppCompatActivity {
 
 	private enum Section {
 		TRACKS(TracksFragment.class, R.string.menu_tracks, R.drawable.ic_event_grey600_24dp, true, true),
@@ -118,11 +116,6 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 		}
 	}
 
-	static final int SELECT_MENU_SECTION_WHAT = 1;
-	static final int SELECT_MENU_FOOTER_WHAT = 2;
-
-	static final long MENU_ACTION_DELAY = 400L;
-
 	private static final long DATABASE_VALIDITY_DURATION = DateUtils.DAY_IN_MILLIS;
 	private static final long DOWNLOAD_REMINDER_SNOOZE_DURATION = DateUtils.DAY_IN_MILLIS;
 	private static final String PREF_LAST_DOWNLOAD_REMINDER_TIME = "last_download_reminder_time";
@@ -131,12 +124,13 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 	private static final String LAST_UPDATE_DATE_FORMAT = "d MMM yyyy kk:mm:ss";
 
 
-	Handler handler;
 	private Toolbar toolbar;
 	ProgressBar progressBar;
 
 	// Main menu
 	Section currentSection;
+	int pendingMenuSection = -1;
+	int pendingMenuFooter = -1;
 	DrawerLayout drawerLayout;
 	private ActionBarDrawerToggle drawerToggle;
 	View mainMenu;
@@ -216,8 +210,6 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		handler = new Handler(this);
-
 		toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
@@ -230,10 +222,32 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 		drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.main_menu, R.string.close_menu) {
 
 			@Override
+			public void onDrawerStateChanged(int newState) {
+				super.onDrawerStateChanged(newState);
+				if (newState == DrawerLayout.STATE_DRAGGING) {
+					pendingMenuSection = -1;
+					pendingMenuFooter = -1;
+				}
+			}
+
+			@Override
 			public void onDrawerOpened(View drawerView) {
 				super.onDrawerOpened(drawerView);
 				// Make keypad navigation easier
 				mainMenu.requestFocus();
+			}
+
+			@Override
+			public void onDrawerClosed(View drawerView) {
+				super.onDrawerClosed(drawerView);
+				if (pendingMenuSection != -1) {
+					selectMenuSection(pendingMenuSection);
+					pendingMenuSection = -1;
+				}
+				if (pendingMenuFooter != -1) {
+					selectMenuFooter(pendingMenuFooter);
+					pendingMenuFooter = -1;
+				}
 			}
 		};
 		drawerToggle.setDrawerIndicatorEnabled(true);
@@ -282,7 +296,7 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 	}
 
 	private void updateActionBar() {
-		getSupportActionBar().setTitle(currentSection.getTitleResId());
+		setTitle(currentSection.getTitleResId());
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			toolbar.setElevation(currentSection.extendsAppBar()
 					? 0f : getResources().getDimension(R.dimen.toolbar_elevation));
@@ -315,7 +329,8 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		// Ensure no fragment transaction attempt will occur after onSaveInstanceState()
-		handler.removeCallbacksAndMessages(null);
+		pendingMenuSection = -1;
+		pendingMenuFooter = -1;
 		super.onSaveInstanceState(outState);
 		outState.putInt(STATE_CURRENT_SECTION, currentSection.ordinal());
 	}
@@ -505,15 +520,12 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 	final View.OnClickListener sectionClickListener = new View.OnClickListener() {
 		@Override
 		public void onClick(View view) {
-			int sectionIndex = ((ViewGroup) view.getParent()).indexOfChild(view);
-			// Cancel pending section selection, if any
-			handler.removeMessages(SELECT_MENU_SECTION_WHAT);
-			handler.sendMessageDelayed(handler.obtainMessage(SELECT_MENU_SECTION_WHAT, sectionIndex, 0), MENU_ACTION_DELAY);
+			pendingMenuSection = ((ViewGroup) view.getParent()).indexOfChild(view);
 			drawerLayout.closeDrawer(mainMenu);
 		}
 	};
 
-	private void selectMenuSection(int position) {
+	void selectMenuSection(int position) {
 		Section section = menuAdapter.getItem(position);
 		if (section != currentSection) {
 			// Switch to new section
@@ -546,12 +558,12 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 
 		@Override
 		public void onClick(View view) {
-			handler.sendMessageDelayed(handler.obtainMessage(SELECT_MENU_FOOTER_WHAT, view.getId(), 0), MENU_ACTION_DELAY);
+			pendingMenuFooter = view.getId();
 			drawerLayout.closeDrawer(mainMenu);
 		}
 	};
 
-	private void selectMenuFooter(int id) {
+	void selectMenuFooter(int id) {
 		switch (id) {
 			case R.id.settings:
 				startActivity(new Intent(MainActivity.this, SettingsActivity.class));
@@ -561,19 +573,6 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 				new AboutDialogFragment().show(getSupportFragmentManager(), "about");
 				break;
 		}
-	}
-
-	@Override
-	public boolean handleMessage(Message message) {
-		switch (message.what) {
-			case SELECT_MENU_SECTION_WHAT:
-				selectMenuSection(message.arg1);
-				return true;
-			case SELECT_MENU_FOOTER_WHAT:
-				selectMenuFooter(message.arg1);
-				return true;
-		}
-		return false;
 	}
 
 	public static class AboutDialogFragment extends DialogFragment {

@@ -30,6 +30,7 @@
     <string name="upcoming_only">Upcoming only</string>
     <string name="no_bookmark">No bookmark.</string>
     <string name="remove_bookmarks">Remove bookmarks</string>
+    <string name="bookmark_conflict_content_description">%1$s\n Other bookmarks are scheduled at the same time.</string>
 
     <plurals name="selected">
         <item quantity="other">%1$d selected</item>
@@ -89,7 +90,16 @@
 
     <string name="settings_notifications_delay_summary">Delay before getting notified of an upcoming bookmarked event</string>
 
+    <!-- Track schedule -->
+    <string name="in_progress_content_description">%1$s (in progress)</string>
+
     <!-- Event details -->
+    <string name="event_details">Event details</string>
+    <string name="track_content_description">Track: %1$s</string>
+    <string name="time_content_description">Time: %1$s</string>
+    <string name="room_content_description">Room: %1$s</string>
+    <string name="details_content_description">Details: %1$s</string>
+    <string name="in_bookmarks_content_description">In bookmarks: %1$s</string>
     <string name="related_links_header">Related Links</string>
     <string name="add_bookmark">Add to bookmarks</string>
     <string name="remove_bookmark">Remove from bookmarks</string>

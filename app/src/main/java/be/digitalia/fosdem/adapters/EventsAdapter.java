@@ -63,14 +63,20 @@ public class EventsAdapter extends CursorAdapter {
 		holder.event = event;
 
 		holder.title.setText(event.getTitle());
-		Drawable bookmarkDrawable = DatabaseManager.toBookmarkStatus(cursor)
+		boolean isBookmarked = DatabaseManager.toBookmarkStatus(cursor);
+		Drawable bookmarkDrawable = isBookmarked
 				? AppCompatDrawableManager.get().getDrawable(context, R.drawable.ic_bookmark_grey600_24dp)
 				: null;
 		TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(holder.title, null, null, bookmarkDrawable, null);
+		holder.title.setContentDescription(isBookmarked
+				? context.getString(R.string.in_bookmarks_content_description, event.getTitle())
+				: null
+		);
 		String personsSummary = event.getPersonsSummary();
 		holder.persons.setText(personsSummary);
 		holder.persons.setVisibility(TextUtils.isEmpty(personsSummary) ? View.GONE : View.VISIBLE);
 		holder.trackName.setText(event.getTrack().getName());
+		holder.trackName.setContentDescription(context.getString(R.string.track_content_description, event.getTrack().getName()));
 
 		Date startTime = event.getStartTime();
 		Date endTime = event.getEndTime();
@@ -83,6 +89,7 @@ public class EventsAdapter extends CursorAdapter {
 			details = String.format("%1$s ― %2$s  |  %3$s", startTimeString, endTimeString, event.getRoomName());
 		}
 		holder.details.setText(details);
+		holder.details.setContentDescription(context.getString(R.string.details_content_description, details));
 	}
 
 	protected static class ViewHolder {

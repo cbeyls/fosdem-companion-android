@@ -28,6 +28,7 @@ public class PersonInfoActivity extends AppCompatActivity {
 		bar.setDisplayHomeAsUpEnabled(true);
 		bar.setDisplayShowTitleEnabled(false);
 		((TextView) findViewById(R.id.title)).setText(person.getName());
+		setTitle(person.getName());
 
 		if (savedInstanceState == null) {
 			Fragment f = PersonInfoListFragment.newInstance(person);

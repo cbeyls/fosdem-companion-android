@@ -17,6 +17,7 @@
 
 package be.digitalia.fosdem.widgets;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
@@ -30,9 +31,11 @@ import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.accessibility.AccessibilityEvent;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -62,7 +65,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
 	private ColorStateList mTextColor;
 
 	ViewPager mViewPager;
-	private PagerAdapter mAdapter;
+	PagerAdapter mAdapter;
 	private final InternalViewPagerListener mPageChangeListener = new InternalViewPagerListener();
 	private final PagerAdapterObserver mPagerAdapterObserver = new PagerAdapterObserver();
 
@@ -186,6 +189,15 @@ public class SlidingTabLayout extends HorizontalScrollView {
 		}
 	}
 
+	static void setSelectedCompat(View view, boolean selected) {
+		final boolean becomeSelected = selected && !view.isSelected();
+		view.setSelected(selected);
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN && becomeSelected) {
+			// Pre-JB we need to manually send the TYPE_VIEW_SELECTED event
+			view.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_SELECTED);
+		}
+	}
+
 	private void populateTabStrip() {
 		final int adapterCount = mAdapter.getCount();
 		final View.OnClickListener tabClickListener = new TabClickListener();
@@ -228,7 +240,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
 
 			mTabStrip.addView(tabView);
 			if (i == currentItem) {
-				tabView.setSelected(true);
+				setSelectedCompat(tabView, true);
 			}
 		}
 	}
@@ -236,9 +248,32 @@ public class SlidingTabLayout extends HorizontalScrollView {
 	@Override
 	protected void onAttachedToWindow() {
 		super.onAttachedToWindow();
-
 		if (mViewPager != null) {
 			scrollToTab(mViewPager.getCurrentItem(), 0);
+		}
+		announceSelectedTab(hasWindowFocus());
+	}
+
+	@Override
+	public void onWindowFocusChanged(boolean hasWindowFocus) {
+		super.onWindowFocusChanged(hasWindowFocus);
+		announceSelectedTab(hasWindowFocus);
+	}
+
+	private void announceSelectedTab(boolean hasWindowFocus) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && hasWindowFocus) {
+			getHandler().post(new Runnable() {
+				@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+				@Override
+				public void run() {
+					if (mViewPager != null && mAdapter != null && mAdapter.getCount() > 0) {
+						CharSequence pageTitle = mAdapter.getPageTitle(mViewPager.getCurrentItem());
+						if (!TextUtils.isEmpty(pageTitle)) {
+							announceForAccessibility(pageTitle);
+						}
+					}
+				}
+			});
 		}
 	}
 
@@ -286,7 +321,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
 			}
 			final int childCount = mTabStrip.getChildCount();
 			for (int i = 0; i < childCount; i++) {
-				mTabStrip.getChildAt(i).setSelected(position == i);
+				setSelectedCompat(mTabStrip.getChildAt(i), position == i);
 			}
 		}
 
@@ -331,7 +366,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
 	}
 
 
-	class SlidingTabStrip extends LinearLayout {
+	static class SlidingTabStrip extends LinearLayout {
 
 		private int mSelectedIndicatorHeight;
 		private final Paint mSelectedIndicatorPaint;

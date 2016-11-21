@@ -31,6 +31,7 @@ public class RoomImageDialogFragment extends DialogFragment {
 
 		ImageView imageView = new ImageView(getActivity());
 		imageView.setImageResource(args.getInt("imageResId"));
+		imageView.setContentDescription(getString(R.string.room_map));
 		int padding = getResources().getDimensionPixelSize(R.dimen.content_margin);
 		imageView.setPadding(padding, padding, padding, padding);
 

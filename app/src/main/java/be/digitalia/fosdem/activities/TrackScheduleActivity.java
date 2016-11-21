@@ -60,6 +60,7 @@ public class TrackScheduleActivity extends AppCompatActivity
 		bar.setDisplayHomeAsUpEnabled(true);
 		bar.setTitle(track.toString());
 		bar.setSubtitle(day.toString());
+		setTitle(String.format("%1$s, %2$s", track.toString(), day.toString()));
 
 		isTabletLandscape = getResources().getBoolean(R.bool.tablet_landscape);
 

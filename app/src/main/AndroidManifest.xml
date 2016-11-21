@@ -46,9 +46,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity"/>
         </activity>
-        <activity android:name=".activities.TrackScheduleEventActivity"/>
+        <activity
+            android:name=".activities.TrackScheduleEventActivity"
+            android:label="@string/event_details"/>
         <activity
             android:name=".activities.EventDetailsActivity"
+            android:label="@string/event_details"
             android:parentActivityName=".activities.TrackScheduleActivity">
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
@@ -66,6 +69,7 @@
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".activities.SearchResultActivity"
+            android:label="@string/search_events"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH"/>
