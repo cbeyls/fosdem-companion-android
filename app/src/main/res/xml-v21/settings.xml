@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory android:title="@string/settings_notifications">
-        <CheckBoxPreference
+        <SwitchPreference
             android:defaultValue="true"
             android:key="notifications_enabled"
             android:summary="@string/settings_notifications_enabled_summary"

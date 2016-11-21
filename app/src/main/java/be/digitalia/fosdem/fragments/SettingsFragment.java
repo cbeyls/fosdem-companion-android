@@ -3,11 +3,12 @@ package be.digitalia.fosdem.fragments;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.PreferenceManager;
 import android.support.v4.preference.PreferenceFragment;
+
 import be.digitalia.fosdem.R;
+import be.digitalia.fosdem.utils.TwoStatePreferenceCompat;
 
 public class SettingsFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
 
@@ -51,7 +52,7 @@ public class SettingsFragment extends PreferenceFragment implements OnSharedPref
 	}
 
 	private void updateNotificationsEnabled() {
-		boolean notificationsEnabled = ((CheckBoxPreference) findPreference(KEY_PREF_NOTIFICATIONS_ENABLED)).isChecked();
+		boolean notificationsEnabled = TwoStatePreferenceCompat.isChecked(findPreference(KEY_PREF_NOTIFICATIONS_ENABLED));
 		findPreference(KEY_PREF_NOTIFICATIONS_VIBRATE).setEnabled(notificationsEnabled);
 		findPreference(KEY_PREF_NOTIFICATIONS_LED).setEnabled(notificationsEnabled);
 		findPreference(KEY_PREF_NOTIFICATIONS_DELAY).setEnabled(notificationsEnabled);
