@@ -91,7 +91,12 @@
             android:theme="@style/AlertDialogTheme"/>
         <activity
             android:name=".activities.SettingsActivity"
-            android:label="@string/settings"/>
+            android:label="@string/settings">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.NOTIFICATION_PREFERENCES"/>
+            </intent-filter>
+        </activity>
 
         <receiver
             android:name=".receivers.AlarmReceiver"
