@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -93,7 +94,16 @@
             android:textIsSelectable="true"
             tools:text="Welcome to FOSDEM 2015!"/>
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/links_header"
+            style="@style/Header"
+            android:layout_marginLeft="@dimen/content_margin"
+            android:layout_marginRight="@dimen/content_margin"
+            android:layout_marginTop="8dp"
+            android:text="@string/related_links_header"
+            android:visibility="gone"/>
+
+        <android.support.v7.widget.LinearLayoutCompat
             android:id="@+id/links_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -101,13 +111,9 @@
             android:paddingBottom="@dimen/content_margin"
             android:paddingLeft="@dimen/content_margin"
             android:paddingRight="@dimen/content_margin"
-            android:paddingTop="8dp"
-            android:visibility="gone">
-
-            <TextView
-                style="@style/Header"
-                android:text="@string/related_links_header"/>
-        </LinearLayout>
+            android:visibility="gone"
+            app:divider="?android:attr/listDivider"
+            app:showDividers="middle"/>
     </LinearLayout>
 
 </ScrollView>

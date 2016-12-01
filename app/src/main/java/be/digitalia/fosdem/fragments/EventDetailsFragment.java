@@ -67,6 +67,7 @@ public class EventDetailsFragment extends Fragment {
 	static class ViewHolder {
 		LayoutInflater inflater;
 		TextView personsTextView;
+		View linksHeader;
 		ViewGroup linksContainer;
 	}
 
@@ -184,6 +185,7 @@ public class EventDetailsFragment extends Fragment {
 			textView.setMovementMethod(linkMovementMethod);
 		}
 
+		holder.linksHeader = view.findViewById(R.id.links_header);
 		holder.linksContainer = (ViewGroup) view.findViewById(R.id.links_container);
 		return view;
 	}
@@ -428,12 +430,9 @@ public class EventDetailsFragment extends Fragment {
 			}
 
 			// 2. Links
-			// Keep the first view in links container (title) only
-			int linkViewCount = holder.linksContainer.getChildCount();
-			if (linkViewCount > 1) {
-				holder.linksContainer.removeViews(1, linkViewCount - 1);
-			}
+			holder.linksContainer.removeAllViews();
 			if ((data.links != null) && (data.links.size() > 0)) {
+				holder.linksHeader.setVisibility(View.VISIBLE);
 				holder.linksContainer.setVisibility(View.VISIBLE);
 				for (Link link : data.links) {
 					View view = holder.inflater.inflate(R.layout.item_link, holder.linksContainer, false);
@@ -441,10 +440,9 @@ public class EventDetailsFragment extends Fragment {
 					tv.setText(link.getDescription());
 					view.setOnClickListener(new LinkClickListener(link));
 					holder.linksContainer.addView(view);
-					// Add a list divider
-					holder.inflater.inflate(R.layout.list_divider, holder.linksContainer, true);
 				}
 			} else {
+				holder.linksHeader.setVisibility(View.GONE);
 				holder.linksContainer.setVisibility(View.GONE);
 			}
 		}
