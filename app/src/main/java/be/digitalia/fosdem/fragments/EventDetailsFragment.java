@@ -14,7 +14,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.Loader;
-import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -173,7 +172,7 @@ public class EventDetailsFragment extends Fragment {
 		if (TextUtils.isEmpty(text)) {
 			textView.setVisibility(View.GONE);
 		} else {
-			textView.setText(StringUtils.trimEnd(Html.fromHtml(text)));
+			textView.setText(StringUtils.parseHtml(text));
 			textView.setMovementMethod(linkMovementMethod);
 		}
 		textView = (TextView) view.findViewById(R.id.description);
@@ -181,7 +180,7 @@ public class EventDetailsFragment extends Fragment {
 		if (TextUtils.isEmpty(text)) {
 			textView.setVisibility(View.GONE);
 		} else {
-			textView.setText(StringUtils.trimEnd(Html.fromHtml(text)));
+			textView.setText(StringUtils.parseHtml(text));
 			textView.setMovementMethod(linkMovementMethod);
 		}
 
@@ -339,8 +338,7 @@ public class EventDetailsFragment extends Fragment {
 		if (TextUtils.isEmpty(description)) {
 			description = event.getDescription();
 		}
-		// Strip HTML
-		description = StringUtils.trimEnd(Html.fromHtml(description)).toString();
+		description = StringUtils.stripHtml(description);
 		// Add speaker info if available
 		if (personsCount > 0) {
 			description = String.format("%1$s: %2$s\n\n%3$s", getResources().getQuantityString(R.plurals.speakers, personsCount), event.getPersonsSummary(),

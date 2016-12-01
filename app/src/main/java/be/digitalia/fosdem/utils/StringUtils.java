@@ -1,10 +1,15 @@
 package be.digitalia.fosdem.utils;
 
+import android.text.Editable;
+import android.text.Html;
+
+import org.xml.sax.XMLReader;
+
 import java.util.Locale;
 
 /**
  * Various methods to transform strings
- * 
+ *
  * @author Christophe Beyls
  */
 public class StringUtils {
@@ -19,9 +24,8 @@ public class StringUtils {
 
 	/**
 	 * Returns string without diacritics - 7 bit approximation.
-	 * 
-	 * @param source
-	 *            string to convert
+	 *
+	 * @param source string to convert
 	 * @return corresponding string without diacritics
 	 */
 	public static String removeDiacritics(String source) {
@@ -65,9 +69,6 @@ public class StringUtils {
 
 	/**
 	 * Removes all non-alphanumeric chars at the beginning and end of source.
-	 * 
-	 * @param source
-	 * @return
 	 */
 	private static String trimNonAlpha(String source) {
 		int st = 0;
@@ -84,12 +85,17 @@ public class StringUtils {
 
 	/**
 	 * Transforms a name to a slug identifier to be used in a FOSDEM URL.
-	 * 
-	 * @param source
-	 * @return
 	 */
 	public static String toSlug(String source) {
 		return replaceNonAlphaGroups(trimNonAlpha(removeDiacritics(source)), '_').toLowerCase(Locale.US);
+	}
+
+	public static String stripHtml(String html) {
+		return trimEnd(Html.fromHtml(html)).toString();
+	}
+
+	public static CharSequence parseHtml(String html) {
+		return trimEnd(Html.fromHtml(html, null, new ListsTagHandler()));
 	}
 
 	public static CharSequence trimEnd(CharSequence source) {
@@ -104,8 +110,6 @@ public class StringUtils {
 	/**
 	 * Converts a room name to a local drawable resource name, by stripping non-alpha chars and converting to lower case. Any letter following a digit will be
 	 * ignored, along with the rest of the string.
-	 * 
-	 * @return
 	 */
 	public static String roomNameToResourceName(String roomName) {
 		StringBuilder builder = new StringBuilder(ROOM_DRAWABLE_PREFIX.length() + roomName.length());
@@ -125,5 +129,64 @@ public class StringUtils {
 			}
 		}
 		return builder.toString();
+	}
+
+	static class ListsTagHandler implements Html.TagHandler {
+
+		private int level = 0;
+		private int liStart = -1;
+
+		private static void trimStart(final int start, Editable output) {
+			int end = start;
+			final int length = output.length();
+			while ((end < length) && Character.isWhitespace(output.charAt(end))) {
+				end++;
+			}
+			if (start < end) {
+				output.delete(start, end);
+			}
+		}
+
+		private static void trimEnd(Editable output) {
+			final int end = output.length();
+			int start = end - 1;
+			while ((start >= 0) && Character.isWhitespace(output.charAt(start))) {
+				start--;
+			}
+			start++;
+			if (start < end) {
+				output.delete(start, end);
+			}
+		}
+
+		@Override
+		public void handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader) {
+			switch (tag) {
+				case "li":
+				case "LI":
+					if (liStart != -1) {
+						trimStart(liStart, output);
+					}
+					if (opening) {
+						level++;
+						for (int i = 0; i < level; ++i) {
+							output.append('\t');
+						}
+						output.append("• ");
+						liStart = output.length();
+					} else {
+						level--;
+						trimEnd(output);
+						output.append('\n');
+						if (liStart == -1) {
+							// End of list; moving one level up
+							output.append('\n');
+						} else {
+							liStart = -1;
+						}
+					}
+					break;
+			}
+		}
 	}
 }
