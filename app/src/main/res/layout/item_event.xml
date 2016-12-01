@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:background="?attr/activatedBackgroundIndicator"
-              android:orientation="vertical"
-              android:paddingBottom="@dimen/list_item_padding"
-              android:paddingLeft="?attr/listPreferredItemPaddingLeft"
-              android:paddingRight="?attr/listPreferredItemPaddingRight"
-              android:paddingTop="@dimen/list_item_padding">
+<be.digitalia.fosdem.widgets.CheckableLinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:focusable="true"
+    android:foreground="@drawable/checkable_foreground"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/list_item_padding"
+    android:paddingLeft="?attr/listPreferredItemPaddingLeft"
+    android:paddingRight="?attr/listPreferredItemPaddingRight"
+    android:paddingTop="@dimen/list_item_padding">
 
     <TextView
         android:id="@+id/title"
@@ -41,4 +44,4 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
         tools:text="Saturday, 09:30 - 09:55 | Janson"/>
 
-</LinearLayout>
+</be.digitalia.fosdem.widgets.CheckableLinearLayout>

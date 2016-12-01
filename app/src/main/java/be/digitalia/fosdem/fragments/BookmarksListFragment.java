@@ -1,40 +1,38 @@
 package be.digitalia.fosdem.fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.support.v4.content.SharedPreferencesCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.format.DateUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ListView;
 
 import be.digitalia.fosdem.R;
-import be.digitalia.fosdem.activities.EventDetailsActivity;
 import be.digitalia.fosdem.adapters.BookmarksAdapter;
-import be.digitalia.fosdem.adapters.EventsAdapter;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.loaders.SimpleCursorLoader;
-import be.digitalia.fosdem.model.Event;
-import be.digitalia.fosdem.widgets.BookmarksMultiChoiceModeListener;
 
 /**
  * Bookmarks list, optionally filterable.
  *
  * @author Christophe Beyls
  */
-public class BookmarksListFragment extends SmoothListFragment implements LoaderCallbacks<Cursor> {
+public class BookmarksListFragment extends RecyclerViewFragment implements LoaderCallbacks<Cursor> {
 
 	private static final int BOOKMARKS_LOADER_ID = 1;
 	private static final String PREF_UPCOMING_ONLY = "bookmarks_upcoming_only";
+	private static final String STATE_ADAPTER = "adapter";
 
-	private EventsAdapter adapter;
+	private BookmarksAdapter adapter;
 	private boolean upcomingOnly;
 
 	private MenuItem filterMenuItem;
@@ -44,33 +42,41 @@ public class BookmarksListFragment extends SmoothListFragment implements LoaderC
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		adapter = new BookmarksAdapter(getActivity());
-		setListAdapter(adapter);
-
+		adapter = new BookmarksAdapter((AppCompatActivity) getActivity());
+		if (savedInstanceState != null) {
+			adapter.onRestoreInstanceState(savedInstanceState.getParcelable(STATE_ADAPTER));
+		}
 		upcomingOnly = getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean(PREF_UPCOMING_ONLY, false);
 
 		setHasOptionsMenu(true);
 	}
 
 	@Override
+	protected void onRecyclerViewCreated(RecyclerView recyclerView, Bundle savedInstanceState) {
+		recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
+		recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL));
+		recyclerView.setAdapter(adapter);
+	}
+
+	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			BookmarksMultiChoiceModeListener.register(getListView());
-		}
-
 		setEmptyText(getString(R.string.no_bookmark));
-		setListShown(false);
+		setProgressBarVisible(true);
 
 		getLoaderManager().initLoader(BOOKMARKS_LOADER_ID, null, this);
 	}
 
 	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putParcelable(STATE_ADAPTER, adapter.onSaveInstanceState());
+	}
+
+	@Override
 	public void onDestroyView() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			BookmarksMultiChoiceModeListener.unregister(getListView());
-		}
+		adapter.onDestroyView();
 		super.onDestroyView();
 	}
 
@@ -116,7 +122,7 @@ public class BookmarksListFragment extends SmoothListFragment implements LoaderC
 	private static class BookmarksLoader extends SimpleCursorLoader {
 
 		// Events that just started are still shown for 5 minutes
-		private static final long TIME_OFFSET = 5L * 60L * 1000L;
+		private static final long TIME_OFFSET = 5L * DateUtils.MINUTE_IN_MILLIS;
 
 		private final boolean upcomingOnly;
 		private final Handler handler;
@@ -179,18 +185,11 @@ public class BookmarksListFragment extends SmoothListFragment implements LoaderC
 			adapter.swapCursor(data);
 		}
 
-		setListShown(true);
+		setProgressBarVisible(false);
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
 		adapter.swapCursor(null);
-	}
-
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		Event event = adapter.getItem(position);
-		Intent intent = new Intent(getActivity(), EventDetailsActivity.class).putExtra(EventDetailsActivity.EXTRA_EVENT, event);
-		startActivity(intent);
 	}
 }

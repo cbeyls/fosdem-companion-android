@@ -1,21 +1,20 @@
 package be.digitalia.fosdem.fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
-import android.view.View;
-import android.widget.ListView;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+
 import be.digitalia.fosdem.R;
-import be.digitalia.fosdem.activities.EventDetailsActivity;
 import be.digitalia.fosdem.adapters.EventsAdapter;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.loaders.SimpleCursorLoader;
-import be.digitalia.fosdem.model.Event;
 
-public class SearchResultListFragment extends SmoothListFragment implements LoaderCallbacks<Cursor> {
+public class SearchResultListFragment extends RecyclerViewFragment implements LoaderCallbacks<Cursor> {
 
 	private static final int EVENTS_LOADER_ID = 1;
 	private static final String ARG_QUERY = "query";
@@ -34,7 +33,13 @@ public class SearchResultListFragment extends SmoothListFragment implements Load
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		adapter = new EventsAdapter(getActivity());
-		setListAdapter(adapter);
+	}
+
+	@Override
+	protected void onRecyclerViewCreated(RecyclerView recyclerView, Bundle savedInstanceState) {
+		recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
+		recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL));
+		recyclerView.setAdapter(adapter);
 	}
 
 	@Override
@@ -42,7 +47,7 @@ public class SearchResultListFragment extends SmoothListFragment implements Load
 		super.onActivityCreated(savedInstanceState);
 
 		setEmptyText(getString(R.string.no_search_result));
-		setListShown(false);
+		setProgressBarVisible(true);
 
 		getLoaderManager().initLoader(EVENTS_LOADER_ID, null, this);
 	}
@@ -74,18 +79,11 @@ public class SearchResultListFragment extends SmoothListFragment implements Load
 			adapter.swapCursor(data);
 		}
 
-		setListShown(true);
+		setProgressBarVisible(false);
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
 		adapter.swapCursor(null);
-	}
-
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		Event event = adapter.getItem(position);
-		Intent intent = new Intent(getActivity(), EventDetailsActivity.class).putExtra(EventDetailsActivity.EXTRA_EVENT, event);
-		startActivity(intent);
 	}
 }

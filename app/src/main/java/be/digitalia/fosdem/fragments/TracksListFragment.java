@@ -4,28 +4,31 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.TrackScheduleActivity;
+import be.digitalia.fosdem.adapters.RecyclerViewCursorAdapter;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.loaders.SimpleCursorLoader;
 import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Track;
 
-public class TracksListFragment extends SmoothListFragment implements LoaderCallbacks<Cursor> {
+public class TracksListFragment extends RecyclerViewFragment implements LoaderCallbacks<Cursor> {
 
 	private static final int TRACKS_LOADER_ID = 1;
 	private static final String ARG_DAY = "day";
 
-	private Day day;
+	Day day;
 	private TracksAdapter adapter;
 
 	public static TracksListFragment newInstance(Day day) {
@@ -39,9 +42,20 @@ public class TracksListFragment extends SmoothListFragment implements LoaderCall
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		adapter = new TracksAdapter(getActivity());
+		adapter = new TracksAdapter();
 		day = getArguments().getParcelable(ARG_DAY);
-		setListAdapter(adapter);
+	}
+
+	@Override
+	protected void onRecyclerViewCreated(RecyclerView recyclerView, Bundle savedInstanceState) {
+		Fragment parentFragment = getParentFragment();
+		if (parentFragment instanceof RecycledViewPoolProvider) {
+			recyclerView.setRecycledViewPool(((RecycledViewPoolProvider) parentFragment).getRecycledViewPool());
+		}
+
+		recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
+		recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL));
+		recyclerView.setAdapter(adapter);
 	}
 
 	@Override
@@ -49,7 +63,7 @@ public class TracksListFragment extends SmoothListFragment implements LoaderCall
 		super.onActivityCreated(savedInstanceState);
 
 		setEmptyText(getString(R.string.no_data));
-		setListShown(false);
+		setProgressBarVisible(true);
 
 		getLoaderManager().initLoader(TRACKS_LOADER_ID, null, this);
 	}
@@ -80,7 +94,7 @@ public class TracksListFragment extends SmoothListFragment implements LoaderCall
 			adapter.swapCursor(data);
 		}
 
-		setListShown(true);
+		setProgressBarVisible(false);
 	}
 
 	@Override
@@ -88,21 +102,12 @@ public class TracksListFragment extends SmoothListFragment implements LoaderCall
 		adapter.swapCursor(null);
 	}
 
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		Track track = adapter.getItem(position);
-		Intent intent = new Intent(getActivity(), TrackScheduleActivity.class).putExtra(TrackScheduleActivity.EXTRA_DAY, day).putExtra(
-				TrackScheduleActivity.EXTRA_TRACK, track);
-		startActivity(intent);
-	}
-
-	private static class TracksAdapter extends CursorAdapter {
+	private class TracksAdapter extends RecyclerViewCursorAdapter<TrackViewHolder> {
 
 		private final LayoutInflater inflater;
 
-		public TracksAdapter(Context context) {
-			super(context, null, 0);
-			inflater = LayoutInflater.from(context);
+		public TracksAdapter() {
+			inflater = LayoutInflater.from(getContext());
 		}
 
 		@Override
@@ -111,29 +116,41 @@ public class TracksListFragment extends SmoothListFragment implements LoaderCall
 		}
 
 		@Override
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
+		public TrackViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 			View view = inflater.inflate(R.layout.simple_list_item_2_material, parent, false);
-
-			ViewHolder holder = new ViewHolder();
-			holder.name = (TextView) view.findViewById(android.R.id.text1);
-			holder.type = (TextView) view.findViewById(android.R.id.text2);
-			view.setTag(holder);
-
-			return view;
+			return new TrackViewHolder(view);
 		}
 
 		@Override
-		public void bindView(View view, Context context, Cursor cursor) {
-			ViewHolder holder = (ViewHolder) view.getTag();
+		public void onBindViewHolder(TrackViewHolder holder, Cursor cursor) {
+			holder.day = day;
 			holder.track = DatabaseManager.toTrack(cursor, holder.track);
 			holder.name.setText(holder.track.getName());
 			holder.type.setText(holder.track.getType().getNameResId());
 		}
+	}
 
-		static class ViewHolder {
-			TextView name;
-			TextView type;
-			Track track;
+	static class TrackViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+		TextView name;
+		TextView type;
+
+		Day day;
+		Track track;
+
+		TrackViewHolder(View itemView) {
+			super(itemView);
+			name = (TextView) itemView.findViewById(android.R.id.text1);
+			type = (TextView) itemView.findViewById(android.R.id.text2);
+			itemView.setOnClickListener(this);
+		}
+
+		@Override
+		public void onClick(View view) {
+			Context context = view.getContext();
+			Intent intent = new Intent(context, TrackScheduleActivity.class)
+					.putExtra(TrackScheduleActivity.EXTRA_DAY, day)
+					.putExtra(TrackScheduleActivity.EXTRA_TRACK, track);
+			context.startActivity(intent);
 		}
 	}
 }

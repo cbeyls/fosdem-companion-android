@@ -3,6 +3,7 @@
 
     <!-- Drawable used as a background for activated items. -->
     <attr name="activatedBackgroundIndicator" format="reference"/>
+    <attr name="recyclerViewStyle" format="reference"/>
 
     <declare-styleable name="SlidingTabLayout">
         <attr name="indicatorColor" format="color"/>
@@ -24,6 +25,12 @@
 
     <declare-styleable name="ScrimInsetsFrameLayout">
         <attr name="insetForeground" format="color|reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="ForegroundLinearLayout">
+        <attr name="android:foreground"/>
+        <attr name="android:foregroundGravity"/>
+        <attr name="foregroundInsidePadding" format="boolean"/>
     </declare-styleable>
 
     <declare-styleable name="PrimaryTextColors">

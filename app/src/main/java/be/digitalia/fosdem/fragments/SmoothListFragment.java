@@ -59,7 +59,7 @@ public class SmoothListFragment extends Fragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		final Context context = getActivity();
+		final Context context = inflater.getContext();
 
 		mHolder = new ViewHolder();
 
@@ -138,7 +138,7 @@ public class SmoothListFragment extends Fragment {
 	}
 
 	/**
-	 * The default content for a SwipeRefreshListFragment has a TextView that can be shown when the list is empty.
+	 * The default content for a SmoothListFragment has a TextView that can be shown when the list is empty.
 	 * Call this method to supply the text it should use.
 	 */
 	public void setEmptyText(CharSequence text) {

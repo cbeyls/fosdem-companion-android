@@ -1,17 +1,16 @@
 package be.digitalia.fosdem.fragments;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
-import android.view.View;
-import android.widget.ListView;
-import be.digitalia.fosdem.activities.EventDetailsActivity;
-import be.digitalia.fosdem.adapters.EventsAdapter;
-import be.digitalia.fosdem.model.Event;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 
-public abstract class BaseLiveListFragment extends SmoothListFragment implements LoaderCallbacks<Cursor> {
+import be.digitalia.fosdem.adapters.EventsAdapter;
+
+public abstract class BaseLiveListFragment extends RecyclerViewFragment implements LoaderCallbacks<Cursor> {
 
 	private static final int EVENTS_LOADER_ID = 1;
 
@@ -21,7 +20,13 @@ public abstract class BaseLiveListFragment extends SmoothListFragment implements
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		adapter = new EventsAdapter(getActivity(), false);
-		setListAdapter(adapter);
+	}
+
+	@Override
+	protected void onRecyclerViewCreated(RecyclerView recyclerView, Bundle savedInstanceState) {
+		recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
+		recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL));
+		recyclerView.setAdapter(adapter);
 	}
 
 	@Override
@@ -29,7 +34,7 @@ public abstract class BaseLiveListFragment extends SmoothListFragment implements
 		super.onActivityCreated(savedInstanceState);
 
 		setEmptyText(getEmptyText());
-		setListShown(false);
+		setProgressBarVisible(true);
 
 		getLoaderManager().initLoader(EVENTS_LOADER_ID, null, this);
 	}
@@ -42,18 +47,11 @@ public abstract class BaseLiveListFragment extends SmoothListFragment implements
 			adapter.swapCursor(data);
 		}
 
-		setListShown(true);
+		setProgressBarVisible(false);
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
 		adapter.swapCursor(null);
-	}
-
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		Event event = adapter.getItem(position);
-		Intent intent = new Intent(getActivity(), EventDetailsActivity.class).putExtra(EventDetailsActivity.EXTRA_EVENT, event);
-		startActivity(intent);
 	}
 }
