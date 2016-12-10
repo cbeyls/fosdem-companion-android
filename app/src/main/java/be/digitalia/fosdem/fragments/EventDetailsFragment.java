@@ -5,8 +5,10 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Animatable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.support.v4.app.Fragment;
@@ -238,7 +240,7 @@ public class EventDetailsFragment extends Fragment {
 		if (actionButton != null) {
 			bookmarkMenuItem.setEnabled(false).setVisible(false);
 		}
-		updateOptionsMenu();
+		updateBookmarkMenuItem(false);
 	}
 
 	private Intent getShareChooserIntent() {
@@ -250,21 +252,27 @@ public class EventDetailsFragment extends Fragment {
 				.createChooserIntent();
 	}
 
-	void updateOptionsMenu() {
+	void updateBookmarkMenuItem(boolean animate) {
 		if (actionButton != null) {
 			// Action Button is used as bookmark button
 
 			if (isBookmarked == null) {
 				actionButton.setEnabled(false);
 			} else {
+				// Only animate if the button was showing a previous value
+				animate = animate && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+						&& actionButton.isEnabled();
 				actionButton.setEnabled(true);
 
 				if (isBookmarked) {
 					actionButton.setContentDescription(getString(R.string.remove_bookmark));
-					actionButton.setImageResource(R.drawable.ic_bookmark_white_24dp);
+					actionButton.setImageResource(animate ? R.drawable.avd_fab_bookmark_add_24dp : R.drawable.ic_bookmark_white_24dp);
 				} else {
 					actionButton.setContentDescription(getString(R.string.add_bookmark));
-					actionButton.setImageResource(R.drawable.ic_bookmark_outline_white_24dp);
+					actionButton.setImageResource(animate ? R.drawable.avd_fab_bookmark_remove_24dp : R.drawable.ic_bookmark_outline_white_24dp);
+				}
+				if (animate) {
+					((Animatable) actionButton.getDrawable()).start();
 				}
 			}
 		} else {
@@ -274,14 +282,21 @@ public class EventDetailsFragment extends Fragment {
 				if (isBookmarked == null) {
 					bookmarkMenuItem.setEnabled(false);
 				} else {
+					// Only animate if the menu item was showing a previous value
+					animate = animate && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+							&& bookmarkMenuItem.isEnabled();
 					bookmarkMenuItem.setEnabled(true);
 
 					if (isBookmarked) {
 						bookmarkMenuItem.setTitle(R.string.remove_bookmark);
-						bookmarkMenuItem.setIcon(R.drawable.ic_bookmark_white_24dp);
+						bookmarkMenuItem.setIcon(animate ? R.drawable.avd_appbar_bookmark_add_24dp : R.drawable.ic_bookmark_white_24dp);
 					} else {
 						bookmarkMenuItem.setTitle(R.string.add_bookmark);
-						bookmarkMenuItem.setIcon(R.drawable.ic_bookmark_outline_white_24dp);
+						bookmarkMenuItem.setIcon(animate ? R.drawable.avd_appbar_bookmark_remove_24dp : R.drawable.ic_bookmark_outline_white_24dp);
+					}
+					if (animate) {
+						((Animatable) bookmarkMenuItem.getIcon()).stop();
+						((Animatable) bookmarkMenuItem.getIcon()).start();
 					}
 				}
 			}
@@ -369,8 +384,10 @@ public class EventDetailsFragment extends Fragment {
 
 		@Override
 		public void onLoadFinished(Loader<Boolean> loader, Boolean data) {
-			isBookmarked = data;
-			updateOptionsMenu();
+			if (isBookmarked != data) {
+				isBookmarked = data;
+				updateBookmarkMenuItem(true);
+			}
 		}
 
 		@Override
