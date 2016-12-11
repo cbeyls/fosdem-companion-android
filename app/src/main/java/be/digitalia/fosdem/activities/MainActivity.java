@@ -71,6 +71,9 @@ import be.digitalia.fosdem.widgets.AdapterLinearLayout;
  */
 public class MainActivity extends AppCompatActivity {
 
+	public static final String ACTION_SHORTCUT_BOOKMARKS = "be.digitalia.fosdem.intent.action.SHORTCUT_BOOKMARKS";
+	public static final String ACTION_SHORTCUT_LIVE = "be.digitalia.fosdem.intent.action.SHORTCUT_LIVE";
+
 	private enum Section {
 		TRACKS(TracksFragment.class, R.string.menu_tracks, R.drawable.ic_event_grey600_24dp, true, true),
 		BOOKMARKS(BookmarksListFragment.class, R.string.menu_bookmarks, R.drawable.ic_bookmark_grey600_24dp, false, false),
@@ -273,6 +276,18 @@ public class MainActivity extends AppCompatActivity {
 		// Restore current section
 		if (savedInstanceState == null) {
 			currentSection = Section.TRACKS;
+			String action = getIntent().getAction();
+			if (action != null) {
+				switch (action) {
+					case ACTION_SHORTCUT_BOOKMARKS:
+						currentSection = Section.BOOKMARKS;
+						break;
+					case ACTION_SHORTCUT_LIVE:
+						currentSection = Section.LIVE;
+						break;
+				}
+			}
+
 			String fragmentClassName = currentSection.getFragmentClassName();
 			Fragment f = Fragment.instantiate(this, fragmentClassName);
 			getSupportFragmentManager().beginTransaction().add(R.id.content, f, fragmentClassName).commit();

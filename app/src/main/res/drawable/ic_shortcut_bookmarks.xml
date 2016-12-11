@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportHeight="48"
+    android:viewportWidth="48">
+    <path
+        android:fillColor="@color/shortcut_background"
+        android:pathData="@string/path_shortcut_background"/>
+    <group
+        android:translateX="12"
+        android:translateY="12">
+        <path
+            android:fillColor="@color/color_primary"
+            android:pathData="@string/path_ic_bookmark"/>
+    </group>
+</vector>

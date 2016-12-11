@@ -4,4 +4,6 @@
     <string name="path_ic_bookmark_filler" translatable="false">M6,4h12v14h-12z</string>
     <string name="path_ic_bookmark_check" translatable="false">M7.71,9.3L11,12.59L16.55,7.05</string>
     <string name="path_ic_bookmark_outline" translatable="false">M17,18V5H7V18L12,15.82L17,18M17,3A2,2 0 0,1 19,5V21L12,18L5,21V5C5,3.89 5.9,3 7,3H17M11,7H13V9H15V11H13V13H11V11H9V9H11V7Z</string>
+    <string name="path_ic_play_circle_outline" translatable="false">M10,16.5l6,-4.5 -6,-4.5v9zM12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM12,20c-4.41,0 -8,-3.59 -8,-8s3.59,-8 8,-8 8,3.59 8,8 -3.59,8 -8,8z</string>
+    <string name="path_shortcut_background" translatable="false">M24,24m-22,0a22,22 0,1 1,44 0a22,22 0,1 1,-44 0</string>
 </resources>

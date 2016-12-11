@@ -37,6 +37,9 @@
             <meta-data
                 android:name="android.app.default_searchable"
                 android:value=".activities.SearchResultActivity"/>
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts"/>
         </activity>
         <activity
             android:name=".activities.TrackScheduleActivity"

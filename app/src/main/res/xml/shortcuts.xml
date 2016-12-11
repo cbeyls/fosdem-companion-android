@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_bookmarks"
+        android:shortcutId="bookmarks"
+        android:shortcutShortLabel="@string/menu_bookmarks">
+        <intent
+            android:action="be.digitalia.fosdem.intent.action.SHORTCUT_BOOKMARKS"
+            android:targetClass="be.digitalia.fosdem.activities.MainActivity"
+            android:targetPackage="be.digitalia.fosdem"/>
+    </shortcut>
+
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_live"
+        android:shortcutId="live"
+        android:shortcutShortLabel="@string/menu_live">
+        <intent
+            android:action="be.digitalia.fosdem.intent.action.SHORTCUT_LIVE"
+            android:targetClass="be.digitalia.fosdem.activities.MainActivity"
+            android:targetPackage="be.digitalia.fosdem"/>
+    </shortcut>
+
+</shortcuts>
