@@ -1,7 +1,12 @@
 package be.digitalia.fosdem.utils;
 
+import android.content.res.Resources;
+import android.support.v4.util.CircularIntArray;
 import android.text.Editable;
 import android.text.Html;
+import android.text.Spanned;
+import android.text.style.BulletSpan;
+import android.text.style.LeadingMarginSpan;
 
 import org.xml.sax.XMLReader;
 
@@ -94,8 +99,8 @@ public class StringUtils {
 		return trimEnd(Html.fromHtml(html)).toString();
 	}
 
-	public static CharSequence parseHtml(String html) {
-		return trimEnd(Html.fromHtml(html, null, new ListsTagHandler()));
+	public static CharSequence parseHtml(String html, Resources res) {
+		return trimEnd(Html.fromHtml(html, null, new ListsTagHandler(res)));
 	}
 
 	public static CharSequence trimEnd(CharSequence source) {
@@ -133,10 +138,32 @@ public class StringUtils {
 
 	static class ListsTagHandler implements Html.TagHandler {
 
-		private int level = 0;
-		private int liStart = -1;
+		private static final float LEADING_MARGIN_DIPS = 2f;
+		private static final float BULLET_GAP_WIDTH_DIPS = 8f;
 
-		private static void trimStart(final int start, Editable output) {
+		private final CircularIntArray liStarts = new CircularIntArray(4);
+		private final int leadingMargin;
+		private final int bulletGapWidth;
+
+		public ListsTagHandler(Resources res) {
+			final float density = res.getDisplayMetrics().density;
+			leadingMargin = (int) (density * LEADING_MARGIN_DIPS + 0.5f);
+			bulletGapWidth = (int) (density * BULLET_GAP_WIDTH_DIPS + 0.5f);
+		}
+
+		/**
+		 * @return final output length
+		 */
+		private static int ensureParagraphBoundary(Editable output) {
+			int length = output.length();
+			if ((length != 0) && output.charAt(length - 1) != '\n') {
+				output.insert(length, "\n");
+				length++;
+			}
+			return length;
+		}
+
+		private static void trimStart(Editable output, final int start) {
 			int end = start;
 			final int length = output.length();
 			while ((end < length) && Character.isWhitespace(output.charAt(end))) {
@@ -147,43 +174,25 @@ public class StringUtils {
 			}
 		}
 
-		private static void trimEnd(Editable output) {
-			final int end = output.length();
-			int start = end - 1;
-			while ((start >= 0) && Character.isWhitespace(output.charAt(start))) {
-				start--;
-			}
-			start++;
-			if (start < end) {
-				output.delete(start, end);
-			}
-		}
-
 		@Override
 		public void handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader) {
 			switch (tag) {
+				case "pre":
+				case "PRE":
+					ensureParagraphBoundary(output);
+					break;
+				// Unfortunately the following code will be ignored in API 24+ and the native rendering is inferior
 				case "li":
 				case "LI":
-					if (liStart != -1) {
-						trimStart(liStart, output);
-					}
 					if (opening) {
-						level++;
-						for (int i = 0; i < level; ++i) {
-							output.append('\t');
-						}
-						output.append("• ");
-						liStart = output.length();
-					} else {
-						level--;
-						trimEnd(output);
-						output.append('\n');
-						if (liStart == -1) {
-							// End of list; moving one level up
-							output.append('\n');
-						} else {
-							liStart = -1;
-						}
+						liStarts.addLast(ensureParagraphBoundary(output));
+					} else if (!liStarts.isEmpty()) {
+						int start = liStarts.popLast();
+						trimStart(output, start);
+						int end = ensureParagraphBoundary(output);
+						// Add leading margin to ensure the bullet is not cut off
+						output.setSpan(new LeadingMarginSpan.Standard(leadingMargin), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+						output.setSpan(new BulletSpan(bulletGapWidth), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 					}
 					break;
 			}

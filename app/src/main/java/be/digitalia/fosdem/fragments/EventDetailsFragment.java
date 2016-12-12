@@ -174,7 +174,7 @@ public class EventDetailsFragment extends Fragment {
 		if (TextUtils.isEmpty(text)) {
 			textView.setVisibility(View.GONE);
 		} else {
-			textView.setText(StringUtils.parseHtml(text));
+			textView.setText(StringUtils.parseHtml(text, getResources()));
 			textView.setMovementMethod(linkMovementMethod);
 		}
 		textView = (TextView) view.findViewById(R.id.description);
@@ -182,7 +182,7 @@ public class EventDetailsFragment extends Fragment {
 		if (TextUtils.isEmpty(text)) {
 			textView.setVisibility(View.GONE);
 		} else {
-			textView.setText(StringUtils.parseHtml(text));
+			textView.setText(StringUtils.parseHtml(text, getResources()));
 			textView.setMovementMethod(linkMovementMethod);
 		}
 
