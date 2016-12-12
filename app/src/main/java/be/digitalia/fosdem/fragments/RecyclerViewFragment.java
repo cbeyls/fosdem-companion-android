@@ -24,7 +24,7 @@ import be.digitalia.fosdem.widgets.ContentLoadingProgressBar;
  */
 public class RecyclerViewFragment extends Fragment {
 
-	private static final int DEFAULT_EMPTY_VIEW_PADDING_DIPS = 16;
+	private static final float DEFAULT_EMPTY_VIEW_PADDING_DIPS = 16f;
 
 	static class ViewHolder {
 		FrameLayout container;
@@ -90,7 +90,7 @@ public class RecyclerViewFragment extends Fragment {
 	protected View onCreateEmptyView(LayoutInflater inflater, ViewGroup container, @Nullable Bundle savedInstanceState) {
 		TextView textView = new TextView(inflater.getContext());
 		textView.setGravity(Gravity.CENTER);
-		int textPadding = (int) (getResources().getDisplayMetrics().density * DEFAULT_EMPTY_VIEW_PADDING_DIPS);
+		int textPadding = (int) (getResources().getDisplayMetrics().density * DEFAULT_EMPTY_VIEW_PADDING_DIPS + 0.5f);
 		textView.setPadding(textPadding, textPadding, textPadding, textPadding);
 		return textView;
 	}

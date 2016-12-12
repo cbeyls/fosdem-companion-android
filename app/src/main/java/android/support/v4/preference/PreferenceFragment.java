@@ -22,9 +22,8 @@ import android.widget.ListView;
 
 /**
  * A PreferenceFragment for the support library. Based on the platform's code with some removed features and a basic ListView layout.
- * 
+ *
  * @author Christophe Beyls
- * 
  */
 public abstract class PreferenceFragment extends Fragment {
 
@@ -32,19 +31,19 @@ public abstract class PreferenceFragment extends Fragment {
 	static final int MSG_BIND_PREFERENCES = 1;
 	static final int MSG_REQUEST_FOCUS = 2;
 	private static final String PREFERENCES_TAG = "android:preferences";
-	private static final float HC_HORIZONTAL_PADDING = 16;
+	private static final float HC_HORIZONTAL_PADDING = 16f;
 
 	@SuppressLint("HandlerLeak")
 	private final Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-			case MSG_BIND_PREFERENCES:
-				bindPreferences();
-				break;
-			case MSG_REQUEST_FOCUS:
-				mList.focusableViewAvailable(mList);
-				break;
+				case MSG_BIND_PREFERENCES:
+					bindPreferences();
+					break;
+				case MSG_REQUEST_FOCUS:
+					mList.focusableViewAvailable(mList);
+					break;
 			}
 		}
 	};
@@ -70,7 +69,7 @@ public abstract class PreferenceFragment extends Fragment {
 		ListView listView = new ListView(getActivity());
 		listView.setId(android.R.id.list);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			final int horizontalPadding = (int) (HC_HORIZONTAL_PADDING * getResources().getDisplayMetrics().density);
+			final int horizontalPadding = (int) (HC_HORIZONTAL_PADDING * getResources().getDisplayMetrics().density + 0.5f);
 			listView.setPadding(horizontalPadding, 0, horizontalPadding, 0);
 		}
 		return listView;
