@@ -26,8 +26,8 @@ import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.EventDetailsActivity;
 import be.digitalia.fosdem.activities.MainActivity;
 import be.digitalia.fosdem.activities.RoomImageDialogActivity;
+import be.digitalia.fosdem.activities.SettingsActivity;
 import be.digitalia.fosdem.db.DatabaseManager;
-import be.digitalia.fosdem.fragments.SettingsFragment;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.receivers.AlarmReceiver;
 import be.digitalia.fosdem.utils.StringUtils;
@@ -151,7 +151,7 @@ public class AlarmIntentService extends IntentService {
 
 					int defaultFlags = Notification.DEFAULT_SOUND;
 					SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-					if (sharedPreferences.getBoolean(SettingsFragment.KEY_PREF_NOTIFICATIONS_VIBRATE, false)) {
+					if (sharedPreferences.getBoolean(SettingsActivity.KEY_PREF_NOTIFICATIONS_VIBRATE, false)) {
 						defaultFlags |= Notification.DEFAULT_VIBRATE;
 					}
 
@@ -195,7 +195,7 @@ public class AlarmIntentService extends IntentService {
 							.setCategory(NotificationCompat.CATEGORY_EVENT);
 
 					// Blink the LED with FOSDEM color if enabled in the options
-					if (sharedPreferences.getBoolean(SettingsFragment.KEY_PREF_NOTIFICATIONS_LED, false)) {
+					if (sharedPreferences.getBoolean(SettingsActivity.KEY_PREF_NOTIFICATIONS_LED, false)) {
 						notificationBuilder.setLights(notificationColor, 1000, 5000);
 					}
 
@@ -243,7 +243,7 @@ public class AlarmIntentService extends IntentService {
 
 	private long getDelay() {
 		String delayString = PreferenceManager.getDefaultSharedPreferences(this).getString(
-				SettingsFragment.KEY_PREF_NOTIFICATIONS_DELAY, "0");
+				SettingsActivity.KEY_PREF_NOTIFICATIONS_DELAY, "0");
 		// Convert from minutes to milliseconds
 		return Long.parseLong(delayString) * DateUtils.MINUTE_IN_MILLIS;
 	}
