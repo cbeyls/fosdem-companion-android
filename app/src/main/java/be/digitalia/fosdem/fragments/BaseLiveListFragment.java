@@ -2,6 +2,7 @@ package be.digitalia.fosdem.fragments;
 
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.DividerItemDecoration;
@@ -24,6 +25,11 @@ public abstract class BaseLiveListFragment extends RecyclerViewFragment implemen
 
 	@Override
 	protected void onRecyclerViewCreated(RecyclerView recyclerView, Bundle savedInstanceState) {
+		Fragment parentFragment = getParentFragment();
+		if (parentFragment instanceof RecycledViewPoolProvider) {
+			recyclerView.setRecycledViewPool(((RecycledViewPoolProvider) parentFragment).getRecycledViewPool());
+		}
+
 		recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
 		recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL));
 		recyclerView.setAdapter(adapter);

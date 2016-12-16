@@ -6,26 +6,47 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.widgets.SlidingTabLayout;
 
-import be.digitalia.fosdem.R;
+public class LiveFragment extends Fragment implements RecycledViewPoolProvider {
 
-public class LiveFragment extends Fragment {
+	static class ViewHolder {
+		ViewPager pager;
+		SlidingTabLayout slidingTabs;
+		RecyclerView.RecycledViewPool recycledViewPool;
+	}
+
+	private ViewHolder holder;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_live, container, false);
 
-		ViewPager pager = (ViewPager) view.findViewById(R.id.pager);
-		pager.setAdapter(new LivePagerAdapter(getChildFragmentManager(), getResources()));
-		SlidingTabLayout slidingTabs = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
-		slidingTabs.setViewPager(pager);
+		holder = new ViewHolder();
+		holder.pager = (ViewPager) view.findViewById(R.id.pager);
+		holder.pager.setAdapter(new LivePagerAdapter(getChildFragmentManager(), getResources()));
+		holder.slidingTabs = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
+		holder.slidingTabs.setViewPager(holder.pager);
+		holder.recycledViewPool = new RecyclerView.RecycledViewPool();
 
 		return view;
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		holder = null;
+	}
+
+	@Override
+	public RecyclerView.RecycledViewPool getRecycledViewPool() {
+		return (holder == null) ? null : holder.recycledViewPool;
 	}
 
 	private static class LivePagerAdapter extends FragmentPagerAdapter {
