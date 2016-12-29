@@ -19,7 +19,7 @@
             android:id="@+id/toolbar"
             style="@style/Toolbar.Fosdem"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="wrap_content"
             android:background="@null"/>
 
         <TextView
