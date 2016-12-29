@@ -24,6 +24,7 @@ public class ConcatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	private final RecyclerView.Adapter<RecyclerView.ViewHolder>[] adapters;
 	private final RecyclerView.AdapterDataObserver[] adapterObservers;
 	final int[] offsets;
+	int totalItemCount = -1;
 	private final SparseArray<RecyclerView.Adapter<RecyclerView.ViewHolder>> viewTypeAdapters = new SparseArray<>();
 
 	private class InternalObserver extends RecyclerView.AdapterDataObserver {
@@ -36,39 +37,52 @@ public class ConcatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
 		@Override
 		public void onChanged() {
+			totalItemCount = -1;
 			notifyDataSetChanged();
 		}
 
 		@Override
 		public void onItemRangeChanged(int positionStart, int itemCount) {
-			notifyItemRangeChanged(positionStart + offsets[adapterIndex], itemCount);
+			if (totalItemCount != -1) {
+				notifyItemRangeChanged(positionStart + offsets[adapterIndex], itemCount);
+			}
 		}
 
 		@Override
 		public void onItemRangeChanged(int positionStart, int itemCount, Object payload) {
-			notifyItemRangeChanged(positionStart + offsets[adapterIndex], itemCount, payload);
+			if (totalItemCount != -1) {
+				notifyItemRangeChanged(positionStart + offsets[adapterIndex], itemCount, payload);
+			}
 		}
 
 		@Override
 		public void onItemRangeInserted(int positionStart, int itemCount) {
-			for (int i = adapterIndex + 1, size = offsets.length; i < size; ++i) {
-				offsets[i] += itemCount;
+			if (totalItemCount != -1) {
+				for (int i = adapterIndex + 1, size = offsets.length; i < size; ++i) {
+					offsets[i] += itemCount;
+				}
+				totalItemCount += itemCount;
+				notifyItemRangeInserted(positionStart + offsets[adapterIndex], itemCount);
 			}
-			notifyItemRangeInserted(positionStart + offsets[adapterIndex], itemCount);
 		}
 
 		@Override
 		public void onItemRangeRemoved(int positionStart, int itemCount) {
-			for (int i = adapterIndex + 1, size = offsets.length; i < size; ++i) {
-				offsets[i] -= itemCount;
+			if (totalItemCount != -1) {
+				for (int i = adapterIndex + 1, size = offsets.length; i < size; ++i) {
+					offsets[i] -= itemCount;
+				}
+				totalItemCount -= itemCount;
+				notifyItemRangeRemoved(positionStart + offsets[adapterIndex], itemCount);
 			}
-			notifyItemRangeRemoved(positionStart + offsets[adapterIndex], itemCount);
 		}
 
 		@Override
 		public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
-			final int offset = offsets[adapterIndex];
-			notifyItemMoved(fromPosition + offset, toPosition + offset);
+			if (totalItemCount != -1) {
+				final int offset = offsets[adapterIndex];
+				notifyItemMoved(fromPosition + offset, toPosition + offset);
+			}
 		}
 	}
 
@@ -105,7 +119,15 @@ public class ConcatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
 	private int getAdapterIndexForPosition(int position) {
 		int index = Arrays.binarySearch(offsets, position);
-		return (index < 0) ? ~index - 1 : index;
+		if (index < 0) {
+			return ~index - 1;
+		}
+		// If the array contains multiple identical values (empty adapters), return the index of the last one
+		do {
+			++index;
+		}
+		while ((index < offsets.length) && (offsets[index] == position));
+		return --index;
 	}
 
 	@Override
@@ -138,12 +160,15 @@ public class ConcatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
 	@Override
 	public int getItemCount() {
-		int count = 0;
-		for (int i = 0, size = adapters.length; i < size; ++i) {
-			offsets[i] = count;
-			count += adapters[i].getItemCount();
+		if (totalItemCount == -1) {
+			int count = 0;
+			for (int i = 0, size = adapters.length; i < size; ++i) {
+				offsets[i] = count;
+				count += adapters[i].getItemCount();
+			}
+			totalItemCount = count;
 		}
-		return count;
+		return totalItemCount;
 	}
 
 	@Override
