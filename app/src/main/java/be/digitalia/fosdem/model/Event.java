@@ -3,6 +3,7 @@ package be.digitalia.fosdem.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -73,7 +74,7 @@ public class Event implements Parcelable {
 		if ((startTime == null) || (endTime == null)) {
 			return 0;
 		}
-		return (int) ((this.endTime.getTime() - this.startTime.getTime()) / 1000L);
+		return (int) ((this.endTime.getTime() - this.startTime.getTime()) / DateUtils.MINUTE_IN_MILLIS);
 	}
 
 	public String getRoomName() {
