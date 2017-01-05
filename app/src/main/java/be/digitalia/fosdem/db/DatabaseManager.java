@@ -55,8 +55,8 @@ public class DatabaseManager {
 
 	private static DatabaseManager instance;
 
-	private Context context;
-	private DatabaseHelper helper;
+	private final Context context;
+	private final DatabaseHelper helper;
 
 	private List<Day> cachedDays;
 	private int year = -1;

@@ -83,9 +83,7 @@ public class TrackScheduleActivity extends AppCompatActivity
 
 				Fragment eventDetailsFragment = fm.findFragmentById(R.id.event);
 				if (eventDetailsFragment != null) {
-					if (ft == null) {
-						ft = fm.beginTransaction();
-					}
+					ft = fm.beginTransaction();
 					ft.remove(eventDetailsFragment);
 				}
 

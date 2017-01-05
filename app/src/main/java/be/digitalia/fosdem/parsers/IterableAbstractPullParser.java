@@ -7,14 +7,14 @@ import org.xmlpull.v1.XmlPullParser;
 
 /**
  * An abstract class for easy implementation of an iterable pull parser.
- * 
+ *
  * @author Christophe Beyls
  */
 public abstract class IterableAbstractPullParser<T> extends AbstractPullParser<Iterable<T>> {
 
 	private class ParserIterator implements Iterator<T> {
 
-		private XmlPullParser parser;
+		private final XmlPullParser parser;
 		private T next = null;
 
 		public ParserIterator(XmlPullParser parser) {

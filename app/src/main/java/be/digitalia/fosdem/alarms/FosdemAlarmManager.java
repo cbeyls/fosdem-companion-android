@@ -15,15 +15,15 @@ import be.digitalia.fosdem.services.AlarmIntentService;
 
 /**
  * This class monitors bookmarks and preferences changes to dispatch alarm update work to AlarmIntentService.
- * 
+ *
  * @author Christophe Beyls
- * 
+ *
  */
 public class FosdemAlarmManager implements OnSharedPreferenceChangeListener {
 
 	private static FosdemAlarmManager instance;
 
-	private Context context;
+	private final Context context;
 	private boolean isEnabled;
 
 	private final BroadcastReceiver scheduleRefreshedReceiver = new BroadcastReceiver() {

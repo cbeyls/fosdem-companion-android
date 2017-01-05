@@ -73,6 +73,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
 		findPreference(KEY_PREF_NOTIFICATIONS_DELAY).setEnabled(notificationsEnabled);
 	}
 
+	@SuppressWarnings("deprecation")
 	private void updateNotificationsDelaySummary() {
 		ListPreference notificationsDelayPreference = (ListPreference) findPreference(KEY_PREF_NOTIFICATIONS_DELAY);
 		notificationsDelayPreference.setSummary(notificationsDelayPreference.getEntry());

@@ -95,10 +95,12 @@ public class StringUtils {
 		return replaceNonAlphaGroups(trimNonAlpha(removeDiacritics(source)), '_').toLowerCase(Locale.US);
 	}
 
+	@SuppressWarnings("deprecation")
 	public static String stripHtml(String html) {
 		return trimEnd(Html.fromHtml(html)).toString();
 	}
 
+	@SuppressWarnings("deprecation")
 	public static CharSequence parseHtml(String html, Resources res) {
 		return trimEnd(Html.fromHtml(html, null, new ListsTagHandler(res)));
 	}

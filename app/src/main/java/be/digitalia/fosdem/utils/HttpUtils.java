@@ -93,7 +93,7 @@ public class HttpUtils {
 			result.inputStream = new ByteCountInputStream(result.inputStream,
 					new ByteCountInputStream.ByteCountListener() {
 
-						private LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(context);
+						private final LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(context);
 
 						@Override
 						public void onNewCount(int byteCount) {
