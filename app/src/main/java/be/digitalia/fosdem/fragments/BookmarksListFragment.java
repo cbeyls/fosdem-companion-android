@@ -1,7 +1,9 @@
 package be.digitalia.fosdem.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -20,6 +22,7 @@ import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.adapters.BookmarksAdapter;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.loaders.SimpleCursorLoader;
+import be.digitalia.fosdem.providers.BookmarksExportProvider;
 
 /**
  * Bookmarks list, optionally filterable.
@@ -85,10 +88,13 @@ public class BookmarksListFragment extends RecyclerViewFragment implements Loade
 		inflater.inflate(R.menu.bookmarks, menu);
 		filterMenuItem = menu.findItem(R.id.filter);
 		upcomingOnlyMenuItem = menu.findItem(R.id.upcoming_only);
-		updateOptionsMenu();
+		updateFilterMenuItem();
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD) {
+			menu.findItem(R.id.export_bookmarks).setEnabled(false).setVisible(false);
+		}
 	}
 
-	private void updateOptionsMenu() {
+	private void updateFilterMenuItem() {
 		if (filterMenuItem != null) {
 			filterMenuItem.setIcon(upcomingOnly ?
 					R.drawable.ic_filter_list_selected_white_24dp
@@ -109,11 +115,15 @@ public class BookmarksListFragment extends RecyclerViewFragment implements Loade
 		switch (item.getItemId()) {
 			case R.id.upcoming_only:
 				upcomingOnly = !upcomingOnly;
-				updateOptionsMenu();
+				updateFilterMenuItem();
 				SharedPreferencesCompat.EditorCompat.getInstance().apply(
 						getActivity().getPreferences(Context.MODE_PRIVATE).edit().putBoolean(PREF_UPCOMING_ONLY, upcomingOnly)
 				);
 				getLoaderManager().restartLoader(BOOKMARKS_LOADER_ID, null, this);
+				return true;
+			case R.id.export_bookmarks:
+				Intent exportIntent = BookmarksExportProvider.getIntent(getActivity());
+				startActivity(Intent.createChooser(exportIntent, getString(R.string.export_bookmarks)));
 				return true;
 		}
 		return false;

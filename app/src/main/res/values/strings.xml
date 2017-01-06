@@ -28,6 +28,8 @@
     <!-- Bookmarks -->
     <string name="filter">Filter</string>
     <string name="upcoming_only">Upcoming only</string>
+    <string name="export_bookmarks">Export bookmarks</string>
+    <string name="export_bookmarks_file_name">FOSDEM %1$d bookmarks.ics</string>
     <string name="no_bookmark">No bookmark.</string>
     <string name="remove_bookmarks">Remove bookmarks</string>
     <string name="bookmark_conflict_content_description">%1$s\n Other bookmarks are scheduled at the same time.</string>

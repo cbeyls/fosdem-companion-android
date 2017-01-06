@@ -1,15 +1,18 @@
 package be.digitalia.fosdem.utils;
 
 import android.content.res.Resources;
+import android.support.annotation.NonNull;
 import android.support.v4.util.CircularIntArray;
 import android.text.Editable;
 import android.text.Html;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.style.BulletSpan;
 import android.text.style.LeadingMarginSpan;
 
 import org.xml.sax.XMLReader;
 
+import java.util.Iterator;
 import java.util.Locale;
 
 /**
@@ -33,7 +36,7 @@ public class StringUtils {
 	 * @param source string to convert
 	 * @return corresponding string without diacritics
 	 */
-	public static String removeDiacritics(String source) {
+	public static String removeDiacritics(@NonNull String source) {
 		final int length = source.length();
 		char[] result = new char[length];
 		char c;
@@ -91,21 +94,21 @@ public class StringUtils {
 	/**
 	 * Transforms a name to a slug identifier to be used in a FOSDEM URL.
 	 */
-	public static String toSlug(String source) {
+	public static String toSlug(@NonNull String source) {
 		return replaceNonAlphaGroups(trimNonAlpha(removeDiacritics(source)), '_').toLowerCase(Locale.US);
 	}
 
 	@SuppressWarnings("deprecation")
-	public static String stripHtml(String html) {
+	public static String stripHtml(@NonNull String html) {
 		return trimEnd(Html.fromHtml(html)).toString();
 	}
 
 	@SuppressWarnings("deprecation")
-	public static CharSequence parseHtml(String html, Resources res) {
+	public static CharSequence parseHtml(@NonNull String html, Resources res) {
 		return trimEnd(Html.fromHtml(html, null, new ListsTagHandler(res)));
 	}
 
-	public static CharSequence trimEnd(CharSequence source) {
+	public static CharSequence trimEnd(@NonNull CharSequence source) {
 		int pos = source.length() - 1;
 		while ((pos >= 0) && Character.isWhitespace(source.charAt(pos))) {
 			pos--;
@@ -118,7 +121,7 @@ public class StringUtils {
 	 * Converts a room name to a local drawable resource name, by stripping non-alpha chars and converting to lower case. Any letter following a digit will be
 	 * ignored, along with the rest of the string.
 	 */
-	public static String roomNameToResourceName(String roomName) {
+	public static String roomNameToResourceName(@NonNull String roomName) {
 		StringBuilder builder = new StringBuilder(ROOM_DRAWABLE_PREFIX.length() + roomName.length());
 		builder.append(ROOM_DRAWABLE_PREFIX);
 		int size = roomName.length();
@@ -198,6 +201,58 @@ public class StringUtils {
 					}
 					break;
 			}
+		}
+	}
+
+	/**
+	 * A version of Android's SimpleStringSplitter using a String as delimiter.
+	 */
+	public static class SimpleStringSplitter implements TextUtils.StringSplitter, Iterator<String> {
+		private final String mDelimiter;
+		private String mString;
+		private int mPosition;
+		private int mLength;
+
+		/**
+		 * Initializes the splitter. setString may be called later.
+		 *
+		 * @param delimiter the delimiter on which to split
+		 */
+		public SimpleStringSplitter(String delimiter) {
+			mDelimiter = delimiter;
+		}
+
+		/**
+		 * Sets the string to split
+		 *
+		 * @param string the string to split
+		 */
+		public void setString(String string) {
+			mString = string;
+			mPosition = 0;
+			mLength = mString.length();
+		}
+
+		public Iterator<String> iterator() {
+			return this;
+		}
+
+		public boolean hasNext() {
+			return mPosition < mLength;
+		}
+
+		public String next() {
+			int end = mString.indexOf(mDelimiter, mPosition);
+			if (end == -1) {
+				end = mLength;
+			}
+			String nextString = mString.substring(mPosition, end);
+			mPosition = end + mDelimiter.length(); // Skip the delimiter.
+			return nextString;
+		}
+
+		public void remove() {
+			throw new UnsupportedOperationException();
 		}
 	}
 }

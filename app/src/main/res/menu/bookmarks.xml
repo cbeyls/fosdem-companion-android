@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" >
+      xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/filter"
@@ -13,5 +13,10 @@
                 android:title="@string/upcoming_only"/>
         </menu>
     </item>
+    <item
+        android:id="@+id/export_bookmarks"
+        android:icon="@drawable/ic_file_upload_white_24dp"
+        android:title="@string/export_bookmarks"
+        app:showAsAction="ifRoom"/>
 
 </menu>
