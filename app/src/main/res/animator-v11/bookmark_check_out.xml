@@ -1,8 +1,7 @@
 <objectAnimator
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:name="check"
-    android:duration="250"
+    android:duration="300"
     android:interpolator="@android:anim/decelerate_interpolator"
-    android:propertyName="trimPathEnd"
-    android:valueFrom="1"
-    android:valueTo="0"/>
+    android:propertyName="scaleX"
+    android:valueFrom="0"
+    android:valueTo="1"/>

@@ -1,0 +1,12 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+                 android:drawable="@drawable/ic_avd_bookmark_24dp">
+    <target
+        android:name="outline_extension"
+        android:animation="@animator/bookmark_toggle_out"/>
+    <target
+        android:name="zoom_group"
+        android:animation="@animator/bookmark_zoom_out"/>
+    <target
+        android:name="filler_group"
+        android:animation="@animator/bookmark_check_out"/>
+</animated-vector>

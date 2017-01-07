@@ -266,10 +266,10 @@ public class EventDetailsFragment extends Fragment {
 
 				if (isBookmarked) {
 					actionButton.setContentDescription(getString(R.string.remove_bookmark));
-					actionButton.setImageResource(animate ? R.drawable.avd_fab_bookmark_add_24dp : R.drawable.ic_bookmark_white_24dp);
+					actionButton.setImageResource(animate ? R.drawable.avd_bookmark_add_24dp : R.drawable.ic_bookmark_white_24dp);
 				} else {
 					actionButton.setContentDescription(getString(R.string.add_bookmark));
-					actionButton.setImageResource(animate ? R.drawable.avd_fab_bookmark_remove_24dp : R.drawable.ic_bookmark_outline_white_24dp);
+					actionButton.setImageResource(animate ? R.drawable.avd_bookmark_remove_24dp : R.drawable.ic_bookmark_outline_white_24dp);
 				}
 				if (animate) {
 					((Animatable) actionButton.getDrawable()).start();
@@ -289,10 +289,10 @@ public class EventDetailsFragment extends Fragment {
 
 					if (isBookmarked) {
 						bookmarkMenuItem.setTitle(R.string.remove_bookmark);
-						bookmarkMenuItem.setIcon(animate ? R.drawable.avd_appbar_bookmark_add_24dp : R.drawable.ic_bookmark_white_24dp);
+						bookmarkMenuItem.setIcon(animate ? R.drawable.avd_bookmark_add_24dp : R.drawable.ic_bookmark_white_24dp);
 					} else {
 						bookmarkMenuItem.setTitle(R.string.add_bookmark);
-						bookmarkMenuItem.setIcon(animate ? R.drawable.avd_appbar_bookmark_remove_24dp : R.drawable.ic_bookmark_outline_white_24dp);
+						bookmarkMenuItem.setIcon(animate ? R.drawable.avd_bookmark_remove_24dp : R.drawable.ic_bookmark_outline_white_24dp);
 					}
 					if (animate) {
 						((Animatable) bookmarkMenuItem.getIcon()).stop();
