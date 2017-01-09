@@ -39,6 +39,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:saveEnabled="false"
                 tools:text="FOSDEM Staff"/>
 
             <View
@@ -66,11 +67,12 @@
 
             <TextView
                 android:id="@+id/room"
-                style="@style/Metadata.Selectable"
+                style="@style/Metadata"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:drawableLeft="@drawable/ic_place_grey600_18dp"
                 android:drawableStart="@drawable/ic_place_grey600_18dp"
+                android:saveEnabled="false"
                 tools:text="Janson (Building J)"/>
 
         </LinearLayout>
@@ -82,6 +84,7 @@
             android:layout_height="wrap_content"
             android:background="@color/translucent_grey"
             android:padding="@dimen/content_margin"
+            android:saveEnabled="false"
             android:textIsSelectable="true"
             tools:text="FOSDEM welcome and opening talk."/>
 
@@ -91,6 +94,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="@dimen/content_margin"
+            android:saveEnabled="false"
             android:textIsSelectable="true"
             tools:text="Welcome to FOSDEM 2015!"/>
 

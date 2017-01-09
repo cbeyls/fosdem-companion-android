@@ -19,11 +19,11 @@ import android.support.v4.content.Loader;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.method.MovementMethod;
 import android.text.style.ClickableSpan;
-import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -155,15 +155,19 @@ public class EventDetailsFragment extends Fragment {
 		final int roomImageResId = getResources().getIdentifier(StringUtils.roomNameToResourceName(roomName), "drawable", getActivity().getPackageName());
 		// If the room image exists, make the room text clickable to display it
 		if (roomImageResId != 0) {
-			roomText.setSpan(new UnderlineSpan(), 0, roomText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			textView.setOnClickListener(new View.OnClickListener() {
-
+			roomText.setSpan(new ClickableSpan() {
 				@Override
 				public void onClick(View view) {
 					RoomImageDialogFragment.newInstance(roomName, roomImageResId).show(getFragmentManager());
 				}
-			});
-			textView.setFocusable(true);
+
+				@Override
+				public void updateDrawState(TextPaint ds) {
+					super.updateDrawState(ds);
+					ds.setUnderlineText(false);
+				}
+			}, 0, roomText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			textView.setMovementMethod(linkMovementMethod);
 		}
 		textView.setText(roomText);
 		textView.setContentDescription(getString(R.string.room_content_description, roomText));
@@ -480,6 +484,12 @@ public class EventDetailsFragment extends Fragment {
 			Context context = v.getContext();
 			Intent intent = new Intent(context, PersonInfoActivity.class).putExtra(PersonInfoActivity.EXTRA_PERSON, person);
 			context.startActivity(intent);
+		}
+
+		@Override
+		public void updateDrawState(TextPaint ds) {
+			super.updateDrawState(ds);
+			ds.setUnderlineText(false);
 		}
 	}
 

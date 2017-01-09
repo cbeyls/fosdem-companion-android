@@ -110,10 +110,6 @@
         <item name="android:drawablePadding">8dp</item>
     </style>
 
-    <style name="Metadata.Selectable">
-        <item name="android:background">?attr/selectableItemBackground</item>
-    </style>
-
     <style name="Header">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
