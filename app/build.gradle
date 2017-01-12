@@ -8,8 +8,8 @@ android {
         applicationId "be.digitalia.fosdem"
         minSdkVersion 7
         targetSdkVersion 25
-        versionCode 700140
-        versionName "1.4.0"
+        versionCode 700142
+        versionName "1.4.2"
         // Supported languages
         resConfigs "en"
         vectorDrawables.useSupportLibrary = true
