@@ -3,6 +3,7 @@ package be.digitalia.fosdem.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -21,6 +22,7 @@ import be.digitalia.fosdem.loaders.LocalCacheLoader;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.utils.NfcUtils;
 import be.digitalia.fosdem.utils.NfcUtils.CreateNfcAppDataCallback;
+import be.digitalia.fosdem.utils.ThemeUtils;
 
 /**
  * Displays a single event passed either as a complete Parcelable object in extras or as an id in data.
@@ -62,10 +64,11 @@ public class EventDetailsActivity extends AppCompatActivity implements LoaderCal
 	/**
 	 * Initialize event-related configuration after the event has been loaded.
 	 */
-	private void initEvent(Event event) {
+	private void initEvent(@NonNull Event event) {
 		this.event = event;
 		// Enable up navigation only after getting the event details
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		ThemeUtils.setActionBarTrackColor(this, event.getTrack().getType());
 		// Enable Android Beam
 		NfcUtils.setAppDataPushMessageCallbackIfAvailable(this, this);
 	}

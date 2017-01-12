@@ -23,6 +23,7 @@ import java.util.Date;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.model.Event;
+import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.widgets.MultiChoiceHelper;
 
 public class BookmarksAdapter extends EventsAdapter {
@@ -100,8 +101,10 @@ public class BookmarksAdapter extends EventsAdapter {
 		String personsSummary = event.getPersonsSummary();
 		holder.persons.setText(personsSummary);
 		holder.persons.setVisibility(TextUtils.isEmpty(personsSummary) ? View.GONE : View.VISIBLE);
-		holder.trackName.setText(event.getTrack().getName());
-		holder.trackName.setContentDescription(context.getString(R.string.track_content_description, event.getTrack().getName()));
+		Track track = event.getTrack();
+		holder.trackName.setText(track.getName());
+		holder.trackName.setTextColor(ContextCompat.getColor(holder.trackName.getContext(), track.getType().getColorResId()));
+		holder.trackName.setContentDescription(context.getString(R.string.track_content_description, track.getName()));
 
 		Date startTime = event.getStartTime();
 		Date endTime = event.getEndTime();

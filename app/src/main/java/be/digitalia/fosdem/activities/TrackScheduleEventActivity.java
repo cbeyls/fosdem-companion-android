@@ -7,13 +7,14 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
-import com.viewpagerindicator.PageIndicator;
+import com.viewpagerindicator.UnderlinePageIndicator;
 
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.db.DatabaseManager;
@@ -23,6 +24,7 @@ import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.NfcUtils;
 import be.digitalia.fosdem.utils.NfcUtils.CreateNfcAppDataCallback;
+import be.digitalia.fosdem.utils.ThemeUtils;
 import be.digitalia.fosdem.widgets.ContentLoadingProgressBar;
 
 /**
@@ -43,7 +45,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Loa
 	private int initialPosition = -1;
 	private ContentLoadingProgressBar progress;
 	private ViewPager pager;
-	private PageIndicator pageIndicator;
+	private UnderlinePageIndicator pageIndicator;
 	private TrackScheduleEventAdapter adapter;
 
 	@Override
@@ -59,7 +61,8 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Loa
 		progress = (ContentLoadingProgressBar) findViewById(R.id.progress);
 		pager = (ViewPager) findViewById(R.id.pager);
 		adapter = new TrackScheduleEventAdapter(getSupportFragmentManager());
-		pageIndicator = (PageIndicator) findViewById(R.id.indicator);
+		pageIndicator = (UnderlinePageIndicator) findViewById(R.id.indicator);
+		pageIndicator.setSelectedColor(ContextCompat.getColor(this, track.getType().getColorResId()));
 
 		if (savedInstanceState == null) {
 			initialPosition = extras.getInt(EXTRA_POSITION, -1);
@@ -71,6 +74,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Loa
 		bar.setDisplayHomeAsUpEnabled(true);
 		bar.setTitle(track.toString());
 		bar.setSubtitle(day.toString());
+		ThemeUtils.setActionBarTrackColor(this, track.getType());
 
 		// Enable Android Beam
 		NfcUtils.setAppDataPushMessageCallbackIfAvailable(this, this);

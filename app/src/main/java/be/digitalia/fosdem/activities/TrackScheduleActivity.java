@@ -21,6 +21,7 @@ import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.NfcUtils;
 import be.digitalia.fosdem.utils.NfcUtils.CreateNfcAppDataCallback;
+import be.digitalia.fosdem.utils.ThemeUtils;
 
 /**
  * Track Schedule container, works in both single pane and dual pane modes.
@@ -61,6 +62,7 @@ public class TrackScheduleActivity extends AppCompatActivity
 		bar.setTitle(track.toString());
 		bar.setSubtitle(day.toString());
 		setTitle(String.format("%1$s, %2$s", track.toString(), day.toString()));
+		ThemeUtils.setActionBarTrackColor(this, track.getType());
 
 		isTabletLandscape = getResources().getBoolean(R.bool.tablet_landscape);
 

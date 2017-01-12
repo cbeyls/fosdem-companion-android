@@ -2,6 +2,7 @@ package be.digitalia.fosdem.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.ColorRes;
 import android.support.annotation.StringRes;
 
 import be.digitalia.fosdem.R;
@@ -9,22 +10,36 @@ import be.digitalia.fosdem.R;
 public class Track implements Parcelable {
 
 	public enum Type {
-		other(R.string.other),
-		keynote(R.string.keynote),
-		maintrack(R.string.main_track),
-		devroom(R.string.developer_room),
-		lightningtalk(R.string.lightning_talk),
-		certification(R.string.certification_exam);
+		other(R.string.other, R.color.track_type_other, R.color.track_type_other_dark),
+		keynote(R.string.keynote, R.color.track_type_keynote, R.color.track_type_keynote_dark),
+		maintrack(R.string.main_track, R.color.track_type_main, R.color.track_type_main_dark),
+		devroom(R.string.developer_room, R.color.track_type_developer_room, R.color.track_type_developer_room_dark),
+		lightningtalk(R.string.lightning_talk, R.color.track_type_lightning_talk, R.color.track_type_lightning_talk_dark),
+		certification(R.string.certification_exam, R.color.track_type_certification_exam, R.color.track_type_certification_exam_dark);
 
 		private final int nameResId;
+		private final int colorResId;
+		private final int darkColorResId;
 
-		Type(@StringRes int nameResId) {
+		Type(@StringRes int nameResId, @ColorRes int colorResId, @ColorRes int darkColorResId) {
 			this.nameResId = nameResId;
+			this.colorResId = colorResId;
+			this.darkColorResId = darkColorResId;
 		}
 
 		@StringRes
 		public int getNameResId() {
 			return nameResId;
+		}
+
+		@ColorRes
+		public int getColorResId() {
+			return colorResId;
+		}
+
+		@ColorRes
+		public int getDarkColorResId() {
+			return darkColorResId;
 		}
 	}
 

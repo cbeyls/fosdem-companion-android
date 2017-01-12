@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -127,6 +128,7 @@ public class TracksListFragment extends RecyclerViewFragment implements LoaderCa
 			holder.track = DatabaseManager.toTrack(cursor, holder.track);
 			holder.name.setText(holder.track.getName());
 			holder.type.setText(holder.track.getType().getNameResId());
+			holder.type.setTextColor(ContextCompat.getColor(holder.type.getContext(), holder.track.getType().getColorResId()));
 		}
 	}
 

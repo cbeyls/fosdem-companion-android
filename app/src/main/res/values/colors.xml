@@ -13,4 +13,17 @@
     <color name="error_material">#dd2c00</color>
     <color name="shortcut_background">#F5F5F5</color>
 
+    <color name="track_type_keynote">@color/color_primary</color>
+    <color name="track_type_keynote_dark">@color/color_primary_dark</color>
+    <color name="track_type_main">#d32f2f</color>
+    <color name="track_type_main_dark">#b71c1c</color>
+    <color name="track_type_developer_room">#303f9f</color>
+    <color name="track_type_developer_room_dark">#1a237e</color>
+    <color name="track_type_lightning_talk">#388e3c</color>
+    <color name="track_type_lightning_talk_dark">#1b5e20</color>
+    <color name="track_type_certification_exam">#795548</color>
+    <color name="track_type_certification_exam_dark">#5d4037</color>
+    <color name="track_type_other">#757575</color>
+    <color name="track_type_other_dark">#616161</color>
+
 </resources>
