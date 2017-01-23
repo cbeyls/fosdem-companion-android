@@ -61,7 +61,7 @@ public class StringUtils {
 		int size = 0;
 		for (int i = 0; i < length; i++) {
 			c = source.charAt(i);
-			if (Character.isLetterOrDigit(c)) {
+			if (isLetterOrDigitOrUnderscore(c)) {
 				result[size++] = c;
 				replaced = false;
 			} else {
@@ -82,13 +82,17 @@ public class StringUtils {
 		int st = 0;
 		int len = source.length();
 
-		while ((st < len) && !Character.isLetterOrDigit(source.charAt(st))) {
+		while ((st < len) && !isLetterOrDigitOrUnderscore(source.charAt(st))) {
 			st++;
 		}
-		while ((st < len) && !Character.isLetterOrDigit(source.charAt(len - 1))) {
+		while ((st < len) && !isLetterOrDigitOrUnderscore(source.charAt(len - 1))) {
 			len--;
 		}
 		return ((st > 0) || (len < source.length())) ? source.substring(st, len) : source;
+	}
+
+	private static boolean isLetterOrDigitOrUnderscore(char c) {
+		return Character.isLetterOrDigit(c) || c == '_';
 	}
 
 	/**
