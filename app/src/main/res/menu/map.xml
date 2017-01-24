@@ -7,5 +7,10 @@
         android:icon="@drawable/ic_directions_white_24dp"
         android:title="@string/directions"
         app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/navigation"
+        android:icon="@drawable/ic_navigation_white_24dp"
+        android:title="@string/navigation"
+        app:showAsAction="ifRoom"/>
 
 </menu>

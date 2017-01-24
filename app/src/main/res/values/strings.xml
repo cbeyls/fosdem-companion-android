@@ -119,6 +119,7 @@
     <!-- Others -->
     <string name="room_map">Room map</string>
     <string name="directions">Directions to ULB</string>
+    <string name="navigation">On-site navigation</string>
     <string name="no_data">No data available.</string>
     <string name="about">About</string>
     <string name="about_text">Programmed by <a href="http://www.digitalia.be/">Christophe Beyls</a>.
