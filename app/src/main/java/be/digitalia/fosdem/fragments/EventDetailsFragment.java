@@ -503,8 +503,14 @@ public class EventDetailsFragment extends Fragment {
 
 		@Override
 		public void onClick(View v) {
-			Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link.getUrl()));
-			v.getContext().startActivity(intent);
+			String url = link.getUrl();
+			if (url != null) {
+				Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+				try {
+					v.getContext().startActivity(intent);
+				} catch (ActivityNotFoundException ignore) {
+				}
+			}
 		}
 	}
 }

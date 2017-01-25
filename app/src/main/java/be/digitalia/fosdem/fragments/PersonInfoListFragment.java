@@ -1,5 +1,6 @@
 package be.digitalia.fosdem.fragments;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -57,8 +58,14 @@ public class PersonInfoListFragment extends RecyclerViewFragment implements Load
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.more_info:
-				Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(person.getUrl()));
-				startActivity(intent);
+				String url = person.getUrl();
+				if (url != null) {
+					Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+					try {
+						startActivity(intent);
+					} catch (ActivityNotFoundException ignore) {
+					}
+				}
 				return true;
 		}
 		return false;
