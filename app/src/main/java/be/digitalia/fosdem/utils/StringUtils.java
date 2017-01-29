@@ -50,6 +50,20 @@ public class StringUtils {
 		return new String(result);
 	}
 
+	public static String remove(String str, final char remove) {
+		if (TextUtils.isEmpty(str) || str.indexOf(remove) == -1) {
+			return str;
+		}
+		final char[] chars = str.toCharArray();
+		int pos = 0;
+		for (int i = 0; i < chars.length; i++) {
+			if (chars[i] != remove) {
+				chars[pos++] = chars[i];
+			}
+		}
+		return new String(chars, 0, pos);
+	}
+
 	/**
 	 * Replaces all groups of non-alphanumeric chars in source with a single replacement char.
 	 */
@@ -99,7 +113,13 @@ public class StringUtils {
 	 * Transforms a name to a slug identifier to be used in a FOSDEM URL.
 	 */
 	public static String toSlug(@NonNull String source) {
-		return replaceNonAlphaGroups(trimNonAlpha(removeDiacritics(source)), '_').toLowerCase(Locale.US);
+		source = remove(source, '.');
+		source = removeDiacritics(source);
+		source = source.replace("ß", "ss");
+		source = trimNonAlpha(source);
+		source = replaceNonAlphaGroups(source, '_');
+		source = source.toLowerCase(Locale.US);
+		return source;
 	}
 
 	@SuppressWarnings("deprecation")
