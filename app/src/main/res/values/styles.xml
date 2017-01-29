@@ -35,6 +35,11 @@
         <item name="colorAccent">@color/color_accent</item>
     </style>
 
+    <style name="AlertDialogTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
     <style name="Toolbar.Fosdem" parent="Widget.AppCompat.Toolbar">
         <item name="android:background">?attr/colorPrimary</item>
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>

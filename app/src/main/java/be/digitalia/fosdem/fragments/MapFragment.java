@@ -15,12 +15,12 @@ import android.view.ViewGroup;
 import java.util.Locale;
 
 import be.digitalia.fosdem.R;
+import be.digitalia.fosdem.api.FosdemUrls;
 
 public class MapFragment extends Fragment {
 
 	private static final double DESTINATION_LATITUDE = 50.812375;
 	private static final double DESTINATION_LONGITUDE = 4.380734;
-	private static final String LOCAL_NAVIGATION_URI = "http://nav.fosdem.org/";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -66,7 +66,7 @@ public class MapFragment extends Fragment {
 	}
 
 	private void launchLocalNavigation() {
-		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(LOCAL_NAVIGATION_URI));
+		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(FosdemUrls.getLocalNavigation()));
 		try {
 			startActivity(intent);
 		} catch (ActivityNotFoundException ignore) {

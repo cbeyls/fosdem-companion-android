@@ -91,7 +91,7 @@
             android:name=".activities.RoomImageDialogActivity"
             android:excludeFromRecents="true"
             android:taskAffinity=""
-            android:theme="@style/AlertDialogTheme"/>
+            android:theme="@style/AlertDialogTheme.NoActionBar"/>
         <activity
             android:name=".activities.SettingsActivity"
             android:label="@string/settings">
