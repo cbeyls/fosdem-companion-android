@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Room images aliases -->
+    <drawable name="room_chavanne">@drawable/room_ud2120</drawable>
+    <drawable name="room_ferrer">@drawable/room_h2215</drawable>
+    <drawable name="room_guillissen">@drawable/room_ua2220</drawable>
+    <drawable name="room_lameere">@drawable/room_ub2252</drawable>
+    <drawable name="room_ua2">@drawable/room_u2</drawable>
+    <drawable name="room_ub2">@drawable/room_u2</drawable>
+    <drawable name="room_ud2">@drawable/room_u2</drawable>
+</resources>

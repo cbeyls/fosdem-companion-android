@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:bottom="129dp"
+        android:drawable="@drawable/shape_room"
+        android:left="5dp"
+        android:right="255dp"
+        android:top="230dp"/>
+    <item android:drawable="@drawable/room_aw1"/>
+</layer-list>
