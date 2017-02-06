@@ -1,20 +1,21 @@
 package be.digitalia.fosdem.receivers;
 
-import be.digitalia.fosdem.alarms.FosdemAlarmManager;
-import be.digitalia.fosdem.services.AlarmIntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
+import be.digitalia.fosdem.BuildConfig;
+import be.digitalia.fosdem.alarms.FosdemAlarmManager;
+import be.digitalia.fosdem.services.AlarmIntentService;
+
 /**
  * Entry point for system-generated events: boot complete and alarms.
- * 
+ *
  * @author Christophe Beyls
- * 
  */
 public class AlarmReceiver extends WakefulBroadcastReceiver {
 
-	public static final String ACTION_NOTIFY_EVENT = "be.digitalia.fosdem.action.NOTIFY_EVENT";
+	public static final String ACTION_NOTIFY_EVENT = BuildConfig.APPLICATION_ID + ".action.NOTIFY_EVENT";
 
 	@Override
 	public void onReceive(Context context, Intent intent) {

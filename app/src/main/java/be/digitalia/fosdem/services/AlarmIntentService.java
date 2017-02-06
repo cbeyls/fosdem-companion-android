@@ -22,6 +22,7 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
 
+import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.EventDetailsActivity;
 import be.digitalia.fosdem.activities.MainActivity;
@@ -39,9 +40,9 @@ import be.digitalia.fosdem.utils.StringUtils;
  */
 public class AlarmIntentService extends IntentService {
 
-	public static final String ACTION_UPDATE_ALARMS = "be.digitalia.fosdem.action.UPDATE_ALARMS";
+	public static final String ACTION_UPDATE_ALARMS = BuildConfig.APPLICATION_ID + ".action.UPDATE_ALARMS";
 	public static final String EXTRA_WITH_WAKE_LOCK = "with_wake_lock";
-	public static final String ACTION_DISABLE_ALARMS = "be.digitalia.fosdem.action.DISABLE_ALARMS";
+	public static final String ACTION_DISABLE_ALARMS = BuildConfig.APPLICATION_ID + ".action.DISABLE_ALARMS";
 
 	private AlarmManager alarmManager;
 

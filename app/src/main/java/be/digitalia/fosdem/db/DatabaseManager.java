@@ -1,15 +1,5 @@
 package be.digitalia.fosdem.db;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
 import android.app.SearchManager;
 import android.content.ContentValues;
 import android.content.Context;
@@ -25,6 +15,17 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.content.SharedPreferencesCompat;
 import android.text.TextUtils;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Link;
@@ -39,15 +40,15 @@ import be.digitalia.fosdem.utils.DateUtils;
  */
 public class DatabaseManager {
 
-	public static final String ACTION_SCHEDULE_REFRESHED = "be.digitalia.fosdem.action.SCHEDULE_REFRESHED";
-	public static final String ACTION_ADD_BOOKMARK = "be.digitalia.fosdem.action.ADD_BOOKMARK";
+	public static final String ACTION_SCHEDULE_REFRESHED = BuildConfig.APPLICATION_ID + ".action.SCHEDULE_REFRESHED";
+	public static final String ACTION_ADD_BOOKMARK = BuildConfig.APPLICATION_ID + ".action.ADD_BOOKMARK";
 	public static final String EXTRA_EVENT_ID = "event_id";
 	public static final String EXTRA_EVENT_START_TIME = "event_start";
-	public static final String ACTION_REMOVE_BOOKMARKS = "be.digitalia.fosdem.action.REMOVE_BOOKMARKS";
+	public static final String ACTION_REMOVE_BOOKMARKS = BuildConfig.APPLICATION_ID + ".action.REMOVE_BOOKMARKS";
 	public static final String EXTRA_EVENT_IDS = "event_ids";
 
-	private static final Uri URI_TRACKS = Uri.parse("sqlite://be.digitalia.fosdem/tracks");
-	private static final Uri URI_EVENTS = Uri.parse("sqlite://be.digitalia.fosdem/events");
+	private static final Uri URI_TRACKS = Uri.parse("sqlite://" + BuildConfig.APPLICATION_ID + "/tracks");
+	private static final Uri URI_EVENTS = Uri.parse("sqlite://" + BuildConfig.APPLICATION_ID + "/events");
 
 	private static final String DB_PREFS_FILE = "database";
 	private static final String LAST_UPDATE_TIME_PREF = "last_update_time";

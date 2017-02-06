@@ -71,8 +71,8 @@ import be.digitalia.fosdem.widgets.AdapterLinearLayout;
  */
 public class MainActivity extends AppCompatActivity {
 
-	public static final String ACTION_SHORTCUT_BOOKMARKS = "be.digitalia.fosdem.intent.action.SHORTCUT_BOOKMARKS";
-	public static final String ACTION_SHORTCUT_LIVE = "be.digitalia.fosdem.intent.action.SHORTCUT_LIVE";
+	public static final String ACTION_SHORTCUT_BOOKMARKS = BuildConfig.APPLICATION_ID + ".intent.action.SHORTCUT_BOOKMARKS";
+	public static final String ACTION_SHORTCUT_LIVE = BuildConfig.APPLICATION_ID + ".intent.action.SHORTCUT_LIVE";
 
 	private enum Section {
 		TRACKS(TracksFragment.class, R.string.menu_tracks, R.drawable.ic_event_grey600_24dp, true, true),
