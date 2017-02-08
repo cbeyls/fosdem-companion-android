@@ -64,7 +64,7 @@ public class AlarmIntentService extends IntentService {
 		Intent intent = new Intent(this, AlarmReceiver.class)
 				.setAction(AlarmReceiver.ACTION_NOTIFY_EVENT)
 				.setData(Uri.parse(String.valueOf(eventId)));
-		return PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+		return PendingIntent.getBroadcast(this, 0, intent, 0);
 	}
 
 	@Override
