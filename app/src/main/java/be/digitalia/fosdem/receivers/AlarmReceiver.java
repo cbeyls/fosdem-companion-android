@@ -24,19 +24,20 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 		if (ACTION_NOTIFY_EVENT.equals(action)) {
 
 			// Forward the intent to the AlarmIntentService for background processing of the notification
-			Intent serviceIntent = new Intent(context, AlarmIntentService.class);
-			serviceIntent.setAction(ACTION_NOTIFY_EVENT);
-			serviceIntent.setData(intent.getData());
+			Intent serviceIntent = new Intent(context, AlarmIntentService.class)
+					.setAction(ACTION_NOTIFY_EVENT)
+					.setData(intent.getData())
+					.putExtra(AlarmIntentService.EXTRA_WITH_WAKE_LOCK, true);
 			startWakefulService(context, serviceIntent);
 
 		} else if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
 
-			if (FosdemAlarmManager.getInstance().isEnabled()) {
-				Intent serviceIntent = new Intent(context, AlarmIntentService.class);
-				serviceIntent.setAction(AlarmIntentService.ACTION_UPDATE_ALARMS);
-				serviceIntent.putExtra(AlarmIntentService.EXTRA_WITH_WAKE_LOCK, true);
-				startWakefulService(context, serviceIntent);
-			}
+			String serviceAction = FosdemAlarmManager.getInstance().isEnabled()
+					? AlarmIntentService.ACTION_UPDATE_ALARMS : AlarmIntentService.ACTION_DISABLE_ALARMS;
+			Intent serviceIntent = new Intent(context, AlarmIntentService.class)
+					.setAction(serviceAction)
+					.putExtra(AlarmIntentService.EXTRA_WITH_WAKE_LOCK, true);
+			startWakefulService(context, serviceIntent);
 		}
 	}
 

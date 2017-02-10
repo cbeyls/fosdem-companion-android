@@ -4,9 +4,11 @@ import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -74,29 +76,28 @@ public class AlarmIntentService extends IntentService {
 			case ACTION_UPDATE_ALARMS: {
 
 				// Create/update all alarms
-				long delay = getDelay();
-				long now = System.currentTimeMillis();
-				Cursor cursor = DatabaseManager.getInstance().getBookmarks(now);
+				final long delay = getDelay();
+				final long now = System.currentTimeMillis();
+				boolean hasAlarms = false;
+				Cursor cursor = DatabaseManager.getInstance().getBookmarks(0L);
 				try {
 					while (cursor.moveToNext()) {
 						long eventId = DatabaseManager.toEventId(cursor);
 						long notificationTime = DatabaseManager.toEventStartTimeMillis(cursor) - delay;
 						PendingIntent pi = getAlarmPendingIntent(eventId);
 						if (notificationTime < now) {
-							// Cancel pending alarms that where scheduled between now and delay, if any
+							// Cancel pending alarms that are now scheduled in the past, if any
 							alarmManager.cancel(pi);
 						} else {
 							setExactAlarm(alarmManager, AlarmManager.RTC_WAKEUP, notificationTime, pi);
+							hasAlarms = true;
 						}
 					}
+
 				} finally {
 					cursor.close();
 				}
-
-				// Release the wake lock setup by AlarmReceiver, if any
-				if (intent.getBooleanExtra(EXTRA_WITH_WAKE_LOCK, false)) {
-					AlarmReceiver.completeWakefulIntent(intent);
-				}
+				setAlarmReceiverEnabled(hasAlarms);
 
 				break;
 			}
@@ -112,6 +113,7 @@ public class AlarmIntentService extends IntentService {
 				} finally {
 					cursor.close();
 				}
+				setAlarmReceiverEnabled(false);
 
 				break;
 			}
@@ -124,6 +126,7 @@ public class AlarmIntentService extends IntentService {
 				if ((startTime == -1L) || (startTime < System.currentTimeMillis())) {
 					break;
 				}
+				setAlarmReceiverEnabled(true);
 				setExactAlarm(alarmManager, AlarmManager.RTC_WAKEUP, startTime - delay, getAlarmPendingIntent(eventId));
 
 				break;
@@ -228,9 +231,13 @@ public class AlarmIntentService extends IntentService {
 					NotificationManagerCompat.from(this).notify((int) eventId, notificationBuilder.build());
 				}
 
-				AlarmReceiver.completeWakefulIntent(intent);
 				break;
 			}
+		}
+
+		// Release the wake lock setup by AlarmReceiver, if any
+		if (intent.getBooleanExtra(EXTRA_WITH_WAKE_LOCK, false)) {
+			AlarmReceiver.completeWakefulIntent(intent);
 		}
 	}
 
@@ -247,5 +254,14 @@ public class AlarmIntentService extends IntentService {
 				SettingsActivity.KEY_PREF_NOTIFICATIONS_DELAY, "0");
 		// Convert from minutes to milliseconds
 		return Long.parseLong(delayString) * DateUtils.MINUTE_IN_MILLIS;
+	}
+
+	/**
+	 * Allows disabling the Alarm Receiver so the app is not loaded at boot when it's not necessary.
+	 */
+	private void setAlarmReceiverEnabled(boolean isEnabled) {
+		ComponentName componentName = new ComponentName(this, AlarmReceiver.class);
+		int flag = isEnabled ? PackageManager.COMPONENT_ENABLED_STATE_DEFAULT : PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
+		getPackageManager().setComponentEnabledSetting(componentName, flag, PackageManager.DONT_KILL_APP);
 	}
 }

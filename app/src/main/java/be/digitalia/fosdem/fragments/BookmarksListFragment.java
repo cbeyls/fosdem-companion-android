@@ -180,7 +180,7 @@ public class BookmarksListFragment extends RecyclerViewFragment implements Loade
 
 		@Override
 		protected Cursor getCursor() {
-			return DatabaseManager.getInstance().getBookmarks(upcomingOnly ? System.currentTimeMillis() - TIME_OFFSET : -1L);
+			return DatabaseManager.getInstance().getBookmarks(upcomingOnly ? System.currentTimeMillis() - TIME_OFFSET : 0L);
 		}
 	}
 
