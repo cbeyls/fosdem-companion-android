@@ -7,7 +7,7 @@ import java.util.TimeZone;
 
 public class DateUtils {
 
-	private static final TimeZone BELGIUM_TIME_ZONE = TimeZone.getTimeZone("GMT+1");
+	private static final TimeZone BELGIUM_TIME_ZONE = TimeZone.getTimeZone("Europe/Brussels");
 
 	public static TimeZone getBelgiumTimeZone() {
 		return BELGIUM_TIME_ZONE;
