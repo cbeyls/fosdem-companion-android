@@ -1,12 +1,14 @@
 package be.digitalia.fosdem.fragments;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.ConcatAdapter;
 import android.support.v7.widget.LinearLayoutManager;
@@ -60,9 +62,14 @@ public class PersonInfoListFragment extends RecyclerViewFragment implements Load
 			case R.id.more_info:
 				String url = person.getUrl();
 				if (url != null) {
-					Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 					try {
-						startActivity(intent);
+						Activity context = getActivity();
+						new CustomTabsIntent.Builder()
+								.setToolbarColor(ContextCompat.getColor(context, R.color.color_primary))
+								.setStartAnimations(context, R.anim.slide_in_right, R.anim.slide_out_left)
+								.setExitAnimations(context, R.anim.slide_in_left, R.anim.slide_out_right)
+								.build()
+								.launchUrl(context, Uri.parse(url));
 					} catch (ActivityNotFoundException ignore) {
 					}
 				}

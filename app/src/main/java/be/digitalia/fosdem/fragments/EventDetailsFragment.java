@@ -11,10 +11,12 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.CalendarContract;
+import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.ShareCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -493,7 +495,7 @@ public class EventDetailsFragment extends Fragment {
 		}
 	}
 
-	private static class LinkClickListener implements View.OnClickListener {
+	private class LinkClickListener implements View.OnClickListener {
 
 		private final Link link;
 
@@ -505,9 +507,15 @@ public class EventDetailsFragment extends Fragment {
 		public void onClick(View v) {
 			String url = link.getUrl();
 			if (url != null) {
-				Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
 				try {
-					v.getContext().startActivity(intent);
+					Activity context = getActivity();
+					new CustomTabsIntent.Builder()
+							.setToolbarColor(ContextCompat.getColor(context, event.getTrack().getType().getColorResId()))
+							.setShowTitle(true)
+							.setStartAnimations(context, R.anim.slide_in_right, R.anim.slide_out_left)
+							.setExitAnimations(context, R.anim.slide_in_left, R.anim.slide_out_right)
+							.build()
+							.launchUrl(context, Uri.parse(url));
 				} catch (ActivityNotFoundException ignore) {
 				}
 			}

@@ -1,9 +1,12 @@
 package be.digitalia.fosdem.activities;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.customtabs.CustomTabsIntent;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -34,10 +37,10 @@ public class RoomImageDialogActivity extends AppCompatActivity {
 
 		setContentView(R.layout.dialog_room_image);
 		((ImageView) findViewById(R.id.room_image)).setImageResource(intent.getIntExtra(EXTRA_ROOM_IMAGE_RESOURCE_ID, 0));
-		configureToolbar((Toolbar) findViewById(R.id.toolbar), roomName);
+		configureToolbar(this, (Toolbar) findViewById(R.id.toolbar), roomName);
 	}
 
-	public static void configureToolbar(final Toolbar toolbar, final String roomName) {
+	public static void configureToolbar(final Activity context, final Toolbar toolbar, final String roomName) {
 		toolbar.setTitle(roomName);
 		if (!TextUtils.isEmpty(roomName)) {
 			toolbar.inflateMenu(R.menu.room_image_dialog);
@@ -47,9 +50,12 @@ public class RoomImageDialogActivity extends AppCompatActivity {
 					switch (item.getItemId()) {
 						case R.id.navigation:
 							String localNavigationUrl = FosdemUrls.getLocalNavigationToLocation(StringUtils.toSlug(roomName));
-							Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(localNavigationUrl));
 							try {
-								toolbar.getContext().startActivity(intent);
+								new CustomTabsIntent.Builder()
+										.setToolbarColor(ContextCompat.getColor(context, R.color.color_primary))
+										.setShowTitle(true)
+										.build()
+										.launchUrl(context, Uri.parse(localNavigationUrl));
 							} catch (ActivityNotFoundException ignore) {
 							}
 							break;

@@ -1,10 +1,13 @@
 package be.digitalia.fosdem.fragments;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -66,9 +69,13 @@ public class MapFragment extends Fragment {
 	}
 
 	private void launchLocalNavigation() {
-		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(FosdemUrls.getLocalNavigation()));
 		try {
-			startActivity(intent);
+			Activity context = getActivity();
+			new CustomTabsIntent.Builder()
+					.setToolbarColor(ContextCompat.getColor(context, R.color.color_primary))
+					.setShowTitle(true)
+					.build()
+					.launchUrl(context, Uri.parse(FosdemUrls.getLocalNavigation()));
 		} catch (ActivityNotFoundException ignore) {
 		}
 	}
