@@ -12,7 +12,6 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -89,9 +88,9 @@ public class TracksFragment extends Fragment implements RecycledViewPoolProvider
 		final int page = holder.pager.getCurrentItem();
 		SharedPreferences prefs = getActivity().getPreferences(Context.MODE_PRIVATE);
 		if (prefs.getInt(PREF_CURRENT_PAGE, -1) != page) {
-			SharedPreferencesCompat.EditorCompat.getInstance().apply(
-					prefs.edit().putInt(PREF_CURRENT_PAGE, page)
-			);
+			prefs.edit()
+					.putInt(PREF_CURRENT_PAGE, page)
+					.apply();
 		}
 	}
 

@@ -2,7 +2,6 @@ package be.digitalia.fosdem.utils;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.support.v4.content.LocalBroadcastManager;
 
 import java.io.BufferedInputStream;
@@ -11,10 +10,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.zip.GZIPInputStream;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSession;
 
 /**
  * Utility class to perform HTTP requests.
@@ -25,22 +20,6 @@ public class HttpUtils {
 
 	private static final int DEFAULT_TIMEOUT = 10000;
 	private static final int BUFFER_SIZE = 8192;
-
-	static {
-		// HTTP connection reuse was buggy pre-froyo
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO) {
-			System.setProperty("http.keepAlive", "false");
-		}
-
-		// Bypass hostname verification on older devices
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD) {
-			HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
-				public boolean verify(String hostname, SSLSession session) {
-					return true;
-				}
-			});
-		}
-	}
 
 	public static class HttpResult {
 		// Will be null when the local content is up-to-date

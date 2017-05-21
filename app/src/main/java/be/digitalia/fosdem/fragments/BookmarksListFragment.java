@@ -3,12 +3,10 @@ package be.digitalia.fosdem.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
-import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -89,9 +87,6 @@ public class BookmarksListFragment extends RecyclerViewFragment implements Loade
 		filterMenuItem = menu.findItem(R.id.filter);
 		upcomingOnlyMenuItem = menu.findItem(R.id.upcoming_only);
 		updateFilterMenuItem();
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD) {
-			menu.findItem(R.id.export_bookmarks).setEnabled(false).setVisible(false);
-		}
 	}
 
 	private void updateFilterMenuItem() {
@@ -116,9 +111,9 @@ public class BookmarksListFragment extends RecyclerViewFragment implements Loade
 			case R.id.upcoming_only:
 				upcomingOnly = !upcomingOnly;
 				updateFilterMenuItem();
-				SharedPreferencesCompat.EditorCompat.getInstance().apply(
-						getActivity().getPreferences(Context.MODE_PRIVATE).edit().putBoolean(PREF_UPCOMING_ONLY, upcomingOnly)
-				);
+				getActivity().getPreferences(Context.MODE_PRIVATE).edit()
+						.putBoolean(PREF_UPCOMING_ONLY, upcomingOnly)
+						.apply();
 				getLoaderManager().restartLoader(BOOKMARKS_LOADER_ID, null, this);
 				return true;
 			case R.id.export_bookmarks:

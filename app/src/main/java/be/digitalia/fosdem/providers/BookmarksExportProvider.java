@@ -1,6 +1,5 @@
 package be.digitalia.fosdem.providers;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -120,14 +119,9 @@ public class BookmarksExportProvider extends ContentProvider {
 		return cursor;
 	}
 
-	@TargetApi(Build.VERSION_CODES.GINGERBREAD)
 	@Nullable
 	@Override
 	public ParcelFileDescriptor openFile(@NonNull Uri uri, @NonNull String mode) throws FileNotFoundException {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD) {
-			throw new FileNotFoundException("Bookmarks export is not supported for this Android version");
-		}
-
 		try {
 			ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
 			new DownloadThread(new ParcelFileDescriptor.AutoCloseOutputStream(pipe[1])).start();

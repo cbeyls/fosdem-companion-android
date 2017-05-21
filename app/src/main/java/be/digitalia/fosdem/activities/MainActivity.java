@@ -25,7 +25,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v4.os.AsyncTaskCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
@@ -369,9 +368,9 @@ public class MainActivity extends AppCompatActivity {
 			SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
 			time = prefs.getLong(PREF_LAST_DOWNLOAD_REMINDER_TIME, -1L);
 			if ((time == -1L) || (time < (now - DOWNLOAD_REMINDER_SNOOZE_DURATION))) {
-				SharedPreferencesCompat.EditorCompat.getInstance().apply(
-						prefs.edit().putLong(PREF_LAST_DOWNLOAD_REMINDER_TIME, now)
-				);
+				prefs.edit()
+						.putLong(PREF_LAST_DOWNLOAD_REMINDER_TIME, now)
+						.apply();
 
 				FragmentManager fm = getSupportFragmentManager();
 				if (fm.findFragmentByTag("download_reminder") == null) {
@@ -405,17 +404,11 @@ public class MainActivity extends AppCompatActivity {
 		getMenuInflater().inflate(R.menu.main, menu);
 
 		MenuItem searchMenuItem = menu.findItem(R.id.search);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-			this.searchMenuItem = searchMenuItem;
-			// Associate searchable configuration with the SearchView
-			SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-			SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
-			searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-		} else {
-			// Legacy search mode for Eclair
-			MenuItemCompat.setActionView(searchMenuItem, null);
-			MenuItemCompat.setShowAsAction(searchMenuItem, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
-		}
+		this.searchMenuItem = searchMenuItem;
+		// Associate searchable configuration with the SearchView
+		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+		SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
+		searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			// Animated refresh icon
@@ -433,14 +426,6 @@ public class MainActivity extends AppCompatActivity {
 		}
 
 		switch (item.getItemId()) {
-			case R.id.search:
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-					return false;
-				} else {
-					// Legacy search mode for Eclair
-					onSearchRequested();
-					return true;
-				}
 			case R.id.refresh:
 				Drawable icon = item.getIcon();
 				if (icon instanceof Animatable) {
