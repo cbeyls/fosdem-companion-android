@@ -4,12 +4,10 @@ import android.content.Context;
 import android.graphics.RectF;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.v4.os.ParcelableCompat;
-import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.util.AttributeSet;
 import android.view.ViewTreeObserver;
 
-import uk.co.senab.photoview.PhotoView;
+import com.github.chrisbanes.photoview.PhotoView;
 
 /**
  * PhotoView which saves and restores the current scale and approximate position.
@@ -84,10 +82,10 @@ public class SaveStatePhotoView extends PhotoView {
 			out.writeFloat(pivotY);
 		}
 
-		public static final Parcelable.Creator<SavedState> CREATOR
-				= ParcelableCompat.newCreator(new ParcelableCompatCreatorCallbacks<SavedState>() {
+		public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
+
 			@Override
-			public SavedState createFromParcel(Parcel in, ClassLoader loader) {
+			public SavedState createFromParcel(Parcel in) {
 				return new SavedState(in);
 			}
 
@@ -95,7 +93,7 @@ public class SaveStatePhotoView extends PhotoView {
 			public SavedState[] newArray(int size) {
 				return new SavedState[size];
 			}
-		});
+		};
 
 		SavedState(Parcel in) {
 			super(in);

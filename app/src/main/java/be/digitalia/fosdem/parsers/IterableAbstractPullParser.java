@@ -1,5 +1,7 @@
 package be.digitalia.fosdem.parsers;
 
+import android.support.annotation.NonNull;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -61,6 +63,7 @@ public abstract class IterableAbstractPullParser<T> extends AbstractPullParser<I
 	protected Iterable<T> parse(final XmlPullParser parser) throws Exception {
 		return new Iterable<T>() {
 
+			@NonNull
 			@Override
 			public Iterator<T> iterator() {
 				return new ParserIterator(parser);

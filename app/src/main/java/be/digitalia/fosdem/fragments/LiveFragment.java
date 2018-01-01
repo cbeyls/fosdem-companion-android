@@ -2,6 +2,7 @@ package be.digitalia.fosdem.fragments;
 
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -25,13 +26,13 @@ public class LiveFragment extends Fragment implements RecycledViewPoolProvider {
 	private ViewHolder holder;
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_live, container, false);
 
 		holder = new ViewHolder();
-		holder.pager = (ViewPager) view.findViewById(R.id.pager);
+		holder.pager = view.findViewById(R.id.pager);
 		holder.pager.setAdapter(new LivePagerAdapter(getChildFragmentManager(), getResources()));
-		holder.slidingTabs = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
+		holder.slidingTabs = view.findViewById(R.id.sliding_tabs);
 		holder.slidingTabs.setViewPager(holder.pager);
 		holder.recycledViewPool = new RecyclerView.RecycledViewPool();
 
@@ -85,6 +86,7 @@ public class LiveFragment extends Fragment implements RecycledViewPoolProvider {
 			return null;
 		}
 
+		@NonNull
 		@Override
 		public Object instantiateItem(ViewGroup container, int position) {
 			// Allow the non-primary fragments to start as soon as they are visible

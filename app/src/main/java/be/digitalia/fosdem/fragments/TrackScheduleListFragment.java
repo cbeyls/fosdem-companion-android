@@ -7,12 +7,13 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.TextViewCompat;
-import android.support.v7.widget.AppCompatDrawableManager;
+import android.support.v7.content.res.AppCompatResources;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -88,7 +89,7 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putBoolean("isListAlreadyShown", isListAlreadyShown);
 	}
@@ -276,10 +277,10 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 			View view = inflater.inflate(R.layout.item_schedule_event, parent, false);
 
 			ViewHolder holder = new ViewHolder();
-			holder.time = (TextView) view.findViewById(R.id.time);
-			holder.title = (TextView) view.findViewById(R.id.title);
-			holder.persons = (TextView) view.findViewById(R.id.persons);
-			holder.room = (TextView) view.findViewById(R.id.room);
+			holder.time = view.findViewById(R.id.time);
+			holder.title = view.findViewById(R.id.title);
+			holder.persons = view.findViewById(R.id.persons);
+			holder.room = view.findViewById(R.id.room);
 			view.setTag(holder);
 
 			return view;
@@ -309,7 +310,7 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 			holder.title.setText(event.getTitle());
 			boolean isBookmarked = DatabaseManager.toBookmarkStatus(cursor);
 			Drawable bookmarkDrawable = isBookmarked
-					? AppCompatDrawableManager.get().getDrawable(context, R.drawable.ic_bookmark_grey600_24dp)
+					? AppCompatResources.getDrawable(context, R.drawable.ic_bookmark_grey600_24dp)
 					: null;
 			TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(holder.title, null, null, bookmarkDrawable, null);
 			holder.title.setContentDescription(isBookmarked

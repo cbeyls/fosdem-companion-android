@@ -25,15 +25,12 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.os.AsyncTaskCompat;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.TextViewCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatDrawableManager;
+import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.SpannableString;
@@ -68,7 +65,7 @@ import be.digitalia.fosdem.widgets.AdapterLinearLayout;
  *
  * @author Christophe Beyls
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
 	public static final String ACTION_SHORTCUT_BOOKMARKS = BuildConfig.APPLICATION_ID + ".intent.action.SHORTCUT_BOOKMARKS";
 	public static final String ACTION_SHORTCUT_LIVE = BuildConfig.APPLICATION_ID + ".intent.action.SHORTCUT_LIVE";
@@ -212,14 +209,14 @@ public class MainActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		toolbar = (Toolbar) findViewById(R.id.toolbar);
+		toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
-		progressBar = (ProgressBar) findViewById(R.id.progress);
+		progressBar = findViewById(R.id.progress);
 
 		// Setup drawer layout
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		drawerLayout = findViewById(R.id.drawer_layout);
 		drawerLayout.setDrawerShadow(ContextCompat.getDrawable(this, R.drawable.drawer_shadow), GravityCompat.START);
 		drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.main_menu, R.string.close_menu) {
 
@@ -260,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
 
 		// Setup Main menu
 		mainMenu = findViewById(R.id.main_menu);
-		final AdapterLinearLayout sectionsList = (AdapterLinearLayout) findViewById(R.id.sections);
+		final AdapterLinearLayout sectionsList = findViewById(R.id.sections);
 		menuAdapter = new MainMenuAdapter(getLayoutInflater());
 		sectionsList.setAdapter(menuAdapter);
 		mainMenu.findViewById(R.id.settings).setOnClickListener(menuFooterClickListener);
@@ -269,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
 		LocalBroadcastManager.getInstance(this).registerReceiver(scheduleRefreshedReceiver, new IntentFilter(DatabaseManager.ACTION_SCHEDULE_REFRESHED));
 
 		// Last update date, below the list
-		lastUpdateTextView = (TextView) mainMenu.findViewById(R.id.last_update);
+		lastUpdateTextView = mainMenu.findViewById(R.id.last_update);
 		updateLastUpdateTime();
 
 		// Restore current section
@@ -298,7 +295,7 @@ public class MainActivity extends AppCompatActivity {
 			@Override
 			public void run() {
 				if (sectionsList.getChildCount() > currentSection.ordinal()) {
-					ScrollView mainMenuScrollView = (ScrollView) findViewById(R.id.main_menu_scroll);
+					ScrollView mainMenuScrollView = findViewById(R.id.main_menu_scroll);
 					int requiredScroll = sectionsList.getTop()
 							+ sectionsList.getChildAt(currentSection.ordinal()).getBottom()
 							- mainMenuScrollView.getHeight();
@@ -382,8 +379,8 @@ public class MainActivity extends AppCompatActivity {
 
 	@Override
 	protected void onStop() {
-		if ((searchMenuItem != null) && (MenuItemCompat.isActionViewExpanded(searchMenuItem))) {
-			MenuItemCompat.collapseActionView(searchMenuItem);
+		if ((searchMenuItem != null) && searchMenuItem.isActionViewExpanded()) {
+			searchMenuItem.collapseActionView();
 		}
 
 		LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
@@ -407,13 +404,8 @@ public class MainActivity extends AppCompatActivity {
 		this.searchMenuItem = searchMenuItem;
 		// Associate searchable configuration with the SearchView
 		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-		SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
+		SearchView searchView = (SearchView) searchMenuItem.getActionView();
 		searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			// Animated refresh icon
-			menu.findItem(R.id.refresh).setIcon(R.drawable.avd_sync_white_24dp);
-		}
 
 		return true;
 	}
@@ -444,7 +436,7 @@ public class MainActivity extends AppCompatActivity {
 		progressBar.clearAnimation();
 		progressBar.setIndeterminate(true);
 		progressBar.setVisibility(View.VISIBLE);
-		AsyncTaskCompat.executeParallel(new DownloadScheduleAsyncTask(this));
+		new DownloadScheduleAsyncTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	private static class DownloadScheduleAsyncTask extends AsyncTask<Void, Void, Void> {
@@ -501,9 +493,9 @@ public class MainActivity extends AppCompatActivity {
 			Section section = getItem(position);
 			convertView.setSelected(section == currentSection);
 
-			TextView tv = (TextView) convertView.findViewById(R.id.section_text);
+			TextView tv = convertView.findViewById(R.id.section_text);
 			SpannableString sectionTitle = new SpannableString(getString(section.getTitleResId()));
-			Drawable sectionIcon = AppCompatDrawableManager.get().getDrawable(MainActivity.this, section.getIconResId());
+			Drawable sectionIcon = AppCompatResources.getDrawable(MainActivity.this, section.getIconResId());
 			if (section == currentSection) {
 				// Special color for the current section
 				sectionTitle.setSpan(new ForegroundColorSpan(currentSectionForegroundColor), 0, sectionTitle.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

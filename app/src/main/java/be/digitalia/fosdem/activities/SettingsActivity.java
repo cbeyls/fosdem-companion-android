@@ -4,10 +4,10 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.PreferenceManager;
+import android.preference.TwoStatePreference;
 import android.view.MenuItem;
 
 import be.digitalia.fosdem.R;
-import be.digitalia.fosdem.utils.TwoStatePreferenceCompat;
 
 public class SettingsActivity extends AppCompatPreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -67,7 +67,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
 
 	@SuppressWarnings("deprecation")
 	private void updateNotificationsEnabled() {
-		boolean notificationsEnabled = TwoStatePreferenceCompat.isChecked(findPreference(KEY_PREF_NOTIFICATIONS_ENABLED));
+		boolean notificationsEnabled = ((TwoStatePreference) findPreference(KEY_PREF_NOTIFICATIONS_ENABLED)).isChecked();
 		findPreference(KEY_PREF_NOTIFICATIONS_VIBRATE).setEnabled(notificationsEnabled);
 		findPreference(KEY_PREF_NOTIFICATIONS_LED).setEnabled(notificationsEnabled);
 		findPreference(KEY_PREF_NOTIFICATIONS_DELAY).setEnabled(notificationsEnabled);

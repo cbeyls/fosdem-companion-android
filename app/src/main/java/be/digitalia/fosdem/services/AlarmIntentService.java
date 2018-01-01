@@ -12,8 +12,8 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.v4.app.AlarmManagerCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.TaskStackBuilder;
@@ -242,11 +242,7 @@ public class AlarmIntentService extends IntentService {
 	}
 
 	private static void setExactAlarm(AlarmManager manager, int type, long triggerAtMillis, PendingIntent operation) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-			manager.setExact(type, triggerAtMillis, operation);
-		} else {
-			manager.set(type, triggerAtMillis, operation);
-		}
+		AlarmManagerCompat.setExact(manager, type, triggerAtMillis, operation);
 	}
 
 	private long getDelay() {

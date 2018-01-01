@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.TextViewCompat;
-import android.support.v7.widget.AppCompatDrawableManager;
+import android.support.v7.content.res.AppCompatResources;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,7 +65,7 @@ public class EventsAdapter extends RecyclerViewCursorAdapter<EventsAdapter.ViewH
 		holder.title.setText(event.getTitle());
 		boolean isBookmarked = DatabaseManager.toBookmarkStatus(cursor);
 		Drawable bookmarkDrawable = isBookmarked
-				? AppCompatDrawableManager.get().getDrawable(context, R.drawable.ic_bookmark_grey600_24dp)
+				? AppCompatResources.getDrawable(context, R.drawable.ic_bookmark_grey600_24dp)
 				: null;
 		TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(holder.title, null, null, bookmarkDrawable, null);
 		holder.title.setContentDescription(isBookmarked
@@ -104,10 +104,10 @@ public class EventsAdapter extends RecyclerViewCursorAdapter<EventsAdapter.ViewH
 
 		public ViewHolder(View itemView) {
 			super(itemView);
-			title = (TextView) itemView.findViewById(R.id.title);
-			persons = (TextView) itemView.findViewById(R.id.persons);
-			trackName = (TextView) itemView.findViewById(R.id.track_name);
-			details = (TextView) itemView.findViewById(R.id.details);
+			title = itemView.findViewById(R.id.title);
+			persons = itemView.findViewById(R.id.persons);
+			trackName = itemView.findViewById(R.id.track_name);
+			details = itemView.findViewById(R.id.details);
 			setOnClickListener(this);
 		}
 

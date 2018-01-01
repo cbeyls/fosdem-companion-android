@@ -106,7 +106,7 @@ public class PersonsListFragment extends SmoothListFragment implements LoaderCal
 			View view = inflater.inflate(R.layout.simple_list_item_1_material, parent, false);
 
 			ViewHolder holder = new ViewHolder();
-			holder.textView = (TextView) view.findViewById(android.R.id.text1);
+			holder.textView = view.findViewById(android.R.id.text1);
 			view.setTag(holder);
 
 			return view;

@@ -141,8 +141,8 @@ public class TracksListFragment extends RecyclerViewFragment implements LoaderCa
 
 		TrackViewHolder(View itemView) {
 			super(itemView);
-			name = (TextView) itemView.findViewById(android.R.id.text1);
-			type = (TextView) itemView.findViewById(android.R.id.text2);
+			name = itemView.findViewById(android.R.id.text1);
+			type = itemView.findViewById(android.R.id.text2);
 			itemView.setOnClickListener(this);
 		}
 

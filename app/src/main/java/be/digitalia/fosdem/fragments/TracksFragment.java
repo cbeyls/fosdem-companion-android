@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -54,14 +55,14 @@ public class TracksFragment extends Fragment implements RecycledViewPoolProvider
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_tracks, container, false);
 
 		holder = new ViewHolder();
 		holder.contentView = view.findViewById(R.id.content);
 		holder.emptyView = view.findViewById(android.R.id.empty);
-		holder.pager = (ViewPager) view.findViewById(R.id.pager);
-		holder.slidingTabs = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
+		holder.pager = view.findViewById(R.id.pager);
+		holder.slidingTabs = view.findViewById(R.id.sliding_tabs);
 		holder.daysAdapter = new DaysAdapter(getChildFragmentManager());
 		holder.recycledViewPool = new RecyclerView.RecycledViewPool();
 
@@ -194,6 +195,7 @@ public class TracksFragment extends Fragment implements RecycledViewPoolProvider
 			return days.get(position).toString();
 		}
 
+		@NonNull
 		@Override
 		public Object instantiateItem(ViewGroup container, int position) {
 			// Allow the non-primary fragments to start as soon as they are visible

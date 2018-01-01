@@ -5,8 +5,6 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,7 +13,7 @@ import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.MessageDialogFragment;
 import be.digitalia.fosdem.fragments.SearchResultListFragment;
 
-public class SearchResultActivity extends AppCompatActivity {
+public class SearchResultActivity extends BaseActivity {
 
 	public static final int MIN_SEARCH_LENGTH = 3;
 
@@ -92,7 +90,7 @@ public class SearchResultActivity extends AppCompatActivity {
 		MenuItem searchMenuItem = menu.findItem(R.id.search);
 		// Associate searchable configuration with the SearchView
 		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-		searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
+		searchView = (SearchView) searchMenuItem.getActionView();
 		searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 		searchView.setIconifiedByDefault(false); // Always show the search view
 		setSearchViewQuery(currentQuery);

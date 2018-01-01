@@ -114,7 +114,6 @@ public class ForegroundLinearLayout extends LinearLayoutCompat {
 		return super.verifyDrawable(who) || (who == mForeground);
 	}
 
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
 	public void jumpDrawablesToCurrentState() {
 		super.jumpDrawablesToCurrentState();

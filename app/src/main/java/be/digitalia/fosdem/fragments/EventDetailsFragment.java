@@ -8,9 +8,9 @@ import android.content.Intent;
 import android.graphics.drawable.Animatable;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.CalendarContract;
+import android.support.annotation.NonNull;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -106,14 +106,14 @@ public class EventDetailsFragment extends Fragment {
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_event_details, container, false);
 
 		holder = new ViewHolder();
 		holder.inflater = inflater;
 
 		((TextView) view.findViewById(R.id.title)).setText(event.getTitle());
-		TextView textView = (TextView) view.findViewById(R.id.subtitle);
+		TextView textView = view.findViewById(R.id.subtitle);
 		String text = event.getSubTitle();
 		if (TextUtils.isEmpty(text)) {
 			textView.setVisibility(View.GONE);
@@ -124,7 +124,7 @@ public class EventDetailsFragment extends Fragment {
 		MovementMethod linkMovementMethod = LinkMovementMethod.getInstance();
 
 		// Set the persons summary text first; replace it with the clickable text when the loader completes
-		holder.personsTextView = (TextView) view.findViewById(R.id.persons);
+		holder.personsTextView = view.findViewById(R.id.persons);
 		String personsSummary = event.getPersonsSummary();
 		if (TextUtils.isEmpty(personsSummary)) {
 			holder.personsTextView.setVisibility(View.GONE);
@@ -135,12 +135,12 @@ public class EventDetailsFragment extends Fragment {
 		}
 
 
-		textView = ((TextView) view.findViewById(R.id.track));
+		textView = view.findViewById(R.id.track);
 		text = event.getTrack().getName();
 		textView.setText(text);
 		textView.setContentDescription(getString(R.string.track_content_description, text));
 
-		textView = ((TextView) view.findViewById(R.id.time));
+		textView = view.findViewById(R.id.time);
 		Date startTime = event.getStartTime();
 		Date endTime = event.getEndTime();
 		DateFormat timeDateFormat = DateUtils.getTimeDateFormat(getActivity());
@@ -151,7 +151,7 @@ public class EventDetailsFragment extends Fragment {
 		textView.setText(text);
 		textView.setContentDescription(getString(R.string.time_content_description, text));
 
-		textView = (TextView) view.findViewById(R.id.room);
+		textView = view.findViewById(R.id.room);
 		final String roomName = event.getRoomName();
 		Spannable roomText = new SpannableString(String.format("%1$s (Building %2$s)", roomName, Building.fromRoomName(roomName)));
 		final int roomImageResId = getResources().getIdentifier(StringUtils.roomNameToResourceName(roomName), "drawable", getActivity().getPackageName());
@@ -175,7 +175,7 @@ public class EventDetailsFragment extends Fragment {
 		textView.setContentDescription(getString(R.string.room_content_description, roomText));
 
 
-		textView = (TextView) view.findViewById(R.id.abstract_text);
+		textView = view.findViewById(R.id.abstract_text);
 		text = event.getAbstractText();
 		if (TextUtils.isEmpty(text)) {
 			textView.setVisibility(View.GONE);
@@ -183,7 +183,7 @@ public class EventDetailsFragment extends Fragment {
 			textView.setText(StringUtils.parseHtml(text, getResources()));
 			textView.setMovementMethod(linkMovementMethod);
 		}
-		textView = (TextView) view.findViewById(R.id.description);
+		textView = view.findViewById(R.id.description);
 		text = event.getDescription();
 		if (TextUtils.isEmpty(text)) {
 			textView.setVisibility(View.GONE);
@@ -193,7 +193,7 @@ public class EventDetailsFragment extends Fragment {
 		}
 
 		holder.linksHeader = view.findViewById(R.id.links_header);
-		holder.linksContainer = (ViewGroup) view.findViewById(R.id.links_container);
+		holder.linksContainer = view.findViewById(R.id.links_container);
 		return view;
 	}
 
@@ -266,8 +266,7 @@ public class EventDetailsFragment extends Fragment {
 				actionButton.setEnabled(false);
 			} else {
 				// Only animate if the button was showing a previous value
-				animate = animate && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-						&& actionButton.isEnabled();
+				animate = animate && actionButton.isEnabled();
 				actionButton.setEnabled(true);
 
 				if (isBookmarked) {
@@ -289,8 +288,7 @@ public class EventDetailsFragment extends Fragment {
 					bookmarkMenuItem.setEnabled(false);
 				} else {
 					// Only animate if the menu item was showing a previous value
-					animate = animate && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-							&& bookmarkMenuItem.isEnabled();
+					animate = animate && bookmarkMenuItem.isEnabled();
 					bookmarkMenuItem.setEnabled(true);
 
 					if (isBookmarked) {
@@ -457,7 +455,7 @@ public class EventDetailsFragment extends Fragment {
 				holder.linksContainer.setVisibility(View.VISIBLE);
 				for (Link link : data.links) {
 					View view = holder.inflater.inflate(R.layout.item_link, holder.linksContainer, false);
-					TextView tv = (TextView) view.findViewById(R.id.description);
+					TextView tv = view.findViewById(R.id.description);
 					tv.setText(link.getDescription());
 					view.setOnClickListener(new LinkClickListener(link));
 					holder.linksContainer.addView(view);

@@ -257,6 +257,7 @@ public class StringUtils {
 			mLength = mString.length();
 		}
 
+		@NonNull
 		public Iterator<String> iterator() {
 			return this;
 		}

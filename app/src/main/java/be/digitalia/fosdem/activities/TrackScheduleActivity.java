@@ -7,7 +7,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -28,7 +27,7 @@ import be.digitalia.fosdem.utils.ThemeUtils;
  *
  * @author Christophe Beyls
  */
-public class TrackScheduleActivity extends AppCompatActivity
+public class TrackScheduleActivity extends BaseActivity
 		implements TrackScheduleListFragment.Callbacks,
 		EventDetailsFragment.FloatingActionButtonProvider,
 		CreateNfcAppDataCallback {
@@ -51,7 +50,7 @@ public class TrackScheduleActivity extends AppCompatActivity
 		setContentView(R.layout.track_schedule);
 		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
-		floatingActionButton = (ImageView) findViewById(R.id.fab);
+		floatingActionButton = findViewById(R.id.fab);
 
 		Bundle extras = getIntent().getExtras();
 		day = extras.getParcelable(EXTRA_DAY);

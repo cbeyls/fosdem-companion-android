@@ -1,7 +1,6 @@
 package be.digitalia.fosdem.widgets;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -71,7 +70,7 @@ public class MultiChoiceHelper {
 			final boolean isChecked = multiChoiceHelper.isItemChecked(position);
 			if (itemView instanceof Checkable) {
 				((Checkable) itemView).setChecked(isChecked);
-			} else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			} else {
 				itemView.setActivated(isChecked);
 			}
 		}
@@ -236,23 +235,11 @@ public class MultiChoiceHelper {
 	public Parcelable onSaveInstanceState() {
 		SavedState savedState = new SavedState();
 		savedState.checkedItemCount = checkedItemCount;
-		savedState.checkStates = clone(checkStates);
+		savedState.checkStates = checkStates.clone();
 		if (checkedIdStates != null) {
 			savedState.checkedIdStates = checkedIdStates.clone();
 		}
 		return savedState;
-	}
-
-	private static SparseBooleanArray clone(SparseBooleanArray original) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			return original.clone();
-		}
-		final int size = original.size();
-		SparseBooleanArray clone = new SparseBooleanArray(size);
-		for (int i = 0; i < size; ++i) {
-			clone.append(original.keyAt(i), original.valueAt(i));
-		}
-		return clone;
 	}
 
 	public void onRestoreInstanceState(Parcelable state) {

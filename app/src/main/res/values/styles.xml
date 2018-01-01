@@ -16,8 +16,10 @@
 
     <style name="AppTheme" parent="Base.AppTheme">
         <item name="android:progressBarStyleHorizontal">@style/ProgressBar.Fosdem</item>
-        <item name="android:listViewStyle">@style/ListView.Fosdem</item>
-        <item name="android:scrollViewStyle">@style/ScrollView.Fosdem</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/fosdem_fastscroll_thumb_holo</item>
+        <item name="android:selectableItemBackground">?attr/selectableItemBackground</item>
+        <item name="android:listChoiceBackgroundIndicator">?attr/listChoiceBackgroundIndicator
+        </item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -46,23 +48,11 @@
         <item name="android:theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
     </style>
 
-    <style name="ProgressBar.Fosdem" parent="android:Widget.ProgressBar.Horizontal">
+    <style name="ProgressBar.Fosdem" parent="android:Widget.Holo.ProgressBar.Horizontal">
         <item name="android:indeterminateDrawable">
             @drawable/fosdem_progress_indeterminate_horizontal_holo_light
         </item>
         <item name="android:progressDrawable">@drawable/fosdem_progress_horizontal_holo_light</item>
-        <item name="android:minHeight">16dip</item>
-        <item name="android:maxHeight">16dip</item>
-    </style>
-
-    <style name="ListView.Fosdem" parent="android:Widget.ListView.White">
-        <item name="android:listSelector">?attr/listChoiceBackgroundIndicator</item>
-        <item name="android:fadingEdge">none</item>
-    </style>
-
-    <style name="ScrollView.Fosdem" parent="android:Widget.ScrollView">
-        <!-- Fading edges were enabled by default on older devices and are now deprecated. -->
-        <item name="android:fadingEdge">none</item>
     </style>
 
     <!-- Styles -->
