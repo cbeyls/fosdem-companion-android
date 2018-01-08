@@ -17,7 +17,6 @@ import be.digitalia.fosdem.services.AlarmIntentService;
  * This class monitors bookmarks and preferences changes to dispatch alarm update work to AlarmIntentService.
  *
  * @author Christophe Beyls
- *
  */
 public class FosdemAlarmManager implements OnSharedPreferenceChangeListener {
 
@@ -40,10 +39,8 @@ public class FosdemAlarmManager implements OnSharedPreferenceChangeListener {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			// Dispatch the Bookmark broadcasts to the service
-			Intent serviceIntent = new Intent(context, AlarmIntentService.class);
-			serviceIntent.setAction(intent.getAction());
-			serviceIntent.putExtras(intent.getExtras());
-			context.startService(serviceIntent);
+			Intent serviceIntent = new Intent(intent);
+			AlarmIntentService.enqueueWork(context, serviceIntent);
 		}
 	};
 
@@ -103,14 +100,12 @@ public class FosdemAlarmManager implements OnSharedPreferenceChangeListener {
 	}
 
 	void startUpdateAlarms() {
-		Intent serviceIntent = new Intent(context, AlarmIntentService.class);
-		serviceIntent.setAction(AlarmIntentService.ACTION_UPDATE_ALARMS);
-		context.startService(serviceIntent);
+		Intent serviceIntent = new Intent(AlarmIntentService.ACTION_UPDATE_ALARMS);
+		AlarmIntentService.enqueueWork(context, serviceIntent);
 	}
 
 	private void startDisableAlarms() {
-		Intent serviceIntent = new Intent(context, AlarmIntentService.class);
-		serviceIntent.setAction(AlarmIntentService.ACTION_DISABLE_ALARMS);
-		context.startService(serviceIntent);
+		Intent serviceIntent = new Intent(AlarmIntentService.ACTION_DISABLE_ALARMS);
+		AlarmIntentService.enqueueWork(context, serviceIntent);
 	}
 }

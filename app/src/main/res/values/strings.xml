@@ -69,6 +69,7 @@
     <string name="settings_notifications">Notifications</string>
     <string name="settings_notifications_enabled_title">Enable notifications</string>
     <string name="settings_notifications_enabled_summary">If checked, this will notify you of upcoming bookmarked events</string>
+    <string name="settings_notifications_channel_title">Customize</string>
     <string name="settings_notifications_vibrate_title">Vibrate</string>
     <string name="settings_notifications_vibrate_summary">Vibrate on notification</string>
     <string name="settings_notifications_led_title">Flash led</string>
@@ -89,6 +90,8 @@
         <item>30</item>
         <item>60</item>
     </string-array>
+
+    <string name="notification_events_channel_name">Upcoming event alarms</string>
 
     <!-- Track schedule -->
     <string name="in_progress_content_description">%1$s (in progress)</string>

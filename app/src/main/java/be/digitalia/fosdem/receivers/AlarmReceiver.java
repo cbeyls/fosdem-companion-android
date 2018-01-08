@@ -1,8 +1,8 @@
 package be.digitalia.fosdem.receivers;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.content.WakefulBroadcastReceiver;
 
 import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.alarms.FosdemAlarmManager;
@@ -13,7 +13,7 @@ import be.digitalia.fosdem.services.AlarmIntentService;
  *
  * @author Christophe Beyls
  */
-public class AlarmReceiver extends WakefulBroadcastReceiver {
+public class AlarmReceiver extends BroadcastReceiver {
 
 	public static final String ACTION_NOTIFY_EVENT = BuildConfig.APPLICATION_ID + ".action.NOTIFY_EVENT";
 
@@ -24,20 +24,16 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 		if (ACTION_NOTIFY_EVENT.equals(action)) {
 
 			// Forward the intent to the AlarmIntentService for background processing of the notification
-			Intent serviceIntent = new Intent(context, AlarmIntentService.class)
-					.setAction(ACTION_NOTIFY_EVENT)
-					.setData(intent.getData())
-					.putExtra(AlarmIntentService.EXTRA_WITH_WAKE_LOCK, true);
-			startWakefulService(context, serviceIntent);
+			Intent serviceIntent = new Intent(ACTION_NOTIFY_EVENT)
+					.setData(intent.getData());
+			AlarmIntentService.enqueueWork(context, serviceIntent);
 
 		} else if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
 
 			String serviceAction = FosdemAlarmManager.getInstance().isEnabled()
 					? AlarmIntentService.ACTION_UPDATE_ALARMS : AlarmIntentService.ACTION_DISABLE_ALARMS;
-			Intent serviceIntent = new Intent(context, AlarmIntentService.class)
-					.setAction(serviceAction)
-					.putExtra(AlarmIntentService.EXTRA_WITH_WAKE_LOCK, true);
-			startWakefulService(context, serviceIntent);
+			Intent serviceIntent = new Intent(serviceAction);
+			AlarmIntentService.enqueueWork(context, serviceIntent);
 		}
 	}
 
