@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "be.digitalia.fosdem"
-        minSdkVersion 14
+        minSdkVersion 15
         targetSdkVersion 27
         versionCode 900146
         versionName "1.4.6"
