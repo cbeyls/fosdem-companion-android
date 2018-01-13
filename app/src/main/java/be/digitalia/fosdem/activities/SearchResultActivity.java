@@ -99,7 +99,7 @@ public class SearchResultActivity extends BaseActivity {
 	}
 
 	private void setSearchViewQuery(String query) {
-		// Force loosing the focus to prevent the suggestions from appearing
+		// Force losing the focus to prevent the suggestions from appearing
 		searchView.clearFocus();
 		searchView.setFocusable(false);
 		searchView.setFocusableInTouchMode(false);
