@@ -4,13 +4,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 
+import java.io.InputStream;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.model.Event;
+import be.digitalia.fosdem.model.RoomStatus;
 import be.digitalia.fosdem.parsers.EventsParser;
+import be.digitalia.fosdem.parsers.RoomStatusesParser;
 import be.digitalia.fosdem.utils.HttpUtils;
 
 /**
@@ -71,6 +75,15 @@ public class FosdemApi {
 		} finally {
 			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ACTION_DOWNLOAD_SCHEDULE_RESULT).putExtra(EXTRA_RESULT, result));
 			scheduleLock.unlock();
+		}
+	}
+
+	public static Map<String, RoomStatus> getRoomStatuses(Context context) throws Exception {
+		InputStream is = HttpUtils.get(context, FosdemUrls.getRooms());
+		try {
+			return new RoomStatusesParser().parse(is);
+		} finally {
+			is.close();
 		}
 	}
 }
