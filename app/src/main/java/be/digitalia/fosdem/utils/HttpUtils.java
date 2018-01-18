@@ -1,8 +1,7 @@
 package be.digitalia.fosdem.utils;
 
-import android.content.Context;
-import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -27,17 +26,21 @@ public class HttpUtils {
 		public String lastModified;
 	}
 
-	public static InputStream get(Context context, String path) throws IOException {
-		return get(context, new URL(path), null, null, null).inputStream;
+	public interface ProgressUpdateListener {
+		void onProgressUpdate(int percent);
 	}
 
-	public static HttpResult get(Context context, String path, String lastModified,
-								 String progressAction, String progressExtra) throws IOException {
-		return get(context, new URL(path), lastModified, progressAction, progressExtra);
+	public static InputStream get(@NonNull String path) throws IOException {
+		return get(new URL(path), null, null).inputStream;
 	}
 
-	public static HttpResult get(final Context context, URL url, String lastModified,
-								 final String progressAction, final String progressExtra) throws IOException {
+	public static HttpResult get(@NonNull String path, @Nullable String lastModified, @Nullable ProgressUpdateListener listener)
+			throws IOException {
+		return get(new URL(path), lastModified, listener);
+	}
+
+	public static HttpResult get(@NonNull URL url, @Nullable String lastModified, @Nullable final ProgressUpdateListener listener)
+			throws IOException {
 		HttpResult result = new HttpResult();
 
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -68,18 +71,15 @@ public class HttpUtils {
 		final int length = connection.getContentLength();
 		result.inputStream = connection.getInputStream();
 
-		if ((progressAction != null) && (length != -1)) {
+		if ((listener != null) && (length != -1)) {
 			// Broadcast the progression in percents, with a precision of 1/10 of the total file size
 			result.inputStream = new ByteCountInputStream(result.inputStream,
 					new ByteCountInputStream.ByteCountListener() {
-
-						private final LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(context);
-
 						@Override
 						public void onNewCount(int byteCount) {
 							// Cap percent to 100
 							int percent = (byteCount >= length) ? 100 : byteCount * 100 / length;
-							lbm.sendBroadcast(new Intent(progressAction).putExtra(progressExtra, percent));
+							listener.onProgressUpdate(percent);
 						}
 					}, length / 10);
 		}
