@@ -45,15 +45,21 @@ public class FosdemApi {
 			return;
 		}
 
+		final LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(context);
 		int result = RESULT_ERROR;
 		try {
 			DatabaseManager dbManager = DatabaseManager.getInstance();
 			HttpUtils.HttpResult httpResult = HttpUtils.get(
-					context,
 					FosdemUrls.getSchedule(),
 					dbManager.getLastModifiedTag(),
-					ACTION_DOWNLOAD_SCHEDULE_PROGRESS,
-					EXTRA_PROGRESS);
+					new HttpUtils.ProgressUpdateListener() {
+						@Override
+						public void onProgressUpdate(int percent) {
+							Intent progressIntent = new Intent(ACTION_DOWNLOAD_SCHEDULE_PROGRESS)
+									.putExtra(EXTRA_PROGRESS, percent);
+							lbm.sendBroadcast(progressIntent);
+						}
+					});
 			if (httpResult.inputStream == null) {
 				// Nothing to parse, the result is up-to-date.
 				result = RESULT_UP_TO_DATE;
@@ -73,13 +79,13 @@ public class FosdemApi {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ACTION_DOWNLOAD_SCHEDULE_RESULT).putExtra(EXTRA_RESULT, result));
+			lbm.sendBroadcast(new Intent(ACTION_DOWNLOAD_SCHEDULE_RESULT).putExtra(EXTRA_RESULT, result));
 			scheduleLock.unlock();
 		}
 	}
 
-	public static Map<String, RoomStatus> getRoomStatuses(Context context) throws Exception {
-		InputStream is = HttpUtils.get(context, FosdemUrls.getRooms());
+	public static Map<String, RoomStatus> getRoomStatuses() throws Exception {
+		InputStream is = HttpUtils.get(FosdemUrls.getRooms());
 		try {
 			return new RoomStatusesParser().parse(is);
 		} finally {

@@ -3,7 +3,7 @@
 
 # generated files
 build/
-manifest-merger-release-report.txt
+output.json
 
 # Local configuration file (sdk path, etc)
 local.properties
@@ -18,4 +18,3 @@ local.properties
 
 # Gradle cache
 .gradle
-
