@@ -23,7 +23,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
-import android.support.v4.view.ViewConfigurationCompat;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -78,8 +77,7 @@ public class UnderlinePageIndicator extends View implements PageIndicator {
         this(context, attrs, R.attr.vpiUnderlinePageIndicatorStyle);
     }
 
-    @SuppressWarnings("deprecation")
-	public UnderlinePageIndicator(Context context, AttributeSet attrs, int defStyle) {
+    public UnderlinePageIndicator(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         if (isInEditMode()) return;
 
@@ -98,8 +96,7 @@ public class UnderlinePageIndicator extends View implements PageIndicator {
 
         a.recycle();
 
-        final ViewConfiguration configuration = ViewConfiguration.get(context);
-        mTouchSlop = ViewConfigurationCompat.getScaledPagingTouchSlop(configuration);
+        mTouchSlop = ViewConfiguration.get(context).getScaledPagingTouchSlop();
     }
 
     public boolean getFades() {
