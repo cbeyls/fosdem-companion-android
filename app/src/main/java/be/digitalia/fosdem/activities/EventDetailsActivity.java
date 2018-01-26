@@ -39,7 +39,7 @@ public class EventDetailsActivity extends BaseActivity implements Observer<Event
 		setContentView(R.layout.content);
 
 		ActionBar bar = getSupportActionBar();
-		bar.setDisplayHomeAsUpEnabled(true);
+		bar.setDisplayHomeAsUpEnabled(false);
 		bar.setDisplayShowTitleEnabled(false);
 
 		Event event = getIntent().getParcelableExtra(EXTRA_EVENT);
