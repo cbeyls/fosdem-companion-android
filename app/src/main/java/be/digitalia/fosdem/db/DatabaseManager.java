@@ -1,6 +1,7 @@
 package be.digitalia.fosdem.db;
 
 import android.app.SearchManager;
+import android.arch.lifecycle.LiveData;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -11,11 +12,14 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.provider.BaseColumns;
+import android.support.annotation.Nullable;
+import android.support.annotation.WorkerThread;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import be.digitalia.fosdem.BuildConfig;
+import be.digitalia.fosdem.livedata.AsyncTaskLiveData;
 import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Link;
@@ -55,7 +60,6 @@ public class DatabaseManager {
 	private final Context context;
 	private final DatabaseHelper helper;
 
-	private List<Day> cachedDays;
 	private int year = -1;
 
 	public static void init(Context context) {
@@ -128,8 +132,10 @@ public class DatabaseManager {
 	 * @param events
 	 * @return The number of events processed.
 	 */
+	@WorkerThread
 	public int storeSchedule(Iterable<Event> events, String lastModifiedTag) {
 		boolean isComplete = false;
+		List<Day> daysList = null;
 
 		SQLiteDatabase db = helper.getWritableDatabase();
 		db.beginTransaction();
@@ -245,6 +251,8 @@ public class DatabaseManager {
 				values.put("date", (date == null) ? 0L : date.getTime());
 				db.insert(DatabaseHelper.DAYS_TABLE_NAME, null, values);
 			}
+			daysList = new ArrayList<>(days);
+			Collections.sort(daysList);
 
 			// 4: Purge outdated bookmarks
 			if (minEventId < Long.MAX_VALUE) {
@@ -262,8 +270,8 @@ public class DatabaseManager {
 			db.endTransaction();
 
 			if (isComplete) {
-				// Clear cache
-				cachedDays = null;
+				// Update/clear cache
+				daysLiveData.postValue(daysList);
 				year = -1;
 				// Set last update time and server's last modified tag
 				getSharedPreferences().edit()
@@ -276,6 +284,7 @@ public class DatabaseManager {
 		}
 	}
 
+	@WorkerThread
 	public void clearSchedule() {
 		SQLiteDatabase db = helper.getWritableDatabase();
 		db.beginTransaction();
@@ -284,7 +293,7 @@ public class DatabaseManager {
 
 			db.setTransactionSuccessful();
 
-			cachedDays = null;
+			daysLiveData.postValue(Collections.<Day>emptyList());
 			year = -1;
 			getSharedPreferences().edit()
 					.remove(LAST_UPDATE_TIME_PREF)
@@ -306,34 +315,36 @@ public class DatabaseManager {
 		db.delete(DatabaseHelper.DAYS_TABLE_NAME, null, null);
 	}
 
-	/**
-	 * Returns the cached days list or null. Can be safely called on the main thread without blocking it.
-	 *
-	 * @return
-	 */
-	public List<Day> getCachedDays() {
-		return cachedDays;
-	}
+	private final AsyncTaskLiveData<List<Day>> daysLiveData = new AsyncTaskLiveData<List<Day>>() {
+
+		{
+			onContentChanged();
+		}
+
+		@Override
+		protected List<Day> loadInBackground() throws Exception {
+			Cursor cursor = helper.getReadableDatabase().query(DatabaseHelper.DAYS_TABLE_NAME,
+					new String[]{"_index", "date"}, null, null, null, null, "_index ASC");
+			try {
+				List<Day> result = new ArrayList<>(cursor.getCount());
+				while (cursor.moveToNext()) {
+					Day day = new Day();
+					day.setIndex(cursor.getInt(0));
+					day.setDate(new Date(cursor.getLong(1)));
+					result.add(day);
+				}
+				return result;
+			} finally {
+				cursor.close();
+			}
+		}
+	};
 
 	/**
 	 * @return The Days the events span to.
 	 */
-	public List<Day> getDays() {
-		Cursor cursor = helper.getReadableDatabase().query(DatabaseHelper.DAYS_TABLE_NAME, new String[]{"_index", "date"}, null, null, null, null,
-				"_index ASC");
-		try {
-			List<Day> result = new ArrayList<>(cursor.getCount());
-			while (cursor.moveToNext()) {
-				Day day = new Day();
-				day.setIndex(cursor.getInt(0));
-				day.setDate(new Date(cursor.getLong(1)));
-				result.add(day);
-			}
-			cachedDays = result;
-			return result;
-		} finally {
-			cursor.close();
-		}
+	public LiveData<List<Day>> getDays() {
+		return daysLiveData;
 	}
 
 	public int getYear() {
@@ -344,10 +355,11 @@ public class DatabaseManager {
 
 		Calendar cal = Calendar.getInstance(DateUtils.getBelgiumTimeZone(), Locale.US);
 
-		// Compute from cachedDays if available
-		if (cachedDays != null) {
-			if (cachedDays.size() > 0) {
-				cal.setTime(cachedDays.get(0).getDate());
+		// Compute from cached days if available
+		List<Day> days = daysLiveData.getValue();
+		if (days != null) {
+			if (days.size() > 0) {
+				cal.setTime(days.get(0).getDate());
 			}
 		} else {
 			// Perform a quick DB query to retrieve the time of the first day
@@ -367,6 +379,7 @@ public class DatabaseManager {
 		return year;
 	}
 
+	@WorkerThread
 	public Cursor getTracks(Day day) {
 		String[] selectionArgs = new String[]{String.valueOf(day.getIndex())};
 		Cursor cursor = helper.getReadableDatabase().rawQuery(
@@ -392,13 +405,16 @@ public class DatabaseManager {
 		return toTrack(cursor, null);
 	}
 
+	@WorkerThread
 	public long getEventsCount() {
 		return queryNumEntries(helper.getReadableDatabase(), DatabaseHelper.EVENTS_TABLE_NAME, null, null);
 	}
 
 	/**
-	 * Returns the event with the specified id.
+	 * Returns the event with the specified id, or null if not found.
 	 */
+	@WorkerThread
+	@Nullable
 	public Event getEvent(long id) {
 		String[] selectionArgs = new String[]{String.valueOf(id)};
 		Cursor cursor = helper.getReadableDatabase().rawQuery(
@@ -436,6 +452,7 @@ public class DatabaseManager {
 	 * @param track
 	 * @return A cursor to Events
 	 */
+	@WorkerThread
 	public Cursor getEvents(Day day, Track track) {
 		String[] selectionArgs = new String[]{String.valueOf(day.getIndex()), track.getName(), track.getType().name()};
 		Cursor cursor = helper.getReadableDatabase().rawQuery(
@@ -462,6 +479,7 @@ public class DatabaseManager {
 	 * @param ascending    If true, order results from start time ascending, else order from start time descending
 	 * @return
 	 */
+	@WorkerThread
 	public Cursor getEvents(long minStartTime, long maxStartTime, long minEndTime, boolean ascending) {
 		ArrayList<String> selectionArgs = new ArrayList<>(3);
 		StringBuilder whereCondition = new StringBuilder();
@@ -511,6 +529,7 @@ public class DatabaseManager {
 	 * @param person
 	 * @return A cursor to Events
 	 */
+	@WorkerThread
 	public Cursor getEvents(Person person) {
 		String[] selectionArgs = new String[]{String.valueOf(person.getId())};
 		Cursor cursor = helper.getReadableDatabase().rawQuery(
@@ -535,6 +554,7 @@ public class DatabaseManager {
 	 * @param minStartTime When positive, only return the events starting after this time.
 	 * @return A cursor to Events
 	 */
+	@WorkerThread
 	public Cursor getBookmarks(long minStartTime) {
 		String whereCondition;
 		String[] selectionArgs;
@@ -568,6 +588,7 @@ public class DatabaseManager {
 	 * @param query
 	 * @return A cursor to Events
 	 */
+	@WorkerThread
 	public Cursor getSearchResults(String query) {
 		final String matchQuery = query + "*";
 		String[] selectionArgs = new String[]{matchQuery, "%" + query + "%", matchQuery};
@@ -603,6 +624,7 @@ public class DatabaseManager {
 	/**
 	 * Method called by SearchSuggestionProvider to return search results in the format expected by the search framework.
 	 */
+	@WorkerThread
 	public Cursor getSearchSuggestionResults(String query, int limit) {
 		final String matchQuery = query + "*";
 		String[] selectionArgs = new String[]{matchQuery, "%" + query + "%", matchQuery, String.valueOf(limit)};
@@ -720,6 +742,7 @@ public class DatabaseManager {
 	/**
 	 * Returns all persons in alphabetical order.
 	 */
+	@WorkerThread
 	public Cursor getPersons() {
 		Cursor cursor = helper.getReadableDatabase().rawQuery(
 				"SELECT rowid AS _id, name"
@@ -733,6 +756,7 @@ public class DatabaseManager {
 	/**
 	 * Returns persons presenting the specified event.
 	 */
+	@WorkerThread
 	public List<Person> getPersons(Event event) {
 		String[] selectionArgs = new String[]{String.valueOf(event.getId())};
 		Cursor cursor = helper.getReadableDatabase().rawQuery(
@@ -765,6 +789,7 @@ public class DatabaseManager {
 		return toPerson(cursor, null);
 	}
 
+	@WorkerThread
 	public List<Link> getLinks(Event event) {
 		String[] selectionArgs = new String[]{String.valueOf(event.getId())};
 		Cursor cursor = helper.getReadableDatabase().rawQuery(
@@ -786,11 +811,13 @@ public class DatabaseManager {
 		}
 	}
 
+	@WorkerThread
 	public boolean isBookmarked(Event event) {
 		String[] selectionArgs = new String[]{String.valueOf(event.getId())};
 		return queryNumEntries(helper.getReadableDatabase(), DatabaseHelper.BOOKMARKS_TABLE_NAME, "event_id = ?", selectionArgs) > 0L;
 	}
 
+	@WorkerThread
 	public boolean addBookmark(Event event) {
 		boolean complete = false;
 
@@ -823,14 +850,17 @@ public class DatabaseManager {
 		}
 	}
 
+	@WorkerThread
 	public boolean removeBookmark(Event event) {
 		return removeBookmarks(new long[]{event.getId()});
 	}
 
+	@WorkerThread
 	public boolean removeBookmark(long eventId) {
 		return removeBookmarks(new long[]{eventId});
 	}
 
+	@WorkerThread
 	public boolean removeBookmarks(long[] eventIds) {
 		int length = eventIds.length;
 		if (length == 0) {

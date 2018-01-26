@@ -1,15 +1,17 @@
 package be.digitalia.fosdem.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.support.annotation.NonNull;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import be.digitalia.fosdem.utils.DateUtils;
 
-public class Day implements Parcelable {
+public class Day implements Comparable<Day>, Parcelable {
 
 	private static final DateFormat DAY_DATE_FORMAT = DateUtils.withBelgiumTimeZone(new SimpleDateFormat("EEEE", Locale.US));
 
@@ -61,6 +63,11 @@ public class Day implements Parcelable {
 			return false;
 		Day other = (Day) obj;
 		return (index == other.index);
+	}
+
+	@Override
+	public int compareTo(@NonNull Day other) {
+		return index - other.index;
 	}
 
 	@Override
