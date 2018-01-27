@@ -1,7 +1,10 @@
 package be.digitalia.fosdem.api;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.WorkerThread;
 import android.support.v4.content.LocalBroadcastManager;
 
 import java.util.concurrent.locks.Lock;
@@ -21,8 +24,6 @@ import be.digitalia.fosdem.utils.HttpUtils;
 public class FosdemApi {
 
 	// Local broadcasts parameters
-	public static final String ACTION_DOWNLOAD_SCHEDULE_PROGRESS = BuildConfig.APPLICATION_ID + ".action.DOWNLOAD_SCHEDULE_PROGRESS";
-	public static final String EXTRA_PROGRESS = "PROGRESS";
 	public static final String ACTION_DOWNLOAD_SCHEDULE_RESULT = BuildConfig.APPLICATION_ID + ".action.DOWNLOAD_SCHEDULE_RESULT";
 	public static final String EXTRA_RESULT = "RESULT";
 
@@ -30,18 +31,21 @@ public class FosdemApi {
 	public static final int RESULT_UP_TO_DATE = -2;
 
 	private static final Lock scheduleLock = new ReentrantLock();
+	private static final MutableLiveData<Integer> progress = new MutableLiveData<>();
 
 	/**
-	 * Download & store the schedule to the database. Only one thread at a time will perform the actual action, the other ones will return immediately. The
-	 * result will be sent back in the form of a local broadcast with an ACTION_DOWNLOAD_SCHEDULE_RESULT action.
+	 * Download & store the schedule to the database.
+	 * Only one thread at a time will perform the actual action, the other ones will return immediately.
+	 * The result will be sent back in the form of a local broadcast with an ACTION_DOWNLOAD_SCHEDULE_RESULT action.
 	 */
+	@WorkerThread
 	public static void downloadSchedule(Context context) {
 		if (!scheduleLock.tryLock()) {
 			// If a download is already in progress, return immediately
 			return;
 		}
 
-		final LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(context);
+		progress.postValue(-1);
 		int result = RESULT_ERROR;
 		try {
 			DatabaseManager dbManager = DatabaseManager.getInstance();
@@ -51,9 +55,7 @@ public class FosdemApi {
 					new HttpUtils.ProgressUpdateListener() {
 						@Override
 						public void onProgressUpdate(int percent) {
-							Intent progressIntent = new Intent(ACTION_DOWNLOAD_SCHEDULE_PROGRESS)
-									.putExtra(EXTRA_PROGRESS, percent);
-							lbm.sendBroadcast(progressIntent);
+							progress.postValue(percent);
 						}
 					});
 			if (httpResult.inputStream == null) {
@@ -75,8 +77,21 @@ public class FosdemApi {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			lbm.sendBroadcast(new Intent(ACTION_DOWNLOAD_SCHEDULE_RESULT).putExtra(EXTRA_RESULT, result));
+			progress.postValue(100);
+			Intent resultIntent = new Intent(ACTION_DOWNLOAD_SCHEDULE_RESULT)
+					.putExtra(EXTRA_RESULT, result);
+			LocalBroadcastManager.getInstance(context).sendBroadcast(resultIntent);
 			scheduleLock.unlock();
 		}
+	}
+
+	/**
+	 * @return The current schedule download progress:
+	 * -1   : in progress, indeterminate
+	 * 0..99: progress value
+	 * 100  : download complete or inactive
+	 */
+	public static LiveData<Integer> getDownloadScheduleProgress() {
+		return progress;
 	}
 }
