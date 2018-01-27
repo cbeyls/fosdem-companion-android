@@ -2,6 +2,7 @@ package be.digitalia.fosdem.activities;
 
 import android.app.Dialog;
 import android.app.SearchManager;
+import android.arch.lifecycle.Observer;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -124,7 +125,6 @@ public class MainActivity extends BaseActivity {
 
 
 	private Toolbar toolbar;
-	ProgressBar progressBar;
 
 	// Main menu
 	Section currentSection;
@@ -138,25 +138,10 @@ public class MainActivity extends BaseActivity {
 
 	private MenuItem searchMenuItem;
 
-	private final BroadcastReceiver scheduleDownloadProgressReceiver = new BroadcastReceiver() {
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			progressBar.setIndeterminate(false);
-			progressBar.setProgress(intent.getIntExtra(FosdemApi.EXTRA_PROGRESS, 0));
-		}
-	};
-
 	private final BroadcastReceiver scheduleDownloadResultReceiver = new BroadcastReceiver() {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			// Hide the progress bar with a fill and fade out animation
-			progressBar.setIndeterminate(false);
-			progressBar.setProgress(100);
-			progressBar.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, android.R.anim.fade_out));
-			progressBar.setVisibility(View.GONE);
-
 			int result = intent.getIntExtra(FosdemApi.EXTRA_RESULT, FosdemApi.RESULT_ERROR);
 			String message;
 			switch (result) {
@@ -212,7 +197,37 @@ public class MainActivity extends BaseActivity {
 		toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
-		progressBar = findViewById(R.id.progress);
+		// Progress bar setup
+		final ProgressBar progressBar = findViewById(R.id.progress);
+		FosdemApi.getDownloadScheduleProgress().observe(this, new Observer<Integer>() {
+
+			@Override
+			public void onChanged(Integer progressInteger) {
+				int progress = progressInteger;
+				if (progress != 100) {
+					// Visible
+					if (progressBar.getVisibility() == View.GONE) {
+						progressBar.clearAnimation();
+						progressBar.setVisibility(View.VISIBLE);
+					}
+					if (progress == -1) {
+						progressBar.setIndeterminate(true);
+					} else {
+						progressBar.setIndeterminate(false);
+						progressBar.setProgress(progress);
+					}
+				} else {
+					// Invisible
+					if (progressBar.getVisibility() == View.VISIBLE) {
+						// Hide the progress bar with a fill and fade out animation
+						progressBar.setIndeterminate(false);
+						progressBar.setProgress(100);
+						progressBar.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, android.R.anim.fade_out));
+						progressBar.setVisibility(View.GONE);
+					}
+				}
+			}
+		});
 
 		// Setup drawer layout
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -350,13 +365,9 @@ public class MainActivity extends BaseActivity {
 	protected void onStart() {
 		super.onStart();
 
-		// Ensure the progress bar is hidden when starting
-		progressBar.setVisibility(View.GONE);
-
-		// Monitor the schedule download
-		LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
-		lbm.registerReceiver(scheduleDownloadProgressReceiver, new IntentFilter(FosdemApi.ACTION_DOWNLOAD_SCHEDULE_PROGRESS));
-		lbm.registerReceiver(scheduleDownloadResultReceiver, new IntentFilter(FosdemApi.ACTION_DOWNLOAD_SCHEDULE_RESULT));
+		// Monitor the schedule download result
+		LocalBroadcastManager.getInstance(this).registerReceiver(scheduleDownloadResultReceiver,
+				new IntentFilter(FosdemApi.ACTION_DOWNLOAD_SCHEDULE_RESULT));
 
 		// Download reminder
 		long now = System.currentTimeMillis();
@@ -383,9 +394,7 @@ public class MainActivity extends BaseActivity {
 			searchMenuItem.collapseActionView();
 		}
 
-		LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
-		lbm.unregisterReceiver(scheduleDownloadProgressReceiver);
-		lbm.unregisterReceiver(scheduleDownloadResultReceiver);
+		LocalBroadcastManager.getInstance(this).unregisterReceiver(scheduleDownloadResultReceiver);
 
 		super.onStop();
 	}
@@ -432,10 +441,6 @@ public class MainActivity extends BaseActivity {
 	}
 
 	public void startDownloadSchedule() {
-		// Start by displaying indeterminate progress, determinate will come later
-		progressBar.clearAnimation();
-		progressBar.setIndeterminate(true);
-		progressBar.setVisibility(View.VISIBLE);
 		new DownloadScheduleAsyncTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 

@@ -2,22 +2,21 @@ package be.digitalia.fosdem.fragments;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Animatable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.Loader;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -38,19 +37,16 @@ import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.List;
 
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.PersonInfoActivity;
-import be.digitalia.fosdem.db.DatabaseManager;
-import be.digitalia.fosdem.loaders.BookmarkStatusLoader;
-import be.digitalia.fosdem.loaders.LocalCacheLoader;
 import be.digitalia.fosdem.model.Building;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Link;
 import be.digitalia.fosdem.model.Person;
 import be.digitalia.fosdem.utils.DateUtils;
 import be.digitalia.fosdem.utils.StringUtils;
+import be.digitalia.fosdem.viewmodels.EventDetailsViewModel;
 
 public class EventDetailsFragment extends Fragment {
 
@@ -62,11 +58,6 @@ public class EventDetailsFragment extends Fragment {
 		ImageView getActionButton();
 	}
 
-	static class EventDetails {
-		List<Person> persons;
-		List<Link> links;
-	}
-
 	static class ViewHolder {
 		LayoutInflater inflater;
 		TextView personsTextView;
@@ -74,15 +65,12 @@ public class EventDetailsFragment extends Fragment {
 		ViewGroup linksContainer;
 	}
 
-	private static final int BOOKMARK_STATUS_LOADER_ID = 1;
-	private static final int EVENT_DETAILS_LOADER_ID = 2;
-
 	private static final String ARG_EVENT = "event";
 
 	Event event;
 	int personsCount = 1;
-	Boolean isBookmarked;
 	ViewHolder holder;
+	EventDetailsViewModel viewModel;
 
 	private MenuItem bookmarkMenuItem;
 	private ImageView actionButton;
@@ -99,6 +87,8 @@ public class EventDetailsFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		event = getArguments().getParcelable(ARG_EVENT);
+		viewModel = ViewModelProviders.of(this).get(EventDetailsViewModel.class);
+		viewModel.setEvent(event);
 	}
 
 	public Event getEvent() {
@@ -212,18 +202,25 @@ public class EventDetailsFragment extends Fragment {
 		// Ensure the actionButton is initialized before creating the options menu
 		setHasOptionsMenu(true);
 
-		LoaderManager loaderManager = getLoaderManager();
-		loaderManager.initLoader(BOOKMARK_STATUS_LOADER_ID, null, bookmarkStatusLoaderCallbacks);
-		loaderManager.initLoader(EVENT_DETAILS_LOADER_ID, null, eventDetailsLoaderCallbacks);
+		viewModel.getBookmarkStatus().observe(this, new Observer<Boolean>() {
+			@Override
+			public void onChanged(@Nullable Boolean isBookmarked) {
+				updateBookmarkMenuItem(isBookmarked, true);
+			}
+		});
+		viewModel.getEventDetails().observe(this, new Observer<EventDetailsViewModel.EventDetails>() {
+			@Override
+			public void onChanged(@Nullable EventDetailsViewModel.EventDetails eventDetails) {
+				setEventDetails(eventDetails);
+			}
+		});
 	}
 
 	private final View.OnClickListener actionButtonClickListener = new View.OnClickListener() {
 
 		@Override
 		public void onClick(View view) {
-			if (isBookmarked != null) {
-				new UpdateBookmarkAsyncTask(event).execute(isBookmarked);
-			}
+			viewModel.toggleBookmarkStatus();
 		}
 	};
 
@@ -246,7 +243,7 @@ public class EventDetailsFragment extends Fragment {
 		if (actionButton != null) {
 			bookmarkMenuItem.setEnabled(false).setVisible(false);
 		}
-		updateBookmarkMenuItem(false);
+		updateBookmarkMenuItem(viewModel.getBookmarkStatus().getValue(), false);
 	}
 
 	private Intent getShareChooserIntent() {
@@ -258,7 +255,7 @@ public class EventDetailsFragment extends Fragment {
 				.createChooserIntent();
 	}
 
-	void updateBookmarkMenuItem(boolean animate) {
+	void updateBookmarkMenuItem(Boolean isBookmarked, boolean animate) {
 		if (actionButton != null) {
 			// Action Button is used as bookmark button
 
@@ -317,34 +314,13 @@ public class EventDetailsFragment extends Fragment {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.bookmark:
-				if (isBookmarked != null) {
-					new UpdateBookmarkAsyncTask(event).execute(isBookmarked);
-				}
+				viewModel.toggleBookmarkStatus();
 				return true;
 			case R.id.add_to_agenda:
 				addToAgenda();
 				return true;
 		}
 		return false;
-	}
-
-	private static class UpdateBookmarkAsyncTask extends AsyncTask<Boolean, Void, Void> {
-
-		private final Event event;
-
-		public UpdateBookmarkAsyncTask(Event event) {
-			this.event = event;
-		}
-
-		@Override
-		protected Void doInBackground(Boolean... remove) {
-			if (remove[0]) {
-				DatabaseManager.getInstance().removeBookmark(event);
-			} else {
-				DatabaseManager.getInstance().addBookmark(event);
-			}
-			return null;
-		}
 	}
 
 	@SuppressLint("InlinedApi")
@@ -379,97 +355,45 @@ public class EventDetailsFragment extends Fragment {
 		}
 	}
 
-	private final LoaderCallbacks<Boolean> bookmarkStatusLoaderCallbacks = new LoaderCallbacks<Boolean>() {
-
-		@Override
-		public Loader<Boolean> onCreateLoader(int id, Bundle args) {
-			return new BookmarkStatusLoader(getActivity(), event);
-		}
-
-		@Override
-		public void onLoadFinished(Loader<Boolean> loader, Boolean data) {
-			if (isBookmarked != data) {
-				isBookmarked = data;
-				updateBookmarkMenuItem(true);
+	void setEventDetails(@NonNull EventDetailsViewModel.EventDetails data) {
+		// 1. Persons
+		if (data.persons != null) {
+			personsCount = data.persons.size();
+			if (personsCount > 0) {
+				// Build a list of clickable persons
+				SpannableStringBuilder sb = new SpannableStringBuilder();
+				int length = 0;
+				for (Person person : data.persons) {
+					if (length != 0) {
+						sb.append(", ");
+					}
+					String name = person.getName();
+					sb.append(name);
+					length = sb.length();
+					sb.setSpan(new PersonClickableSpan(person), length - name.length(), length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				}
+				holder.personsTextView.setText(sb);
+				holder.personsTextView.setVisibility(View.VISIBLE);
 			}
 		}
 
-		@Override
-		public void onLoaderReset(Loader<Boolean> loader) {
-		}
-	};
-
-	private static class EventDetailsLoader extends LocalCacheLoader<EventDetails> {
-
-		private final Event event;
-
-		public EventDetailsLoader(Context context, Event event) {
-			super(context);
-			this.event = event;
-		}
-
-		@Override
-		public EventDetails loadInBackground() {
-			EventDetails result = new EventDetails();
-			DatabaseManager dbm = DatabaseManager.getInstance();
-			result.persons = dbm.getPersons(event);
-			result.links = dbm.getLinks(event);
-			return result;
+		// 2. Links
+		holder.linksContainer.removeAllViews();
+		if ((data.links != null) && (data.links.size() > 0)) {
+			holder.linksHeader.setVisibility(View.VISIBLE);
+			holder.linksContainer.setVisibility(View.VISIBLE);
+			for (Link link : data.links) {
+				View view = holder.inflater.inflate(R.layout.item_link, holder.linksContainer, false);
+				TextView tv = view.findViewById(R.id.description);
+				tv.setText(link.getDescription());
+				view.setOnClickListener(new LinkClickListener(link));
+				holder.linksContainer.addView(view);
+			}
+		} else {
+			holder.linksHeader.setVisibility(View.GONE);
+			holder.linksContainer.setVisibility(View.GONE);
 		}
 	}
-
-	private final LoaderCallbacks<EventDetails> eventDetailsLoaderCallbacks = new LoaderCallbacks<EventDetails>() {
-
-		@Override
-		public Loader<EventDetails> onCreateLoader(int id, Bundle args) {
-			return new EventDetailsLoader(getActivity(), event);
-		}
-
-		@Override
-		public void onLoadFinished(Loader<EventDetails> loader, EventDetails data) {
-			// 1. Persons
-			if (data.persons != null) {
-				personsCount = data.persons.size();
-				if (personsCount > 0) {
-					// Build a list of clickable persons
-					SpannableStringBuilder sb = new SpannableStringBuilder();
-					int length = 0;
-					for (Person person : data.persons) {
-						if (length != 0) {
-							sb.append(", ");
-						}
-						String name = person.getName();
-						sb.append(name);
-						length = sb.length();
-						sb.setSpan(new PersonClickableSpan(person), length - name.length(), length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-					}
-					holder.personsTextView.setText(sb);
-					holder.personsTextView.setVisibility(View.VISIBLE);
-				}
-			}
-
-			// 2. Links
-			holder.linksContainer.removeAllViews();
-			if ((data.links != null) && (data.links.size() > 0)) {
-				holder.linksHeader.setVisibility(View.VISIBLE);
-				holder.linksContainer.setVisibility(View.VISIBLE);
-				for (Link link : data.links) {
-					View view = holder.inflater.inflate(R.layout.item_link, holder.linksContainer, false);
-					TextView tv = view.findViewById(R.id.description);
-					tv.setText(link.getDescription());
-					view.setOnClickListener(new LinkClickListener(link));
-					holder.linksContainer.addView(view);
-				}
-			} else {
-				holder.linksHeader.setVisibility(View.GONE);
-				holder.linksContainer.setVisibility(View.GONE);
-			}
-		}
-
-		@Override
-		public void onLoaderReset(Loader<EventDetails> loader) {
-		}
-	};
 
 	private static class PersonClickableSpan extends ClickableSpan {
 
