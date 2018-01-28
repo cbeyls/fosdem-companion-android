@@ -4,10 +4,10 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.MainThread;
 import android.support.annotation.WorkerThread;
 import android.support.v4.content.LocalBroadcastManager;
 
-import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -17,7 +17,6 @@ import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.RoomStatus;
 import be.digitalia.fosdem.parsers.EventsParser;
-import be.digitalia.fosdem.parsers.RoomStatusesParser;
 import be.digitalia.fosdem.utils.HttpUtils;
 
 /**
@@ -36,6 +35,7 @@ public class FosdemApi {
 
 	private static final Lock scheduleLock = new ReentrantLock();
 	private static final MutableLiveData<Integer> progress = new MutableLiveData<>();
+	private static LiveData<Map<String, RoomStatus>> roomStatuses;
 
 	/**
 	 * Download & store the schedule to the database.
@@ -99,12 +99,13 @@ public class FosdemApi {
 		return progress;
 	}
 
-	public static Map<String, RoomStatus> getRoomStatuses() throws Exception {
-		InputStream is = HttpUtils.get(FosdemUrls.getRooms());
-		try {
-			return new RoomStatusesParser().parse(is);
-		} finally {
-			is.close();
+	@MainThread
+	public static LiveData<Map<String, RoomStatus>> getRoomStatuses() {
+		if (roomStatuses == null) {
+			// The room statuses will only be loaded when the event is live.
+			// RoomStatusesLiveData uses the days from the database to determine it.
+			roomStatuses = new RoomStatusesLiveData(DatabaseManager.getInstance().getDays());
 		}
+		return roomStatuses;
 	}
 }
