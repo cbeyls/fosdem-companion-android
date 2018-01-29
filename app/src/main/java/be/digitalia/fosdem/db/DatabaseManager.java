@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
@@ -75,18 +76,6 @@ public class DatabaseManager {
 	private DatabaseManager(Context context) {
 		this.context = context;
 		helper = new DatabaseHelper(context);
-	}
-
-	private static final String[] COUNT_PROJECTION = new String[]{"count(*)"};
-
-	private static long queryNumEntries(SQLiteDatabase db, String table, String selection, String[] selectionArgs) {
-		Cursor cursor = db.query(table, COUNT_PROJECTION, selection, selectionArgs, null, null, null);
-		try {
-			cursor.moveToFirst();
-			return cursor.getLong(0);
-		} finally {
-			cursor.close();
-		}
 	}
 
 	private static final String TRACK_INSERT_STATEMENT = "INSERT INTO " + DatabaseHelper.TRACKS_TABLE_NAME + " (id, name, type) VALUES (?, ?, ?);";
@@ -363,15 +352,9 @@ public class DatabaseManager {
 			}
 		} else {
 			// Perform a quick DB query to retrieve the time of the first day
-			Cursor cursor = helper.getReadableDatabase().query(DatabaseHelper.DAYS_TABLE_NAME, new String[]{"date"}, null, null, null, null,
-					"_index ASC LIMIT 1");
-			try {
-				if (cursor.moveToFirst()) {
-					cal.setTimeInMillis(cursor.getLong(0));
-				}
-			} finally {
-				cursor.close();
-			}
+			long date = DatabaseUtils.longForQuery(helper.getReadableDatabase(),
+					"SELECT date FROM " + DatabaseHelper.DAYS_TABLE_NAME + " ORDER BY _index ASC LIMIT 1", null);
+			cal.setTimeInMillis(date);
 		}
 
 		// If the calendar has not been set at this point, it will simply return the current year
@@ -407,7 +390,7 @@ public class DatabaseManager {
 
 	@WorkerThread
 	public long getEventsCount() {
-		return queryNumEntries(helper.getReadableDatabase(), DatabaseHelper.EVENTS_TABLE_NAME, null, null);
+		return DatabaseUtils.queryNumEntries(helper.getReadableDatabase(), DatabaseHelper.EVENTS_TABLE_NAME, null, null);
 	}
 
 	/**
@@ -814,7 +797,7 @@ public class DatabaseManager {
 	@WorkerThread
 	public boolean isBookmarked(Event event) {
 		String[] selectionArgs = new String[]{String.valueOf(event.getId())};
-		return queryNumEntries(helper.getReadableDatabase(), DatabaseHelper.BOOKMARKS_TABLE_NAME, "event_id = ?", selectionArgs) > 0L;
+		return DatabaseUtils.queryNumEntries(helper.getReadableDatabase(), DatabaseHelper.BOOKMARKS_TABLE_NAME, "event_id = ?", selectionArgs) > 0L;
 	}
 
 	@WorkerThread
