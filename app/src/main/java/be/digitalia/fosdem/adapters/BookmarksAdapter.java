@@ -1,5 +1,6 @@
 package be.digitalia.fosdem.adapters;
 
+import android.arch.lifecycle.LifecycleOwner;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Typeface;
@@ -23,6 +24,7 @@ import java.util.Date;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.model.Event;
+import be.digitalia.fosdem.model.RoomStatus;
 import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.widgets.MultiChoiceHelper;
 
@@ -32,8 +34,8 @@ public class BookmarksAdapter extends EventsAdapter {
 	private final int errorColor;
 	final MultiChoiceHelper multiChoiceHelper;
 
-	public BookmarksAdapter(AppCompatActivity activity) {
-		super(activity);
+	public BookmarksAdapter(AppCompatActivity activity, LifecycleOwner owner) {
+		super(activity, owner);
 		errorColor = ContextCompat.getColor(activity, R.color.error_material);
 		multiChoiceHelper = new MultiChoiceHelper(activity, this);
 		multiChoiceHelper.setMultiChoiceModeListener(new MultiChoiceHelper.MultiChoiceModeListener() {
@@ -96,6 +98,7 @@ public class BookmarksAdapter extends EventsAdapter {
 		Context context = holder.itemView.getContext();
 		Event event = DatabaseManager.toEvent(cursor, holder.event);
 		holder.event = event;
+		holder.isOverlapping = isOverlapping(cursor, event.getStartTime(), event.getEndTime());
 
 		holder.title.setText(event.getTitle());
 		String personsSummary = event.getPersonsSummary();
@@ -103,31 +106,47 @@ public class BookmarksAdapter extends EventsAdapter {
 		holder.persons.setVisibility(TextUtils.isEmpty(personsSummary) ? View.GONE : View.VISIBLE);
 		Track track = event.getTrack();
 		holder.trackName.setText(track.getName());
-		holder.trackName.setTextColor(ContextCompat.getColor(holder.trackName.getContext(), track.getType().getColorResId()));
+		holder.trackName.setTextColor(ContextCompat.getColor(context, track.getType().getColorResId()));
 		holder.trackName.setContentDescription(context.getString(R.string.track_content_description, track.getName()));
 
+		bindDetails(holder, event);
+
+		// Enable MultiChoice selection and update checked state
+		holder.bind(multiChoiceHelper, position);
+	}
+
+	@Override
+	protected void bindDetails(ViewHolder holder, Event event) {
+		Context context = holder.details.getContext();
 		Date startTime = event.getStartTime();
 		Date endTime = event.getEndTime();
 		String startTimeString = (startTime != null) ? timeDateFormat.format(startTime) : "?";
 		String endTimeString = (endTime != null) ? timeDateFormat.format(endTime) : "?";
-		String details = String.format("%1$s, %2$s ― %3$s  |  %4$s", event.getDay().getShortName(), startTimeString, endTimeString, event.getRoomName());
+		String roomName = event.getRoomName();
+		String details = String.format("%1$s, %2$s ― %3$s  |  %4$s", event.getDay().getShortName(), startTimeString, endTimeString, roomName);
+		SpannableString detailsSpannable = new SpannableString(details);
 		String detailsContentDescription = details;
 
 		// Highlight the date and time with error color in case of conflicting schedules
-		if (isOverlapping(cursor, startTime, endTime)) {
-			SpannableString detailsSpannable = new SpannableString(details);
+		if (holder.isOverlapping) {
 			int endPosition = details.indexOf(" | ");
 			detailsSpannable.setSpan(new ForegroundColorSpan(errorColor), 0, endPosition, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 			detailsSpannable.setSpan(new StyleSpan(Typeface.BOLD), 0, endPosition, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 			holder.details.setText(detailsSpannable);
 			detailsContentDescription = context.getString(R.string.bookmark_conflict_content_description, detailsContentDescription);
-		} else {
-			holder.details.setText(details);
 		}
+		if (roomStatuses != null) {
+			RoomStatus roomStatus = roomStatuses.get(roomName);
+			if (roomStatus != null) {
+				int color = ContextCompat.getColor(context, roomStatus.getColorResId());
+				detailsSpannable.setSpan(new ForegroundColorSpan(color),
+						details.length() - roomName.length(),
+						details.length(),
+						Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+			}
+		}
+		holder.details.setText(detailsSpannable);
 		holder.details.setContentDescription(context.getString(R.string.details_content_description, detailsContentDescription));
-
-		// Enable MultiChoice selection and update checked state
-		holder.bind(multiChoiceHelper, position);
 	}
 
 	/**

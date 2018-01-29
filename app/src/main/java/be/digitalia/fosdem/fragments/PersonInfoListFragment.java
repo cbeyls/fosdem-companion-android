@@ -46,7 +46,7 @@ public class PersonInfoListFragment extends RecyclerViewFragment implements Load
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		adapter = new EventsAdapter(getActivity());
+		adapter = new EventsAdapter(getActivity(), this);
 		person = getArguments().getParcelable(ARG_PERSON);
 		setHasOptionsMenu(true);
 	}

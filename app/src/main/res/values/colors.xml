@@ -13,6 +13,7 @@
     <color name="error_material">#dd2c00</color>
     <color name="shortcut_background">#F5F5F5</color>
 
+    <!-- Track types -->
     <color name="track_type_keynote">@color/color_primary</color>
     <color name="track_type_keynote_dark">@color/color_primary_dark</color>
     <color name="track_type_main">#d32f2f</color>
@@ -25,5 +26,10 @@
     <color name="track_type_certification_exam_dark">#5d4037</color>
     <color name="track_type_other">#757575</color>
     <color name="track_type_other_dark">#616161</color>
+
+    <!-- Room statuses -->
+    <color name="room_status_open">#388e3c</color>
+    <color name="room_status_full">#d32f2f</color>
+    <color name="room_status_emergency_evacuation">#d32f2f</color>
 
 </resources>

@@ -37,13 +37,16 @@ import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.Map;
 
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.PersonInfoActivity;
+import be.digitalia.fosdem.api.FosdemApi;
 import be.digitalia.fosdem.model.Building;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Link;
 import be.digitalia.fosdem.model.Person;
+import be.digitalia.fosdem.model.RoomStatus;
 import be.digitalia.fosdem.utils.DateUtils;
 import be.digitalia.fosdem.utils.StringUtils;
 import be.digitalia.fosdem.viewmodels.EventDetailsViewModel;
@@ -61,6 +64,7 @@ public class EventDetailsFragment extends Fragment {
 	static class ViewHolder {
 		LayoutInflater inflater;
 		TextView personsTextView;
+		TextView roomStatus;
 		View linksHeader;
 		ViewGroup linksContainer;
 	}
@@ -164,6 +168,8 @@ public class EventDetailsFragment extends Fragment {
 		textView.setText(roomText);
 		textView.setContentDescription(getString(R.string.room_content_description, roomText));
 
+		holder.roomStatus = view.findViewById(R.id.room_status);
+
 
 		textView = view.findViewById(R.id.abstract_text);
 		text = event.getAbstractText();
@@ -212,6 +218,20 @@ public class EventDetailsFragment extends Fragment {
 			@Override
 			public void onChanged(@Nullable EventDetailsViewModel.EventDetails eventDetails) {
 				setEventDetails(eventDetails);
+			}
+		});
+
+		// Live room status
+		FosdemApi.getRoomStatuses().observe(this, new Observer<Map<String, RoomStatus>>() {
+			@Override
+			public void onChanged(Map<String, RoomStatus> roomStatuses) {
+				RoomStatus roomStatus = roomStatuses.get(event.getRoomName());
+				if (roomStatus == null) {
+					holder.roomStatus.setText(null);
+				} else {
+					holder.roomStatus.setText(roomStatus.getNameResId());
+					holder.roomStatus.setTextColor(ContextCompat.getColor(getContext(), roomStatus.getColorResId()));
+				}
 			}
 		});
 	}

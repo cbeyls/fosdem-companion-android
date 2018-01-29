@@ -52,6 +52,11 @@
     <string name="lightning_talk">Lightning talk</string>
     <string name="certification_exam">Certification Exam</string>
 
+    <!-- Room statuses -->
+    <string name="room_status_open">Open</string>
+    <string name="room_status_full">Full</string>
+    <string name="room_status_emergency_evacuation">Emergency evacuation</string>
+
     <!-- Search -->
     <string name="search_events">Search events</string>
     <string name="search_settings_description">Events</string>

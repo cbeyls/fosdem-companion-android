@@ -41,7 +41,7 @@ public class RoomImageDialogFragment extends DialogFragment {
 		View contentView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_room_image, null);
 		((ImageView) contentView.findViewById(R.id.room_image)).setImageResource(args.getInt(ARG_ROOM_IMAGE_RESOURCE_ID));
 		Toolbar toolbar = contentView.findViewById(R.id.toolbar);
-		RoomImageDialogActivity.configureToolbar(getActivity(), toolbar, args.getString(ARG_ROOM_NAME));
+		RoomImageDialogActivity.configureToolbar(this, toolbar, args.getString(ARG_ROOM_NAME));
 
 		Dialog dialog = new AlertDialog.Builder(getActivity())
 				.setView(contentView)

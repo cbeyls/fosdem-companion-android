@@ -44,7 +44,7 @@ public class BookmarksListFragment extends RecyclerViewFragment implements Loade
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		adapter = new BookmarksAdapter((AppCompatActivity) getActivity());
+		adapter = new BookmarksAdapter((AppCompatActivity) getActivity(), this);
 		if (savedInstanceState != null) {
 			adapter.onRestoreInstanceState(savedInstanceState.getParcelable(STATE_ADAPTER));
 		}

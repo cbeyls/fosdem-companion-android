@@ -76,6 +76,16 @@
                 android:saveEnabled="false"
                 tools:text="Janson (Building J)"/>
 
+            <TextView
+                android:id="@+id/room_status"
+                style="@style/TextAppearance.AppCompat.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="26dp"
+                android:paddingStart="26dp"
+                android:saveEnabled="false"
+                tools:text="Open"/>
+
         </LinearLayout>
 
         <TextView

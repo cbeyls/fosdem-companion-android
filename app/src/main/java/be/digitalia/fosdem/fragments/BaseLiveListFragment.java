@@ -20,7 +20,7 @@ public abstract class BaseLiveListFragment extends RecyclerViewFragment implemen
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		adapter = new EventsAdapter(getActivity(), false);
+		adapter = new EventsAdapter(getActivity(), this, false);
 	}
 
 	@Override
