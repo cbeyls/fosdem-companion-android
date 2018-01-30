@@ -12,8 +12,8 @@ public class FosdemUrls {
 	private static final String SCHEDULE_URL = "https://fosdem.org/schedule/xml";
 	private static final String EVENT_URL_FORMAT = "https://fosdem.org/%1$d/schedule/event/%2$s/";
 	private static final String PERSON_URL_FORMAT = "https://fosdem.org/%1$d/schedule/speaker/%2$s/";
-	private static final String LOCAL_NAVIGATION_URL = "http://nav.fosdem.org/";
-	private static final String LOCAL_NAVIGATION_TO_ROOM_URL_FORMAT = "http://nav.fosdem.org/d/%1$s/";
+	private static final String LOCAL_NAVIGATION_URL = "https://nav.fosdem.org/";
+	private static final String LOCAL_NAVIGATION_TO_ROOM_URL_FORMAT = "https://nav.fosdem.org/d/%1$s/";
 	private static final String VOLUNTEER_URL = "https://fosdem.org/volunteer/";
 
 	public static String getSchedule() {
