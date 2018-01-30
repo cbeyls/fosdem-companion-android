@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <be.digitalia.fosdem.widgets.ScrimInsetsFrameLayout
-    android:id="@+id/main_menu"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_menu"
     android:layout_width="@dimen/main_menu_width"
     android:layout_height="match_parent"
     android:layout_gravity="start"
@@ -45,9 +45,9 @@
                 android:text="@string/settings"/>
 
             <TextView
-                android:id="@+id/about"
+                android:id="@+id/volunteer"
                 style="@style/MainMenuItem"
-                android:text="@string/about"/>
+                android:text="@string/volunteer"/>
 
         </LinearLayout>
 

@@ -138,6 +138,7 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 		long dayStart = day.getDate().getTime();
 		if (now < dayStart) {
 			// Before track day, schedule refresh in the future
+			adapter.setCurrentTime(-1L);
 			handler.sendEmptyMessageDelayed(REFRESH_TIME_WHAT, dayStart - now);
 		} else if (now < dayStart + android.text.format.DateUtils.DAY_IN_MILLIS) {
 			// During track day, start refresh immediately

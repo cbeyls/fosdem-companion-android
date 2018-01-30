@@ -96,6 +96,10 @@
         <item>60</item>
     </string-array>
 
+    <string name="settings_info">Info</string>
+    <string name="settings_info_about_title">About</string>
+    <string name="settings_info_version_title">Version</string>
+
     <string name="notification_events_channel_name">Upcoming event alarms</string>
 
     <!-- Track schedule -->
@@ -129,7 +133,7 @@
     <string name="directions">Directions to ULB</string>
     <string name="navigation">On-site navigation</string>
     <string name="no_data">No data available.</string>
-    <string name="about">About</string>
+    <string name="volunteer">Volunteer</string>
     <string name="about_text">Programmed by <a href="http://www.digitalia.be/">Christophe Beyls</a>.
 \n
 \nLicensed under the Apache License, version 2.0. Source available on <a href="https://github.com/cbeyls/fosdem-companion-android">GitHub</a>.
