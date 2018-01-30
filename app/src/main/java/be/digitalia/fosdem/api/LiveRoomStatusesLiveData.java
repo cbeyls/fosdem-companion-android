@@ -19,9 +19,9 @@ import be.digitalia.fosdem.utils.HttpUtils;
  */
 class LiveRoomStatusesLiveData extends AsyncTaskLiveData<Map<String, RoomStatus>> {
 
-	private static final long REFRESH_DELAY = 2 * DateUtils.MINUTE_IN_MILLIS;
-	private static final long FIRST_ERROR_REFRESH_DELAY = 30 * DateUtils.SECOND_IN_MILLIS;
-	private static final long EXPIRATION_DELAY = 10 * DateUtils.MINUTE_IN_MILLIS;
+	private static final long REFRESH_DELAY = 90L * DateUtils.SECOND_IN_MILLIS;
+	private static final long FIRST_ERROR_REFRESH_DELAY = 30L * DateUtils.SECOND_IN_MILLIS;
+	private static final long EXPIRATION_DELAY = 6L * DateUtils.MINUTE_IN_MILLIS;
 
 	private final Handler handler = new Handler(Looper.getMainLooper());
 
