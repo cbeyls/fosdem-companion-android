@@ -57,6 +57,7 @@ class RoomStatusesLiveData extends MediatorLiveData<Map<String, RoomStatus>> {
 	}
 
 	void updateStrategy() {
+		handler.removeCallbacks(updateRunnable);
 		if (days == null) {
 			return;
 		}
