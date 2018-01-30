@@ -2,7 +2,7 @@
 
 Advanced native Android schedule browser application for the [FOSDEM](http://fosdem.org/) conference in Brussels, Belgium.
 
-This is a new implementation of the [legacy FOSDEM app](https://github.com/rkallensee/fosdem-android/). The code has been rewritten from scratch and the features have been extended. It is build on top of the latest Android support libraries in order to take advantage of the latest operating system features while preserving compatibility with older versions.
+This is a new implementation of the [legacy FOSDEM app](https://github.com/rkallensee/fosdem-android/). The code has been rewritten from scratch and the features have been extended. It is built on top of the latest Android support libraries in order to take advantage of the latest operating system features while preserving compatibility with older versions.
 
 The name FOSDEM and the gear logo are registered trademarks of FOSDEM VZW. Used with permission.
 
