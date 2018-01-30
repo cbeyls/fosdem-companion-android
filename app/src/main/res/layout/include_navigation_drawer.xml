@@ -44,6 +44,11 @@
                 style="@style/MainMenuItem"
                 android:text="@string/settings"/>
 
+            <TextView
+                android:id="@+id/volunteer"
+                style="@style/MainMenuItem"
+                android:text="@string/volunteer"/>
+
         </LinearLayout>
 
     </ScrollView>

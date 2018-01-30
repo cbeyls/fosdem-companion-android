@@ -3,6 +3,7 @@ package be.digitalia.fosdem.activities;
 import android.app.Dialog;
 import android.app.SearchManager;
 import android.arch.lifecycle.Observer;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,12 +15,14 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
+import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -52,6 +55,7 @@ import android.widget.Toast;
 import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemApi;
+import be.digitalia.fosdem.api.FosdemUrls;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.fragments.BookmarksListFragment;
 import be.digitalia.fosdem.fragments.LiveFragment;
@@ -275,6 +279,7 @@ public class MainActivity extends BaseActivity {
 		menuAdapter = new MainMenuAdapter(getLayoutInflater());
 		sectionsList.setAdapter(menuAdapter);
 		mainMenu.findViewById(R.id.settings).setOnClickListener(menuFooterClickListener);
+		mainMenu.findViewById(R.id.volunteer).setOnClickListener(menuFooterClickListener);
 
 		LocalBroadcastManager.getInstance(this).registerReceiver(scheduleRefreshedReceiver, new IntentFilter(DatabaseManager.ACTION_SCHEDULE_REFRESHED));
 
@@ -563,6 +568,16 @@ public class MainActivity extends BaseActivity {
 			case R.id.settings:
 				startActivity(new Intent(MainActivity.this, SettingsActivity.class));
 				overridePendingTransition(R.anim.slide_in_right, R.anim.partial_zoom_out);
+				break;
+			case R.id.volunteer:
+				try {
+					new CustomTabsIntent.Builder()
+							.setToolbarColor(ContextCompat.getColor(this, R.color.color_primary))
+							.setShowTitle(true)
+							.build()
+							.launchUrl(this, Uri.parse(FosdemUrls.getVolunteer()));
+				} catch (ActivityNotFoundException ignore) {
+				}
 				break;
 		}
 	}
