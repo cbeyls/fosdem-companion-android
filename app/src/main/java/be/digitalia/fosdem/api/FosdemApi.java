@@ -105,6 +105,8 @@ public class FosdemApi {
 			// The room statuses will only be loaded when the event is live.
 			// RoomStatusesLiveData uses the days from the database to determine it.
 			roomStatuses = new RoomStatusesLiveData(DatabaseManager.getInstance().getDays());
+			// Implementors: replace the above live with the next one to disable room status support
+			// roomStatuses = new MutableLiveData<>();
 		}
 		return roomStatuses;
 	}
