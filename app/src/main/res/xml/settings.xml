@@ -26,4 +26,13 @@
             android:title="@string/settings_notifications_delay_title"/>
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="@string/settings_info">
+        <Preference
+            android:key="about"
+            android:title="@string/settings_info_about_title"/>
+        <Preference
+            android:key="version"
+            android:title="@string/settings_info_version_title"/>
+    </PreferenceCategory>
+
 </PreferenceScreen>

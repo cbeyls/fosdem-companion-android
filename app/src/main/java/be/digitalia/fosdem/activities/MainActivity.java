@@ -37,7 +37,6 @@ import android.support.v7.widget.Toolbar;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.format.DateUtils;
-import android.text.method.LinkMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -276,7 +275,6 @@ public class MainActivity extends BaseActivity {
 		menuAdapter = new MainMenuAdapter(getLayoutInflater());
 		sectionsList.setAdapter(menuAdapter);
 		mainMenu.findViewById(R.id.settings).setOnClickListener(menuFooterClickListener);
-		mainMenu.findViewById(R.id.about).setOnClickListener(menuFooterClickListener);
 
 		LocalBroadcastManager.getInstance(this).registerReceiver(scheduleRefreshedReceiver, new IntentFilter(DatabaseManager.ACTION_SCHEDULE_REFRESHED));
 
@@ -566,31 +564,6 @@ public class MainActivity extends BaseActivity {
 				startActivity(new Intent(MainActivity.this, SettingsActivity.class));
 				overridePendingTransition(R.anim.slide_in_right, R.anim.partial_zoom_out);
 				break;
-			case R.id.about:
-				new AboutDialogFragment().show(getSupportFragmentManager(), "about");
-				break;
-		}
-	}
-
-	public static class AboutDialogFragment extends DialogFragment {
-
-		@NonNull
-		@Override
-		public Dialog onCreateDialog(Bundle savedInstanceState) {
-			String title = String.format("%1$s %2$s", getString(R.string.app_name), BuildConfig.VERSION_NAME);
-			return new AlertDialog.Builder(getActivity())
-					.setTitle(title)
-					.setIcon(R.mipmap.ic_launcher)
-					.setMessage(getResources().getText(R.string.about_text))
-					.setPositiveButton(android.R.string.ok, null)
-					.create();
-		}
-
-		@Override
-		public void onStart() {
-			super.onStart();
-			// Make links clickable; must be called after the dialog is shown
-			((TextView) getDialog().findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
 		}
 	}
 }
