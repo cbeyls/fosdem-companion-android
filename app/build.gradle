@@ -8,7 +8,7 @@ android {
         applicationId "be.digitalia.fosdem"
         minSdkVersion 15
         targetSdkVersion 27
-        versionCode 1400150
+        versionCode 1500150
         versionName "1.5.0"
         // Supported languages
         resConfigs "en"
