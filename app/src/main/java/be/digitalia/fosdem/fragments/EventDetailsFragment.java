@@ -23,7 +23,6 @@ import android.text.SpannableStringBuilder;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.text.method.MovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -47,6 +46,7 @@ import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Link;
 import be.digitalia.fosdem.model.Person;
 import be.digitalia.fosdem.model.RoomStatus;
+import be.digitalia.fosdem.utils.ClickableArrowKeyMovementMethod;
 import be.digitalia.fosdem.utils.DateUtils;
 import be.digitalia.fosdem.utils.StringUtils;
 import be.digitalia.fosdem.viewmodels.EventDetailsViewModel;
@@ -115,8 +115,6 @@ public class EventDetailsFragment extends Fragment {
 			textView.setText(text);
 		}
 
-		MovementMethod linkMovementMethod = LinkMovementMethod.getInstance();
-
 		// Set the persons summary text first; replace it with the clickable text when the loader completes
 		holder.personsTextView = view.findViewById(R.id.persons);
 		String personsSummary = event.getPersonsSummary();
@@ -124,7 +122,7 @@ public class EventDetailsFragment extends Fragment {
 			holder.personsTextView.setVisibility(View.GONE);
 		} else {
 			holder.personsTextView.setText(personsSummary);
-			holder.personsTextView.setMovementMethod(linkMovementMethod);
+			holder.personsTextView.setMovementMethod(LinkMovementMethod.getInstance());
 			holder.personsTextView.setVisibility(View.VISIBLE);
 		}
 
@@ -163,7 +161,7 @@ public class EventDetailsFragment extends Fragment {
 					ds.setUnderlineText(false);
 				}
 			}, 0, roomText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			textView.setMovementMethod(linkMovementMethod);
+			textView.setMovementMethod(LinkMovementMethod.getInstance());
 		}
 		textView.setText(roomText);
 		textView.setContentDescription(getString(R.string.room_content_description, roomText));
@@ -177,7 +175,7 @@ public class EventDetailsFragment extends Fragment {
 			textView.setVisibility(View.GONE);
 		} else {
 			textView.setText(StringUtils.parseHtml(text, getResources()));
-			textView.setMovementMethod(linkMovementMethod);
+			textView.setMovementMethod(ClickableArrowKeyMovementMethod.getInstance());
 		}
 		textView = view.findViewById(R.id.description);
 		text = event.getDescription();
@@ -185,7 +183,7 @@ public class EventDetailsFragment extends Fragment {
 			textView.setVisibility(View.GONE);
 		} else {
 			textView.setText(StringUtils.parseHtml(text, getResources()));
-			textView.setMovementMethod(linkMovementMethod);
+			textView.setMovementMethod(ClickableArrowKeyMovementMethod.getInstance());
 		}
 
 		holder.linksHeader = view.findViewById(R.id.links_header);
