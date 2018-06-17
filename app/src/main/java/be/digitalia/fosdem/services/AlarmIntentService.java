@@ -14,7 +14,6 @@ import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
-import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.AlarmManagerCompat;
@@ -23,6 +22,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -34,8 +34,8 @@ import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.EventDetailsActivity;
 import be.digitalia.fosdem.activities.MainActivity;
 import be.digitalia.fosdem.activities.RoomImageDialogActivity;
-import be.digitalia.fosdem.activities.SettingsActivity;
 import be.digitalia.fosdem.db.DatabaseManager;
+import be.digitalia.fosdem.fragments.SettingsFragment;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.receivers.AlarmReceiver;
 import be.digitalia.fosdem.utils.StringUtils;
@@ -171,7 +171,7 @@ public class AlarmIntentService extends JobIntentService {
 
 	private long getDelay() {
 		String delayString = PreferenceManager.getDefaultSharedPreferences(this).getString(
-				SettingsActivity.KEY_PREF_NOTIFICATIONS_DELAY, "0");
+				SettingsFragment.KEY_PREF_NOTIFICATIONS_DELAY, "0");
 		// Convert from minutes to milliseconds
 		return Long.parseLong(delayString) * DateUtils.MINUTE_IN_MILLIS;
 	}
@@ -220,7 +220,7 @@ public class AlarmIntentService extends JobIntentService {
 
 		int defaultFlags = Notification.DEFAULT_SOUND;
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-		if (sharedPreferences.getBoolean(SettingsActivity.KEY_PREF_NOTIFICATIONS_VIBRATE, false)) {
+		if (sharedPreferences.getBoolean(SettingsFragment.KEY_PREF_NOTIFICATIONS_VIBRATE, false)) {
 			defaultFlags |= Notification.DEFAULT_VIBRATE;
 		}
 
@@ -265,7 +265,7 @@ public class AlarmIntentService extends JobIntentService {
 				.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 
 		// Blink the LED with FOSDEM color if enabled in the options
-		if (sharedPreferences.getBoolean(SettingsActivity.KEY_PREF_NOTIFICATIONS_LED, false)) {
+		if (sharedPreferences.getBoolean(SettingsFragment.KEY_PREF_NOTIFICATIONS_LED, false)) {
 			notificationBuilder.setLights(notificationColor, 1000, 5000);
 		}
 

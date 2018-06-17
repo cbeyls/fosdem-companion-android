@@ -8,6 +8,7 @@
         <item name="colorPrimaryDark">@color/color_primary_dark</item>
         <item name="colorAccent">@color/color_accent</item>
         <item name="alertDialogTheme">@style/AlertDialogTheme</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
         <item name="android:windowContentOverlay">@null</item>
 
         <item name="activatedBackgroundIndicator">@drawable/activated_background</item>
@@ -20,6 +21,9 @@
         <item name="android:selectableItemBackground">?attr/selectableItemBackground</item>
         <item name="android:listChoiceBackgroundIndicator">?attr/listChoiceBackgroundIndicator
         </item>
+        <!-- Material padding fix -->
+        <item name="android:listPreferredItemPaddingStart" tools:ignore="NewApi">?android:attr/listPreferredItemPaddingLeft</item>
+        <item name="android:listPreferredItemPaddingEnd" tools:ignore="NewApi">?android:attr/listPreferredItemPaddingRight</item>
     </style>
 
     <style name="AppTheme.NoActionBar">

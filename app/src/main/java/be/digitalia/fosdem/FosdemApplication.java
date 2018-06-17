@@ -1,7 +1,8 @@
 package be.digitalia.fosdem;
 
 import android.app.Application;
-import android.preference.PreferenceManager;
+import android.support.v7.preference.PreferenceManager;
+
 import be.digitalia.fosdem.alarms.FosdemAlarmManager;
 import be.digitalia.fosdem.db.DatabaseManager;
 

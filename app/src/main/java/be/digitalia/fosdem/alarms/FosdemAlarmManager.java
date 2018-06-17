@@ -6,11 +6,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.preference.PreferenceManager;
 
-import be.digitalia.fosdem.activities.SettingsActivity;
 import be.digitalia.fosdem.db.DatabaseManager;
+import be.digitalia.fosdem.fragments.SettingsFragment;
 import be.digitalia.fosdem.services.AlarmIntentService;
 
 /**
@@ -57,7 +57,7 @@ public class FosdemAlarmManager implements OnSharedPreferenceChangeListener {
 	private FosdemAlarmManager(Context context) {
 		this.context = context;
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-		isEnabled = sharedPreferences.getBoolean(SettingsActivity.KEY_PREF_NOTIFICATIONS_ENABLED, false);
+		isEnabled = sharedPreferences.getBoolean(SettingsFragment.KEY_PREF_NOTIFICATIONS_ENABLED, false);
 		if (isEnabled) {
 			registerReceivers();
 		}
@@ -70,8 +70,8 @@ public class FosdemAlarmManager implements OnSharedPreferenceChangeListener {
 
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (SettingsActivity.KEY_PREF_NOTIFICATIONS_ENABLED.equals(key)) {
-			isEnabled = sharedPreferences.getBoolean(SettingsActivity.KEY_PREF_NOTIFICATIONS_ENABLED, false);
+		if (SettingsFragment.KEY_PREF_NOTIFICATIONS_ENABLED.equals(key)) {
+			isEnabled = sharedPreferences.getBoolean(SettingsFragment.KEY_PREF_NOTIFICATIONS_ENABLED, false);
 			if (isEnabled) {
 				registerReceivers();
 				startUpdateAlarms();
@@ -79,7 +79,7 @@ public class FosdemAlarmManager implements OnSharedPreferenceChangeListener {
 				unregisterReceivers();
 				startDisableAlarms();
 			}
-		} else if (SettingsActivity.KEY_PREF_NOTIFICATIONS_DELAY.equals(key)) {
+		} else if (SettingsFragment.KEY_PREF_NOTIFICATIONS_DELAY.equals(key)) {
 			startUpdateAlarms();
 		}
 	}
