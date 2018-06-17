@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -31,7 +32,7 @@ import be.digitalia.fosdem.utils.StringUtils;
  *
  * @author Christophe Beyls
  */
-public class RoomImageDialogActivity extends BaseActivity {
+public class RoomImageDialogActivity extends AppCompatActivity {
 
 	public static final String EXTRA_ROOM_NAME = "roomName";
 	public static final String EXTRA_ROOM_IMAGE_RESOURCE_ID = "imageResId";

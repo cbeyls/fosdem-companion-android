@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -27,7 +28,7 @@ import be.digitalia.fosdem.viewmodels.EventViewModel;
  *
  * @author Christophe Beyls
  */
-public class EventDetailsActivity extends BaseActivity implements Observer<Event>, CreateNfcAppDataCallback {
+public class EventDetailsActivity extends AppCompatActivity implements Observer<Event>, CreateNfcAppDataCallback {
 
 	public static final String EXTRA_EVENT = "event";
 
