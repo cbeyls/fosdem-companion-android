@@ -3,6 +3,7 @@ package be.digitalia.fosdem.activities;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.BaseColumns;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -108,13 +109,14 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Loa
 		return true;
 	}
 
+	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		return new TrackScheduleLoader(this, day, track);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
 		setCustomProgressVisibility(false);
 
 		if (data != null) {
@@ -135,7 +137,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Loa
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 		adapter.setCursor(null);
 	}
 

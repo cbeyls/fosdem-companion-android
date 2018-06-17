@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.ContextCompat;
@@ -84,13 +85,14 @@ public class TracksListFragment extends RecyclerViewFragment implements LoaderCa
 		}
 	}
 
+	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		return new TracksLoader(getActivity(), day);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
 		if (data != null) {
 			adapter.swapCursor(data);
 		}
@@ -99,7 +101,7 @@ public class TracksListFragment extends RecyclerViewFragment implements LoaderCa
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 		adapter.swapCursor(null);
 	}
 
@@ -116,8 +118,9 @@ public class TracksListFragment extends RecyclerViewFragment implements LoaderCa
 			return DatabaseManager.toTrack((Cursor) super.getItem(position));
 		}
 
+		@NonNull
 		@Override
-		public TrackViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+		public TrackViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 			View view = inflater.inflate(R.layout.simple_list_item_2_material, parent, false);
 			return new TrackViewHolder(view);
 		}

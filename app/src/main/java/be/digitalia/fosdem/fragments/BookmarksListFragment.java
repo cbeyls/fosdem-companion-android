@@ -180,13 +180,14 @@ public class BookmarksListFragment extends RecyclerViewFragment implements Loade
 		}
 	}
 
+	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		return new BookmarksLoader(getActivity(), upcomingOnly);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
 		if (data != null) {
 			adapter.swapCursor(data);
 		}
@@ -195,7 +196,7 @@ public class BookmarksListFragment extends RecyclerViewFragment implements Loade
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 		adapter.swapCursor(null);
 	}
 }

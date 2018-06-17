@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.TextViewCompat;
@@ -72,8 +73,9 @@ public class EventsAdapter extends RecyclerViewCursorAdapter<EventsAdapter.ViewH
 		return R.layout.item_event;
 	}
 
+	@NonNull
 	@Override
-	public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+	public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 		View view = inflater.inflate(R.layout.item_event, parent, false);
 		return new ViewHolder(view);
 	}
@@ -135,7 +137,7 @@ public class EventsAdapter extends RecyclerViewCursorAdapter<EventsAdapter.ViewH
 	}
 
 	@Override
-	public void onBindViewHolder(ViewHolder holder, int position, List<Object> payloads) {
+	public void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull List<Object> payloads) {
 		if (payloads.isEmpty()) {
 			onBindViewHolder(holder, position);
 		} else {

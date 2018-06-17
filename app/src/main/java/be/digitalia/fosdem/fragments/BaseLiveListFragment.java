@@ -2,6 +2,7 @@ package be.digitalia.fosdem.fragments;
 
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
@@ -48,7 +49,7 @@ public abstract class BaseLiveListFragment extends RecyclerViewFragment implemen
 	protected abstract String getEmptyText();
 
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
 		if (data != null) {
 			adapter.swapCursor(data);
 		}
@@ -57,7 +58,7 @@ public abstract class BaseLiveListFragment extends RecyclerViewFragment implemen
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 		adapter.swapCursor(null);
 	}
 }

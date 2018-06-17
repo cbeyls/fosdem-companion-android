@@ -141,19 +141,20 @@ public class ConcatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 		return viewType;
 	}
 
+	@NonNull
 	@Override
-	public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+	public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 		return viewTypeAdapters.get(viewType).onCreateViewHolder(parent, viewType);
 	}
 
 	@Override
-	public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+	public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 		final int index = getAdapterIndexForPosition(position);
 		adapters[index].onBindViewHolder(holder, position - offsets[index]);
 	}
 
 	@Override
-	public void onBindViewHolder(RecyclerView.ViewHolder holder, int position, List<Object> payloads) {
+	public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, @NonNull List<Object> payloads) {
 		final int index = getAdapterIndexForPosition(position);
 		adapters[index].onBindViewHolder(holder, position - offsets[index], payloads);
 	}
@@ -172,7 +173,7 @@ public class ConcatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	}
 
 	@Override
-	public void registerAdapterDataObserver(RecyclerView.AdapterDataObserver observer) {
+	public void registerAdapterDataObserver(@NonNull RecyclerView.AdapterDataObserver observer) {
 		if (!hasObservers()) {
 			for (int i = 0, size = adapters.length; i < size; ++i) {
 				adapters[i].registerAdapterDataObserver(adapterObservers[i]);
@@ -182,7 +183,7 @@ public class ConcatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	}
 
 	@Override
-	public void unregisterAdapterDataObserver(RecyclerView.AdapterDataObserver observer) {
+	public void unregisterAdapterDataObserver(@NonNull RecyclerView.AdapterDataObserver observer) {
 		super.unregisterAdapterDataObserver(observer);
 		if (!hasObservers()) {
 			for (int i = 0, size = adapters.length; i < size; ++i) {
@@ -192,36 +193,36 @@ public class ConcatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 	}
 
 	@Override
-	public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+	public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
 		for (RecyclerView.Adapter<RecyclerView.ViewHolder> adapter : adapters) {
 			adapter.onAttachedToRecyclerView(recyclerView);
 		}
 	}
 
 	@Override
-	public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+	public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
 		for (RecyclerView.Adapter<RecyclerView.ViewHolder> adapter : adapters) {
 			adapter.onDetachedFromRecyclerView(recyclerView);
 		}
 	}
 
 	@Override
-	public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+	public void onViewAttachedToWindow(@NonNull RecyclerView.ViewHolder holder) {
 		viewTypeAdapters.get(holder.getItemViewType()).onViewAttachedToWindow(holder);
 	}
 
 	@Override
-	public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
+	public void onViewDetachedFromWindow(@NonNull RecyclerView.ViewHolder holder) {
 		viewTypeAdapters.get(holder.getItemViewType()).onViewDetachedFromWindow(holder);
 	}
 
 	@Override
-	public void onViewRecycled(RecyclerView.ViewHolder holder) {
+	public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
 		viewTypeAdapters.get(holder.getItemViewType()).onViewRecycled(holder);
 	}
 
 	@Override
-	public boolean onFailedToRecycleView(RecyclerView.ViewHolder holder) {
+	public boolean onFailedToRecycleView(@NonNull RecyclerView.ViewHolder holder) {
 		return viewTypeAdapters.get(holder.getItemViewType()).onFailedToRecycleView(holder);
 	}
 }

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.ContextCompat;
@@ -114,13 +115,14 @@ public class PersonInfoListFragment extends RecyclerViewFragment implements Load
 		}
 	}
 
+	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		return new PersonEventsLoader(getActivity(), person);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
 		if (data != null) {
 			adapter.swapCursor(data);
 		}
@@ -129,7 +131,7 @@ public class PersonInfoListFragment extends RecyclerViewFragment implements Load
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 		adapter.swapCursor(null);
 	}
 
@@ -145,14 +147,15 @@ public class PersonInfoListFragment extends RecyclerViewFragment implements Load
 			return R.layout.header_person_info;
 		}
 
+		@NonNull
 		@Override
-		public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+		public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 			View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.header_person_info, null);
 			return new ViewHolder(view);
 		}
 
 		@Override
-		public void onBindViewHolder(ViewHolder holder, int position) {
+		public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 			// Nothing to bind
 		}
 

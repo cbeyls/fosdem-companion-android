@@ -1,6 +1,7 @@
 package be.digitalia.fosdem.adapters;
 
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 
 /**
@@ -64,7 +65,7 @@ public abstract class RecyclerViewCursorAdapter<VH extends RecyclerView.ViewHold
 	}
 
 	@Override
-	public void onBindViewHolder(VH holder, int position) {
+	public void onBindViewHolder(@NonNull VH holder, int position) {
 		if (cursor == null) {
 			throw new IllegalStateException("this should only be called when the cursor is not null");
 		}

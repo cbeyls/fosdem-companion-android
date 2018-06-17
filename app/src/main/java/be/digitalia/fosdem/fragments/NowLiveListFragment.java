@@ -6,6 +6,7 @@ import be.digitalia.fosdem.loaders.BaseLiveLoader;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.content.Loader;
 
 public class NowLiveListFragment extends BaseLiveListFragment {
@@ -15,6 +16,7 @@ public class NowLiveListFragment extends BaseLiveListFragment {
 		return getString(R.string.now_empty);
 	}
 
+	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		return new NowLiveLoader(getActivity());

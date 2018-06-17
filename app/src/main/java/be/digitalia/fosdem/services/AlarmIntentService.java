@@ -15,6 +15,7 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.AlarmManagerCompat;
 import android.support.v4.app.JobIntentService;
@@ -79,7 +80,7 @@ public class AlarmIntentService extends JobIntentService {
 	}
 
 	@Override
-	protected void onHandleWork(Intent intent) {
+	protected void onHandleWork(@NonNull Intent intent) {
 		switch (intent.getAction()) {
 
 			case ACTION_UPDATE_ALARMS: {

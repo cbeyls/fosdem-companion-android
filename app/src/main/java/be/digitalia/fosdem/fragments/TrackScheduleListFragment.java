@@ -167,6 +167,7 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 		return false;
 	}
 
+	@NonNull
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		Track track = getArguments().getParcelable(ARG_TRACK);
@@ -174,7 +175,7 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
 		if (data != null) {
 			adapter.swapCursor(data);
 
@@ -229,7 +230,7 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 		adapter.swapCursor(null);
 	}
 
