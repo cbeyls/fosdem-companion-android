@@ -12,7 +12,6 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 import be.digitalia.fosdem.R;
@@ -102,31 +101,27 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				// Navigate up to the track associated with this event
-				Intent upIntent = new Intent(this, TrackScheduleActivity.class);
-				upIntent.putExtra(TrackScheduleActivity.EXTRA_DAY, event.getDay());
-				upIntent.putExtra(TrackScheduleActivity.EXTRA_TRACK, event.getTrack());
-				upIntent.putExtra(TrackScheduleActivity.EXTRA_FROM_EVENT_ID, event.getId());
+	public boolean onSupportNavigateUp() {
+		// Navigate up to the track associated with this event
+		Intent upIntent = new Intent(this, TrackScheduleActivity.class);
+		upIntent.putExtra(TrackScheduleActivity.EXTRA_DAY, event.getDay());
+		upIntent.putExtra(TrackScheduleActivity.EXTRA_TRACK, event.getTrack());
+		upIntent.putExtra(TrackScheduleActivity.EXTRA_FROM_EVENT_ID, event.getId());
 
-				if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
-					TaskStackBuilder.create(this)
-							.addNextIntentWithParentStack(upIntent)
-							.startActivities();
-					finish();
-				} else {
-					// Replicate the compatibility implementation of NavUtils.navigateUpTo()
-					// to ensure the parent Activity is always launched
-					// even if not present on the back stack.
-					upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-					startActivity(upIntent);
-					finish();
-				}
-				return true;
+		if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
+			TaskStackBuilder.create(this)
+					.addNextIntentWithParentStack(upIntent)
+					.startActivities();
+			finish();
+		} else {
+			// Replicate the compatibility implementation of NavUtils.navigateUpTo()
+			// to ensure the parent Activity is always launched
+			// even if not present on the back stack.
+			upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(upIntent);
+			finish();
 		}
-		return false;
+		return true;
 	}
 
 	@Override

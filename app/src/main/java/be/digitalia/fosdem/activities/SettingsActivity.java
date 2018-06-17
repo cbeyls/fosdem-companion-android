@@ -2,7 +2,6 @@ package be.digitalia.fosdem.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MenuItem;
 
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.SettingsFragment;
@@ -24,13 +23,9 @@ public class SettingsActivity extends AppCompatActivity {
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				onBackPressed();
-				return true;
-		}
-		return false;
+	public boolean onSupportNavigateUp() {
+		onBackPressed();
+		return true;
 	}
 
 	@Override
