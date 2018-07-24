@@ -8,8 +8,10 @@
               android:minHeight="?attr/listPreferredItemHeight"
               android:orientation="vertical"
               android:paddingBottom="@dimen/list_item_padding"
+              android:paddingEnd="?attr/listPreferredItemPaddingRight"
               android:paddingLeft="?attr/listPreferredItemPaddingLeft"
               android:paddingRight="?attr/listPreferredItemPaddingRight"
+              android:paddingStart="?attr/listPreferredItemPaddingLeft"
               android:paddingTop="@dimen/list_item_padding">
 
     <TextView
