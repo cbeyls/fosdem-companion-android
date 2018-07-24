@@ -120,6 +120,7 @@ public class EventsAdapter extends RecyclerViewCursorAdapter<EventsAdapter.ViewH
 		} else {
 			details = String.format("%1$s ― %2$s  |  %3$s", startTimeString, endTimeString, roomName);
 		}
+		CharSequence detailsDescription = details;
 		if (roomStatuses != null) {
 			RoomStatus roomStatus = roomStatuses.get(roomName);
 			if (roomStatus != null) {
@@ -130,10 +131,12 @@ public class EventsAdapter extends RecyclerViewCursorAdapter<EventsAdapter.ViewH
 						details.length(),
 						Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 				details = detailsSpannable;
+
+				detailsDescription = String.format("%1$s (%2$s)", detailsDescription, context.getString(roomStatus.getNameResId()));
 			}
 		}
 		holder.details.setText(details);
-		holder.details.setContentDescription(context.getString(R.string.details_content_description, details));
+		holder.details.setContentDescription(context.getString(R.string.details_content_description, detailsDescription));
 	}
 
 	@Override
