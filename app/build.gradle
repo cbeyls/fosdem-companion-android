@@ -24,16 +24,14 @@ android {
     }
 }
 
-ext {
-    supportLibraryVersion = '27.1.1'
-}
-
 dependencies {
+    def supportLibraryVersion = '27.1.1'
+
     implementation "com.android.support:appcompat-v7:$supportLibraryVersion"
     implementation "com.android.support:recyclerview-v7:$supportLibraryVersion"
     implementation "com.android.support:cardview-v7:$supportLibraryVersion"
     implementation "com.android.support:preference-v7:$supportLibraryVersion"
     implementation "com.android.support:customtabs:$supportLibraryVersion"
-    implementation 'android.arch.lifecycle:extensions:1.1.0'
-    implementation 'com.github.chrisbanes:PhotoView:2.1.3'
+    implementation 'android.arch.lifecycle:extensions:1.1.1'
+    implementation 'com.github.chrisbanes:PhotoView:2.1.4'
 }
