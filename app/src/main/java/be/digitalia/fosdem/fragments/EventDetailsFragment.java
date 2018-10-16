@@ -206,13 +206,13 @@ public class EventDetailsFragment extends Fragment {
 		// Ensure the actionButton is initialized before creating the options menu
 		setHasOptionsMenu(true);
 
-		viewModel.getBookmarkStatus().observe(this, new Observer<Boolean>() {
+		viewModel.getBookmarkStatus().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
 			@Override
 			public void onChanged(@Nullable Boolean isBookmarked) {
 				updateBookmarkMenuItem(isBookmarked, true);
 			}
 		});
-		viewModel.getEventDetails().observe(this, new Observer<EventDetailsViewModel.EventDetails>() {
+		viewModel.getEventDetails().observe(getViewLifecycleOwner(), new Observer<EventDetailsViewModel.EventDetails>() {
 			@Override
 			public void onChanged(@Nullable EventDetailsViewModel.EventDetails eventDetails) {
 				setEventDetails(eventDetails);
@@ -220,7 +220,7 @@ public class EventDetailsFragment extends Fragment {
 		});
 
 		// Live room status
-		FosdemApi.getRoomStatuses().observe(this, new Observer<Map<String, RoomStatus>>() {
+		FosdemApi.getRoomStatuses().observe(getViewLifecycleOwner(), new Observer<Map<String, RoomStatus>>() {
 			@Override
 			public void onChanged(Map<String, RoomStatus> roomStatuses) {
 				RoomStatus roomStatus = roomStatuses.get(event.getRoomName());

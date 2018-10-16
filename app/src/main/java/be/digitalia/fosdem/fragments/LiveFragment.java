@@ -88,7 +88,7 @@ public class LiveFragment extends Fragment implements RecycledViewPoolProvider {
 
 		@NonNull
 		@Override
-		public Object instantiateItem(ViewGroup container, int position) {
+		public Object instantiateItem(@NonNull ViewGroup container, int position) {
 			// Allow the non-primary fragments to start as soon as they are visible
 			Fragment f = (Fragment) super.instantiateItem(container, position);
 			f.setUserVisibleHint(true);

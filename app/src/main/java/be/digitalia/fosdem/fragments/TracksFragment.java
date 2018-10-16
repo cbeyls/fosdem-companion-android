@@ -1,6 +1,5 @@
 package be.digitalia.fosdem.fragments;
 
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -10,7 +9,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -75,9 +73,8 @@ public class TracksFragment extends Fragment implements RecycledViewPoolProvider
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		LiveData<List<Day>> daysLiveData = DatabaseManager.getInstance().getDays();
-		daysLiveData.removeObserver(this);
-		daysLiveData.observe(this, this);
+		DatabaseManager.getInstance().getDays()
+				.observe(getViewLifecycleOwner(), this);
 	}
 
 	@Override
@@ -152,7 +149,7 @@ public class TracksFragment extends Fragment implements RecycledViewPoolProvider
 
 		@NonNull
 		@Override
-		public Object instantiateItem(ViewGroup container, int position) {
+		public Object instantiateItem(@NonNull ViewGroup container, int position) {
 			// Allow the non-primary fragments to start as soon as they are visible
 			Fragment f = (Fragment) super.instantiateItem(container, position);
 			f.setUserVisibleHint(true);
