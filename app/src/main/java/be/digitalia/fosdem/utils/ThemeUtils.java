@@ -12,6 +12,7 @@ import be.digitalia.fosdem.model.Track;
 
 public class ThemeUtils {
 
+	@SuppressWarnings("deprecation")
 	public static void setActionBarTrackColor(@NonNull AppCompatActivity activity, @NonNull Track.Type trackType) {
 		ActionBar actionBar = activity.getSupportActionBar();
 		final int color = ContextCompat.getColor(activity, trackType.getColorResId());
@@ -20,7 +21,13 @@ public class ThemeUtils {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			final int darkColor = ContextCompat.getColor(activity, trackType.getDarkColorResId());
 			activity.getWindow().setStatusBarColor(darkColor);
-			activity.setTaskDescription(new ActivityManager.TaskDescription(null, null, color | 0xFF000000));
+			final ActivityManager.TaskDescription taskDescription;
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+				taskDescription = new ActivityManager.TaskDescription(null, 0, color | 0xFF000000);
+			} else {
+				taskDescription = new ActivityManager.TaskDescription(null, null, color | 0xFF000000);
+			}
+			activity.setTaskDescription(taskDescription);
 		}
 	}
 }

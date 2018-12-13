@@ -10,6 +10,7 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.database.CursorWrapper;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.content.LocalBroadcastManager;
 
 /**
@@ -25,10 +26,14 @@ public class LocalBroadcastCursor extends CursorWrapper {
 	private final LocalBroadcastManager localBroadcastManager;
 	private final BroadcastReceiver receiver = new BroadcastReceiver() {
 		@Override
+		@SuppressWarnings("deprecation")
 		public void onReceive(Context context, Intent intent) {
 			if (matchIntent(context, intent)) {
-				//noinspection deprecation
-				contentObservable.dispatchChange(false);
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+					contentObservable.dispatchChange(false, null);
+				} else {
+					contentObservable.dispatchChange(false);
+				}
 			}
 		}
 	};
