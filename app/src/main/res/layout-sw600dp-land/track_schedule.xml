@@ -11,7 +11,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <android.support.v7.widget.Toolbar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             style="@style/Toolbar.Fosdem"
             android:layout_width="match_parent"
@@ -27,7 +27,7 @@
             android:layout_weight="1"/>
     </LinearLayout>
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:id="@+id/event"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -1,8 +1,7 @@
 package be.digitalia.fosdem.model;
 
-import android.support.annotation.ColorRes;
-import android.support.annotation.StringRes;
-
+import androidx.annotation.ColorRes;
+import androidx.annotation.StringRes;
 import be.digitalia.fosdem.R;
 
 public enum RoomStatus {

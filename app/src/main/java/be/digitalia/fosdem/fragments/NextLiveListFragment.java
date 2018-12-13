@@ -1,13 +1,14 @@
 package be.digitalia.fosdem.fragments;
 
-import be.digitalia.fosdem.R;
-import be.digitalia.fosdem.db.DatabaseManager;
-import be.digitalia.fosdem.loaders.BaseLiveLoader;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.content.Loader;
+
+import androidx.annotation.NonNull;
+import androidx.loader.content.Loader;
+import be.digitalia.fosdem.R;
+import be.digitalia.fosdem.db.DatabaseManager;
+import be.digitalia.fosdem.loaders.BaseLiveLoader;
 
 public class NextLiveListFragment extends BaseLiveListFragment {
 

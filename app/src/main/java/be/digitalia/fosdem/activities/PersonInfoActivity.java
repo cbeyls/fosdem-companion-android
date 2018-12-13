@@ -1,12 +1,12 @@
 package be.digitalia.fosdem.activities;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.PersonInfoListFragment;
 import be.digitalia.fosdem.model.Person;

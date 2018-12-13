@@ -1,10 +1,10 @@
 package be.digitalia.fosdem.utils;
 
-import android.support.annotation.NonNull;
-
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import androidx.annotation.NonNull;
 
 /**
  * An InputStream which counts the total number of bytes read and notifies a listener.

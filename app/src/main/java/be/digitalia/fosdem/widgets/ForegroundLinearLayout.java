@@ -23,11 +23,11 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.util.AttributeSet;
 import android.view.Gravity;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.LinearLayoutCompat;
 import be.digitalia.fosdem.R;
 
 public class ForegroundLinearLayout extends LinearLayoutCompat {

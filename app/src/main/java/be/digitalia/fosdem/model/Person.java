@@ -1,10 +1,11 @@
 package be.digitalia.fosdem.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import be.digitalia.fosdem.api.FosdemUrls;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.utils.StringUtils;
-import android.os.Parcel;
-import android.os.Parcelable;
 
 public class Person implements Parcelable {
 

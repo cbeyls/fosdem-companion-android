@@ -2,7 +2,8 @@ package be.digitalia.fosdem.loaders;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.support.v4.content.AsyncTaskLoader;
+
+import androidx.loader.content.AsyncTaskLoader;
 
 /**
  * A CursorLoader that doesn't need a ContentProvider.

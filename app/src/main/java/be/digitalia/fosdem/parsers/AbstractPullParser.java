@@ -1,11 +1,11 @@
 package be.digitalia.fosdem.parsers;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Base class with helper methods for XML pull parsing.

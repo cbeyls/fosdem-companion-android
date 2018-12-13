@@ -1,7 +1,6 @@
 package be.digitalia.fosdem.db;
 
 import android.app.SearchManager;
-import android.arch.lifecycle.LiveData;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -13,9 +12,6 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.provider.BaseColumns;
-import android.support.annotation.Nullable;
-import android.support.annotation.WorkerThread;
-import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -29,6 +25,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
+import androidx.lifecycle.LiveData;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.livedata.AsyncTaskLiveData;
 import be.digitalia.fosdem.model.Day;

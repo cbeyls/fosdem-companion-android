@@ -1,8 +1,6 @@
 package be.digitalia.fosdem.utils;
 
 import android.content.res.Resources;
-import android.support.annotation.NonNull;
-import android.support.v4.util.CircularIntArray;
 import android.text.Editable;
 import android.text.Html;
 import android.text.Spanned;
@@ -14,6 +12,9 @@ import org.xml.sax.XMLReader;
 
 import java.util.Iterator;
 import java.util.Locale;
+
+import androidx.annotation.NonNull;
+import androidx.collection.CircularIntArray;
 
 /**
  * Various methods to transform strings

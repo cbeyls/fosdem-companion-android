@@ -1,10 +1,11 @@
 package be.digitalia.fosdem.livedata;
 
 import android.annotation.SuppressLint;
-import android.arch.lifecycle.MutableLiveData;
 import android.os.AsyncTask;
-import android.support.annotation.MainThread;
-import android.support.annotation.WorkerThread;
+
+import androidx.annotation.MainThread;
+import androidx.annotation.WorkerThread;
+import androidx.lifecycle.MutableLiveData;
 
 /**
  * A LiveData implementation with the same basic functionality as AsyncTaskLoader.

@@ -6,7 +6,7 @@
               android:orientation="vertical"
               tools:context=".activities.TrackScheduleActivity">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         style="@style/Toolbar.Fosdem"
         android:layout_width="match_parent"

@@ -1,11 +1,11 @@
 package be.digitalia.fosdem.parsers;
 
-import android.support.annotation.NonNull;
+import org.xmlpull.v1.XmlPullParser;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import org.xmlpull.v1.XmlPullParser;
+import androidx.annotation.NonNull;
 
 /**
  * An abstract class for easy implementation of an iterable pull parser.

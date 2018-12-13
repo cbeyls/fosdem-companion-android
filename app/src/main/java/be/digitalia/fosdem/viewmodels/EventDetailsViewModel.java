@@ -1,18 +1,18 @@
 package be.digitalia.fosdem.viewmodels;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.LiveData;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
-import android.support.v4.content.LocalBroadcastManager;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.livedata.AsyncTaskLiveData;
 import be.digitalia.fosdem.model.Event;

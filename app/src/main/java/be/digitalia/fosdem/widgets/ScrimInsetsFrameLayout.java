@@ -21,13 +21,13 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.view.WindowInsetsCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import be.digitalia.fosdem.R;
 
 public class ScrimInsetsFrameLayout extends FrameLayout {
@@ -52,7 +52,7 @@ public class ScrimInsetsFrameLayout extends FrameLayout {
 		a.recycle();
 		setWillNotDraw(true); // No need to draw until the insets are adjusted
 		ViewCompat.setOnApplyWindowInsetsListener(this,
-				new android.support.v4.view.OnApplyWindowInsetsListener() {
+				new androidx.core.view.OnApplyWindowInsetsListener() {
 					@Override
 					public WindowInsetsCompat onApplyWindowInsets(View v,
 																  WindowInsetsCompat insets) {

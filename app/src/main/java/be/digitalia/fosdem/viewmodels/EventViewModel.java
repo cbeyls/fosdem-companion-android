@@ -1,8 +1,7 @@
 package be.digitalia.fosdem.viewmodels;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.ViewModel;
-
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModel;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.livedata.AsyncTaskLiveData;
 import be.digitalia.fosdem.model.Event;

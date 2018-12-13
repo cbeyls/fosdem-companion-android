@@ -1,9 +1,10 @@
 package be.digitalia.fosdem.widgets;
 
 import android.content.Context;
-import android.support.v4.widget.DrawerLayout;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+
+import androidx.drawerlayout.widget.DrawerLayout;
 
 /**
  * DrawerLayout which includes a fix to prevent crashes with PhotoView.

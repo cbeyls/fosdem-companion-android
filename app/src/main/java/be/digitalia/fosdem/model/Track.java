@@ -2,9 +2,9 @@ package be.digitalia.fosdem.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.ColorRes;
-import android.support.annotation.StringRes;
 
+import androidx.annotation.ColorRes;
+import androidx.annotation.StringRes;
 import be.digitalia.fosdem.R;
 
 public class Track implements Parcelable {

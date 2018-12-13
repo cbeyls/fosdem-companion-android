@@ -2,13 +2,13 @@ package be.digitalia.fosdem.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import androidx.annotation.NonNull;
 import be.digitalia.fosdem.utils.DateUtils;
 
 public class Day implements Comparable<Day>, Parcelable {
