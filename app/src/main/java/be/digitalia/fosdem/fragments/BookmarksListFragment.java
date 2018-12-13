@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
@@ -67,7 +68,7 @@ public class BookmarksListFragment extends RecyclerViewFragment implements Loade
 		setEmptyText(getString(R.string.no_bookmark));
 		setProgressBarVisible(true);
 
-		getLoaderManager().initLoader(BOOKMARKS_LOADER_ID, null, this);
+		LoaderManager.getInstance(this).initLoader(BOOKMARKS_LOADER_ID, null, this);
 	}
 
 	@Override
@@ -115,7 +116,7 @@ public class BookmarksListFragment extends RecyclerViewFragment implements Loade
 				getActivity().getPreferences(Context.MODE_PRIVATE).edit()
 						.putBoolean(PREF_UPCOMING_ONLY, upcomingOnly)
 						.apply();
-				getLoaderManager().restartLoader(BOOKMARKS_LOADER_ID, null, this);
+				LoaderManager.getInstance(this).restartLoader(BOOKMARKS_LOADER_ID, null, this);
 				return true;
 			case R.id.export_bookmarks:
 				Intent exportIntent = BookmarksExportProvider.getIntent(getActivity());

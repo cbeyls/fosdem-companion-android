@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.customtabs.CustomTabsIntent;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
@@ -97,7 +98,7 @@ public class PersonInfoListFragment extends RecyclerViewFragment implements Load
 		setEmptyText(getString(R.string.no_data));
 		setProgressBarVisible(true);
 
-		getLoaderManager().initLoader(PERSON_EVENTS_LOADER_ID, null, this);
+		LoaderManager.getInstance(this).initLoader(PERSON_EVENTS_LOADER_ID, null, this);
 	}
 
 	private static class PersonEventsLoader extends SimpleCursorLoader {

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
@@ -43,7 +44,7 @@ public class PersonsListFragment extends SmoothListFragment implements LoaderCal
 		setEmptyText(getString(R.string.no_data));
 		setListShown(false);
 
-		getLoaderManager().initLoader(PERSONS_LOADER_ID, null, this);
+		LoaderManager.getInstance(this).initLoader(PERSONS_LOADER_ID, null, this);
 	}
 
 	private static class PersonsLoader extends SimpleCursorLoader {

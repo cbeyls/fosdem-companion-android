@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
@@ -80,7 +81,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Loa
 		NfcUtils.setAppDataPushMessageCallbackIfAvailable(this, this);
 
 		setCustomProgressVisibility(true);
-		getSupportLoaderManager().initLoader(EVENTS_LOADER_ID, null, this);
+		LoaderManager.getInstance(this).initLoader(EVENTS_LOADER_ID, null, this);
 	}
 
 	private void setCustomProgressVisibility(boolean isVisible) {

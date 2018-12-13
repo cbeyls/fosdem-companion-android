@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.DividerItemDecoration;
@@ -43,7 +44,7 @@ public abstract class BaseLiveListFragment extends RecyclerViewFragment implemen
 		setEmptyText(getEmptyText());
 		setProgressBarVisible(true);
 
-		getLoaderManager().initLoader(EVENTS_LOADER_ID, null, this);
+		LoaderManager.getInstance(this).initLoader(EVENTS_LOADER_ID, null, this);
 	}
 
 	protected abstract String getEmptyText();

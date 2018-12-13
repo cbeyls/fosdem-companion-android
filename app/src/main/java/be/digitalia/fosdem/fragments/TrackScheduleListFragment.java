@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
@@ -126,7 +127,7 @@ public class TrackScheduleListFragment extends SmoothListFragment implements Han
 		setEmptyText(getString(R.string.no_data));
 		setListShown(false);
 
-		getLoaderManager().initLoader(EVENTS_LOADER_ID, null, this);
+		LoaderManager.getInstance(this).initLoader(EVENTS_LOADER_ID, null, this);
 	}
 
 	@Override
