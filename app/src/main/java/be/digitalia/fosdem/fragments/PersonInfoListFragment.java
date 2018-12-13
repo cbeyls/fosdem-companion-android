@@ -12,7 +12,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.Loader;
-import android.support.v7.widget.ConcatAdapter;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -23,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import be.digitalia.fosdem.R;
+import be.digitalia.fosdem.adapters.ConcatAdapter;
 import be.digitalia.fosdem.adapters.EventsAdapter;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.loaders.SimpleCursorLoader;

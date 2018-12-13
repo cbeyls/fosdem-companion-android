@@ -1,6 +1,7 @@
-package android.support.v7.widget;
+package be.digitalia.fosdem.adapters;
 
 import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.view.ViewGroup;
 
@@ -86,6 +87,7 @@ public class ConcatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 		}
 	}
 
+	@SafeVarargs
 	@SuppressWarnings("unchecked")
 	public ConcatAdapter(RecyclerView.Adapter<? extends RecyclerView.ViewHolder>... adapters) {
 		this.adapters = (RecyclerView.Adapter<RecyclerView.ViewHolder>[]) adapters;
@@ -95,26 +97,6 @@ public class ConcatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 			adapterObservers[i] = new InternalObserver(i);
 		}
 		offsets = new int[size];
-	}
-
-	/**
-	 * @return The adapter position relative to the child adapter, if any.
-	 */
-	public static int getAdapterPosition(@NonNull RecyclerView.ViewHolder holder) {
-		int position = holder.getAdapterPosition();
-		if (position != RecyclerView.NO_POSITION) {
-			RecyclerView.Adapter adapter = holder.mOwnerRecyclerView.getAdapter();
-			if (adapter instanceof ConcatAdapter) {
-				final int[] offsets = ((ConcatAdapter) adapter).offsets;
-				final int index = Arrays.binarySearch(offsets, position);
-				if (index >= 0) {
-					position = 0;
-				} else {
-					position -= offsets[~index - 1];
-				}
-			}
-		}
-		return position;
 	}
 
 	private int getAdapterIndexForPosition(int position) {
