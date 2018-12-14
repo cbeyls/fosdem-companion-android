@@ -12,7 +12,6 @@
     <color name="schedule_time_running_background">#d6000000</color>
     <color name="error_material">#dd2c00</color>
     <color name="shortcut_background">#F5F5F5</color>
-    <color name="preference_fallback_accent_color">@color/color_accent</color>
 
     <!-- Track types -->
     <color name="track_type_keynote">@color/color_primary</color>

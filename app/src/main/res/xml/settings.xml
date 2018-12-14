@@ -1,38 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory android:title="@string/settings_notifications">
+    <PreferenceCategory app:title="@string/settings_notifications">
         <SwitchPreferenceCompat
-            android:defaultValue="true"
-            android:key="notifications_enabled"
-            android:summary="@string/settings_notifications_enabled_summary"
-            android:title="@string/settings_notifications_enabled_title"/>
+            app:defaultValue="true"
+            app:icon="@drawable/ic_notifications_grey600_24dp"
+            app:key="notifications_enabled"
+            app:summary="@string/settings_notifications_enabled_summary"
+            app:title="@string/settings_notifications_enabled_title" />
         <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="notifications_vibrate"
-            android:summary="@string/settings_notifications_vibrate_summary"
-            android:title="@string/settings_notifications_vibrate_title"/>
+            app:defaultValue="true"
+            app:dependency="notifications_enabled"
+            app:key="notifications_vibrate"
+            app:summary="@string/settings_notifications_vibrate_summary"
+            app:title="@string/settings_notifications_vibrate_title" />
         <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="notifications_led"
-            android:summary="@string/settings_notifications_led_summary"
-            android:title="@string/settings_notifications_led_title"/>
-
+            app:defaultValue="true"
+            app:dependency="notifications_enabled"
+            app:key="notifications_led"
+            app:summary="@string/settings_notifications_led_summary"
+            app:title="@string/settings_notifications_led_title" />
         <ListPreference
-            android:defaultValue="10"
-            android:entries="@array/settings_notifications_delay_entries"
-            android:entryValues="@array/settings_notifications_delay_entry_values"
-            android:key="notifications_delay"
-            android:title="@string/settings_notifications_delay_title"/>
+            app:defaultValue="10"
+            app:dependency="notifications_enabled"
+            app:entries="@array/settings_notifications_delay_entries"
+            app:entryValues="@array/settings_notifications_delay_entry_values"
+            app:key="notifications_delay"
+            app:title="@string/settings_notifications_delay_title"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/settings_info">
+    <PreferenceCategory app:title="@string/settings_info">
         <Preference
-            android:key="about"
-            android:title="@string/settings_info_about_title"/>
+            app:icon="@drawable/ic_info_outline_grey600_24dp"
+            app:key="about"
+            app:title="@string/settings_info_about_title" />
         <Preference
-            android:key="version"
-            android:title="@string/settings_info_version_title"/>
+            app:key="version"
+            app:title="@string/settings_info_version_title" />
     </PreferenceCategory>
 
-</PreferenceScreen>
+</androidx.preference.PreferenceScreen>

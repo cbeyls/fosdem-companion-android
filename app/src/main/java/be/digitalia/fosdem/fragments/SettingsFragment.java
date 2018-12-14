@@ -1,7 +1,6 @@
 package be.digitalia.fosdem.fragments;
 
 import android.app.Dialog;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
@@ -11,16 +10,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceManager;
-import androidx.preference.TwoStatePreference;
 import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.services.AlarmIntentService;
 
-public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class SettingsFragment extends PreferenceFragmentCompat {
 
 	public static final String KEY_PREF_NOTIFICATIONS_ENABLED = "notifications_enabled";
 	// Android >= O only
@@ -36,50 +32,11 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 	@Override
 	public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
 		setPreferencesFromResource(R.xml.settings, rootKey);
-		updateNotificationsEnabled();
-		updateNotificationsDelaySummary();
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			setupNotificationsChannel();
 		}
 		setupAboutDialog();
 		populateVersion();
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-		PreferenceManager.getDefaultSharedPreferences(getContext()).registerOnSharedPreferenceChangeListener(this);
-	}
-
-	@Override
-	public void onPause() {
-		PreferenceManager.getDefaultSharedPreferences(getContext()).unregisterOnSharedPreferenceChangeListener(this);
-		super.onPause();
-	}
-
-	@Override
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (KEY_PREF_NOTIFICATIONS_ENABLED.equals(key)) {
-			updateNotificationsEnabled();
-		} else if (KEY_PREF_NOTIFICATIONS_DELAY.equals(key)) {
-			updateNotificationsDelaySummary();
-		}
-	}
-
-	private void updateNotificationsEnabled() {
-		boolean notificationsEnabled = ((TwoStatePreference) findPreference(KEY_PREF_NOTIFICATIONS_ENABLED)).isChecked();
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			findPreference(KEY_PREF_NOTIFICATIONS_CHANNEL).setEnabled(notificationsEnabled);
-		} else {
-			findPreference(KEY_PREF_NOTIFICATIONS_VIBRATE).setEnabled(notificationsEnabled);
-			findPreference(KEY_PREF_NOTIFICATIONS_LED).setEnabled(notificationsEnabled);
-		}
-		findPreference(KEY_PREF_NOTIFICATIONS_DELAY).setEnabled(notificationsEnabled);
-	}
-
-	private void updateNotificationsDelaySummary() {
-		ListPreference notificationsDelayPreference = (ListPreference) findPreference(KEY_PREF_NOTIFICATIONS_DELAY);
-		notificationsDelayPreference.setSummary(notificationsDelayPreference.getEntry());
 	}
 
 	@RequiresApi(api = Build.VERSION_CODES.O)
