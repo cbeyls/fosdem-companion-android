@@ -151,7 +151,7 @@ public class PersonInfoListFragment extends RecyclerViewFragment implements Load
 		@NonNull
 		@Override
 		public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-			View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.header_person_info, null);
+			View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.header_person_info, parent, false);
 			return new ViewHolder(view);
 		}
 
