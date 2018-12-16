@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<be.digitalia.fosdem.widgets.ForegroundLinearLayout
+<com.google.android.material.internal.ForegroundLinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -46,4 +46,4 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
         tools:text="Saturday, 09:30 - 09:55 | Janson"/>
 
-</be.digitalia.fosdem.widgets.ForegroundLinearLayout>
+</com.google.android.material.internal.ForegroundLinearLayout>

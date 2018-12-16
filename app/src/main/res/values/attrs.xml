@@ -5,34 +5,6 @@
     <attr name="activatedBackgroundIndicator" format="reference"/>
     <attr name="recyclerViewStyle" format="reference"/>
 
-    <declare-styleable name="SlidingTabLayout">
-        <attr name="indicatorColor" format="color"/>
-        <attr name="indicatorHeight" format="dimension"/>
-        <attr name="textColor" format="color|reference"/>
-        <attr name="selectedTextColor" format="color"/>
-        <attr name="contentInsetStart"/>
-        <attr name="distributeEvenly" format="boolean"/>
-    </declare-styleable>
-
-    <style name="SlidingTabLayout" parent="android:Widget">
-        <item name="indicatorColor">?attr/colorAccent</item>
-        <item name="indicatorHeight">2dp</item>
-        <item name="textColor">?android:textColorSecondary</item>
-        <item name="selectedTextColor">?android:textColorPrimary</item>
-        <item name="contentInsetStart">24dp</item>
-        <item name="distributeEvenly">false</item>
-    </style>
-
-    <declare-styleable name="ScrimInsetsFrameLayout">
-        <attr name="insetForeground" format="color|reference"/>
-    </declare-styleable>
-
-    <declare-styleable name="ForegroundLinearLayout">
-        <attr name="android:foreground"/>
-        <attr name="android:foregroundGravity"/>
-        <attr name="foregroundInsidePadding" format="boolean"/>
-    </declare-styleable>
-
     <declare-styleable name="PrimaryTextColors">
         <attr name="android:textColorPrimary"/>
         <attr name="android:textColorPrimaryInverse"/>

@@ -64,37 +64,11 @@
         <item name="android:scrollbars">vertical</item>
     </style>
 
-    <style name="Widget.Design.ScrimInsetsFrameLayout" parent="">
-        <item name="insetForeground">#4000</item>
-    </style>
-
-    <style name="MainMenuItem" parent="TextAppearance.AppCompat.Body2">
-        <item name="android:background">@drawable/menu_item_background</item>
-        <item name="android:focusable">true</item>
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">@dimen/main_menu_item_height</item>
-        <item name="android:gravity">start|center_vertical</item>
-        <item name="android:paddingLeft">@dimen/main_menu_padding</item>
-        <item name="android:paddingStart" tools:ignore="NewApi">@dimen/main_menu_padding</item>
-        <item name="android:drawablePadding">@dimen/main_menu_drawable_padding</item>
-    </style>
-
-    <style name="SlidingTabs" parent="SlidingTabLayout">
+    <style name="Tabs" parent="Widget.Design.TabLayout">
         <item name="android:theme">@style/ThemeOverlay.AppCompat.Dark</item>
         <item name="android:background">?attr/colorPrimary</item>
-        <item name="indicatorColor">@android:color/white</item>
+        <item name="tabIndicatorColor">@android:color/white</item>
     </style>
-
-    <style name="FloatingActionButtonBase">
-        <item name="android:layout_width">@dimen/fab_diameter</item>
-        <item name="android:layout_height">@dimen/fab_diameter</item>
-        <item name="android:background">@drawable/fab_background</item>
-        <item name="android:scaleType">center</item>
-        <item name="android:clickable">true</item>
-        <item name="android:focusable">true</item>
-    </style>
-
-    <style name="FloatingActionButton" parent="FloatingActionButtonBase"/>
 
     <style name="SeparatorLine">
         <item name="android:layout_width">match_parent</item>

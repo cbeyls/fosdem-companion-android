@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.material.tabs.TabLayout;
+
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -20,7 +22,6 @@ import androidx.viewpager.widget.ViewPager;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.model.Day;
-import be.digitalia.fosdem.widgets.SlidingTabLayout;
 
 public class TracksFragment extends Fragment implements RecycledViewPoolProvider, Observer<List<Day>> {
 
@@ -28,7 +29,7 @@ public class TracksFragment extends Fragment implements RecycledViewPoolProvider
 		View contentView;
 		View emptyView;
 		ViewPager pager;
-		SlidingTabLayout slidingTabs;
+		TabLayout tabs;
 		DaysAdapter daysAdapter;
 		RecyclerView.RecycledViewPool recycledViewPool;
 	}
@@ -56,7 +57,7 @@ public class TracksFragment extends Fragment implements RecycledViewPoolProvider
 		holder.contentView = view.findViewById(R.id.content);
 		holder.emptyView = view.findViewById(android.R.id.empty);
 		holder.pager = view.findViewById(R.id.pager);
-		holder.slidingTabs = view.findViewById(R.id.sliding_tabs);
+		holder.tabs = view.findViewById(R.id.tabs);
 		holder.daysAdapter = new DaysAdapter(getChildFragmentManager());
 		holder.recycledViewPool = new RecyclerView.RecycledViewPool();
 
@@ -108,7 +109,7 @@ public class TracksFragment extends Fragment implements RecycledViewPoolProvider
 			holder.emptyView.setVisibility(View.GONE);
 			if (holder.pager.getAdapter() == null) {
 				holder.pager.setAdapter(holder.daysAdapter);
-				holder.slidingTabs.setViewPager(holder.pager);
+				holder.tabs.setupWithViewPager(holder.pager);
 			}
 			if (savedCurrentPage != -1) {
 				holder.pager.setCurrentItem(Math.min(savedCurrentPage, totalPages - 1), false);

@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.material.tabs.TabLayout;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -13,13 +15,12 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 import be.digitalia.fosdem.R;
-import be.digitalia.fosdem.widgets.SlidingTabLayout;
 
 public class LiveFragment extends Fragment implements RecycledViewPoolProvider {
 
 	static class ViewHolder {
 		ViewPager pager;
-		SlidingTabLayout slidingTabs;
+		TabLayout tabs;
 		RecyclerView.RecycledViewPool recycledViewPool;
 	}
 
@@ -32,8 +33,8 @@ public class LiveFragment extends Fragment implements RecycledViewPoolProvider {
 		holder = new ViewHolder();
 		holder.pager = view.findViewById(R.id.pager);
 		holder.pager.setAdapter(new LivePagerAdapter(getChildFragmentManager(), getResources()));
-		holder.slidingTabs = view.findViewById(R.id.sliding_tabs);
-		holder.slidingTabs.setViewPager(holder.pager);
+		holder.tabs = view.findViewById(R.id.tabs);
+		holder.tabs.setupWithViewPager(holder.pager, false);
 		holder.recycledViewPool = new RecyclerView.RecycledViewPool();
 
 		return view;

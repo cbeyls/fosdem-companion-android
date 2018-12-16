@@ -24,7 +24,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -369,7 +370,7 @@ public class EventDetailsFragment extends Fragment {
 		try {
 			startActivity(intent);
 		} catch (ActivityNotFoundException e) {
-			Toast.makeText(getActivity(), R.string.calendar_not_found, Toast.LENGTH_LONG).show();
+			Snackbar.make(getView(), R.string.calendar_not_found, Snackbar.LENGTH_LONG).show();
 		}
 	}
 
