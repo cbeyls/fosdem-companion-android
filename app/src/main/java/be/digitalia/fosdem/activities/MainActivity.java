@@ -1,5 +1,7 @@
 package be.digitalia.fosdem.activities;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
@@ -27,7 +29,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -226,8 +227,15 @@ public class MainActivity extends AppCompatActivity {
 						// Hide the progress bar with a fill and fade out animation
 						progressBar.setIndeterminate(false);
 						progressBar.setProgress(100);
-						progressBar.startAnimation(AnimationUtils.loadAnimation(MainActivity.this, android.R.anim.fade_out));
-						progressBar.setVisibility(View.GONE);
+						progressBar.animate()
+								.alpha(0f)
+								.setListener(new AnimatorListenerAdapter() {
+									@Override
+									public void onAnimationEnd(Animator animation) {
+										progressBar.setVisibility(View.GONE);
+										progressBar.setAlpha(1f);
+									}
+								});
 					}
 				}
 			}
