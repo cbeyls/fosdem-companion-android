@@ -1,7 +1,6 @@
 package be.digitalia.fosdem.activities;
 
 import android.os.Bundle;
-import android.widget.TextView;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,8 +24,6 @@ public class PersonInfoActivity extends AppCompatActivity {
 
 		ActionBar bar = getSupportActionBar();
 		bar.setDisplayHomeAsUpEnabled(true);
-		bar.setDisplayShowTitleEnabled(false);
-		((TextView) findViewById(R.id.title)).setText(person.getName());
 		setTitle(person.getName());
 
 		if (savedInstanceState == null) {
