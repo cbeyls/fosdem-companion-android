@@ -15,9 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
  * <p>
  * Adapters may provide multiple view types but they must not overlap.
  * It's recommended to always use the item layout id as view type.
- * <p>
- * Warning: You need to use ConcatAdapter.getAdapterPosition(ViewHolder)
- * in place of ViewHolder.getAdapterPosition() inside child adapters.
  *
  * @author Christophe Beyls
  */
