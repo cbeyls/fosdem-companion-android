@@ -7,23 +7,24 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AlphabetIndexer;
-import android.widget.ListView;
-import android.widget.SectionIndexer;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cursoradapter.widget.CursorAdapter;
+import androidx.annotation.Nullable;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.app.LoaderManager.LoaderCallbacks;
 import androidx.loader.content.Loader;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.PersonInfoActivity;
+import be.digitalia.fosdem.adapters.RecyclerViewCursorAdapter;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.loaders.SimpleCursorLoader;
 import be.digitalia.fosdem.model.Person;
 
-public class PersonsListFragment extends SmoothListFragment implements LoaderCallbacks<Cursor> {
+public class PersonsListFragment extends RecyclerViewFragment implements LoaderCallbacks<Cursor> {
 
 	private static final int PERSONS_LOADER_ID = 1;
 
@@ -33,23 +34,34 @@ public class PersonsListFragment extends SmoothListFragment implements LoaderCal
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		adapter = new PersonsAdapter(getActivity());
-		setListAdapter(adapter);
+	}
+
+	@NonNull
+	@Override
+	protected RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup container, @Nullable Bundle savedInstanceState) {
+		return (RecyclerView) inflater.inflate(R.layout.recyclerview_fastscroll, container, false);
+	}
+
+	@Override
+	protected void onRecyclerViewCreated(RecyclerView recyclerView, Bundle savedInstanceState) {
+		recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
+		recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL));
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		getListView().setFastScrollEnabled(true);
+		setAdapter(adapter);
 		setEmptyText(getString(R.string.no_data));
-		setListShown(false);
+		setProgressBarVisible(true);
 
 		LoaderManager.getInstance(this).initLoader(PERSONS_LOADER_ID, null, this);
 	}
 
 	private static class PersonsLoader extends SimpleCursorLoader {
 
-		public PersonsLoader(Context context) {
+		PersonsLoader(Context context) {
 			super(context);
 		}
 
@@ -71,7 +83,7 @@ public class PersonsListFragment extends SmoothListFragment implements LoaderCal
 			adapter.swapCursor(data);
 		}
 
-		setListShown(true);
+		setProgressBarVisible(false);
 	}
 
 	@Override
@@ -79,24 +91,12 @@ public class PersonsListFragment extends SmoothListFragment implements LoaderCal
 		adapter.swapCursor(null);
 	}
 
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		Person person = adapter.getItem(position);
-		Intent intent = new Intent(getActivity(), PersonInfoActivity.class).putExtra(PersonInfoActivity.EXTRA_PERSON, person);
-		startActivity(intent);
-	}
-
-	private static class PersonsAdapter extends CursorAdapter implements SectionIndexer {
-
-		private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	private static class PersonsAdapter extends RecyclerViewCursorAdapter<PersonViewHolder> {
 
 		private final LayoutInflater inflater;
-		private final AlphabetIndexer indexer;
 
-		public PersonsAdapter(Context context) {
-			super(context, null, 0);
+		PersonsAdapter(Context context) {
 			inflater = LayoutInflater.from(context);
-			indexer = new AlphabetIndexer(null, DatabaseManager.PERSON_NAME_COLUMN_INDEX, ALPHABET);
 		}
 
 		@Override
@@ -104,48 +104,37 @@ public class PersonsListFragment extends SmoothListFragment implements LoaderCal
 			return DatabaseManager.toPerson((Cursor) super.getItem(position));
 		}
 
+		@NonNull
 		@Override
-		public View newView(Context context, Cursor cursor, ViewGroup parent) {
+		public PersonViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 			View view = inflater.inflate(R.layout.simple_list_item_1_material, parent, false);
-
-			ViewHolder holder = new ViewHolder();
-			holder.textView = view.findViewById(android.R.id.text1);
-			view.setTag(holder);
-
-			return view;
+			return new PersonViewHolder(view);
 		}
 
 		@Override
-		public void bindView(View view, Context context, Cursor cursor) {
-			ViewHolder holder = (ViewHolder) view.getTag();
+		public void onBindViewHolder(PersonViewHolder holder, Cursor cursor) {
 			holder.person = DatabaseManager.toPerson(cursor, holder.person);
 			holder.textView.setText(holder.person.getName());
 		}
+	}
 
-		@Override
-		public Cursor swapCursor(Cursor newCursor) {
-			indexer.setCursor(newCursor);
-			return super.swapCursor(newCursor);
+	static class PersonViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+		TextView textView;
+
+		Person person;
+
+		PersonViewHolder(@NonNull View itemView) {
+			super(itemView);
+			textView = itemView.findViewById(android.R.id.text1);
+			itemView.setOnClickListener(this);
 		}
 
 		@Override
-		public int getPositionForSection(int sectionIndex) {
-			return indexer.getPositionForSection(sectionIndex);
-		}
-
-		@Override
-		public int getSectionForPosition(int position) {
-			return indexer.getSectionForPosition(position);
-		}
-
-		@Override
-		public Object[] getSections() {
-			return indexer.getSections();
-		}
-
-		static class ViewHolder {
-			public TextView textView;
-			public Person person;
+		public void onClick(View view) {
+			final Context context = view.getContext();
+			Intent intent = new Intent(context, PersonInfoActivity.class)
+					.putExtra(PersonInfoActivity.EXTRA_PERSON, person);
+			context.startActivity(intent);
 		}
 	}
 }

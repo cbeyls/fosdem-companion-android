@@ -16,8 +16,6 @@
 
     <style name="AppTheme" parent="Base.AppTheme">
         <item name="android:progressBarStyleHorizontal">@style/ProgressBar.Fosdem</item>
-        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material_light</item>
-        <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material_light</item>
         <item name="android:selectableItemBackground">?attr/selectableItemBackground</item>
         <item name="android:listChoiceBackgroundIndicator">?attr/listChoiceBackgroundIndicator
         </item>
