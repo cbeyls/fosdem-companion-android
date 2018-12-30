@@ -58,13 +58,13 @@ public class BookmarksListFragment extends RecyclerViewFragment implements Loade
 	protected void onRecyclerViewCreated(RecyclerView recyclerView, Bundle savedInstanceState) {
 		recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
 		recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL));
-		recyclerView.setAdapter(adapter);
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
+		setAdapter(adapter);
 		setEmptyText(getString(R.string.no_bookmark));
 		setProgressBarVisible(true);
 

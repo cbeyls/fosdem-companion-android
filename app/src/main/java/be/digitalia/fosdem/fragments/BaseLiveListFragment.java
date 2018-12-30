@@ -34,13 +34,13 @@ public abstract class BaseLiveListFragment extends RecyclerViewFragment implemen
 
 		recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
 		recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL));
-		recyclerView.setAdapter(adapter);
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
+		setAdapter(adapter);
 		setEmptyText(getEmptyText());
 		setProgressBarVisible(true);
 

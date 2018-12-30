@@ -41,13 +41,13 @@ public class SearchResultListFragment extends RecyclerViewFragment implements Lo
 	protected void onRecyclerViewCreated(RecyclerView recyclerView, Bundle savedInstanceState) {
 		recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
 		recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL));
-		recyclerView.setAdapter(adapter);
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
+		setAdapter(adapter);
 		setEmptyText(getString(R.string.no_search_result));
 		setProgressBarVisible(true);
 

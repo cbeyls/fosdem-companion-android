@@ -88,13 +88,13 @@ public class PersonInfoListFragment extends RecyclerViewFragment implements Load
 		recyclerView.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_OVERLAY);
 
 		recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
-		recyclerView.setAdapter(new ConcatAdapter(new HeaderAdapter(), adapter));
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
+		setAdapter(new ConcatAdapter(new HeaderAdapter(), adapter));
 		setEmptyText(getString(R.string.no_data));
 		setProgressBarVisible(true);
 
