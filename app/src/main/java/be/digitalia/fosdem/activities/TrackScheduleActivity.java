@@ -100,7 +100,6 @@ public class TrackScheduleActivity extends AppCompatActivity
 				}
 			}
 		}
-		trackScheduleListFragment.setSelectionEnabled(isTabletLandscape);
 
 		if (isTabletLandscape) {
 			// Enable Android Beam
