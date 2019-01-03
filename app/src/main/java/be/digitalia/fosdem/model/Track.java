@@ -4,10 +4,18 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.ColorRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.Index;
+import androidx.room.PrimaryKey;
 import be.digitalia.fosdem.R;
 
+@Entity(tableName = Track.TABLE_NAME, indices = {@Index(value = {"name", "type"}, name = "track_main_idx", unique = true)})
 public class Track implements Parcelable {
+
+	public static final String TABLE_NAME = "tracks";
 
 	public enum Type {
 		other(R.string.other, R.color.track_type_other, R.color.track_type_other_dark),
@@ -43,30 +51,45 @@ public class Track implements Parcelable {
 		}
 	}
 
+	@PrimaryKey
+	private long id;
+	@NonNull
 	private String name;
+	@NonNull
 	private Type type;
 
+	@Ignore
 	public Track() {
 	}
 
-	public Track(String name, Type type) {
+	public Track(@NonNull String name, @NonNull Type type) {
 		this.name = name;
 		this.type = type;
 	}
 
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	@NonNull
 	public String getName() {
 		return name;
 	}
 
-	public void setName(String name) {
+	public void setName(@NonNull String name) {
 		this.name = name;
 	}
 
+	@NonNull
 	public Type getType() {
 		return type;
 	}
 
-	public void setType(Type type) {
+	public void setType(@NonNull Type type) {
 		this.type = type;
 	}
 
@@ -101,6 +124,7 @@ public class Track implements Parcelable {
 
 	@Override
 	public void writeToParcel(Parcel out, int flags) {
+		out.writeLong(id);
 		out.writeString(name);
 		out.writeInt(type.ordinal());
 	}
@@ -116,6 +140,7 @@ public class Track implements Parcelable {
 	};
 
 	Track(Parcel in) {
+		id = in.readLong();
 		name = in.readString();
 		type = Type.values()[in.readInt()];
 	}

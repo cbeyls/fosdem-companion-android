@@ -3,11 +3,21 @@ package be.digitalia.fosdem.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.Fts3;
+import androidx.room.PrimaryKey;
 import be.digitalia.fosdem.api.FosdemUrls;
 import be.digitalia.fosdem.utils.StringUtils;
 
+@Fts3
+@Entity(tableName = Person.TABLE_NAME)
 public class Person implements Parcelable {
 
+	public static final String TABLE_NAME = "persons";
+
+	@PrimaryKey
+	@ColumnInfo(name = "rowid")
 	private long id;
 	private String name;
 
