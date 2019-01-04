@@ -72,6 +72,7 @@ public abstract class AppDatabase extends RoomDatabase {
 			if (INSTANCE == null) {
 				INSTANCE = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "fosdem.sqlite")
 						.addMigrations(MIGRATION_1_2)
+						.setJournalMode(JournalMode.TRUNCATE)
 						.build();
 			}
 			return INSTANCE;
