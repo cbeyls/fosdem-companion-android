@@ -66,7 +66,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * Replaces all groups of non-alphanumeric chars in source with a single replacement char.
+	 * Replaces all groups of removable chars in source with a single replacement char.
 	 */
 	private static String replaceNonAlphaGroups(String source, char replacement) {
 		final int length = source.length();
@@ -76,38 +76,38 @@ public class StringUtils {
 		int size = 0;
 		for (int i = 0; i < length; i++) {
 			c = source.charAt(i);
-			if (isLetterOrDigitOrUnderscore(c)) {
-				result[size++] = c;
-				replaced = false;
-			} else {
+			if (isRemovableChar(c)) {
 				// Skip quote
 				if ((c != '’') && !replaced) {
 					result[size++] = replacement;
 					replaced = true;
 				}
+			} else {
+				result[size++] = c;
+				replaced = false;
 			}
 		}
 		return new String(result, 0, size);
 	}
 
 	/**
-	 * Removes all non-alphanumeric chars at the beginning and end of source.
+	 * Removes all removable chars at the beginning and end of source.
 	 */
 	private static String trimNonAlpha(String source) {
 		int st = 0;
 		int len = source.length();
 
-		while ((st < len) && !isLetterOrDigitOrUnderscore(source.charAt(st))) {
+		while ((st < len) && isRemovableChar(source.charAt(st))) {
 			st++;
 		}
-		while ((st < len) && !isLetterOrDigitOrUnderscore(source.charAt(len - 1))) {
+		while ((st < len) && isRemovableChar(source.charAt(len - 1))) {
 			len--;
 		}
 		return ((st > 0) || (len < source.length())) ? source.substring(st, len) : source;
 	}
 
-	private static boolean isLetterOrDigitOrUnderscore(char c) {
-		return Character.isLetterOrDigit(c) || c == '_';
+	private static boolean isRemovableChar(char c) {
+		return !Character.isLetterOrDigit(c) && c != '_' && c != '@';
 	}
 
 	/**
