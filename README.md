@@ -29,9 +29,10 @@ The result apk file will be placed in ```app/build/outputs/apk/```.
 
 ## Used libraries
 
-* [Android Support Library](http://developer.android.com/tools/support-library/) by The Android Open Source Project
-* [ViewPagerIndicator](http://viewpagerindicator.com/) by Jake Wharton
-* [PhotoView](https://github.com/chrisbanes/PhotoView) by Chris Banes
+* [AndroidX](https://developer.android.com/jetpack/androidx/) by The Android Open Source Project
+* [Android Architecture Components](https://developer.android.com/topic/libraries/architecture/) by The Android Open Source Project
+* [Material Components for Android](https://material.io/develop/android/) by The Android Open Source Project
+* [PhotoView](https://github.com/chrisbanes/PhotoView) by Chris Banes, Marek Sebera and John Carlson
 
 ## Contributors
 

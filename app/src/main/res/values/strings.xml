@@ -140,6 +140,9 @@
 \nThe name FOSDEM and the gear logo are registered trademarks of FOSDEM VZW.  Used with permission.
 \n
 \n<small>This application makes use of the following libraries:
-\n- <a href="http://developer.android.com/tools/support-library/">Android Support Library</a><i> by The Android Open Source Project</i>\n- <a href="http://viewpagerindicator.com/">ViewPagerIndicator</a><i> by Jake Wharton</i>\n- <a href="https://github.com/chrisbanes/PhotoView">PhotoView</a><i> by Chris Banes</i></small></string>
+\n- <a href="https://developer.android.com/jetpack/androidx/">AndroidX</a><i> by The Android Open Source Project</i>
+\n- <a href="https://developer.android.com/topic/libraries/architecture/">Android Architecture Components</a><i> by The Android Open Source Project</i>
+\n- <a href="https://material.io/develop/android/">Material Components for Android</a><i> by The Android Open Source Project</i>
+\n- <a href="https://github.com/chrisbanes/PhotoView">PhotoView</a><i> by Chris Banes, Marek Sebera and John Carlson</i></small></string>
 
 </resources>
