@@ -3,13 +3,12 @@ package be.digitalia.fosdem.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
 
 import java.util.Date;
 import java.util.List;
 
 import be.digitalia.fosdem.api.FosdemUrls;
-import be.digitalia.fosdem.db.DatabaseManager;
+import be.digitalia.fosdem.utils.DateUtils;
 
 public class Event implements Parcelable {
 
@@ -74,7 +73,7 @@ public class Event implements Parcelable {
 		if ((startTime == null) || (endTime == null)) {
 			return 0;
 		}
-		return (int) ((this.endTime.getTime() - this.startTime.getTime()) / DateUtils.MINUTE_IN_MILLIS);
+		return (int) ((this.endTime.getTime() - this.startTime.getTime()) / android.text.format.DateUtils.MINUTE_IN_MILLIS);
 	}
 
 	public String getRoomName() {
@@ -94,7 +93,7 @@ public class Event implements Parcelable {
 	}
 
 	public String getUrl() {
-		return FosdemUrls.getEvent(slug, DatabaseManager.getInstance().getYear());
+		return FosdemUrls.getEvent(slug, DateUtils.getYear(getDay().getDate().getTime()));
 	}
 
 	public String getTitle() {

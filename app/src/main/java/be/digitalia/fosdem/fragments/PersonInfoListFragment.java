@@ -27,6 +27,7 @@ import be.digitalia.fosdem.adapters.EventsAdapter;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.loaders.SimpleCursorLoader;
 import be.digitalia.fosdem.model.Person;
+import be.digitalia.fosdem.utils.DateUtils;
 
 public class PersonInfoListFragment extends RecyclerViewFragment implements LoaderCallbacks<Cursor> {
 
@@ -62,17 +63,20 @@ public class PersonInfoListFragment extends RecyclerViewFragment implements Load
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.more_info:
-				String url = person.getUrl();
-				if (url != null) {
-					try {
-						Activity context = getActivity();
-						new CustomTabsIntent.Builder()
-								.setToolbarColor(ContextCompat.getColor(context, R.color.color_primary))
-								.setStartAnimations(context, R.anim.slide_in_right, R.anim.slide_out_left)
-								.setExitAnimations(context, R.anim.slide_in_left, R.anim.slide_out_right)
-								.build()
-								.launchUrl(context, Uri.parse(url));
-					} catch (ActivityNotFoundException ignore) {
+				if (adapter.getItemCount() > 0) {
+					final int year = DateUtils.getYear(adapter.getItem(0).getDay().getDate().getTime());
+					String url = person.getUrl(year);
+					if (url != null) {
+						try {
+							Activity context = getActivity();
+							new CustomTabsIntent.Builder()
+									.setToolbarColor(ContextCompat.getColor(context, R.color.color_primary))
+									.setStartAnimations(context, R.anim.slide_in_right, R.anim.slide_out_left)
+									.setExitAnimations(context, R.anim.slide_in_left, R.anim.slide_out_right)
+									.build()
+									.launchUrl(context, Uri.parse(url));
+						} catch (ActivityNotFoundException ignore) {
+						}
 					}
 				}
 				return true;

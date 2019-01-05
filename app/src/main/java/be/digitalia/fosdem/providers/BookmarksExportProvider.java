@@ -19,6 +19,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -30,6 +31,7 @@ import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemUrls;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.model.Event;
+import be.digitalia.fosdem.utils.DateUtils;
 import be.digitalia.fosdem.utils.ICalendarWriter;
 import be.digitalia.fosdem.utils.StringUtils;
 
@@ -147,6 +149,7 @@ public class BookmarksExportProvider extends ContentProvider {
 	static class DownloadThread extends Thread {
 		private final ICalendarWriter writer;
 
+		private final Calendar calendar = Calendar.getInstance(DateUtils.getBelgiumTimeZone(), Locale.US);
 		private final DateFormat dateFormat;
 		private final String dtStamp;
 		private final TextUtils.StringSplitter personsSplitter = new StringUtils.SimpleStringSplitter(", ");
@@ -192,7 +195,7 @@ public class BookmarksExportProvider extends ContentProvider {
 		private void writeEvent(Event event) throws IOException {
 			writer.write("BEGIN", "VEVENT");
 
-			final int year = DatabaseManager.getInstance().getYear();
+			final int year = DateUtils.getYear(event.getDay().getDate().getTime(), calendar);
 			writer.write("UID", String.format(Locale.US, "%1$d@%2$d@%3$s", event.getId(), year, BuildConfig.APPLICATION_ID));
 			writer.write("DTSTAMP", dtStamp);
 			if (event.getStartTime() != null) {

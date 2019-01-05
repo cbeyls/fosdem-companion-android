@@ -15,13 +15,11 @@ import android.provider.BaseColumns;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -60,8 +58,6 @@ public class DatabaseManager {
 
 	private final Context context;
 	private final DatabaseHelper helper;
-
-	private int year = -1;
 
 	public static void init(Context context) {
 		if (instance == null) {
@@ -261,7 +257,6 @@ public class DatabaseManager {
 			if (isComplete) {
 				// Update/clear cache
 				daysLiveData.postValue(daysList);
-				year = -1;
 				// Set last update time and server's last modified tag
 				getSharedPreferences().edit()
 						.putLong(LAST_UPDATE_TIME_PREF, System.currentTimeMillis())
@@ -283,7 +278,6 @@ public class DatabaseManager {
 			db.setTransactionSuccessful();
 
 			daysLiveData.postValue(Collections.<Day>emptyList());
-			year = -1;
 			getSharedPreferences().edit()
 					.remove(LAST_UPDATE_TIME_PREF)
 					.apply();
@@ -336,30 +330,27 @@ public class DatabaseManager {
 		return daysLiveData;
 	}
 
+	@WorkerThread
 	public int getYear() {
-		// Try to get the cached value first
-		if (year != -1) {
-			return year;
-		}
-
-		Calendar cal = Calendar.getInstance(DateUtils.getBelgiumTimeZone(), Locale.US);
+		// Use the current year by default
+		long date = System.currentTimeMillis();
 
 		// Compute from cached days if available
 		List<Day> days = daysLiveData.getValue();
 		if (days != null) {
 			if (days.size() > 0) {
-				cal.setTime(days.get(0).getDate());
+				date = days.get(0).getDate().getTime();
 			}
 		} else {
 			// Perform a quick DB query to retrieve the time of the first day
-			long date = DatabaseUtils.longForQuery(helper.getReadableDatabase(),
-					"SELECT date FROM " + DatabaseHelper.DAYS_TABLE_NAME + " ORDER BY _index ASC LIMIT 1", null);
-			cal.setTimeInMillis(date);
+			try {
+				date = DatabaseUtils.longForQuery(helper.getReadableDatabase(),
+						"SELECT date FROM " + DatabaseHelper.DAYS_TABLE_NAME + " ORDER BY _index ASC LIMIT 1", null);
+			} catch (Exception ignore) {
+			}
 		}
 
-		// If the calendar has not been set at this point, it will simply return the current year
-		year = cal.get(Calendar.YEAR);
-		return year;
+		return DateUtils.getYear(date);
 	}
 
 	@WorkerThread

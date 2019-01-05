@@ -31,8 +31,8 @@ public class Person implements Parcelable {
 		this.name = name;
 	}
 
-	public String getUrl() {
-		return FosdemUrls.getPerson(StringUtils.toSlug(name), DatabaseManager.getInstance().getYear());
+	public String getUrl(int year) {
+		return FosdemUrls.getPerson(StringUtils.toSlug(name), year);
 	}
 
 	@Override
