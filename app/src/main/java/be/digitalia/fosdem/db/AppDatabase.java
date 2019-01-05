@@ -21,8 +21,7 @@ import be.digitalia.fosdem.model.Track;
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
 
-	private static AppDatabase INSTANCE;
-	private static final Object sLock = new Object();
+	private static volatile AppDatabase INSTANCE;
 
 	static final Migration MIGRATION_1_2 = new Migration(1, 2) {
 		@Override
@@ -68,14 +67,19 @@ public abstract class AppDatabase extends RoomDatabase {
 	};
 
 	public static AppDatabase getInstance(Context context) {
-		synchronized (sLock) {
-			if (INSTANCE == null) {
-				INSTANCE = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "fosdem.sqlite")
-						.addMigrations(MIGRATION_1_2)
-						.setJournalMode(JournalMode.TRUNCATE)
-						.build();
+		AppDatabase res = INSTANCE;
+		if (res == null) {
+			synchronized (AppDatabase.class) {
+				res = INSTANCE;
+				if (res == null) {
+					res = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "fosdem.sqlite")
+							.addMigrations(MIGRATION_1_2)
+							.setJournalMode(JournalMode.TRUNCATE)
+							.build();
+					INSTANCE = res;
+				}
 			}
-			return INSTANCE;
 		}
+		return res;
 	}
 }
