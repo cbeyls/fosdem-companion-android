@@ -34,6 +34,7 @@ import be.digitalia.fosdem.db.entities.EventEntity;
 import be.digitalia.fosdem.db.entities.EventTitles;
 import be.digitalia.fosdem.db.entities.EventToPerson;
 import be.digitalia.fosdem.model.Day;
+import be.digitalia.fosdem.model.DetailedEvent;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Link;
 import be.digitalia.fosdem.model.Person;
@@ -123,7 +124,7 @@ public class DatabaseManager {
 	 * @return The number of events processed.
 	 */
 	@WorkerThread
-	public int storeSchedule(Iterable<Event> events, String lastModifiedTag) {
+	public int storeSchedule(Iterable<DetailedEvent> events, String lastModifiedTag) {
 		boolean isComplete = false;
 		List<Day> daysList = null;
 
@@ -148,7 +149,7 @@ public class DatabaseManager {
 			long minEventId = Long.MAX_VALUE;
 			Set<Day> days = new HashSet<>(2);
 
-			for (Event event : events) {
+			for (DetailedEvent event : events) {
 				// 2a: Retrieve or insert Track
 				Track track = event.getTrack();
 				Long trackId = tracks.get(track);

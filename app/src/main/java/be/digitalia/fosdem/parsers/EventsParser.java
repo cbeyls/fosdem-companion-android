@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Locale;
 
 import be.digitalia.fosdem.model.Day;
-import be.digitalia.fosdem.model.Event;
+import be.digitalia.fosdem.model.DetailedEvent;
 import be.digitalia.fosdem.model.Link;
 import be.digitalia.fosdem.model.Person;
 import be.digitalia.fosdem.model.Track;
@@ -23,7 +23,7 @@ import be.digitalia.fosdem.utils.DateUtils;
  *
  * @author Christophe Beyls
  */
-public class EventsParser extends IterableAbstractPullParser<Event> {
+public class EventsParser extends IterableAbstractPullParser<DetailedEvent> {
 
 	private final DateFormat DATE_FORMAT = DateUtils.withBelgiumTimeZone(new SimpleDateFormat("yyyy-MM-dd", Locale.US));
 
@@ -67,7 +67,7 @@ public class EventsParser extends IterableAbstractPullParser<Event> {
 	}
 
 	@Override
-	protected Event parseNext(XmlPullParser parser) throws Exception {
+	protected DetailedEvent parseNext(XmlPullParser parser) throws Exception {
 		while (!isNextEndTag("schedule")) {
 			if (isStartTag()) {
 
@@ -81,7 +81,7 @@ public class EventsParser extends IterableAbstractPullParser<Event> {
 						currentRoom = parser.getAttributeValue(null, "name");
 						break;
 					case "event":
-						Event event = new Event();
+						DetailedEvent event = new DetailedEvent();
 						event.setId(Long.parseLong(parser.getAttributeValue(null, "id")));
 						event.setDay(currentDay);
 						event.setRoomName(currentRoom);

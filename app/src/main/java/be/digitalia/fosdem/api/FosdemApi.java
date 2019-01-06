@@ -15,7 +15,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.db.AppDatabase;
 import be.digitalia.fosdem.db.DatabaseManager;
-import be.digitalia.fosdem.model.Event;
+import be.digitalia.fosdem.model.DetailedEvent;
 import be.digitalia.fosdem.model.RoomStatus;
 import be.digitalia.fosdem.parsers.EventsParser;
 import be.digitalia.fosdem.utils.HttpUtils;
@@ -70,7 +70,7 @@ public class FosdemApi {
 			}
 
 			try {
-				Iterable<Event> events = new EventsParser().parse(httpResult.inputStream);
+				Iterable<DetailedEvent> events = new EventsParser().parse(httpResult.inputStream);
 				result = dbManager.storeSchedule(events, httpResult.lastModified);
 			} finally {
 				try {
