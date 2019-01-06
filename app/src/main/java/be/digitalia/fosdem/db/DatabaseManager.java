@@ -296,11 +296,6 @@ public class DatabaseManager {
 		return toTrack(cursor, null);
 	}
 
-	@WorkerThread
-	public long getEventsCount() {
-		return queryNumEntries(helper.getReadableDatabase(), EventEntity.TABLE_NAME, null, null);
-	}
-
 	/**
 	 * Returns the event with the specified id, or null if not found.
 	 */
@@ -698,11 +693,6 @@ public class DatabaseManager {
 	@WorkerThread
 	public boolean removeBookmark(Event event) {
 		return removeBookmarks(new long[]{event.getId()});
-	}
-
-	@WorkerThread
-	public boolean removeBookmark(long eventId) {
-		return removeBookmarks(new long[]{eventId});
 	}
 
 	@WorkerThread
