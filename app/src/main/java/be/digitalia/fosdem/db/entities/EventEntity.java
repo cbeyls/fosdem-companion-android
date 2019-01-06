@@ -6,6 +6,8 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
+import be.digitalia.fosdem.db.converters.NullableDateTypeConverters;
 
 @Entity(tableName = EventEntity.TABLE_NAME, indices = {
 		@Index(value = {"day_index"}, name = "event_day_index_idx"),
@@ -22,8 +24,10 @@ public class EventEntity {
 	@ColumnInfo(name = "day_index")
 	private int dayIndex;
 	@ColumnInfo(name = "start_time")
+	@TypeConverters({NullableDateTypeConverters.class})
 	private Date startTime;
 	@ColumnInfo(name = "end_time")
+	@TypeConverters({NullableDateTypeConverters.class})
 	private Date endTime;
 	@ColumnInfo(name = "room_name")
 	private String roomName;

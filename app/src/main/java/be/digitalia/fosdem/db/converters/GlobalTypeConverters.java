@@ -1,22 +1,10 @@
-package be.digitalia.fosdem.db;
-
-import java.util.Date;
+package be.digitalia.fosdem.db.converters;
 
 import androidx.room.TypeConverter;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Track;
 
-public class Converters {
-	@TypeConverter
-	public static Date toDate(Long value) {
-		return value == null ? null : new Date(value);
-	}
-
-	@TypeConverter
-	public static Long fromDate(Date value) {
-		return (value == null) ? null : value.getTime();
-	}
-
+public class GlobalTypeConverters {
 	@TypeConverter
 	public static Track.Type toTrackType(String value) {
 		return Track.Type.valueOf(value);

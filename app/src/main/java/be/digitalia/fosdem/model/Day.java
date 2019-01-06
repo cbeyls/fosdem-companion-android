@@ -12,6 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
+import be.digitalia.fosdem.db.converters.NonNullDateTypeConverters;
 import be.digitalia.fosdem.utils.DateUtils;
 
 @Entity(tableName = Day.TABLE_NAME)
@@ -24,6 +26,7 @@ public class Day implements Comparable<Day>, Parcelable {
 	@PrimaryKey
 	@ColumnInfo(name = "_index")
 	private int index;
+	@TypeConverters({NonNullDateTypeConverters.class})
 	@NonNull
 	private Date date;
 

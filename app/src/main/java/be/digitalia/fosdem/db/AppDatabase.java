@@ -8,6 +8,7 @@ import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
+import be.digitalia.fosdem.db.converters.GlobalTypeConverters;
 import be.digitalia.fosdem.db.entities.Bookmark;
 import be.digitalia.fosdem.db.entities.EventEntity;
 import be.digitalia.fosdem.db.entities.EventTitles;
@@ -18,7 +19,7 @@ import be.digitalia.fosdem.model.Person;
 import be.digitalia.fosdem.model.Track;
 
 @Database(entities = {EventEntity.class, EventTitles.class, Person.class, EventToPerson.class, Link.class, Track.class, Day.class, Bookmark.class}, version = 2, exportSchema = false)
-@TypeConverters({Converters.class})
+@TypeConverters({GlobalTypeConverters.class})
 public abstract class AppDatabase extends RoomDatabase {
 
 	private static volatile AppDatabase INSTANCE;
