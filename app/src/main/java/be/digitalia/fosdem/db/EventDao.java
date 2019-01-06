@@ -7,14 +7,10 @@ import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Query;
 import androidx.room.Transaction;
-import be.digitalia.fosdem.db.entities.EventEntity;
-import be.digitalia.fosdem.db.entities.EventTitles;
-import be.digitalia.fosdem.db.entities.EventToPerson;
 import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Link;
 import be.digitalia.fosdem.model.Person;
-import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.DateUtils;
 
 @Dao
@@ -31,25 +27,25 @@ public abstract class EventDao {
 		clearDays();
 	}
 
-	@Query("DELETE FROM " + EventEntity.TABLE_NAME)
+	@Query("DELETE FROM events")
 	protected abstract void clearEvents();
 
-	@Query("DELETE FROM " + EventTitles.TABLE_NAME)
+	@Query("DELETE FROM events_titles")
 	protected abstract void clearEventTitles();
 
-	@Query("DELETE FROM " + Person.TABLE_NAME)
+	@Query("DELETE FROM persons")
 	protected abstract void clearPersons();
 
-	@Query("DELETE FROM " + EventToPerson.TABLE_NAME)
+	@Query("DELETE FROM events_persons")
 	protected abstract void clearEventToPersons();
 
-	@Query("DELETE FROM " + Link.TABLE_NAME)
+	@Query("DELETE FROM links")
 	protected abstract void clearLinks();
 
-	@Query("DELETE FROM " + Track.TABLE_NAME)
+	@Query("DELETE FROM tracks")
 	protected abstract void clearTracks();
 
-	@Query("DELETE FROM " + Day.TABLE_NAME)
+	@Query("DELETE FROM days")
 	protected abstract void clearDays();
 
 
@@ -66,7 +62,7 @@ public abstract class EventDao {
 		}
 	}
 
-	@Query("SELECT `index`, date FROM " + Day.TABLE_NAME + " ORDER BY `index` ASC")
+	@Query("SELECT `index`, date FROM days ORDER BY `index` ASC")
 	protected abstract LiveData<List<Day>> getDaysInternal();
 
 	@WorkerThread
@@ -92,18 +88,18 @@ public abstract class EventDao {
 		return DateUtils.getYear(date);
 	}
 
-	@Query("SELECT date FROM " + Day.TABLE_NAME + " ORDER BY `index` ASC LIMIT 1")
+	@Query("SELECT date FROM days ORDER BY `index` ASC LIMIT 1")
 	protected abstract long getConferenceStartDate();
 
 	/**
 	 * Returns persons presenting the specified event.
 	 */
 	@Query("SELECT p.`rowid`, p.name"
-			+ " FROM " + Person.TABLE_NAME + " p"
-			+ " JOIN " + EventToPerson.TABLE_NAME + " ep ON p.`rowid` = ep.person_id"
+			+ " FROM persons p"
+			+ " JOIN events_persons ep ON p.`rowid` = ep.person_id"
 			+ " WHERE ep.event_id = :event")
 	public abstract LiveData<List<Person>> getPersons(Event event);
 
-	@Query("SELECT * FROM " + Link.TABLE_NAME + " WHERE event_id = :event ORDER BY id ASC")
+	@Query("SELECT * FROM links WHERE event_id = :event ORDER BY id ASC")
 	public abstract LiveData<List<Link>> getLinks(Event event);
 }
