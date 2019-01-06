@@ -29,6 +29,7 @@ import androidx.core.app.ShareCompat;
 import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemUrls;
+import be.digitalia.fosdem.db.AppDatabase;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.utils.DateUtils;
@@ -105,7 +106,7 @@ public class BookmarksExportProvider extends ContentProvider {
 		for (String col : projection) {
 			if (OpenableColumns.DISPLAY_NAME.equals(col)) {
 				cols[i] = OpenableColumns.DISPLAY_NAME;
-				values[i++] = getContext().getString(R.string.export_bookmarks_file_name, DatabaseManager.getInstance().getYear());
+				values[i++] = getContext().getString(R.string.export_bookmarks_file_name, AppDatabase.getInstance(getContext()).getEventDao().getYear());
 			} else if (OpenableColumns.SIZE.equals(col)) {
 				cols[i] = OpenableColumns.SIZE;
 				// Unknown size, content will be generated on-the-fly

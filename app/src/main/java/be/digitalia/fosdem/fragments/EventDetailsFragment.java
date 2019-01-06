@@ -221,7 +221,7 @@ public class EventDetailsFragment extends Fragment {
 		});
 
 		// Live room status
-		FosdemApi.getRoomStatuses().observe(getViewLifecycleOwner(), new Observer<Map<String, RoomStatus>>() {
+		FosdemApi.getRoomStatuses(getContext()).observe(getViewLifecycleOwner(), new Observer<Map<String, RoomStatus>>() {
 			@Override
 			public void onChanged(Map<String, RoomStatus> roomStatuses) {
 				RoomStatus roomStatus = roomStatuses.get(event.getRoomName());

@@ -20,7 +20,7 @@ import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 import be.digitalia.fosdem.R;
-import be.digitalia.fosdem.db.DatabaseManager;
+import be.digitalia.fosdem.db.AppDatabase;
 import be.digitalia.fosdem.model.Day;
 
 public class TracksFragment extends Fragment implements RecycledViewPoolProvider, Observer<List<Day>> {
@@ -74,7 +74,7 @@ public class TracksFragment extends Fragment implements RecycledViewPoolProvider
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		DatabaseManager.getInstance().getDays()
+		AppDatabase.getInstance(getContext()).getEventDao().getDays()
 				.observe(getViewLifecycleOwner(), this);
 	}
 

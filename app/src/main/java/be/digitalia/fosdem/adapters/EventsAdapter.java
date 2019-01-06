@@ -54,7 +54,7 @@ public class EventsAdapter extends RecyclerViewCursorAdapter<EventsAdapter.ViewH
 		timeDateFormat = DateUtils.getTimeDateFormat(context);
 		this.showDay = showDay;
 
-		FosdemApi.getRoomStatuses().observe(owner, this);
+		FosdemApi.getRoomStatuses(context).observe(owner, this);
 	}
 
 	@Override

@@ -24,7 +24,6 @@ import java.util.Set;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
-import androidx.lifecycle.LiveData;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
@@ -34,13 +33,11 @@ import be.digitalia.fosdem.db.entities.Bookmark;
 import be.digitalia.fosdem.db.entities.EventEntity;
 import be.digitalia.fosdem.db.entities.EventTitles;
 import be.digitalia.fosdem.db.entities.EventToPerson;
-import be.digitalia.fosdem.livedata.AsyncTaskLiveData;
 import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Link;
 import be.digitalia.fosdem.model.Person;
 import be.digitalia.fosdem.model.Track;
-import be.digitalia.fosdem.utils.DateUtils;
 
 /**
  * Here comes the badass SQL.
@@ -63,6 +60,7 @@ public class DatabaseManager {
 	private static DatabaseManager instance;
 
 	private final Context context;
+	private final AppDatabase appDatabase;
 	private final SupportSQLiteOpenHelper helper;
 
 	public static void init(Context context) {
@@ -77,7 +75,8 @@ public class DatabaseManager {
 
 	private DatabaseManager(Context context) {
 		this.context = context;
-		helper = AppDatabase.getInstance(context).getOpenHelper();
+		appDatabase = AppDatabase.getInstance(context);
+		helper = appDatabase.getOpenHelper();
 	}
 
 	private static final String TRACK_INSERT_STATEMENT = "INSERT INTO " + Track.TABLE_NAME + " (id, name, type) VALUES (?, ?, ?);";
@@ -129,10 +128,10 @@ public class DatabaseManager {
 		List<Day> daysList = null;
 
 		SupportSQLiteDatabase db = helper.getWritableDatabase();
-		db.beginTransaction();
+		appDatabase.beginTransaction();
 		try {
 			// 1: Delete the previous schedule
-			clearSchedule(db);
+			appDatabase.getEventDao().clearSchedule();
 
 			// Compile the insert statements for the big tables
 			final SupportSQLiteStatement trackInsertStatement = db.compileStatement(TRACK_INSERT_STATEMENT);
@@ -251,17 +250,15 @@ public class DatabaseManager {
 			}
 
 			if (totalEvents > 0) {
-				db.setTransactionSuccessful();
+				appDatabase.setTransactionSuccessful();
 				isComplete = true;
 			}
 
 			return totalEvents;
 		} finally {
-			db.endTransaction();
+			appDatabase.endTransaction();
 
 			if (isComplete) {
-				// Update/clear cache
-				daysLiveData.postValue(daysList);
 				// Set last update time and server's last modified tag
 				getSharedPreferences().edit()
 						.putLong(LAST_UPDATE_TIME_PREF, System.currentTimeMillis())
@@ -271,91 +268,6 @@ public class DatabaseManager {
 				LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ACTION_SCHEDULE_REFRESHED));
 			}
 		}
-	}
-
-	@WorkerThread
-	public void clearSchedule() {
-		SupportSQLiteDatabase db = helper.getWritableDatabase();
-		db.beginTransaction();
-		try {
-			clearSchedule(db);
-
-			db.setTransactionSuccessful();
-
-			daysLiveData.postValue(Collections.<Day>emptyList());
-			getSharedPreferences().edit()
-					.remove(LAST_UPDATE_TIME_PREF)
-					.apply();
-		} finally {
-			db.endTransaction();
-
-			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ACTION_SCHEDULE_REFRESHED));
-		}
-	}
-
-	private static void clearSchedule(SupportSQLiteDatabase db) {
-		db.delete(EventEntity.TABLE_NAME, null, null);
-		db.delete(EventTitles.TABLE_NAME, null, null);
-		db.delete(Person.TABLE_NAME, null, null);
-		db.delete(EventToPerson.TABLE_NAME, null, null);
-		db.delete(Link.TABLE_NAME, null, null);
-		db.delete(Track.TABLE_NAME, null, null);
-		db.delete(Day.TABLE_NAME, null, null);
-	}
-
-	private final AsyncTaskLiveData<List<Day>> daysLiveData = new AsyncTaskLiveData<List<Day>>() {
-
-		{
-			onContentChanged();
-		}
-
-		@Override
-		protected List<Day> loadInBackground() throws Exception {
-			Cursor cursor = helper.getReadableDatabase().query(
-					"SELECT _index, date FROM " + Day.TABLE_NAME + " ORDER BY _index ASC");
-			try {
-				List<Day> result = new ArrayList<>(cursor.getCount());
-				while (cursor.moveToNext()) {
-					Day day = new Day();
-					day.setIndex(cursor.getInt(0));
-					day.setDate(new Date(cursor.getLong(1)));
-					result.add(day);
-				}
-				return result;
-			} finally {
-				cursor.close();
-			}
-		}
-	};
-
-	/**
-	 * @return The Days the events span to.
-	 */
-	public LiveData<List<Day>> getDays() {
-		return daysLiveData;
-	}
-
-	@WorkerThread
-	public int getYear() {
-		// Use the current year by default
-		long date = System.currentTimeMillis();
-
-		// Compute from cached days if available
-		List<Day> days = daysLiveData.getValue();
-		if (days != null) {
-			if (days.size() > 0) {
-				date = days.get(0).getDate().getTime();
-			}
-		} else {
-			// Perform a quick DB query to retrieve the time of the first day
-			try {
-				date = longForQuery(helper.getReadableDatabase(),
-						"SELECT date FROM " + Day.TABLE_NAME + " ORDER BY _index ASC LIMIT 1", null);
-			} catch (Exception ignore) {
-			}
-		}
-
-		return DateUtils.getYear(date);
 	}
 
 	@WorkerThread

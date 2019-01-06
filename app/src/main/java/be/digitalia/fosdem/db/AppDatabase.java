@@ -82,4 +82,6 @@ public abstract class AppDatabase extends RoomDatabase {
 		}
 		return res;
 	}
+
+	public abstract EventDao getEventDao();
 }

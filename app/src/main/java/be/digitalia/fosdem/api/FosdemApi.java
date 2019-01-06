@@ -13,6 +13,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import be.digitalia.fosdem.BuildConfig;
+import be.digitalia.fosdem.db.AppDatabase;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.RoomStatus;
@@ -100,12 +101,12 @@ public class FosdemApi {
 	}
 
 	@MainThread
-	public static LiveData<Map<String, RoomStatus>> getRoomStatuses() {
+	public static LiveData<Map<String, RoomStatus>> getRoomStatuses(Context context) {
 		if (roomStatuses == null) {
 			// The room statuses will only be loaded when the event is live.
 			// RoomStatusesLiveData uses the days from the database to determine it.
-			roomStatuses = new RoomStatusesLiveData(DatabaseManager.getInstance().getDays());
-			// Implementors: replace the above live with the next one to disable room status support
+			roomStatuses = new RoomStatusesLiveData(AppDatabase.getInstance(context).getEventDao().getDays());
+			// Implementors: replace the above line with the next one to disable room status support
 			// roomStatuses = new MutableLiveData<>();
 		}
 		return roomStatuses;
