@@ -14,7 +14,7 @@ import be.digitalia.fosdem.model.Person;
 import be.digitalia.fosdem.utils.DateUtils;
 
 @Dao
-public abstract class EventDao {
+public abstract class ScheduleDao {
 
 	@Transaction
 	public void clearSchedule() {

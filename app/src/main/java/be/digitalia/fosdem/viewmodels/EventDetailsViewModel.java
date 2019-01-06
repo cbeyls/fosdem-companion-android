@@ -71,8 +71,8 @@ public class EventDetailsViewModel extends AndroidViewModel {
 
 			final AppDatabase appDatabase = AppDatabase.getInstance(getApplication());
 			eventDetails = ExtraTransformations.zipLatest(
-					appDatabase.getEventDao().getPersons(event),
-					appDatabase.getEventDao().getLinks(event)
+					appDatabase.getScheduleDao().getPersons(event),
+					appDatabase.getScheduleDao().getLinks(event)
 			);
 		}
 	}

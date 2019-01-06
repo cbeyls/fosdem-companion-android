@@ -132,7 +132,7 @@ public class DatabaseManager {
 		appDatabase.beginTransaction();
 		try {
 			// 1: Delete the previous schedule
-			appDatabase.getEventDao().clearSchedule();
+			appDatabase.getScheduleDao().clearSchedule();
 
 			// Compile the insert statements for the big tables
 			final SupportSQLiteStatement trackInsertStatement = db.compileStatement(TRACK_INSERT_STATEMENT);

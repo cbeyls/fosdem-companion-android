@@ -74,7 +74,7 @@ public class TracksFragment extends Fragment implements RecycledViewPoolProvider
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		AppDatabase.getInstance(getContext()).getEventDao().getDays()
+		AppDatabase.getInstance(getContext()).getScheduleDao().getDays()
 				.observe(getViewLifecycleOwner(), this);
 	}
 

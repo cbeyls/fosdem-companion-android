@@ -106,7 +106,7 @@ public class BookmarksExportProvider extends ContentProvider {
 		for (String col : projection) {
 			if (OpenableColumns.DISPLAY_NAME.equals(col)) {
 				cols[i] = OpenableColumns.DISPLAY_NAME;
-				values[i++] = getContext().getString(R.string.export_bookmarks_file_name, AppDatabase.getInstance(getContext()).getEventDao().getYear());
+				values[i++] = getContext().getString(R.string.export_bookmarks_file_name, AppDatabase.getInstance(getContext()).getScheduleDao().getYear());
 			} else if (OpenableColumns.SIZE.equals(col)) {
 				cols[i] = OpenableColumns.SIZE;
 				// Unknown size, content will be generated on-the-fly
