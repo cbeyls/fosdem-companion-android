@@ -20,93 +20,70 @@ public class EventEntity {
 	public static final String TABLE_NAME = "events";
 
 	@PrimaryKey
-	private long id;
+	private final long id;
 	@ColumnInfo(name = "day_index")
-	private int dayIndex;
+	private final int dayIndex;
 	@ColumnInfo(name = "start_time")
 	@TypeConverters({NullableDateTypeConverters.class})
-	private Date startTime;
+	private final Date startTime;
 	@ColumnInfo(name = "end_time")
 	@TypeConverters({NullableDateTypeConverters.class})
-	private Date endTime;
+	private final Date endTime;
 	@ColumnInfo(name = "room_name")
-	private String roomName;
-	private String slug;
+	private final String roomName;
+	private final String slug;
 	@ColumnInfo(name = "track_id")
-	private Long trackId;
+	private final Long trackId;
 	@ColumnInfo(name = "abstract")
-	private String abstractText;
-	private String description;
+	private final String abstractText;
+	private final String description;
+
+	public EventEntity(long id, int dayIndex, Date startTime, Date endTime, String roomName,
+					   String slug, Long trackId, String abstractText, String description) {
+		this.id = id;
+		this.dayIndex = dayIndex;
+		this.startTime = startTime;
+		this.endTime = endTime;
+		this.roomName = roomName;
+		this.slug = slug;
+		this.trackId = trackId;
+		this.abstractText = abstractText;
+		this.description = description;
+	}
 
 	public long getId() {
 		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
 	}
 
 	public int getDayIndex() {
 		return dayIndex;
 	}
 
-	public void setDayIndex(int dayIndex) {
-		this.dayIndex = dayIndex;
-	}
-
 	public Date getStartTime() {
 		return startTime;
-	}
-
-	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
 	}
 
 	public Date getEndTime() {
 		return endTime;
 	}
 
-	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
-	}
-
 	public String getRoomName() {
 		return roomName;
-	}
-
-	public void setRoomName(String roomName) {
-		this.roomName = roomName;
 	}
 
 	public String getSlug() {
 		return slug;
 	}
 
-	public void setSlug(String slug) {
-		this.slug = slug;
-	}
-
 	public Long getTrackId() {
 		return trackId;
-	}
-
-	public void setTrackId(Long trackId) {
-		this.trackId = trackId;
 	}
 
 	public String getAbstractText() {
 		return abstractText;
 	}
 
-	public void setAbstractText(String abstractText) {
-		this.abstractText = abstractText;
-	}
-
 	public String getDescription() {
 		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
 	}
 }

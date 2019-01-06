@@ -13,32 +13,26 @@ public class EventTitles {
 
 	@PrimaryKey
 	@ColumnInfo(name = "rowid")
-	private long id;
-	private String title;
+	private final long id;
+	private final String title;
 	@ColumnInfo(name = "subtitle")
-	private String subTitle;
+	private final String subTitle;
+
+	public EventTitles(long id, String title, String subTitle) {
+		this.id = id;
+		this.title = title;
+		this.subTitle = subTitle;
+	}
 
 	public long getId() {
 		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
 	}
 
 	public String getTitle() {
 		return title;
 	}
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
 	public String getSubTitle() {
 		return subTitle;
-	}
-
-	public void setSubTitle(String subTitle) {
-		this.subTitle = subTitle;
 	}
 }

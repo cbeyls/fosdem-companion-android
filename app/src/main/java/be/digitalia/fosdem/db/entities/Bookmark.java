@@ -11,13 +11,13 @@ public class Bookmark {
 
 	@PrimaryKey
 	@ColumnInfo(name = "event_id")
-	private long eventId;
+	private final long eventId;
+
+	public Bookmark(long eventId) {
+		this.eventId = eventId;
+	}
 
 	public long getEventId() {
 		return eventId;
-	}
-
-	public void setEventId(long eventId) {
-		this.eventId = eventId;
 	}
 }
