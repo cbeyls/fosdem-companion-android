@@ -86,6 +86,7 @@ public class Link implements Parcelable {
 	@Override
 	public void writeToParcel(Parcel out, int flags) {
 		out.writeLong(id);
+		out.writeLong(eventId);
 		out.writeString(url);
 		out.writeString(description);
 	}
@@ -102,6 +103,7 @@ public class Link implements Parcelable {
 
 	Link(Parcel in) {
 		id = in.readLong();
+		eventId = in.readLong();
 		url = in.readString();
 		description = in.readString();
 	}
