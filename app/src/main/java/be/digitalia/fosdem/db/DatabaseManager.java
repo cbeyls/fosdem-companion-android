@@ -83,11 +83,11 @@ public class DatabaseManager {
 	private static final String EVENT_INSERT_STATEMENT = "INSERT INTO " + EventEntity.TABLE_NAME
 			+ " (id, day_index, start_time, end_time, room_name, slug, track_id, abstract, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
 	private static final String EVENT_TITLES_INSERT_STATEMENT = "INSERT INTO " + EventTitles.TABLE_NAME
-			+ " (rowid, title, subtitle) VALUES (?, ?, ?);";
+			+ " (`rowid`, title, subtitle) VALUES (?, ?, ?);";
 	private static final String EVENT_PERSON_INSERT_STATEMENT = "INSERT INTO " + EventToPerson.TABLE_NAME
 			+ " (event_id, person_id) VALUES (?, ?);";
 	// Ignore conflicts in case of existing person
-	private static final String PERSON_INSERT_STATEMENT = "INSERT OR IGNORE INTO " + Person.TABLE_NAME + " (rowid, name) VALUES (?, ?);";
+	private static final String PERSON_INSERT_STATEMENT = "INSERT OR IGNORE INTO " + Person.TABLE_NAME + " (`rowid`, name) VALUES (?, ?);";
 	private static final String LINK_INSERT_STATEMENT = "INSERT INTO " + Link.TABLE_NAME + " (event_id, url, description) VALUES (?, ?, ?);";
 
 	private static void bindString(SupportSQLiteStatement statement, int index, String value) {
@@ -236,7 +236,7 @@ public class DatabaseManager {
 			ContentValues values = new ContentValues();
 			for (Day day : days) {
 				values.clear();
-				values.put("_index", day.getIndex());
+				values.put("`index`", day.getIndex());
 				values.put("date", day.getDate().getTime());
 				db.insert(Day.TABLE_NAME, SQLiteDatabase.CONFLICT_ABORT, values);
 			}
@@ -307,7 +307,7 @@ public class DatabaseManager {
 				"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type"
 						+ " FROM " + EventEntity.TABLE_NAME + " e"
 						+ " JOIN " + EventTitles.TABLE_NAME + " et ON e.id = et.rowid"
-						+ " JOIN " + Day.TABLE_NAME + " d ON e.day_index = d._index"
+						+ " JOIN " + Day.TABLE_NAME + " d ON e.day_index = d.`index`"
 						+ " JOIN " + Track.TABLE_NAME + " t ON e.track_id = t.id"
 						+ " LEFT JOIN " + EventToPerson.TABLE_NAME + " ep ON e.id = ep.event_id"
 						+ " LEFT JOIN " + Person.TABLE_NAME + " p ON ep.person_id = p.rowid"
@@ -345,7 +345,7 @@ public class DatabaseManager {
 				"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, b.event_id"
 						+ " FROM " + EventEntity.TABLE_NAME + " e"
 						+ " JOIN " + EventTitles.TABLE_NAME + " et ON e.id = et.rowid"
-						+ " JOIN " + Day.TABLE_NAME + " d ON e.day_index = d._index"
+						+ " JOIN " + Day.TABLE_NAME + " d ON e.day_index = d.`index`"
 						+ " JOIN " + Track.TABLE_NAME + " t ON e.track_id = t.id"
 						+ " LEFT JOIN " + EventToPerson.TABLE_NAME + " ep ON e.id = ep.event_id"
 						+ " LEFT JOIN " + Person.TABLE_NAME + " p ON ep.person_id = p.rowid"
@@ -397,7 +397,7 @@ public class DatabaseManager {
 				"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, b.event_id"
 						+ " FROM " + EventEntity.TABLE_NAME + " e"
 						+ " JOIN " + EventTitles.TABLE_NAME + " et ON e.id = et.rowid"
-						+ " JOIN " + Day.TABLE_NAME + " d ON e.day_index = d._index"
+						+ " JOIN " + Day.TABLE_NAME + " d ON e.day_index = d.`index`"
 						+ " JOIN " + Track.TABLE_NAME + " t ON e.track_id = t.id"
 						+ " LEFT JOIN " + EventToPerson.TABLE_NAME + " ep ON e.id = ep.event_id"
 						+ " LEFT JOIN " + Person.TABLE_NAME + " p ON ep.person_id = p.rowid"
@@ -422,7 +422,7 @@ public class DatabaseManager {
 				"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, b.event_id"
 						+ " FROM " + EventEntity.TABLE_NAME + " e"
 						+ " JOIN " + EventTitles.TABLE_NAME + " et ON e.id = et.rowid"
-						+ " JOIN " + Day.TABLE_NAME + " d ON e.day_index = d._index"
+						+ " JOIN " + Day.TABLE_NAME + " d ON e.day_index = d.`index`"
 						+ " JOIN " + Track.TABLE_NAME + " t ON e.track_id = t.id"
 						+ " LEFT JOIN " + EventToPerson.TABLE_NAME + " ep ON e.id = ep.event_id"
 						+ " LEFT JOIN " + Person.TABLE_NAME + " p ON ep.person_id = p.rowid"
@@ -457,7 +457,7 @@ public class DatabaseManager {
 						+ " FROM " + Bookmark.TABLE_NAME + " b"
 						+ " JOIN " + EventEntity.TABLE_NAME + " e ON b.event_id = e.id"
 						+ " JOIN " + EventTitles.TABLE_NAME + " et ON e.id = et.rowid"
-						+ " JOIN " + Day.TABLE_NAME + " d ON e.day_index = d._index"
+						+ " JOIN " + Day.TABLE_NAME + " d ON e.day_index = d.`index`"
 						+ " JOIN " + Track.TABLE_NAME + " t ON e.track_id = t.id"
 						+ " LEFT JOIN " + EventToPerson.TABLE_NAME + " ep ON e.id = ep.event_id"
 						+ " LEFT JOIN " + Person.TABLE_NAME + " p ON ep.person_id = p.rowid"
@@ -482,7 +482,7 @@ public class DatabaseManager {
 				"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, b.event_id"
 						+ " FROM " + EventEntity.TABLE_NAME + " e"
 						+ " JOIN " + EventTitles.TABLE_NAME + " et ON e.id = et.rowid"
-						+ " JOIN " + Day.TABLE_NAME + " d ON e.day_index = d._index"
+						+ " JOIN " + Day.TABLE_NAME + " d ON e.day_index = d.`index`"
 						+ " JOIN " + Track.TABLE_NAME + " t ON e.track_id = t.id"
 						+ " LEFT JOIN " + EventToPerson.TABLE_NAME + " ep ON e.id = ep.event_id"
 						+ " LEFT JOIN " + Person.TABLE_NAME + " p ON ep.person_id = p.rowid"

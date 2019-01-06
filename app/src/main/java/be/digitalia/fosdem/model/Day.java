@@ -24,7 +24,6 @@ public class Day implements Comparable<Day>, Parcelable {
 	private static final DateFormat DAY_DATE_FORMAT = DateUtils.withBelgiumTimeZone(new SimpleDateFormat("EEEE", Locale.US));
 
 	@PrimaryKey
-	@ColumnInfo(name = "_index")
 	private int index;
 	@TypeConverters({NonNullDateTypeConverters.class})
 	@NonNull

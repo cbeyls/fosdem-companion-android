@@ -41,7 +41,7 @@ public abstract class AppDatabase extends RoomDatabase {
 
 			// Links: add explicit primary key
 			database.execSQL("CREATE TABLE tmp_" + Link.TABLE_NAME + " (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, event_id INTEGER NOT NULL, url TEXT NOT NULL, description TEXT);");
-			database.execSQL("INSERT INTO tmp_" + Link.TABLE_NAME + " SELECT rowid AS id, event_id, url, description FROM " + Link.TABLE_NAME);
+			database.execSQL("INSERT INTO tmp_" + Link.TABLE_NAME + " SELECT `rowid` AS id, event_id, url, description FROM " + Link.TABLE_NAME);
 			database.execSQL("DROP TABLE " + Link.TABLE_NAME);
 			database.execSQL("ALTER TABLE tmp_" + Link.TABLE_NAME + " RENAME TO " + Link.TABLE_NAME);
 			database.execSQL("CREATE INDEX link_event_id_idx ON " + Link.TABLE_NAME + " (event_id)");
@@ -53,9 +53,9 @@ public abstract class AppDatabase extends RoomDatabase {
 			database.execSQL("ALTER TABLE tmp_" + Track.TABLE_NAME + " RENAME TO " + Track.TABLE_NAME);
 			database.execSQL("CREATE UNIQUE INDEX track_main_idx ON " + Track.TABLE_NAME + " (name, type)");
 
-			// Days: make primary key not null
-			database.execSQL("CREATE TABLE tmp_" + Day.TABLE_NAME + " (_index INTEGER PRIMARY KEY NOT NULL, date INTEGER NOT NULL);");
-			database.execSQL("INSERT INTO tmp_" + Day.TABLE_NAME + " SELECT * FROM " + Day.TABLE_NAME);
+			// Days: make primary key not null and rename _index to index
+			database.execSQL("CREATE TABLE tmp_" + Day.TABLE_NAME + " (`index` INTEGER PRIMARY KEY NOT NULL, date INTEGER NOT NULL);");
+			database.execSQL("INSERT INTO tmp_" + Day.TABLE_NAME + " SELECT _index as `index`, date FROM " + Day.TABLE_NAME);
 			database.execSQL("DROP TABLE " + Day.TABLE_NAME);
 			database.execSQL("ALTER TABLE tmp_" + Day.TABLE_NAME + " RENAME TO " + Day.TABLE_NAME);
 

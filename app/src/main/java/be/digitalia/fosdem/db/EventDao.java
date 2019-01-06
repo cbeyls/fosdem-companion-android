@@ -66,7 +66,7 @@ public abstract class EventDao {
 		}
 	}
 
-	@Query("SELECT _index, date FROM " + Day.TABLE_NAME + " ORDER BY _index ASC")
+	@Query("SELECT `index`, date FROM " + Day.TABLE_NAME + " ORDER BY `index` ASC")
 	protected abstract LiveData<List<Day>> getDaysInternal();
 
 	@WorkerThread
@@ -92,15 +92,15 @@ public abstract class EventDao {
 		return DateUtils.getYear(date);
 	}
 
-	@Query("SELECT date FROM " + Day.TABLE_NAME + " ORDER BY _index ASC LIMIT 1")
+	@Query("SELECT date FROM " + Day.TABLE_NAME + " ORDER BY `index` ASC LIMIT 1")
 	protected abstract long getConferenceStartDate();
 
 	/**
 	 * Returns persons presenting the specified event.
 	 */
-	@Query("SELECT p.rowid, p.name"
+	@Query("SELECT p.`rowid`, p.name"
 			+ " FROM " + Person.TABLE_NAME + " p"
-			+ " JOIN " + EventToPerson.TABLE_NAME + " ep ON p.rowid = ep.person_id"
+			+ " JOIN " + EventToPerson.TABLE_NAME + " ep ON p.`rowid` = ep.person_id"
 			+ " WHERE ep.event_id = :event")
 	public abstract LiveData<List<Person>> getPersons(Event event);
 
