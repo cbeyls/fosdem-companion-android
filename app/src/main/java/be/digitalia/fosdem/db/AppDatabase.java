@@ -27,10 +27,10 @@ public abstract class AppDatabase extends RoomDatabase {
 	static final Migration MIGRATION_1_2 = new Migration(1, 2) {
 		@Override
 		public void migrate(SupportSQLiteDatabase database) {
-			// Events: make primary key not null
+			// Events: make primary key and track_id not null
 			database.execSQL("CREATE TABLE tmp_"
 					+ EventEntity.TABLE_NAME
-					+ " (id INTEGER PRIMARY KEY NOT NULL, day_index INTEGER NOT NULL, start_time INTEGER, end_time INTEGER, room_name TEXT, slug TEXT, track_id INTEGER, abstract TEXT, description TEXT);");
+					+ " (id INTEGER PRIMARY KEY NOT NULL, day_index INTEGER NOT NULL, start_time INTEGER, end_time INTEGER, room_name TEXT, slug TEXT, track_id INTEGER NOT NULL, abstract TEXT, description TEXT);");
 			database.execSQL("INSERT INTO tmp_" + EventEntity.TABLE_NAME + " SELECT * FROM " + EventEntity.TABLE_NAME);
 			database.execSQL("DROP TABLE " + EventEntity.TABLE_NAME);
 			database.execSQL("ALTER TABLE tmp_" + EventEntity.TABLE_NAME + " RENAME TO " + EventEntity.TABLE_NAME);

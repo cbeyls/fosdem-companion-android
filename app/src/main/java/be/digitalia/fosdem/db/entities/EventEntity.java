@@ -8,6 +8,7 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 import be.digitalia.fosdem.db.converters.NullableDateTypeConverters;
+import be.digitalia.fosdem.model.Event;
 
 @Entity(tableName = EventEntity.TABLE_NAME, indices = {
 		@Index(value = {"day_index"}, name = "event_day_index_idx"),
@@ -33,13 +34,18 @@ public class EventEntity {
 	private final String roomName;
 	private final String slug;
 	@ColumnInfo(name = "track_id")
-	private final Long trackId;
+	private final long trackId;
 	@ColumnInfo(name = "abstract")
 	private final String abstractText;
 	private final String description;
 
+	public EventEntity(Event event) {
+		this(event.getId(), event.getDay().getIndex(), event.getStartTime(), event.getEndTime(), event.getRoomName(),
+				event.getSlug(), event.getTrack().getId(), event.getAbstractText(), event.getDescription());
+	}
+
 	public EventEntity(long id, int dayIndex, Date startTime, Date endTime, String roomName,
-					   String slug, Long trackId, String abstractText, String description) {
+					   String slug, long trackId, String abstractText, String description) {
 		this.id = id;
 		this.dayIndex = dayIndex;
 		this.startTime = startTime;
@@ -75,7 +81,7 @@ public class EventEntity {
 		return slug;
 	}
 
-	public Long getTrackId() {
+	public long getTrackId() {
 		return trackId;
 	}
 
