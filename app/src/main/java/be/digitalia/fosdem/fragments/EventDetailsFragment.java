@@ -29,6 +29,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
@@ -36,6 +37,7 @@ import androidx.annotation.Nullable;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -213,9 +215,9 @@ public class EventDetailsFragment extends Fragment {
 				updateBookmarkMenuItem(isBookmarked, true);
 			}
 		});
-		viewModel.getEventDetails().observe(getViewLifecycleOwner(), new Observer<EventDetailsViewModel.EventDetails>() {
+		viewModel.getEventDetails().observe(getViewLifecycleOwner(), new Observer<Pair<List<Person>, List<Link>>>() {
 			@Override
-			public void onChanged(@Nullable EventDetailsViewModel.EventDetails eventDetails) {
+			public void onChanged(Pair<List<Person>, List<Link>> eventDetails) {
 				setEventDetails(eventDetails);
 			}
 		});
@@ -374,15 +376,16 @@ public class EventDetailsFragment extends Fragment {
 		}
 	}
 
-	void setEventDetails(@NonNull EventDetailsViewModel.EventDetails data) {
+	void setEventDetails(@NonNull Pair<List<Person>, List<Link>> data) {
 		// 1. Persons
-		if (data.persons != null) {
-			personsCount = data.persons.size();
+		final List<Person> persons = data.first;
+		if (persons != null) {
+			personsCount = persons.size();
 			if (personsCount > 0) {
 				// Build a list of clickable persons
 				SpannableStringBuilder sb = new SpannableStringBuilder();
 				int length = 0;
-				for (Person person : data.persons) {
+				for (Person person : persons) {
 					if (length != 0) {
 						sb.append(", ");
 					}
@@ -397,11 +400,12 @@ public class EventDetailsFragment extends Fragment {
 		}
 
 		// 2. Links
+		final List<Link> links = data.second;
 		holder.linksContainer.removeAllViews();
-		if ((data.links != null) && (data.links.size() > 0)) {
+		if ((links != null) && (links.size() > 0)) {
 			holder.linksHeader.setVisibility(View.VISIBLE);
 			holder.linksContainer.setVisibility(View.VISIBLE);
-			for (Link link : data.links) {
+			for (Link link : links) {
 				View view = holder.inflater.inflate(R.layout.item_link, holder.linksContainer, false);
 				TextView tv = view.findViewById(R.id.description);
 				tv.setText(link.getDescription());

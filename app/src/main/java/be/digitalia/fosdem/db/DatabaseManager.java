@@ -642,30 +642,6 @@ public class DatabaseManager {
 		return new LocalBroadcastCursor(cursor, context, new IntentFilter(ACTION_SCHEDULE_REFRESHED));
 	}
 
-	public static final int PERSON_NAME_COLUMN_INDEX = 1;
-
-	/**
-	 * Returns persons presenting the specified event.
-	 */
-	@WorkerThread
-	public List<Person> getPersons(Event event) {
-		String[] selectionArgs = new String[]{String.valueOf(event.getId())};
-		Cursor cursor = helper.getReadableDatabase().query(
-				"SELECT p.rowid AS _id, p.name"
-						+ " FROM " + Person.TABLE_NAME + " p"
-						+ " JOIN " + EventToPerson.TABLE_NAME + " ep ON p.rowid = ep.person_id"
-						+ " WHERE ep.event_id = ?", selectionArgs);
-		try {
-			List<Person> result = new ArrayList<>(cursor.getCount());
-			while (cursor.moveToNext()) {
-				result.add(toPerson(cursor));
-			}
-			return result;
-		} finally {
-			cursor.close();
-		}
-	}
-
 	public static Person toPerson(Cursor cursor, Person person) {
 		if (person == null) {
 			person = new Person();
@@ -678,28 +654,6 @@ public class DatabaseManager {
 
 	public static Person toPerson(Cursor cursor) {
 		return toPerson(cursor, null);
-	}
-
-	@WorkerThread
-	public List<Link> getLinks(Event event) {
-		String[] selectionArgs = new String[]{String.valueOf(event.getId())};
-		Cursor cursor = helper.getReadableDatabase().query(
-				"SELECT url, description"
-						+ " FROM " + Link.TABLE_NAME
-						+ " WHERE event_id = ?"
-						+ " ORDER BY id ASC", selectionArgs);
-		try {
-			List<Link> result = new ArrayList<>(cursor.getCount());
-			while (cursor.moveToNext()) {
-				Link link = new Link();
-				link.setUrl(cursor.getString(0));
-				link.setDescription(cursor.getString(1));
-				result.add(link);
-			}
-			return result;
-		} finally {
-			cursor.close();
-		}
 	}
 
 	@WorkerThread

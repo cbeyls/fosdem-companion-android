@@ -3,6 +3,7 @@ package be.digitalia.fosdem.db;
 import java.util.Date;
 
 import androidx.room.TypeConverter;
+import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Track;
 
 public class Converters {
@@ -24,5 +25,10 @@ public class Converters {
 	@TypeConverter
 	public static String fromTrackType(Track.Type value) {
 		return value.name();
+	}
+
+	@TypeConverter
+	public static long fromEvent(Event event) {
+		return event.getId();
 	}
 }

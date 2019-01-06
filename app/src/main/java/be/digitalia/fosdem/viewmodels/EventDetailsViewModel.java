@@ -10,22 +10,20 @@ import android.os.AsyncTask;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import be.digitalia.fosdem.db.AppDatabase;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.livedata.AsyncTaskLiveData;
+import be.digitalia.fosdem.livedata.ExtraTransformations;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Link;
 import be.digitalia.fosdem.model.Person;
 import be.digitalia.fosdem.utils.ArrayUtils;
 
 public class EventDetailsViewModel extends AndroidViewModel {
-
-	public static class EventDetails {
-		public List<Person> persons;
-		public List<Link> links;
-	}
 
 	private Event event = null;
 
@@ -36,17 +34,7 @@ public class EventDetailsViewModel extends AndroidViewModel {
 			return DatabaseManager.getInstance().isBookmarked(event);
 		}
 	};
-	private final AsyncTaskLiveData<EventDetails> eventDetails = new AsyncTaskLiveData<EventDetails>() {
-
-		@Override
-		protected EventDetails loadInBackground() throws Exception {
-			EventDetails result = new EventDetails();
-			DatabaseManager dbm = DatabaseManager.getInstance();
-			result.persons = dbm.getPersons(event);
-			result.links = dbm.getLinks(event);
-			return result;
-		}
-	};
+	private LiveData<Pair<List<Person>, List<Link>>> eventDetails;
 
 	private final BroadcastReceiver addBookmarkReceiver = new BroadcastReceiver() {
 
@@ -81,7 +69,11 @@ public class EventDetailsViewModel extends AndroidViewModel {
 			lbm.registerReceiver(addBookmarkReceiver, new IntentFilter(DatabaseManager.ACTION_ADD_BOOKMARK));
 			lbm.registerReceiver(removeBookmarksReceiver, new IntentFilter(DatabaseManager.ACTION_REMOVE_BOOKMARKS));
 
-			eventDetails.forceLoad();
+			final AppDatabase appDatabase = AppDatabase.getInstance(getApplication());
+			eventDetails = ExtraTransformations.zipLatest(
+					appDatabase.getEventDao().getPersons(event),
+					appDatabase.getEventDao().getLinks(event)
+			);
 		}
 	}
 
@@ -115,7 +107,7 @@ public class EventDetailsViewModel extends AndroidViewModel {
 		}
 	}
 
-	public LiveData<EventDetails> getEventDetails() {
+	public LiveData<Pair<List<Person>, List<Link>>> getEventDetails() {
 		return eventDetails;
 	}
 

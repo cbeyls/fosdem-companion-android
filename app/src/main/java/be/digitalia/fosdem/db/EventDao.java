@@ -11,6 +11,7 @@ import be.digitalia.fosdem.db.entities.EventEntity;
 import be.digitalia.fosdem.db.entities.EventTitles;
 import be.digitalia.fosdem.db.entities.EventToPerson;
 import be.digitalia.fosdem.model.Day;
+import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Link;
 import be.digitalia.fosdem.model.Person;
 import be.digitalia.fosdem.model.Track;
@@ -93,4 +94,16 @@ public abstract class EventDao {
 
 	@Query("SELECT date FROM " + Day.TABLE_NAME + " ORDER BY _index ASC LIMIT 1")
 	protected abstract long getConferenceStartDate();
+
+	/**
+	 * Returns persons presenting the specified event.
+	 */
+	@Query("SELECT p.rowid, p.name"
+			+ " FROM " + Person.TABLE_NAME + " p"
+			+ " JOIN " + EventToPerson.TABLE_NAME + " ep ON p.rowid = ep.person_id"
+			+ " WHERE ep.event_id = :event")
+	public abstract LiveData<List<Person>> getPersons(Event event);
+
+	@Query("SELECT * FROM " + Link.TABLE_NAME + " WHERE event_id = :event ORDER BY id ASC")
+	public abstract LiveData<List<Link>> getLinks(Event event);
 }
