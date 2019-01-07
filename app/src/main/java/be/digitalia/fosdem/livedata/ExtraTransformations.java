@@ -14,6 +14,7 @@ public class ExtraTransformations {
 	private ExtraTransformations() {
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T1, T2> LiveData<Pair<T1, T2>> zipLatest(@NonNull LiveData<T1> l1, @NonNull LiveData<T2> l2) {
 		final MediatorLiveData<Pair<T1, T2>> result = new MediatorLiveData<>();
 		final Object[] latestValues = new Object[]{NOT_SET, NOT_SET};
