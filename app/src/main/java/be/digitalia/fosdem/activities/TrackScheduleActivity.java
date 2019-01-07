@@ -64,10 +64,10 @@ public class TrackScheduleActivity extends AppCompatActivity
 
 		isTabletLandscape = getResources().getBoolean(R.bool.tablet_landscape);
 
-		TrackScheduleListFragment trackScheduleListFragment;
 		FragmentManager fm = getSupportFragmentManager();
 		if (savedInstanceState == null) {
 			long fromEventId = extras.getLong(EXTRA_FROM_EVENT_ID, -1L);
+			final TrackScheduleListFragment trackScheduleListFragment;
 			if (fromEventId != -1L) {
 				trackScheduleListFragment = TrackScheduleListFragment.newInstance(day, track, fromEventId);
 			} else {
@@ -75,8 +75,6 @@ public class TrackScheduleActivity extends AppCompatActivity
 			}
 			fm.beginTransaction().add(R.id.schedule, trackScheduleListFragment).commit();
 		} else {
-			trackScheduleListFragment = (TrackScheduleListFragment) fm.findFragmentById(R.id.schedule);
-
 			// Cleanup after switching from dual pane to single pane mode
 			if (!isTabletLandscape) {
 				FragmentTransaction ft = null;

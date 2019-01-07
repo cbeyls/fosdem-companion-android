@@ -4,7 +4,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import be.digitalia.fosdem.api.FosdemUrls;
-import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.utils.StringUtils;
 
 public class Person implements Parcelable {
