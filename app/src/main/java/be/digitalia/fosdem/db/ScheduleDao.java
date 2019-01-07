@@ -1,21 +1,182 @@
 package be.digitalia.fosdem.db;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.room.Dao;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Transaction;
+import be.digitalia.fosdem.BuildConfig;
+import be.digitalia.fosdem.db.entities.EventEntity;
+import be.digitalia.fosdem.db.entities.EventTitles;
+import be.digitalia.fosdem.db.entities.EventToPerson;
 import be.digitalia.fosdem.model.Day;
+import be.digitalia.fosdem.model.DetailedEvent;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Link;
 import be.digitalia.fosdem.model.Person;
+import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.DateUtils;
 
 @Dao
 public abstract class ScheduleDao {
 
+	public static final String ACTION_SCHEDULE_REFRESHED = BuildConfig.APPLICATION_ID + ".action.SCHEDULE_REFRESHED";
+
+	private static final String DB_PREFS_FILE = "database";
+	private static final String LAST_UPDATE_TIME_PREF = "last_update_time";
+	private static final String LAST_MODIFIED_TAG_PREF = "last_modified_tag";
+
+	private SharedPreferences getSharedPreferences(Context context) {
+		return context.getApplicationContext().getSharedPreferences(DB_PREFS_FILE, Context.MODE_PRIVATE);
+	}
+
+	/**
+	 * @return The last update time in milliseconds since EPOCH, or -1 if not available.
+	 */
+	public long getLastUpdateTime(Context context) {
+		return getSharedPreferences(context).getLong(LAST_UPDATE_TIME_PREF, -1L);
+	}
+
+	/**
+	 * @return The time identifier of the current version of the database.
+	 */
+	public String getLastModifiedTag(Context context) {
+		return getSharedPreferences(context).getString(LAST_MODIFIED_TAG_PREF, null);
+	}
+
+	private static class EmptyScheduleException extends RuntimeException {
+	}
+
+	/**
+	 * Stores the schedule in the database.
+	 *
+	 * @param events The events stream.
+	 * @return The number of events processed.
+	 */
+	@WorkerThread
+	public int storeSchedule(Context context, Iterable<DetailedEvent> events, String lastModifiedTag) {
+		int totalEvents;
+		try {
+			totalEvents = storeScheduleInternal(events, lastModifiedTag);
+		} catch (EmptyScheduleException ese) {
+			totalEvents = 0;
+		}
+		if (totalEvents > 0) {
+			// Set last update time and server's last modified tag
+			getSharedPreferences(context).edit()
+					.putLong(LAST_UPDATE_TIME_PREF, System.currentTimeMillis())
+					.putString(LAST_MODIFIED_TAG_PREF, lastModifiedTag)
+					.apply();
+
+			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ACTION_SCHEDULE_REFRESHED));
+		}
+		return totalEvents;
+	}
+
+	@Transaction
+	protected int storeScheduleInternal(Iterable<DetailedEvent> events, String lastModifiedTag) {
+		// 1: Delete the previous schedule
+		clearSchedule();
+
+		// 2: Insert the events
+		int totalEvents = 0;
+		final Map<Track, Long> tracks = new HashMap<>();
+		long nextTrackId = 0L;
+		long minEventId = Long.MAX_VALUE;
+		final Set<Day> days = new HashSet<>(2);
+
+		for (DetailedEvent event : events) {
+			// Retrieve or insert Track
+			final Track track = event.getTrack();
+			Long trackId = tracks.get(track);
+			if (trackId == null) {
+				// New track
+				nextTrackId++;
+				trackId = nextTrackId;
+				track.setId(nextTrackId);
+				insertTrack(track);
+				tracks.put(track, trackId);
+			} else {
+				track.setId(trackId);
+			}
+
+			final long eventId = event.getId();
+			try {
+				// Insert main event and fulltext fields
+				insertEvent(new EventEntity(event), new EventTitles(event));
+			} catch (Exception e) {
+				// Duplicate event: skip
+				continue;
+			}
+
+			days.add(event.getDay());
+			if (eventId < minEventId) {
+				minEventId = eventId;
+			}
+
+			final List<Person> persons = event.getPersons();
+			insertPersons(persons);
+			final int personsCount = persons.size();
+			final EventToPerson[] eventsToPersons = new EventToPerson[personsCount];
+			for (int i = 0; i < personsCount; ++i) {
+				eventsToPersons[i] = new EventToPerson(eventId, persons.get(i).getId());
+			}
+			insertEventsToPersons(eventsToPersons);
+
+			insertLinks(event.getLinks());
+
+			totalEvents++;
+		}
+
+		if (totalEvents == 0) {
+			// Rollback the transaction
+			throw new EmptyScheduleException();
+		}
+
+		// 3: Insert collected days
+		insertDays(days);
+
+		// 4: Purge outdated bookmarks
+		purgeOutdatedBookmarks(minEventId);
+
+		return totalEvents;
+	}
+
+	@Insert
+	protected abstract long insertTrack(Track track);
+
+	@Insert
+	protected abstract void insertEvent(EventEntity eventEntity, EventTitles eventTitles);
+
+	@Insert(onConflict = OnConflictStrategy.IGNORE)
+	protected abstract void insertPersons(List<Person> persons);
+
+	@Insert
+	protected abstract void insertEventsToPersons(EventToPerson[] eventsToPersons);
+
+	@Insert
+	protected abstract void insertLinks(List<Link> links);
+
+	@Insert
+	protected abstract void insertDays(Set<Day> days);
+
+	@Query("DELETE FROM bookmarks WHERE event_id < :minEventId")
+	protected abstract void purgeOutdatedBookmarks(long minEventId);
+
+	@WorkerThread
 	@Transaction
 	public void clearSchedule() {
 		clearEvents();

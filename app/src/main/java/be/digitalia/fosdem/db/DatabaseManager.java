@@ -5,22 +5,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
@@ -34,9 +26,7 @@ import be.digitalia.fosdem.db.entities.EventEntity;
 import be.digitalia.fosdem.db.entities.EventTitles;
 import be.digitalia.fosdem.db.entities.EventToPerson;
 import be.digitalia.fosdem.model.Day;
-import be.digitalia.fosdem.model.DetailedEvent;
 import be.digitalia.fosdem.model.Event;
-import be.digitalia.fosdem.model.Link;
 import be.digitalia.fosdem.model.Person;
 import be.digitalia.fosdem.model.Track;
 
@@ -54,14 +44,9 @@ public class DatabaseManager {
 	public static final String ACTION_REMOVE_BOOKMARKS = BuildConfig.APPLICATION_ID + ".action.REMOVE_BOOKMARKS";
 	public static final String EXTRA_EVENT_IDS = "event_ids";
 
-	private static final String DB_PREFS_FILE = "database";
-	private static final String LAST_UPDATE_TIME_PREF = "last_update_time";
-	private static final String LAST_MODIFIED_TAG_PREF = "last_modified_tag";
-
 	private static DatabaseManager instance;
 
 	private final Context context;
-	private final AppDatabase appDatabase;
 	private final SupportSQLiteOpenHelper helper;
 
 	public static void init(Context context) {
@@ -76,199 +61,7 @@ public class DatabaseManager {
 
 	private DatabaseManager(Context context) {
 		this.context = context;
-		appDatabase = AppDatabase.getInstance(context);
-		helper = appDatabase.getOpenHelper();
-	}
-
-	private static final String TRACK_INSERT_STATEMENT = "INSERT INTO " + Track.TABLE_NAME + " (id, name, type) VALUES (?, ?, ?);";
-	private static final String EVENT_INSERT_STATEMENT = "INSERT INTO " + EventEntity.TABLE_NAME
-			+ " (id, day_index, start_time, end_time, room_name, slug, track_id, abstract, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
-	private static final String EVENT_TITLES_INSERT_STATEMENT = "INSERT INTO " + EventTitles.TABLE_NAME
-			+ " (`rowid`, title, subtitle) VALUES (?, ?, ?);";
-	private static final String EVENT_PERSON_INSERT_STATEMENT = "INSERT INTO " + EventToPerson.TABLE_NAME
-			+ " (event_id, person_id) VALUES (?, ?);";
-	// Ignore conflicts in case of existing person
-	private static final String PERSON_INSERT_STATEMENT = "INSERT OR IGNORE INTO " + Person.TABLE_NAME + " (`rowid`, name) VALUES (?, ?);";
-	private static final String LINK_INSERT_STATEMENT = "INSERT INTO " + Link.TABLE_NAME + " (event_id, url, description) VALUES (?, ?, ?);";
-
-	private static void bindString(SupportSQLiteStatement statement, int index, String value) {
-		if (value == null) {
-			statement.bindNull(index);
-		} else {
-			statement.bindString(index, value);
-		}
-	}
-
-	private SharedPreferences getSharedPreferences() {
-		return context.getSharedPreferences(DB_PREFS_FILE, Context.MODE_PRIVATE);
-	}
-
-	/**
-	 * @return The last update time in milliseconds since EPOCH, or -1 if not available.
-	 */
-	public long getLastUpdateTime() {
-		return getSharedPreferences().getLong(LAST_UPDATE_TIME_PREF, -1L);
-	}
-
-	/**
-	 * @return The time identifier of the current version of the database.
-	 */
-	public String getLastModifiedTag() {
-		return getSharedPreferences().getString(LAST_MODIFIED_TAG_PREF, null);
-	}
-
-	/**
-	 * Stores the schedule to the database.
-	 *
-	 * @param events
-	 * @return The number of events processed.
-	 */
-	@WorkerThread
-	public int storeSchedule(Iterable<DetailedEvent> events, String lastModifiedTag) {
-		boolean isComplete = false;
-		List<Day> daysList = null;
-
-		SupportSQLiteDatabase db = helper.getWritableDatabase();
-		appDatabase.beginTransaction();
-		try {
-			// 1: Delete the previous schedule
-			appDatabase.getScheduleDao().clearSchedule();
-
-			// Compile the insert statements for the big tables
-			final SupportSQLiteStatement trackInsertStatement = db.compileStatement(TRACK_INSERT_STATEMENT);
-			final SupportSQLiteStatement eventInsertStatement = db.compileStatement(EVENT_INSERT_STATEMENT);
-			final SupportSQLiteStatement eventTitlesInsertStatement = db.compileStatement(EVENT_TITLES_INSERT_STATEMENT);
-			final SupportSQLiteStatement eventPersonInsertStatement = db.compileStatement(EVENT_PERSON_INSERT_STATEMENT);
-			final SupportSQLiteStatement personInsertStatement = db.compileStatement(PERSON_INSERT_STATEMENT);
-			final SupportSQLiteStatement linkInsertStatement = db.compileStatement(LINK_INSERT_STATEMENT);
-
-			// 2: Insert the events
-			int totalEvents = 0;
-			Map<Track, Long> tracks = new HashMap<>();
-			long nextTrackId = 0L;
-			long minEventId = Long.MAX_VALUE;
-			Set<Day> days = new HashSet<>(2);
-
-			for (DetailedEvent event : events) {
-				// 2a: Retrieve or insert Track
-				Track track = event.getTrack();
-				Long trackId = tracks.get(track);
-				if (trackId == null) {
-					// New track
-					nextTrackId++;
-					trackId = nextTrackId;
-					trackInsertStatement.clearBindings();
-					trackInsertStatement.bindLong(1, nextTrackId);
-					bindString(trackInsertStatement, 2, track.getName());
-					bindString(trackInsertStatement, 3, track.getType().name());
-					if (trackInsertStatement.executeInsert() != -1L) {
-						tracks.put(track, trackId);
-					}
-				}
-
-				// 2b: Insert main event
-				eventInsertStatement.clearBindings();
-				long eventId = event.getId();
-				if (eventId < minEventId) {
-					minEventId = eventId;
-				}
-				eventInsertStatement.bindLong(1, eventId);
-				Day day = event.getDay();
-				days.add(day);
-				eventInsertStatement.bindLong(2, day.getIndex());
-				Date time = event.getStartTime();
-				if (time == null) {
-					eventInsertStatement.bindNull(3);
-				} else {
-					eventInsertStatement.bindLong(3, time.getTime());
-				}
-				time = event.getEndTime();
-				if (time == null) {
-					eventInsertStatement.bindNull(4);
-				} else {
-					eventInsertStatement.bindLong(4, time.getTime());
-				}
-				bindString(eventInsertStatement, 5, event.getRoomName());
-				bindString(eventInsertStatement, 6, event.getSlug());
-				eventInsertStatement.bindLong(7, trackId);
-				bindString(eventInsertStatement, 8, event.getAbstractText());
-				bindString(eventInsertStatement, 9, event.getDescription());
-
-				if (eventInsertStatement.executeInsert() != -1L) {
-					// 2c: Insert fulltext fields
-					eventTitlesInsertStatement.clearBindings();
-					eventTitlesInsertStatement.bindLong(1, eventId);
-					bindString(eventTitlesInsertStatement, 2, event.getTitle());
-					bindString(eventTitlesInsertStatement, 3, event.getSubTitle());
-					eventTitlesInsertStatement.executeInsert();
-
-					// 2d: Insert persons
-					for (Person person : event.getPersons()) {
-						eventPersonInsertStatement.clearBindings();
-						eventPersonInsertStatement.bindLong(1, eventId);
-						long personId = person.getId();
-						eventPersonInsertStatement.bindLong(2, personId);
-						eventPersonInsertStatement.executeInsert();
-
-						personInsertStatement.clearBindings();
-						personInsertStatement.bindLong(1, personId);
-						bindString(personInsertStatement, 2, person.getName());
-						try {
-							personInsertStatement.executeInsert();
-						} catch (SQLiteConstraintException e) {
-							// Older Android versions may not ignore an existing person
-						}
-					}
-
-					// 2e: Insert links
-					for (Link link : event.getLinks()) {
-						linkInsertStatement.clearBindings();
-						linkInsertStatement.bindLong(1, eventId);
-						bindString(linkInsertStatement, 2, link.getUrl());
-						bindString(linkInsertStatement, 3, link.getDescription());
-						linkInsertStatement.executeInsert();
-					}
-				}
-
-				totalEvents++;
-			}
-
-			// 3: Insert collected days
-			ContentValues values = new ContentValues();
-			for (Day day : days) {
-				values.clear();
-				values.put("`index`", day.getIndex());
-				values.put("date", day.getDate().getTime());
-				db.insert(Day.TABLE_NAME, SQLiteDatabase.CONFLICT_ABORT, values);
-			}
-			daysList = new ArrayList<>(days);
-			Collections.sort(daysList);
-
-			// 4: Purge outdated bookmarks
-			if (minEventId < Long.MAX_VALUE) {
-				String[] whereArgs = new String[]{String.valueOf(minEventId)};
-				db.delete(Bookmark.TABLE_NAME, "event_id < ?", whereArgs);
-			}
-
-			if (totalEvents > 0) {
-				appDatabase.setTransactionSuccessful();
-				isComplete = true;
-			}
-
-			return totalEvents;
-		} finally {
-			appDatabase.endTransaction();
-
-			if (isComplete) {
-				// Set last update time and server's last modified tag
-				getSharedPreferences().edit()
-						.putLong(LAST_UPDATE_TIME_PREF, System.currentTimeMillis())
-						.putString(LAST_MODIFIED_TAG_PREF, lastModifiedTag)
-						.apply();
-
-				LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ACTION_SCHEDULE_REFRESHED));
-			}
-		}
+		helper = AppDatabase.getInstance(context).getOpenHelper();
 	}
 
 	@WorkerThread

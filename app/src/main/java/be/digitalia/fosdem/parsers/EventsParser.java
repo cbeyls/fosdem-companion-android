@@ -151,6 +151,7 @@ public class EventsParser extends IterableAbstractPullParser<DetailedEvent> {
 										while (!isNextEndTag("links")) {
 											if (isStartTag("link")) {
 												Link link = new Link();
+												link.setEventId(event.getId());
 												link.setUrl(parser.getAttributeValue(null, "href"));
 												link.setDescription(parser.nextText());
 

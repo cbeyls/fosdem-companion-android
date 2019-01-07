@@ -52,6 +52,7 @@ import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemApi;
 import be.digitalia.fosdem.api.FosdemUrls;
+import be.digitalia.fosdem.db.AppDatabase;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.fragments.BookmarksListFragment;
 import be.digitalia.fosdem.fragments.LiveFragment;
@@ -326,7 +327,7 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	void updateLastUpdateTime() {
-		long lastUpdateTime = DatabaseManager.getInstance().getLastUpdateTime();
+		long lastUpdateTime = AppDatabase.getInstance(this).getScheduleDao().getLastUpdateTime(this);
 		lastUpdateTextView.setText(getString(R.string.last_update,
 				(lastUpdateTime == -1L)
 						? getString(R.string.never)
@@ -381,7 +382,7 @@ public class MainActivity extends AppCompatActivity {
 
 		// Download reminder
 		long now = System.currentTimeMillis();
-		long time = DatabaseManager.getInstance().getLastUpdateTime();
+		long time = AppDatabase.getInstance(this).getScheduleDao().getLastUpdateTime(this);
 		if ((time == -1L) || (time < (now - DATABASE_VALIDITY_DURATION))) {
 			SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
 			time = prefs.getLong(PREF_LAST_DOWNLOAD_REMINDER_TIME, -1L);

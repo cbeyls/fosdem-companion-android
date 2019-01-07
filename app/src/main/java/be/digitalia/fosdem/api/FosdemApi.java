@@ -14,7 +14,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.db.AppDatabase;
-import be.digitalia.fosdem.db.DatabaseManager;
+import be.digitalia.fosdem.db.ScheduleDao;
 import be.digitalia.fosdem.model.DetailedEvent;
 import be.digitalia.fosdem.model.RoomStatus;
 import be.digitalia.fosdem.parsers.EventsParser;
@@ -53,10 +53,10 @@ public class FosdemApi {
 		progress.postValue(-1);
 		int result = RESULT_ERROR;
 		try {
-			DatabaseManager dbManager = DatabaseManager.getInstance();
+			ScheduleDao scheduleDao = AppDatabase.getInstance(context).getScheduleDao();
 			HttpUtils.HttpResult httpResult = HttpUtils.get(
 					FosdemUrls.getSchedule(),
-					dbManager.getLastModifiedTag(),
+					scheduleDao.getLastModifiedTag(context),
 					new HttpUtils.ProgressUpdateListener() {
 						@Override
 						public void onProgressUpdate(int percent) {
@@ -71,7 +71,7 @@ public class FosdemApi {
 
 			try {
 				Iterable<DetailedEvent> events = new EventsParser().parse(httpResult.inputStream);
-				result = dbManager.storeSchedule(events, httpResult.lastModified);
+				result = scheduleDao.storeSchedule(context, events, httpResult.lastModified);
 			} finally {
 				try {
 					httpResult.inputStream.close();
