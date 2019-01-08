@@ -10,8 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.room.Dao;
 import androidx.room.Insert;
@@ -43,11 +45,18 @@ public abstract class ScheduleDao {
 		return context.getApplicationContext().getSharedPreferences(DB_PREFS_FILE, Context.MODE_PRIVATE);
 	}
 
+	private final MutableLiveData<Long> lastUpdateTime = new MutableLiveData<>();
+
 	/**
 	 * @return The last update time in milliseconds since EPOCH, or -1 if not available.
+     * This LiveData is pre-initialized with the up-to-date value.
 	 */
-	public long getLastUpdateTime(Context context) {
-		return getSharedPreferences(context).getLong(LAST_UPDATE_TIME_PREF, -1L);
+	@MainThread
+	public LiveData<Long> getLastUpdateTime(Context context) {
+		if (lastUpdateTime.getValue() == null) {
+			lastUpdateTime.setValue(getSharedPreferences(context).getLong(LAST_UPDATE_TIME_PREF, -1L));
+		}
+		return lastUpdateTime;
 	}
 
 	/**
@@ -76,10 +85,12 @@ public abstract class ScheduleDao {
 		}
 		if (totalEvents > 0) {
 			// Set last update time and server's last modified tag
+			final long now = System.currentTimeMillis();
 			getSharedPreferences(context).edit()
-					.putLong(LAST_UPDATE_TIME_PREF, System.currentTimeMillis())
+					.putLong(LAST_UPDATE_TIME_PREF, now)
 					.putString(LAST_MODIFIED_TAG_PREF, lastModifiedTag)
 					.apply();
+			lastUpdateTime.postValue(now);
 
 			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ACTION_SCHEDULE_REFRESHED));
 		}

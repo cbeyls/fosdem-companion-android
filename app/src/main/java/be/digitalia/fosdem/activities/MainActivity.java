@@ -53,7 +53,6 @@ import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemApi;
 import be.digitalia.fosdem.api.FosdemUrls;
 import be.digitalia.fosdem.db.AppDatabase;
-import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.fragments.BookmarksListFragment;
 import be.digitalia.fosdem.fragments.LiveFragment;
 import be.digitalia.fosdem.fragments.MapFragment;
@@ -157,14 +156,6 @@ public class MainActivity extends AppCompatActivity {
 					message = getResources().getQuantityString(R.plurals.events_download_completed, result, result);
 			}
 			Snackbar.make(findViewById(R.id.content), message, Snackbar.LENGTH_LONG).show();
-		}
-	};
-
-	private final BroadcastReceiver scheduleRefreshedReceiver = new BroadcastReceiver() {
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			updateLastUpdateTime();
 		}
 	};
 
@@ -290,14 +281,13 @@ public class MainActivity extends AppCompatActivity {
 			}
 		});
 
-		LocalBroadcastManager.getInstance(this).registerReceiver(scheduleRefreshedReceiver, new IntentFilter(DatabaseManager.ACTION_SCHEDULE_REFRESHED));
-
 		// Last update date, below the list
 		lastUpdateTextView = mainMenu.findViewById(R.id.last_update);
-		updateLastUpdateTime();
+		AppDatabase.getInstance(this).getScheduleDao().getLastUpdateTime(this)
+				.observe(this, lastUpdateTimeObserver);
 
 		if (savedInstanceState == null) {
-		    // Select initial section
+			// Select initial section
 			currentSection = Section.TRACKS;
 			String action = getIntent().getAction();
 			if (action != null) {
@@ -326,13 +316,15 @@ public class MainActivity extends AppCompatActivity {
 		}
 	}
 
-	void updateLastUpdateTime() {
-		long lastUpdateTime = AppDatabase.getInstance(this).getScheduleDao().getLastUpdateTime(this);
-		lastUpdateTextView.setText(getString(R.string.last_update,
-				(lastUpdateTime == -1L)
-						? getString(R.string.never)
-						: android.text.format.DateFormat.format(LAST_UPDATE_DATE_FORMAT, lastUpdateTime)));
-	}
+	private final Observer<Long> lastUpdateTimeObserver = new Observer<Long>() {
+		@Override
+		public void onChanged(Long lastUpdateTime) {
+			lastUpdateTextView.setText(getString(R.string.last_update,
+					(lastUpdateTime == -1L)
+							? getString(R.string.never)
+							: android.text.format.DateFormat.format(LAST_UPDATE_DATE_FORMAT, lastUpdateTime)));
+		}
+	};
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
@@ -382,7 +374,8 @@ public class MainActivity extends AppCompatActivity {
 
 		// Download reminder
 		long now = System.currentTimeMillis();
-		long time = AppDatabase.getInstance(this).getScheduleDao().getLastUpdateTime(this);
+		Long timeValue = AppDatabase.getInstance(this).getScheduleDao().getLastUpdateTime(this).getValue();
+		long time = (timeValue == null) ? -1L : timeValue;
 		if ((time == -1L) || (time < (now - DATABASE_VALIDITY_DURATION))) {
 			SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
 			time = prefs.getLong(PREF_LAST_DOWNLOAD_REMINDER_TIME, -1L);
@@ -408,12 +401,6 @@ public class MainActivity extends AppCompatActivity {
 		LocalBroadcastManager.getInstance(this).unregisterReceiver(scheduleDownloadResultReceiver);
 
 		super.onStop();
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		LocalBroadcastManager.getInstance(this).unregisterReceiver(scheduleRefreshedReceiver);
 	}
 
 	@Override
@@ -473,7 +460,7 @@ public class MainActivity extends AppCompatActivity {
 	// MAIN MENU
 
 	void handleNavigationMenuItem(@NonNull MenuItem menuItem) {
-	    final int menuItemId = menuItem.getItemId();
+		final int menuItemId = menuItem.getItemId();
 		final Section section = Section.fromMenuItemId(menuItemId);
 		if (section != null) {
 			selectMenuSection(section, menuItem);
