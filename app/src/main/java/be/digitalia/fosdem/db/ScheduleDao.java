@@ -2,7 +2,6 @@ package be.digitalia.fosdem.db;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,24 +36,24 @@ public abstract class ScheduleDao {
 
 	public static final String ACTION_SCHEDULE_REFRESHED = BuildConfig.APPLICATION_ID + ".action.SCHEDULE_REFRESHED";
 
-	private static final String DB_PREFS_FILE = "database";
 	private static final String LAST_UPDATE_TIME_PREF = "last_update_time";
 	private static final String LAST_MODIFIED_TAG_PREF = "last_modified_tag";
 
-	private SharedPreferences getSharedPreferences(Context context) {
-		return context.getApplicationContext().getSharedPreferences(DB_PREFS_FILE, Context.MODE_PRIVATE);
-	}
-
+	private final AppDatabase appDatabase;
 	private final MutableLiveData<Long> lastUpdateTime = new MutableLiveData<>();
+
+	public ScheduleDao(AppDatabase appDatabase) {
+		this.appDatabase = appDatabase;
+	}
 
 	/**
 	 * @return The last update time in milliseconds since EPOCH, or -1 if not available.
-     * This LiveData is pre-initialized with the up-to-date value.
+	 * This LiveData is pre-initialized with the up-to-date value.
 	 */
 	@MainThread
-	public LiveData<Long> getLastUpdateTime(Context context) {
+	public LiveData<Long> getLastUpdateTime() {
 		if (lastUpdateTime.getValue() == null) {
-			lastUpdateTime.setValue(getSharedPreferences(context).getLong(LAST_UPDATE_TIME_PREF, -1L));
+			lastUpdateTime.setValue(appDatabase.getSharedPreferences().getLong(LAST_UPDATE_TIME_PREF, -1L));
 		}
 		return lastUpdateTime;
 	}
@@ -62,8 +61,8 @@ public abstract class ScheduleDao {
 	/**
 	 * @return The time identifier of the current version of the database.
 	 */
-	public String getLastModifiedTag(Context context) {
-		return getSharedPreferences(context).getString(LAST_MODIFIED_TAG_PREF, null);
+	public String getLastModifiedTag() {
+		return appDatabase.getSharedPreferences().getString(LAST_MODIFIED_TAG_PREF, null);
 	}
 
 	private static class EmptyScheduleException extends RuntimeException {
@@ -86,7 +85,7 @@ public abstract class ScheduleDao {
 		if (totalEvents > 0) {
 			// Set last update time and server's last modified tag
 			final long now = System.currentTimeMillis();
-			getSharedPreferences(context).edit()
+			appDatabase.getSharedPreferences().edit()
 					.putLong(LAST_UPDATE_TIME_PREF, now)
 					.putString(LAST_MODIFIED_TAG_PREF, lastModifiedTag)
 					.apply();

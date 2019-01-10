@@ -56,7 +56,7 @@ public class FosdemApi {
 			ScheduleDao scheduleDao = AppDatabase.getInstance(context).getScheduleDao();
 			HttpUtils.HttpResult httpResult = HttpUtils.get(
 					FosdemUrls.getSchedule(),
-					scheduleDao.getLastModifiedTag(context),
+					scheduleDao.getLastModifiedTag(),
 					new HttpUtils.ProgressUpdateListener() {
 						@Override
 						public void onProgressUpdate(int percent) {

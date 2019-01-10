@@ -1,6 +1,7 @@
 package be.digitalia.fosdem.db;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 
 import androidx.room.Database;
 import androidx.room.Room;
@@ -22,6 +23,7 @@ import be.digitalia.fosdem.model.Track;
 @TypeConverters({GlobalTypeConverters.class})
 public abstract class AppDatabase extends RoomDatabase {
 
+	private static final String DB_PREFS_FILE = "database";
 	private static volatile AppDatabase INSTANCE;
 
 	static final Migration MIGRATION_1_2 = new Migration(1, 2) {
@@ -67,6 +69,12 @@ public abstract class AppDatabase extends RoomDatabase {
 		}
 	};
 
+	private SharedPreferences sharedPreferences;
+
+	public SharedPreferences getSharedPreferences() {
+		return sharedPreferences;
+	}
+
 	public static AppDatabase getInstance(Context context) {
 		AppDatabase res = INSTANCE;
 		if (res == null) {
@@ -77,6 +85,7 @@ public abstract class AppDatabase extends RoomDatabase {
 							.addMigrations(MIGRATION_1_2)
 							.setJournalMode(JournalMode.TRUNCATE)
 							.build();
+					res.sharedPreferences = context.getApplicationContext().getSharedPreferences(DB_PREFS_FILE, Context.MODE_PRIVATE);
 					INSTANCE = res;
 				}
 			}

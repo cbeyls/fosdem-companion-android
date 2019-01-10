@@ -283,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
 
 		// Last update date, below the list
 		lastUpdateTextView = mainMenu.findViewById(R.id.last_update);
-		AppDatabase.getInstance(this).getScheduleDao().getLastUpdateTime(this)
+		AppDatabase.getInstance(this).getScheduleDao().getLastUpdateTime()
 				.observe(this, lastUpdateTimeObserver);
 
 		if (savedInstanceState == null) {
@@ -374,7 +374,7 @@ public class MainActivity extends AppCompatActivity {
 
 		// Download reminder
 		long now = System.currentTimeMillis();
-		Long timeValue = AppDatabase.getInstance(this).getScheduleDao().getLastUpdateTime(this).getValue();
+		Long timeValue = AppDatabase.getInstance(this).getScheduleDao().getLastUpdateTime().getValue();
 		long time = (timeValue == null) ? -1L : timeValue;
 		if ((time == -1L) || (time < (now - DATABASE_VALIDITY_DURATION))) {
 			SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
