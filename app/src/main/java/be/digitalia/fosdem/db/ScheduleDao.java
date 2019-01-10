@@ -262,6 +262,13 @@ public abstract class ScheduleDao {
 	@Query("SELECT date FROM days ORDER BY `index` ASC LIMIT 1")
 	protected abstract long getConferenceStartDate();
 
+	@Query("SELECT * FROM tracks t"
+			+ " JOIN events e ON t.id = e.track_id"
+			+ " WHERE e.day_index = :day"
+			+ " GROUP BY t.id"
+			+ " ORDER BY t.name ASC")
+	public abstract LiveData<List<Track>> getTracks(Day day);
+
 	/**
 	 * Returns persons presenting the specified event.
 	 */

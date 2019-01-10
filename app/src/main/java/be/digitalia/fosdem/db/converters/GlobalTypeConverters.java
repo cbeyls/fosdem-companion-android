@@ -1,6 +1,7 @@
 package be.digitalia.fosdem.db.converters;
 
 import androidx.room.TypeConverter;
+import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Track;
 
@@ -13,6 +14,11 @@ public class GlobalTypeConverters {
 	@TypeConverter
 	public static String fromTrackType(Track.Type value) {
 		return value.name();
+	}
+
+	@TypeConverter
+	public static long fromDay(Day day) {
+		return day.getIndex();
 	}
 
 	@TypeConverter

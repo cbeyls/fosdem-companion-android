@@ -64,32 +64,6 @@ public class DatabaseManager {
 		helper = AppDatabase.getInstance(context).getOpenHelper();
 	}
 
-	@WorkerThread
-	public Cursor getTracks(Day day) {
-		String[] selectionArgs = new String[]{String.valueOf(day.getIndex())};
-		Cursor cursor = helper.getReadableDatabase().query(
-				"SELECT t.id AS _id, t.name, t.type" + " FROM " + Track.TABLE_NAME + " t"
-						+ " JOIN " + EventEntity.TABLE_NAME + " e ON t.id = e.track_id"
-						+ " WHERE e.day_index = ?"
-						+ " GROUP BY t.id"
-						+ " ORDER BY t.name ASC", selectionArgs);
-		return new LocalBroadcastCursor(cursor, context, new IntentFilter(ACTION_SCHEDULE_REFRESHED));
-	}
-
-	public static Track toTrack(Cursor cursor, Track track) {
-		if (track == null) {
-			track = new Track();
-		}
-		track.setName(cursor.getString(1));
-		track.setType(Enum.valueOf(Track.Type.class, cursor.getString(2)));
-
-		return track;
-	}
-
-	public static Track toTrack(Cursor cursor) {
-		return toTrack(cursor, null);
-	}
-
 	/**
 	 * Returns the event with the specified id, or null if not found.
 	 */
