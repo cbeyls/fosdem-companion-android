@@ -393,32 +393,6 @@ public class DatabaseManager {
 		return !cursor.isNull(14);
 	}
 
-	/**
-	 * Returns all persons in alphabetical order.
-	 */
-	@WorkerThread
-	public Cursor getPersons() {
-		Cursor cursor = helper.getReadableDatabase().query(
-				"SELECT rowid AS _id, name"
-						+ " FROM " + Person.TABLE_NAME
-						+ " ORDER BY name COLLATE NOCASE", null);
-		return new LocalBroadcastCursor(cursor, context, new IntentFilter(ACTION_SCHEDULE_REFRESHED));
-	}
-
-	public static Person toPerson(Cursor cursor, Person person) {
-		if (person == null) {
-			person = new Person();
-		}
-		person.setId(cursor.getLong(0));
-		person.setName(cursor.getString(1));
-
-		return person;
-	}
-
-	public static Person toPerson(Cursor cursor) {
-		return toPerson(cursor, null);
-	}
-
 	@WorkerThread
 	public boolean isBookmarked(Event event) {
 		String[] selectionArgs = new String[]{String.valueOf(event.getId())};

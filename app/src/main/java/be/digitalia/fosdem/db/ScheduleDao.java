@@ -14,6 +14,7 @@ import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.paging.DataSource;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
@@ -268,6 +269,14 @@ public abstract class ScheduleDao {
 			+ " GROUP BY t.id"
 			+ " ORDER BY t.name ASC")
 	public abstract LiveData<List<Track>> getTracks(Day day);
+
+	/**
+	 * Returns all persons in alphabetical order.
+	 */
+	@Query("SELECT `rowid`, name"
+			+ " FROM persons"
+			+ " ORDER BY name COLLATE NOCASE")
+	public abstract DataSource.Factory<Integer, Person> getPersons();
 
 	/**
 	 * Returns persons presenting the specified event.
