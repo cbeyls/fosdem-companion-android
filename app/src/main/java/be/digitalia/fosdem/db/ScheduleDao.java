@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import androidx.annotation.MainThread;
+import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -269,6 +270,22 @@ public abstract class ScheduleDao {
 			+ " GROUP BY t.id"
 			+ " ORDER BY t.name ASC")
 	public abstract LiveData<List<Track>> getTracks(Day day);
+
+	/**
+	 * Returns the event with the specified id, or null if not found.
+	 */
+	@Query("SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description"
+			+ ", GROUP_CONCAT(p.name, ', ') AS persons_summary, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type"
+			+ " FROM events e"
+			+ " JOIN events_titles et ON e.id = et.`rowid`"
+			+ " JOIN days d ON e.day_index = d.`index`"
+			+ " JOIN tracks t ON e.track_id = t.id"
+			+ " LEFT JOIN events_persons ep ON e.id = ep.event_id"
+			+ " LEFT JOIN persons p ON ep.person_id = p.`rowid`"
+			+ " WHERE e.id = :id"
+			+ " GROUP BY e.id")
+	@Nullable
+	public abstract Event getEvent(long id);
 
 	/**
 	 * Returns all persons in alphabetical order.

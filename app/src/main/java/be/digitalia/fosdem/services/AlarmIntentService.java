@@ -35,6 +35,7 @@ import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.EventDetailsActivity;
 import be.digitalia.fosdem.activities.MainActivity;
 import be.digitalia.fosdem.activities.RoomImageDialogActivity;
+import be.digitalia.fosdem.db.AppDatabase;
 import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.fragments.SettingsFragment;
 import be.digitalia.fosdem.model.Event;
@@ -160,7 +161,7 @@ public class AlarmIntentService extends JobIntentService {
 			case AlarmReceiver.ACTION_NOTIFY_EVENT: {
 
 				long eventId = Long.parseLong(intent.getDataString());
-				Event event = DatabaseManager.getInstance().getEvent(eventId);
+				Event event = AppDatabase.getInstance(this).getScheduleDao().getEvent(eventId);
 				if (event != null) {
 					NotificationManagerCompat.from(this).notify((int) eventId, buildNotification(event));
 				}

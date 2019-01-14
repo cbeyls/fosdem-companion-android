@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.sqlite.db.SupportSQLiteDatabase;
@@ -62,34 +61,6 @@ public class DatabaseManager {
 	private DatabaseManager(Context context) {
 		this.context = context;
 		helper = AppDatabase.getInstance(context).getOpenHelper();
-	}
-
-	/**
-	 * Returns the event with the specified id, or null if not found.
-	 */
-	@WorkerThread
-	@Nullable
-	public Event getEvent(long id) {
-		String[] selectionArgs = new String[]{String.valueOf(id)};
-		Cursor cursor = helper.getReadableDatabase().query(
-				"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type"
-						+ " FROM " + EventEntity.TABLE_NAME + " e"
-						+ " JOIN " + EventTitles.TABLE_NAME + " et ON e.id = et.rowid"
-						+ " JOIN " + Day.TABLE_NAME + " d ON e.day_index = d.`index`"
-						+ " JOIN " + Track.TABLE_NAME + " t ON e.track_id = t.id"
-						+ " LEFT JOIN " + EventToPerson.TABLE_NAME + " ep ON e.id = ep.event_id"
-						+ " LEFT JOIN " + Person.TABLE_NAME + " p ON ep.person_id = p.rowid"
-						+ " WHERE e.id = ?"
-						+ " GROUP BY e.id", selectionArgs);
-		try {
-			if (cursor.moveToFirst()) {
-				return toEvent(cursor);
-			} else {
-				return null;
-			}
-		} finally {
-			cursor.close();
-		}
 	}
 
 	private Cursor toEventCursor(Cursor wrappedCursor) {
