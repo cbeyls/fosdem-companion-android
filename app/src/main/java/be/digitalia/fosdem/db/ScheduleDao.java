@@ -263,7 +263,7 @@ public abstract class ScheduleDao {
 	@Query("SELECT date FROM days ORDER BY `index` ASC LIMIT 1")
 	protected abstract long getConferenceStartDate();
 
-	@Query("SELECT * FROM tracks t"
+	@Query("SELECT t.id, t.name, t.type FROM tracks t"
 			+ " JOIN events e ON t.id = e.track_id"
 			+ " WHERE e.day_index = :day"
 			+ " GROUP BY t.id"
