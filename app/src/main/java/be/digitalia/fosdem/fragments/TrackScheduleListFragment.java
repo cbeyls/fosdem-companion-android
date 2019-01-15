@@ -1,29 +1,30 @@
 package be.digitalia.fosdem.fragments;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.format.DateUtils;
 
+import java.util.List;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.app.LoaderManager.LoaderCallbacks;
-import androidx.loader.content.Loader;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.adapters.TrackScheduleAdapter;
-import be.digitalia.fosdem.loaders.TrackScheduleLoader;
 import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Event;
+import be.digitalia.fosdem.model.StatusEvent;
 import be.digitalia.fosdem.model.Track;
+import be.digitalia.fosdem.viewmodels.TrackScheduleViewModel;
 
 public class TrackScheduleListFragment extends RecyclerViewFragment
-		implements TrackScheduleAdapter.EventClickListener, Handler.Callback, LoaderCallbacks<Cursor> {
+		implements TrackScheduleAdapter.EventClickListener, Handler.Callback, Observer<List<StatusEvent>> {
 
 	/**
 	 * Interface implemented by container activities
@@ -32,7 +33,6 @@ public class TrackScheduleListFragment extends RecyclerViewFragment
 		void onEventSelected(int position, Event event);
 	}
 
-	private static final int EVENTS_LOADER_ID = 1;
 	private static final int REFRESH_TIME_WHAT = 1;
 	private static final long REFRESH_TIME_INTERVAL = DateUtils.MINUTE_IN_MILLIS;
 
@@ -137,7 +137,10 @@ public class TrackScheduleListFragment extends RecyclerViewFragment
 		setEmptyText(getString(R.string.no_data));
 		setProgressBarVisible(true);
 
-		LoaderManager.getInstance(this).initLoader(EVENTS_LOADER_ID, null, this);
+		Track track = getArguments().getParcelable(ARG_TRACK);
+		final TrackScheduleViewModel viewModel = ViewModelProviders.of(this).get(TrackScheduleViewModel.class);
+		viewModel.setTrack(day, track);
+		viewModel.getSchedule().observe(getViewLifecycleOwner(), this);
 	}
 
 	@Override
@@ -184,17 +187,10 @@ public class TrackScheduleListFragment extends RecyclerViewFragment
 		return false;
 	}
 
-	@NonNull
 	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		Track track = getArguments().getParcelable(ARG_TRACK);
-		return new TrackScheduleLoader(getActivity(), day, track);
-	}
-
-	@Override
-	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
-		if (data != null) {
-			adapter.swapCursor(data);
+	public void onChanged(List<StatusEvent> schedule) {
+		if (schedule != null) {
+			adapter.submitList(schedule);
 
 			if (selectionEnabled) {
 				int selectedPosition = adapter.getPositionForId(selectedId);
@@ -209,7 +205,7 @@ public class TrackScheduleListFragment extends RecyclerViewFragment
 					getRecyclerView().scrollToPosition(selectedPosition);
 				}
 				// Notify the parent of the current selection to synchronize its state
-				notifyEventSelected(selectedPosition, (selectedPosition == RecyclerView.NO_POSITION) ? null : adapter.getItem(selectedPosition));
+				notifyEventSelected(selectedPosition, (selectedPosition == RecyclerView.NO_POSITION) ? null : schedule.get(selectedPosition).getEvent());
 
 			} else if (!isListAlreadyShown) {
 				final int position = adapter.getPositionForId(selectedId);
@@ -221,10 +217,5 @@ public class TrackScheduleListFragment extends RecyclerViewFragment
 		}
 
 		setProgressBarVisible(false);
-	}
-
-	@Override
-	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-		adapter.swapCursor(null);
 	}
 }

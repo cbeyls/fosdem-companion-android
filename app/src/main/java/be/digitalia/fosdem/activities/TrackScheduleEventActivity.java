@@ -1,31 +1,30 @@
 package be.digitalia.fosdem.activities;
 
-import android.database.Cursor;
 import android.os.Bundle;
-import android.provider.BaseColumns;
 
 import com.viewpagerindicator.UnderlinePageIndicator;
 
-import androidx.annotation.NonNull;
+import java.util.List;
+
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.app.LoaderManager.LoaderCallbacks;
-import androidx.loader.content.Loader;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 import be.digitalia.fosdem.R;
-import be.digitalia.fosdem.db.DatabaseManager;
 import be.digitalia.fosdem.fragments.EventDetailsFragment;
-import be.digitalia.fosdem.loaders.TrackScheduleLoader;
 import be.digitalia.fosdem.model.Day;
+import be.digitalia.fosdem.model.Event;
+import be.digitalia.fosdem.model.StatusEvent;
 import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.NfcUtils;
 import be.digitalia.fosdem.utils.NfcUtils.CreateNfcAppDataCallback;
 import be.digitalia.fosdem.utils.ThemeUtils;
+import be.digitalia.fosdem.viewmodels.TrackScheduleViewModel;
 import be.digitalia.fosdem.widgets.ContentLoadingProgressBar;
 
 /**
@@ -33,13 +32,11 @@ import be.digitalia.fosdem.widgets.ContentLoadingProgressBar;
  *
  * @author Christophe Beyls
  */
-public class TrackScheduleEventActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>, CreateNfcAppDataCallback {
+public class TrackScheduleEventActivity extends AppCompatActivity implements Observer<List<StatusEvent>>, CreateNfcAppDataCallback {
 
 	public static final String EXTRA_DAY = "day";
 	public static final String EXTRA_TRACK = "track";
 	public static final String EXTRA_POSITION = "position";
-
-	private static final int EVENTS_LOADER_ID = 1;
 
 	private Day day;
 	private Track track;
@@ -81,7 +78,9 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Loa
 		NfcUtils.setAppDataPushMessageCallbackIfAvailable(this, this);
 
 		setCustomProgressVisibility(true);
-		LoaderManager.getInstance(this).initLoader(EVENTS_LOADER_ID, null, this);
+		final TrackScheduleViewModel viewModel = ViewModelProviders.of(this).get(TrackScheduleViewModel.class);
+		viewModel.setTrack(day, track);
+		viewModel.getSchedule().observe(this, this);
 	}
 
 	private void setCustomProgressVisibility(boolean isVisible) {
@@ -97,11 +96,11 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Loa
 		if (adapter.getCount() == 0) {
 			return null;
 		}
-		long eventId = adapter.getItemId(pager.getCurrentItem());
-		if (eventId == -1L) {
+		Event event = adapter.getEvent(pager.getCurrentItem());
+		if (event == null) {
 			return null;
 		}
-		return String.valueOf(eventId).getBytes();
+		return String.valueOf(event.getId()).getBytes();
 	}
 
 	@Override
@@ -110,18 +109,12 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Loa
 		return true;
 	}
 
-	@NonNull
 	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		return new TrackScheduleLoader(this, day, track);
-	}
-
-	@Override
-	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
+	public void onChanged(List<StatusEvent> schedule) {
 		setCustomProgressVisibility(false);
 
-		if (data != null) {
-			adapter.setCursor(data);
+		if (schedule != null) {
+			adapter.setSchedule(schedule);
 
 			// Delay setting the adapter when the instance state is restored
 			// to ensure the current position is restored properly
@@ -137,44 +130,34 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Loa
 		}
 	}
 
-	@Override
-	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-		adapter.setCursor(null);
-	}
-
 	public static class TrackScheduleEventAdapter extends FragmentStatePagerAdapter {
 
-		private Cursor cursor;
+		private List<StatusEvent> events = null;
 
 		public TrackScheduleEventAdapter(FragmentManager fm) {
 			super(fm);
 		}
 
-		public Cursor getCursor() {
-			return cursor;
-		}
-
-		public void setCursor(Cursor cursor) {
-			this.cursor = cursor;
+		public void setSchedule(List<StatusEvent> schedule) {
+			this.events = schedule;
 			notifyDataSetChanged();
 		}
 
 		@Override
 		public int getCount() {
-			return (cursor == null) ? 0 : cursor.getCount();
+			return (events == null) ? 0 : events.size();
 		}
 
 		@Override
 		public Fragment getItem(int position) {
-			cursor.moveToPosition(position);
-			return EventDetailsFragment.newInstance(DatabaseManager.toEvent(cursor));
+			return EventDetailsFragment.newInstance(events.get(position).getEvent());
 		}
 
-		public long getItemId(int position) {
-			if (!cursor.moveToPosition(position)) {
-				return -1L;
+		public Event getEvent(int position) {
+			if (position < 0 || position >= getCount()) {
+				return null;
 			}
-			return cursor.getLong(cursor.getColumnIndexOrThrow(BaseColumns._ID));
+			return events.get(position).getEvent();
 		}
 	}
 }

@@ -1,5 +1,6 @@
 package be.digitalia.fosdem.db;
 
+import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,11 +10,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-
 import androidx.annotation.WorkerThread;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.sqlite.db.SupportSQLiteDatabase;
@@ -28,6 +24,10 @@ import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Person;
 import be.digitalia.fosdem.model.Track;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Here comes the badass SQL.
@@ -46,6 +46,7 @@ public class DatabaseManager {
 	private static DatabaseManager instance;
 
 	private final Context context;
+	private final AppDatabase appDatabase;
 	private final SupportSQLiteOpenHelper helper;
 
 	public static void init(Context context) {
@@ -60,7 +61,8 @@ public class DatabaseManager {
 
 	private DatabaseManager(Context context) {
 		this.context = context;
-		helper = AppDatabase.getInstance(context).getOpenHelper();
+		appDatabase = AppDatabase.getInstance(context);
+		helper = appDatabase.getOpenHelper();
 	}
 
 	private Cursor toEventCursor(Cursor wrappedCursor) {
@@ -68,31 +70,6 @@ public class DatabaseManager {
 		intentFilter.addAction(ACTION_ADD_BOOKMARK);
 		intentFilter.addAction(ACTION_REMOVE_BOOKMARKS);
 		return new LocalBroadcastCursor(wrappedCursor, context, intentFilter);
-	}
-
-	/**
-	 * Returns the events for a specified track.
-	 *
-	 * @param day
-	 * @param track
-	 * @return A cursor to Events
-	 */
-	@WorkerThread
-	public Cursor getEvents(Day day, Track track) {
-		String[] selectionArgs = new String[]{String.valueOf(day.getIndex()), track.getName(), track.getType().name()};
-		Cursor cursor = helper.getReadableDatabase().query(
-				"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, b.event_id"
-						+ " FROM " + EventEntity.TABLE_NAME + " e"
-						+ " JOIN " + EventTitles.TABLE_NAME + " et ON e.id = et.rowid"
-						+ " JOIN " + Day.TABLE_NAME + " d ON e.day_index = d.`index`"
-						+ " JOIN " + Track.TABLE_NAME + " t ON e.track_id = t.id"
-						+ " LEFT JOIN " + EventToPerson.TABLE_NAME + " ep ON e.id = ep.event_id"
-						+ " LEFT JOIN " + Person.TABLE_NAME + " p ON ep.person_id = p.rowid"
-						+ " LEFT JOIN " + Bookmark.TABLE_NAME + " b ON e.id = b.event_id"
-						+ " WHERE e.day_index = ? AND t.name = ? AND t.type = ?"
-						+ " GROUP BY e.id"
-						+ " ORDER BY e.start_time ASC", selectionArgs);
-		return toEventCursor(cursor);
 	}
 
 	/**
@@ -370,6 +347,7 @@ public class DatabaseManager {
 		return queryNumEntries(helper.getReadableDatabase(), Bookmark.TABLE_NAME, "event_id = ?", selectionArgs) > 0L;
 	}
 
+	@SuppressLint("RestrictedApi")
 	@WorkerThread
 	public boolean addBookmark(Event event) {
 		boolean complete = false;
@@ -393,6 +371,7 @@ public class DatabaseManager {
 			db.endTransaction();
 
 			if (complete) {
+				appDatabase.getInvalidationTracker().notifyObserversByTableNames(Bookmark.TABLE_NAME);
 				Intent intent = new Intent(ACTION_ADD_BOOKMARK).putExtra(EXTRA_EVENT_ID, event.getId());
 				Date startTime = event.getStartTime();
 				if (startTime != null) {
@@ -408,6 +387,7 @@ public class DatabaseManager {
 		return removeBookmarks(new long[]{event.getId()});
 	}
 
+	@SuppressLint("RestrictedApi")
 	@WorkerThread
 	public boolean removeBookmarks(long[] eventIds) {
 		int length = eventIds.length;
@@ -438,6 +418,7 @@ public class DatabaseManager {
 			db.endTransaction();
 
 			if (isComplete) {
+				appDatabase.getInvalidationTracker().notifyObserversByTableNames(Bookmark.TABLE_NAME);
 				Intent intent = new Intent(ACTION_REMOVE_BOOKMARKS).putExtra(EXTRA_EVENT_IDS, eventIds);
 				LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 			}

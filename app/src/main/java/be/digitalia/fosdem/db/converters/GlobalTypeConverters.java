@@ -22,6 +22,11 @@ public class GlobalTypeConverters {
 	}
 
 	@TypeConverter
+	public static long fromTrack(Track track) {
+		return track.getId();
+	}
+
+	@TypeConverter
 	public static long fromEvent(Event event) {
 		return event.getId();
 	}

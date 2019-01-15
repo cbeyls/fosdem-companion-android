@@ -37,7 +37,7 @@ public class Event implements Parcelable {
 	@ColumnInfo(name = "abstract")
 	private String abstractText;
 	private String description;
-	@ColumnInfo(name = "persons_summary")
+	@ColumnInfo(name = "persons")
 	private String personsSummary;
 
 	public Event() {

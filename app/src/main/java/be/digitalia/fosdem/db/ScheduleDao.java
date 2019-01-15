@@ -30,6 +30,7 @@ import be.digitalia.fosdem.model.DetailedEvent;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Link;
 import be.digitalia.fosdem.model.Person;
+import be.digitalia.fosdem.model.StatusEvent;
 import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.DateUtils;
 
@@ -275,7 +276,7 @@ public abstract class ScheduleDao {
 	 * Returns the event with the specified id, or null if not found.
 	 */
 	@Query("SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description"
-			+ ", GROUP_CONCAT(p.name, ', ') AS persons_summary, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type"
+			+ ", GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type"
 			+ " FROM events e"
 			+ " JOIN events_titles et ON e.id = et.`rowid`"
 			+ " JOIN days d ON e.day_index = d.`index`"
@@ -285,7 +286,26 @@ public abstract class ScheduleDao {
 			+ " WHERE e.id = :id"
 			+ " GROUP BY e.id")
 	@Nullable
+	@WorkerThread
 	public abstract Event getEvent(long id);
+
+	/**
+	 * Returns the events for a specified track.
+	 */
+	@Query("SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description"
+			+ ", GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type"
+			+ ", b.event_id IS NOT NULL AS is_bookmarked"
+			+ " FROM events e"
+			+ " JOIN events_titles et ON e.id = et.`rowid`"
+			+ " JOIN days d ON e.day_index = d.`index`"
+			+ " JOIN tracks t ON e.track_id = t.id"
+			+ " LEFT JOIN events_persons ep ON e.id = ep.event_id"
+			+ " LEFT JOIN persons p ON ep.person_id = p.`rowid`"
+			+ " LEFT JOIN bookmarks b ON e.id = b.event_id"
+			+ " WHERE e.day_index = :day AND e.track_id = :track"
+			+ " GROUP BY e.id"
+			+ " ORDER BY e.start_time ASC")
+	public abstract LiveData<List<StatusEvent>> getEvents(Day day, Track track);
 
 	/**
 	 * Returns all persons in alphabetical order.
