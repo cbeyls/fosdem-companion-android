@@ -1,14 +1,12 @@
 package be.digitalia.fosdem.db;
 
 import android.annotation.SuppressLint;
-import android.app.SearchManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.provider.BaseColumns;
 import android.text.TextUtils;
 import androidx.annotation.WorkerThread;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -221,43 +219,6 @@ public class DatabaseManager {
 						+ " GROUP BY e.id"
 						+ " ORDER BY e.start_time ASC", selectionArgs);
 		return toEventCursor(cursor);
-	}
-
-	/**
-	 * Method called by SearchSuggestionProvider to return search results in the format expected by the search framework.
-	 */
-	@WorkerThread
-	public Cursor getSearchSuggestionResults(String query, int limit) {
-		final String matchQuery = query + "*";
-		String[] selectionArgs = new String[]{matchQuery, "%" + query + "%", matchQuery, String.valueOf(limit)};
-		// Query is similar to getSearchResults but returns different columns, does not join the Day table or the Bookmark table and limits the result set.
-		return helper.getReadableDatabase().query(
-				"SELECT e.id AS " + BaseColumns._ID
-						+ ", et.title AS " + SearchManager.SUGGEST_COLUMN_TEXT_1
-						+ ", IFNULL(GROUP_CONCAT(p.name, ', '), '') || ' - ' || t.name AS " + SearchManager.SUGGEST_COLUMN_TEXT_2
-						+ ", e.id AS " + SearchManager.SUGGEST_COLUMN_INTENT_DATA
-						+ " FROM " + EventEntity.TABLE_NAME + " e"
-						+ " JOIN " + EventTitles.TABLE_NAME + " et ON e.id = et.rowid"
-						+ " JOIN " + Track.TABLE_NAME + " t ON e.track_id = t.id"
-						+ " LEFT JOIN " + EventToPerson.TABLE_NAME + " ep ON e.id = ep.event_id"
-						+ " LEFT JOIN " + Person.TABLE_NAME + " p ON ep.person_id = p.rowid"
-						+ " WHERE e.id IN ( "
-						+ "SELECT rowid"
-						+ " FROM " + EventTitles.TABLE_NAME
-						+ " WHERE " + EventTitles.TABLE_NAME + " MATCH ?"
-						+ " UNION "
-						+ "SELECT e.id"
-						+ " FROM " + EventEntity.TABLE_NAME + " e"
-						+ " JOIN " + Track.TABLE_NAME + " t ON e.track_id = t.id"
-						+ " WHERE t.name LIKE ?"
-						+ " UNION "
-						+ "SELECT ep.event_id"
-						+ " FROM " + EventToPerson.TABLE_NAME + " ep"
-						+ " JOIN " + Person.TABLE_NAME + " p ON ep.person_id = p.rowid"
-						+ " WHERE p.name MATCH ?"
-						+ " )"
-						+ " GROUP BY e.id"
-						+ " ORDER BY e.start_time ASC LIMIT ?", selectionArgs);
 	}
 
 	public static Event toEvent(Cursor cursor, Event event) {

@@ -1,14 +1,10 @@
 package be.digitalia.fosdem.db;
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import android.database.Cursor;
+import android.provider.BaseColumns;
 import androidx.annotation.MainThread;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
@@ -16,23 +12,15 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.paging.DataSource;
-import androidx.room.Dao;
-import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
-import androidx.room.Query;
-import androidx.room.Transaction;
+import androidx.room.*;
 import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.db.entities.EventEntity;
 import be.digitalia.fosdem.db.entities.EventTitles;
 import be.digitalia.fosdem.db.entities.EventToPerson;
-import be.digitalia.fosdem.model.Day;
-import be.digitalia.fosdem.model.DetailedEvent;
-import be.digitalia.fosdem.model.Event;
-import be.digitalia.fosdem.model.Link;
-import be.digitalia.fosdem.model.Person;
-import be.digitalia.fosdem.model.StatusEvent;
-import be.digitalia.fosdem.model.Track;
+import be.digitalia.fosdem.model.*;
 import be.digitalia.fosdem.utils.DateUtils;
+
+import java.util.*;
 
 @Dao
 public abstract class ScheduleDao {
@@ -306,6 +294,38 @@ public abstract class ScheduleDao {
 			+ " GROUP BY e.id"
 			+ " ORDER BY e.start_time ASC")
 	public abstract LiveData<List<StatusEvent>> getEvents(Day day, Track track);
+
+	/**
+	 * Method called by SearchSuggestionProvider to return search results in the format expected by the search framework.
+	 */
+	@Query("SELECT e.id AS " + BaseColumns._ID
+			+ ", et.title AS " + SearchManager.SUGGEST_COLUMN_TEXT_1
+			+ ", IFNULL(GROUP_CONCAT(p.name, ', '), '') || ' - ' || t.name AS " + SearchManager.SUGGEST_COLUMN_TEXT_2
+			+ ", e.id AS " + SearchManager.SUGGEST_COLUMN_INTENT_DATA
+			+ " FROM events e"
+			+ " JOIN events_titles et ON e.id = et.`rowid`"
+			+ " JOIN tracks t ON e.track_id = t.id"
+			+ " LEFT JOIN events_persons ep ON e.id = ep.event_id"
+			+ " LEFT JOIN persons p ON ep.person_id = p.`rowid`"
+			+ " WHERE e.id IN ( "
+			+ "SELECT `rowid`"
+			+ " FROM events_titles et"
+			+ " WHERE et.title MATCH :query || '*' OR et.subtitle MATCH :query || '*'"
+			+ " UNION "
+			+ "SELECT e.id"
+			+ " FROM events e"
+			+ " JOIN tracks t ON e.track_id = t.id"
+			+ " WHERE t.name LIKE :query || '%'"
+			+ " UNION "
+			+ "SELECT ep.event_id"
+			+ " FROM events_persons ep"
+			+ " JOIN persons p ON ep.person_id = p.`rowid`"
+			+ " WHERE p.name MATCH :query || '*'"
+			+ " )"
+			+ " GROUP BY e.id"
+			+ " ORDER BY e.start_time ASC LIMIT :limit")
+	@WorkerThread
+	public abstract Cursor getSearchSuggestionResults(String query, int limit);
 
 	/**
 	 * Returns all persons in alphabetical order.
