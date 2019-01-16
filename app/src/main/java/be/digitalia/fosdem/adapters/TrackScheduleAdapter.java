@@ -9,10 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import java.text.DateFormat;
-import java.util.List;
-
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,6 +24,9 @@ import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.StatusEvent;
 import be.digitalia.fosdem.utils.DateUtils;
+
+import java.text.DateFormat;
+import java.util.List;
 
 public class TrackScheduleAdapter extends ListAdapter<StatusEvent, TrackScheduleAdapter.ViewHolder> {
 
@@ -58,8 +57,8 @@ public class TrackScheduleAdapter extends ListAdapter<StatusEvent, TrackSchedule
 	@Nullable
 	final EventClickListener listener;
 
-	long currentTime = -1L;
-	long selectedId = -1L;
+	private long currentTime = -1L;
+	private long selectedId = -1L;
 
 	public TrackScheduleAdapter(Context context, @Nullable EventClickListener listener) {
 		super(DIFF_CALLBACK);
@@ -126,7 +125,11 @@ public class TrackScheduleAdapter extends ListAdapter<StatusEvent, TrackSchedule
 
 	@Override
 	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-		holder.bind(getItem(position));
+		final StatusEvent statusEvent = getItem(position);
+		final Event event = statusEvent.getEvent();
+		holder.bind(event, statusEvent.isBookmarked());
+		holder.bindTimeColors(event, currentTime);
+		holder.bindSelection(event.getId() == selectedId);
 	}
 
 	@Override
@@ -136,10 +139,10 @@ public class TrackScheduleAdapter extends ListAdapter<StatusEvent, TrackSchedule
 		} else {
 			final StatusEvent statusEvent = getItem(position);
 			if (payloads.contains(TIME_COLORS_PAYLOAD)) {
-				holder.bindTimeColors(statusEvent.getEvent());
+				holder.bindTimeColors(statusEvent.getEvent(), currentTime);
 			}
 			if (payloads.contains(SELECTION_PAYLOAD)) {
-				holder.bindSelection(statusEvent.getEvent());
+				holder.bindSelection(statusEvent.getEvent().getId() == selectedId);
 			}
 		}
 	}
@@ -176,15 +179,12 @@ public class TrackScheduleAdapter extends ListAdapter<StatusEvent, TrackSchedule
 			}
 		}
 
-		void bind(@NonNull StatusEvent statusEvent) {
+		void bind(@NonNull Event event, boolean isBookmarked) {
 			Context context = itemView.getContext();
-			event = statusEvent.getEvent();
+			this.event = event;
 
 			time.setText(timeDateFormat.format(event.getStartTime()));
-			bindTimeColors(event);
-
 			title.setText(event.getTitle());
-			boolean isBookmarked = statusEvent.isBookmarked();
 			Drawable bookmarkDrawable = isBookmarked
 					? AppCompatResources.getDrawable(context, R.drawable.ic_bookmark_grey600_24dp)
 					: null;
@@ -198,11 +198,9 @@ public class TrackScheduleAdapter extends ListAdapter<StatusEvent, TrackSchedule
 			persons.setVisibility(TextUtils.isEmpty(personsSummary) ? View.GONE : View.VISIBLE);
 			room.setText(event.getRoomName());
 			room.setContentDescription(context.getString(R.string.room_content_description, event.getRoomName()));
-
-			bindSelection(event);
 		}
 
-		void bindTimeColors(@NonNull Event event) {
+		void bindTimeColors(@NonNull Event event, long currentTime) {
 			if ((currentTime != -1L) && event.isRunningAtTime(currentTime)) {
 				// Contrast colors for running event
 				time.setBackgroundColor(timeRunningBackgroundColor);
@@ -217,8 +215,8 @@ public class TrackScheduleAdapter extends ListAdapter<StatusEvent, TrackSchedule
 			}
 		}
 
-		void bindSelection(@NonNull Event event) {
-			itemView.setActivated(event.getId() == selectedId);
+		void bindSelection(boolean isSelected) {
+			itemView.setActivated(isSelected);
 		}
 
 		@Override
