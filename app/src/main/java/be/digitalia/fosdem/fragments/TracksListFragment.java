@@ -7,25 +7,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.ListAdapter;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.*;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.TrackScheduleActivity;
 import be.digitalia.fosdem.adapters.SimpleItemCallback;
 import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.viewmodels.TracksListViewModel;
+
+import java.util.List;
 
 public class TracksListFragment extends RecyclerViewFragment implements Observer<List<Track>> {
 
@@ -123,7 +118,7 @@ public class TracksListFragment extends RecyclerViewFragment implements Observer
 			itemView.setOnClickListener(this);
 		}
 
-		void bind(Day day, Track track) {
+		void bind(@NonNull Day day, @NonNull Track track) {
 			this.day = day;
 			this.track = track;
 			name.setText(track.getName());

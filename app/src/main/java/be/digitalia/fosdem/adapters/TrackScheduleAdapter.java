@@ -148,10 +148,10 @@ public class TrackScheduleAdapter extends ListAdapter<StatusEvent, TrackSchedule
 	}
 
 	class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-		TextView time;
-		TextView title;
-		TextView persons;
-		TextView room;
+		final TextView time;
+		final TextView title;
+		final TextView persons;
+		final TextView room;
 
 		Event event;
 

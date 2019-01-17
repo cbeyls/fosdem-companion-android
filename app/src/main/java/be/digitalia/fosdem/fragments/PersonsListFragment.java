@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
@@ -112,7 +111,7 @@ public class PersonsListFragment extends RecyclerViewFragment implements Observe
 			textView.setText(null);
 		}
 
-		void bind(Person person) {
+		void bind(@NonNull Person person) {
 			this.person = person;
 			textView.setText(person.getName());
 		}
