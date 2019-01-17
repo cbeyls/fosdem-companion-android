@@ -5,14 +5,20 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.view.Menu;
 import android.view.MenuItem;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.core.content.ContextCompat;
+import androidx.core.util.ObjectsCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import be.digitalia.fosdem.R;
-import be.digitalia.fosdem.fragments.MessageDialogFragment;
 import be.digitalia.fosdem.fragments.SearchResultListFragment;
+import com.google.android.material.snackbar.Snackbar;
 
 public class SearchResultActivity extends AppCompatActivity {
 
@@ -59,18 +65,31 @@ public class SearchResultActivity extends AppCompatActivity {
 			if (query != null) {
 				query = query.trim();
 			}
-			if ((query == null) || (query.length() < MIN_SEARCH_LENGTH)) {
-				MessageDialogFragment.newInstance(R.string.error_title, R.string.search_length_error).show(getSupportFragmentManager());
-				return;
-			}
-
-			currentQuery = query;
 			if (searchView != null) {
 				setSearchViewQuery(query);
 			}
+			final boolean isQueryTooShort = (query == null) || (query.length() < MIN_SEARCH_LENGTH);
 
-			SearchResultListFragment f = SearchResultListFragment.newInstance(query);
-			getSupportFragmentManager().beginTransaction().replace(R.id.content, f).commit();
+			if (!ObjectsCompat.equals(currentQuery, query)) {
+				currentQuery = query;
+				FragmentManager fm = getSupportFragmentManager();
+				if (isQueryTooShort) {
+					Fragment f = fm.findFragmentById(R.id.content);
+					if (f != null) {
+						fm.beginTransaction().remove(f).commitAllowingStateLoss();
+					}
+				} else {
+					SearchResultListFragment f = SearchResultListFragment.newInstance(query);
+					fm.beginTransaction().replace(R.id.content, f).commitAllowingStateLoss();
+				}
+			}
+
+			if (isQueryTooShort) {
+				SpannableString errorMessage = new SpannableString(getString(R.string.search_length_error));
+				int textColor = ContextCompat.getColor(this, R.color.error_material);
+				errorMessage.setSpan(new ForegroundColorSpan(textColor), 0, errorMessage.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+				Snackbar.make(findViewById(R.id.content), errorMessage, Snackbar.LENGTH_LONG).show();
+			}
 
 		} else if (Intent.ACTION_VIEW.equals(intentAction)) {
 			// Search suggestion, dispatch to EventDetailsActivity
