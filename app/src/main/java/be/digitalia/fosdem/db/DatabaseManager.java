@@ -181,46 +181,6 @@ public class DatabaseManager {
 		return toEventCursor(cursor);
 	}
 
-	/**
-	 * Search through matching titles, subtitles, track names, person names. We need to use an union of 3 sub-queries because a "match" condition can not be
-	 * accompanied by other conditions in a "where" statement.
-	 *
-	 * @param query
-	 * @return A cursor to Events
-	 */
-	@WorkerThread
-	public Cursor getSearchResults(String query) {
-		final String matchQuery = query + "*";
-		String[] selectionArgs = new String[]{matchQuery, "%" + query + "%", matchQuery};
-		Cursor cursor = helper.getReadableDatabase().query(
-				"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, b.event_id"
-						+ " FROM " + EventEntity.TABLE_NAME + " e"
-						+ " JOIN " + EventTitles.TABLE_NAME + " et ON e.id = et.rowid"
-						+ " JOIN " + Day.TABLE_NAME + " d ON e.day_index = d.`index`"
-						+ " JOIN " + Track.TABLE_NAME + " t ON e.track_id = t.id"
-						+ " LEFT JOIN " + EventToPerson.TABLE_NAME + " ep ON e.id = ep.event_id"
-						+ " LEFT JOIN " + Person.TABLE_NAME + " p ON ep.person_id = p.rowid"
-						+ " LEFT JOIN " + Bookmark.TABLE_NAME + " b ON e.id = b.event_id"
-						+ " WHERE e.id IN ( "
-						+ "SELECT rowid"
-						+ " FROM " + EventTitles.TABLE_NAME
-						+ " WHERE " + EventTitles.TABLE_NAME + " MATCH ?"
-						+ " UNION "
-						+ "SELECT e.id"
-						+ " FROM " + EventEntity.TABLE_NAME + " e"
-						+ " JOIN " + Track.TABLE_NAME + " t ON e.track_id = t.id"
-						+ " WHERE t.name LIKE ?"
-						+ " UNION "
-						+ "SELECT ep.event_id"
-						+ " FROM " + EventToPerson.TABLE_NAME + " ep"
-						+ " JOIN " + Person.TABLE_NAME + " p ON ep.person_id = p.rowid"
-						+ " WHERE p.name MATCH ?"
-						+ " )"
-						+ " GROUP BY e.id"
-						+ " ORDER BY e.start_time ASC", selectionArgs);
-		return toEventCursor(cursor);
-	}
-
 	public static Event toEvent(Cursor cursor, Event event) {
 		Day day;
 		Track track;

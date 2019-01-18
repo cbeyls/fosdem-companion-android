@@ -13,22 +13,19 @@ import android.view.MenuItem;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.content.ContextCompat;
-import androidx.core.util.ObjectsCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProviders;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.SearchResultListFragment;
+import be.digitalia.fosdem.viewmodels.SearchViewModel;
 import com.google.android.material.snackbar.Snackbar;
 
 public class SearchResultActivity extends AppCompatActivity {
-
-	public static final int MIN_SEARCH_LENGTH = 3;
 
 	private static final String STATE_CURRENT_QUERY = "current_query";
 	// Search Intent sent by Google Now
 	private static final String GMS_ACTION_SEARCH = "com.google.android.gms.actions.SEARCH_ACTION";
 
-	private String currentQuery;
+	private SearchViewModel viewModel;
 	private SearchView searchView;
 
 	@Override
@@ -38,17 +35,22 @@ public class SearchResultActivity extends AppCompatActivity {
 
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+		viewModel = ViewModelProviders.of(this).get(SearchViewModel.class);
+
 		if (savedInstanceState == null) {
+			SearchResultListFragment f = SearchResultListFragment.newInstance();
+			getSupportFragmentManager().beginTransaction().replace(R.id.content, f).commit();
+
 			handleIntent(getIntent(), false);
 		} else {
-			currentQuery = savedInstanceState.getString(STATE_CURRENT_QUERY);
+			viewModel.setQuery(savedInstanceState.getString(STATE_CURRENT_QUERY, ""));
 		}
 	}
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putString(STATE_CURRENT_QUERY, currentQuery);
+		outState.putString(STATE_CURRENT_QUERY, viewModel.getQuery());
 	}
 
 	@Override
@@ -62,29 +64,18 @@ public class SearchResultActivity extends AppCompatActivity {
 		if (Intent.ACTION_SEARCH.equals(intentAction) || GMS_ACTION_SEARCH.equals(intentAction)) {
 			// Normal search, results are displayed here
 			String query = intent.getStringExtra(SearchManager.QUERY);
-			if (query != null) {
+			if (query == null) {
+				query = "";
+			} else {
 				query = query.trim();
 			}
 			if (searchView != null) {
 				setSearchViewQuery(query);
 			}
-			final boolean isQueryTooShort = (query == null) || (query.length() < MIN_SEARCH_LENGTH);
 
-			if (!ObjectsCompat.equals(currentQuery, query)) {
-				currentQuery = query;
-				FragmentManager fm = getSupportFragmentManager();
-				if (isQueryTooShort) {
-					Fragment f = fm.findFragmentById(R.id.content);
-					if (f != null) {
-						fm.beginTransaction().remove(f).commitAllowingStateLoss();
-					}
-				} else {
-					SearchResultListFragment f = SearchResultListFragment.newInstance(query);
-					fm.beginTransaction().replace(R.id.content, f).commitAllowingStateLoss();
-				}
-			}
+			viewModel.setQuery(query);
 
-			if (isQueryTooShort) {
+			if (SearchViewModel.isQueryTooShort(query)) {
 				SpannableString errorMessage = new SpannableString(getString(R.string.search_length_error));
 				int textColor = ContextCompat.getColor(this, R.color.error_material);
 				errorMessage.setSpan(new ForegroundColorSpan(textColor), 0, errorMessage.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -113,7 +104,7 @@ public class SearchResultActivity extends AppCompatActivity {
 		searchView = (SearchView) searchMenuItem.getActionView();
 		searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 		searchView.setIconifiedByDefault(false); // Always show the search view
-		setSearchViewQuery(currentQuery);
+		setSearchViewQuery(viewModel.getQuery());
 
 		return true;
 	}
