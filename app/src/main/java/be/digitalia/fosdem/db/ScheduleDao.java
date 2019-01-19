@@ -296,11 +296,30 @@ public abstract class ScheduleDao {
 	public abstract LiveData<List<StatusEvent>> getEvents(Day day, Track track);
 
 	/**
+	 * Returns the events presented by the specified person.
+	 */
+	@Query("SELECT e.id , e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description"
+			+ ", GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type"
+			+ ", b.event_id IS NOT NULL AS is_bookmarked"
+			+ " FROM events e"
+			+ " JOIN events_titles et ON e.id = et.`rowid`"
+			+ " JOIN days d ON e.day_index = d.`index`"
+			+ " JOIN tracks t ON e.track_id = t.id"
+			+ " LEFT JOIN events_persons ep ON e.id = ep.event_id"
+			+ " LEFT JOIN persons p ON ep.person_id = p.`rowid`"
+			+ " LEFT JOIN bookmarks b ON e.id = b.event_id"
+			+ " JOIN events_persons ep2 ON e.id = ep2.event_id"
+			+ " WHERE ep2.person_id = :person"
+			+ " GROUP BY e.id"
+			+ " ORDER BY e.start_time ASC")
+	public abstract DataSource.Factory<Integer, StatusEvent> getEvents(Person person);
+
+	/**
 	 * Search through matching titles, subtitles, track names, person names. We need to use an union of 3 sub-queries because a "match" condition can not be
 	 * accompanied by other conditions in a "where" statement.
 	 */
 	@Query("SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description"
-			+ ", GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, E.track_id, t.name AS track_name, t.type AS track_type"
+			+ ", GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type"
 			+ ", b.event_id IS NOT NULL AS is_bookmarked"
 			+ " FROM events e"
 			+ " JOIN events_titles et ON e.id = et.`rowid`"

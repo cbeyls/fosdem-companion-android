@@ -124,31 +124,6 @@ public class DatabaseManager {
 	}
 
 	/**
-	 * Returns the events presented by the specified person.
-	 *
-	 * @param person
-	 * @return A cursor to Events
-	 */
-	@WorkerThread
-	public Cursor getEvents(Person person) {
-		String[] selectionArgs = new String[]{String.valueOf(person.getId())};
-		Cursor cursor = helper.getReadableDatabase().query(
-				"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, b.event_id"
-						+ " FROM " + EventEntity.TABLE_NAME + " e"
-						+ " JOIN " + EventTitles.TABLE_NAME + " et ON e.id = et.rowid"
-						+ " JOIN " + Day.TABLE_NAME + " d ON e.day_index = d.`index`"
-						+ " JOIN " + Track.TABLE_NAME + " t ON e.track_id = t.id"
-						+ " LEFT JOIN " + EventToPerson.TABLE_NAME + " ep ON e.id = ep.event_id"
-						+ " LEFT JOIN " + Person.TABLE_NAME + " p ON ep.person_id = p.rowid"
-						+ " LEFT JOIN " + Bookmark.TABLE_NAME + " b ON e.id = b.event_id"
-						+ " JOIN " + EventToPerson.TABLE_NAME + " ep2 ON e.id = ep2.event_id"
-						+ " WHERE ep2.person_id = ?"
-						+ " GROUP BY e.id"
-						+ " ORDER BY e.start_time ASC", selectionArgs);
-		return toEventCursor(cursor);
-	}
-
-	/**
 	 * Returns the bookmarks.
 	 *
 	 * @param minStartTime When positive, only return the events starting after this time.

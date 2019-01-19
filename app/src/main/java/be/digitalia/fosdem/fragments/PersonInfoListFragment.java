@@ -2,40 +2,31 @@ package be.digitalia.fosdem.fragments;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
-import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-
+import android.view.*;
 import androidx.annotation.NonNull;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.content.ContextCompat;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.app.LoaderManager.LoaderCallbacks;
-import androidx.loader.content.Loader;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.adapters.ConcatAdapter;
-import be.digitalia.fosdem.adapters.EventsAdapter;
-import be.digitalia.fosdem.db.DatabaseManager;
-import be.digitalia.fosdem.loaders.SimpleCursorLoader;
+import be.digitalia.fosdem.adapters.EventsAdapter2;
 import be.digitalia.fosdem.model.Person;
+import be.digitalia.fosdem.model.StatusEvent;
 import be.digitalia.fosdem.utils.DateUtils;
+import be.digitalia.fosdem.viewmodels.PersonInfoViewModel;
 
-public class PersonInfoListFragment extends RecyclerViewFragment implements LoaderCallbacks<Cursor> {
+public class PersonInfoListFragment extends RecyclerViewFragment implements Observer<PagedList<StatusEvent>> {
 
-	private static final int PERSON_EVENTS_LOADER_ID = 1;
 	private static final String ARG_PERSON = "person";
 
 	private Person person;
-	private EventsAdapter adapter;
+	private EventsAdapter2 adapter;
 
 	public static PersonInfoListFragment newInstance(Person person) {
 		PersonInfoListFragment f = new PersonInfoListFragment();
@@ -49,7 +40,7 @@ public class PersonInfoListFragment extends RecyclerViewFragment implements Load
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		adapter = new EventsAdapter(getActivity(), this);
+		adapter = new EventsAdapter2(getContext(), this);
 		person = getArguments().getParcelable(ARG_PERSON);
 		setHasOptionsMenu(true);
 	}
@@ -63,8 +54,18 @@ public class PersonInfoListFragment extends RecyclerViewFragment implements Load
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.more_info:
-				if (adapter.getItemCount() > 0) {
-					final int year = DateUtils.getYear(adapter.getItem(0).getDay().getDate().getTime());
+				// Look for the first non-placeholder event in the paged list
+				final PagedList<StatusEvent> list = adapter.getCurrentList();
+				final int size = (list == null) ? 0 : list.size();
+				StatusEvent statusEvent = null;
+				for (int i = 0; i < size; ++i) {
+					statusEvent = list.get(i);
+					if (statusEvent != null) {
+						break;
+					}
+				}
+				if (statusEvent != null) {
+					final int year = DateUtils.getYear(statusEvent.getEvent().getDay().getDate().getTime());
 					String url = person.getUrl(year);
 					if (url != null) {
 						try {
@@ -102,42 +103,15 @@ public class PersonInfoListFragment extends RecyclerViewFragment implements Load
 		setEmptyText(getString(R.string.no_data));
 		setProgressBarVisible(true);
 
-		LoaderManager.getInstance(this).initLoader(PERSON_EVENTS_LOADER_ID, null, this);
-	}
-
-	private static class PersonEventsLoader extends SimpleCursorLoader {
-
-		private final Person person;
-
-		public PersonEventsLoader(Context context, Person person) {
-			super(context);
-			this.person = person;
-		}
-
-		@Override
-		protected Cursor getCursor() {
-			return DatabaseManager.getInstance().getEvents(person);
-		}
-	}
-
-	@NonNull
-	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		return new PersonEventsLoader(getActivity(), person);
+		final PersonInfoViewModel viewModel = ViewModelProviders.of(this).get(PersonInfoViewModel.class);
+		viewModel.setPerson(person);
+		viewModel.getEvents().observe(getViewLifecycleOwner(), this);
 	}
 
 	@Override
-	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
-		if (data != null) {
-			adapter.swapCursor(data);
-		}
-
+	public void onChanged(PagedList<StatusEvent> events) {
+		adapter.submitList(events);
 		setProgressBarVisible(false);
-	}
-
-	@Override
-	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-		adapter.swapCursor(null);
 	}
 
 	static class HeaderAdapter extends RecyclerView.Adapter<HeaderAdapter.ViewHolder> {

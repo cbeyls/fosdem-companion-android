@@ -5,9 +5,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.format.DateUtils;
-
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
@@ -22,6 +19,8 @@ import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.StatusEvent;
 import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.viewmodels.TrackScheduleViewModel;
+
+import java.util.List;
 
 public class TrackScheduleListFragment extends RecyclerViewFragment
 		implements TrackScheduleAdapter.EventClickListener, Handler.Callback, Observer<List<StatusEvent>> {
@@ -189,32 +188,30 @@ public class TrackScheduleListFragment extends RecyclerViewFragment
 
 	@Override
 	public void onChanged(List<StatusEvent> schedule) {
-		if (schedule != null) {
-			adapter.submitList(schedule);
+		adapter.submitList(schedule);
 
-			if (selectionEnabled) {
-				int selectedPosition = adapter.getPositionForId(selectedId);
-				if (selectedPosition == RecyclerView.NO_POSITION && adapter.getItemCount() > 0) {
-					// There is no current valid selection, reset to use the first item
-					setSelectedId(adapter.getItemId(0));
-					selectedPosition = 0;
-				}
-
-				// Ensure the current selection is visible
-				if (selectedPosition != RecyclerView.NO_POSITION) {
-					getRecyclerView().scrollToPosition(selectedPosition);
-				}
-				// Notify the parent of the current selection to synchronize its state
-				notifyEventSelected(selectedPosition, (selectedPosition == RecyclerView.NO_POSITION) ? null : schedule.get(selectedPosition).getEvent());
-
-			} else if (!isListAlreadyShown) {
-				final int position = adapter.getPositionForId(selectedId);
-				if (position != RecyclerView.NO_POSITION) {
-					getRecyclerView().scrollToPosition(position);
-				}
+		if (selectionEnabled) {
+			int selectedPosition = adapter.getPositionForId(selectedId);
+			if (selectedPosition == RecyclerView.NO_POSITION && adapter.getItemCount() > 0) {
+				// There is no current valid selection, reset to use the first item
+				setSelectedId(adapter.getItemId(0));
+				selectedPosition = 0;
 			}
-			isListAlreadyShown = true;
+
+			// Ensure the current selection is visible
+			if (selectedPosition != RecyclerView.NO_POSITION) {
+				getRecyclerView().scrollToPosition(selectedPosition);
+			}
+			// Notify the parent of the current selection to synchronize its state
+			notifyEventSelected(selectedPosition, (selectedPosition == RecyclerView.NO_POSITION) ? null : schedule.get(selectedPosition).getEvent());
+
+		} else if (!isListAlreadyShown) {
+			final int position = adapter.getPositionForId(selectedId);
+			if (position != RecyclerView.NO_POSITION) {
+				getRecyclerView().scrollToPosition(position);
+			}
 		}
+		isListAlreadyShown = true;
 
 		setProgressBarVisible(false);
 	}
