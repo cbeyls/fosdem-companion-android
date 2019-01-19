@@ -10,14 +10,14 @@ import androidx.paging.PagedList;
 import be.digitalia.fosdem.db.AppDatabase;
 import be.digitalia.fosdem.model.Person;
 
-public class PersonsListViewModel extends AndroidViewModel {
+public class PersonsViewModel extends AndroidViewModel {
 
 	private final AppDatabase appDatabase = AppDatabase.getInstance(getApplication());
 	private final LiveData<PagedList<Person>> persons
 			= new LivePagedListBuilder<>(appDatabase.getScheduleDao().getPersons(), 100)
 			.build();
 
-	public PersonsListViewModel(@NonNull Application application) {
+	public PersonsViewModel(@NonNull Application application) {
 		super(application);
 	}
 

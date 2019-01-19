@@ -14,7 +14,7 @@ import be.digitalia.fosdem.db.AppDatabase;
 import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Track;
 
-public class TracksListViewModel extends AndroidViewModel {
+public class TracksViewModel extends AndroidViewModel {
 
 	private final AppDatabase appDatabase = AppDatabase.getInstance(getApplication());
 	private final MutableLiveData<Day> day = new MutableLiveData<>();
@@ -26,7 +26,7 @@ public class TracksListViewModel extends AndroidViewModel {
 				}
 			});
 
-	public TracksListViewModel(@NonNull Application application) {
+	public TracksViewModel(@NonNull Application application) {
 		super(application);
 	}
 

@@ -18,7 +18,7 @@ import be.digitalia.fosdem.activities.TrackScheduleActivity;
 import be.digitalia.fosdem.adapters.SimpleItemCallback;
 import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Track;
-import be.digitalia.fosdem.viewmodels.TracksListViewModel;
+import be.digitalia.fosdem.viewmodels.TracksViewModel;
 
 import java.util.List;
 
@@ -63,7 +63,7 @@ public class TracksListFragment extends RecyclerViewFragment implements Observer
 		setEmptyText(getString(R.string.no_data));
 		setProgressBarVisible(true);
 
-		final TracksListViewModel viewModel = ViewModelProviders.of(this).get(TracksListViewModel.class);
+		final TracksViewModel viewModel = ViewModelProviders.of(this).get(TracksViewModel.class);
 		viewModel.setDay(day);
 		viewModel.getTracks().observe(getViewLifecycleOwner(), this);
 	}

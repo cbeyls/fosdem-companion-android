@@ -22,7 +22,7 @@ import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.PersonInfoActivity;
 import be.digitalia.fosdem.adapters.SimpleItemCallback;
 import be.digitalia.fosdem.model.Person;
-import be.digitalia.fosdem.viewmodels.PersonsListViewModel;
+import be.digitalia.fosdem.viewmodels.PersonsViewModel;
 
 public class PersonsListFragment extends RecyclerViewFragment implements Observer<PagedList<Person>> {
 
@@ -54,7 +54,7 @@ public class PersonsListFragment extends RecyclerViewFragment implements Observe
 		setEmptyText(getString(R.string.no_data));
 		setProgressBarVisible(true);
 
-		final PersonsListViewModel viewModel = ViewModelProviders.of(this).get(PersonsListViewModel.class);
+		final PersonsViewModel viewModel = ViewModelProviders.of(this).get(PersonsViewModel.class);
 		viewModel.getPersons().observe(getViewLifecycleOwner(), this);
 	}
 
