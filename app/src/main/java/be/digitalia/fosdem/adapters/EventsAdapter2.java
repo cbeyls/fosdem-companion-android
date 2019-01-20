@@ -190,8 +190,8 @@ public class EventsAdapter2 extends PagedListAdapter<StatusEvent, EventsAdapter2
 				SpannableString detailsSpannable = new SpannableString(detailsText);
 				int color = ContextCompat.getColor(context, roomStatus.getColorResId());
 				detailsSpannable.setSpan(new ForegroundColorSpan(color),
-						details.length() - roomName.length(),
-						details.length(),
+						detailsText.length() - roomName.length(),
+						detailsText.length(),
 						Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 				detailsText = detailsSpannable;
 
