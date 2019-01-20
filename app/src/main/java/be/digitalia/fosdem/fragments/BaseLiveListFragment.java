@@ -47,9 +47,20 @@ public abstract class BaseLiveListFragment extends RecyclerViewFragment implemen
 		getDataSource(viewModel).observe(getViewLifecycleOwner(), this);
 	}
 
+	private final Runnable preserveScrollPositionRunnable = new Runnable() {
+		@Override
+		public void run() {
+			// Ensure we stay at scroll position 0 so we can see the insertion animation
+			final RecyclerView recyclerView = getRecyclerView();
+			if (recyclerView.getScrollY() == 0) {
+				recyclerView.scrollToPosition(0);
+			}
+		}
+	};
+
 	@Override
 	public void onChanged(PagedList<StatusEvent> events) {
-		adapter.submitList(events);
+		adapter.submitList(events, preserveScrollPositionRunnable);
 		setProgressBarVisible(false);
 	}
 
