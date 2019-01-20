@@ -24,7 +24,6 @@ import be.digitalia.fosdem.model.Person;
 import be.digitalia.fosdem.model.Track;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -68,59 +67,6 @@ public class DatabaseManager {
 		intentFilter.addAction(ACTION_ADD_BOOKMARK);
 		intentFilter.addAction(ACTION_REMOVE_BOOKMARKS);
 		return new LocalBroadcastCursor(wrappedCursor, context, intentFilter);
-	}
-
-	/**
-	 * Returns the events in the specified time window, ordered by start time. All parameters are optional but at least one must be provided.
-	 *
-	 * @param minStartTime Minimum start time, or -1
-	 * @param maxStartTime Maximum start time, or -1
-	 * @param minEndTime   Minimum end time, or -1
-	 * @param ascending    If true, order results from start time ascending, else order from start time descending
-	 * @return
-	 */
-	@WorkerThread
-	public Cursor getEvents(long minStartTime, long maxStartTime, long minEndTime, boolean ascending) {
-		ArrayList<String> selectionArgs = new ArrayList<>(3);
-		StringBuilder whereCondition = new StringBuilder();
-
-		if (minStartTime > 0L) {
-			whereCondition.append("e.start_time > ?");
-			selectionArgs.add(String.valueOf(minStartTime));
-		}
-		if (maxStartTime > 0L) {
-			if (whereCondition.length() > 0) {
-				whereCondition.append(" AND ");
-			}
-			whereCondition.append("e.start_time < ?");
-			selectionArgs.add(String.valueOf(maxStartTime));
-		}
-		if (minEndTime > 0L) {
-			if (whereCondition.length() > 0) {
-				whereCondition.append(" AND ");
-			}
-			whereCondition.append("e.end_time > ?");
-			selectionArgs.add(String.valueOf(minEndTime));
-		}
-		if (whereCondition.length() == 0) {
-			throw new IllegalArgumentException("At least one filter must be provided");
-		}
-		String ascendingString = ascending ? "ASC" : "DESC";
-
-		Cursor cursor = helper.getReadableDatabase().query(
-				"SELECT e.id AS _id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description, GROUP_CONCAT(p.name, ', '), e.day_index, d.date, t.name, t.type, b.event_id"
-						+ " FROM " + EventEntity.TABLE_NAME + " e"
-						+ " JOIN " + EventTitles.TABLE_NAME + " et ON e.id = et.rowid"
-						+ " JOIN " + Day.TABLE_NAME + " d ON e.day_index = d.`index`"
-						+ " JOIN " + Track.TABLE_NAME + " t ON e.track_id = t.id"
-						+ " LEFT JOIN " + EventToPerson.TABLE_NAME + " ep ON e.id = ep.event_id"
-						+ " LEFT JOIN " + Person.TABLE_NAME + " p ON ep.person_id = p.rowid"
-						+ " LEFT JOIN " + Bookmark.TABLE_NAME + " b ON e.id = b.event_id"
-						+ " WHERE " + whereCondition.toString()
-						+ " GROUP BY e.id"
-						+ " ORDER BY e.start_time " + ascendingString,
-				selectionArgs.toArray(new String[selectionArgs.size()]));
-		return toEventCursor(cursor);
 	}
 
 	/**

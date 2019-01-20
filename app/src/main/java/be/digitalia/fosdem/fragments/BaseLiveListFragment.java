@@ -1,28 +1,27 @@
 package be.digitalia.fosdem.fragments;
 
-import android.database.Cursor;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.app.LoaderManager.LoaderCallbacks;
-import androidx.loader.content.Loader;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.paging.PagedList;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import be.digitalia.fosdem.adapters.EventsAdapter;
+import be.digitalia.fosdem.adapters.EventsAdapter2;
+import be.digitalia.fosdem.model.StatusEvent;
+import be.digitalia.fosdem.viewmodels.LiveViewModel;
 
-public abstract class BaseLiveListFragment extends RecyclerViewFragment implements LoaderCallbacks<Cursor> {
+public abstract class BaseLiveListFragment extends RecyclerViewFragment implements Observer<PagedList<StatusEvent>> {
 
-	private static final int EVENTS_LOADER_ID = 1;
-
-	private EventsAdapter adapter;
+	private EventsAdapter2 adapter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		adapter = new EventsAdapter(getActivity(), this, false);
+		adapter = new EventsAdapter2(getContext(), this, false);
 	}
 
 	@Override
@@ -44,22 +43,18 @@ public abstract class BaseLiveListFragment extends RecyclerViewFragment implemen
 		setEmptyText(getEmptyText());
 		setProgressBarVisible(true);
 
-		LoaderManager.getInstance(this).initLoader(EVENTS_LOADER_ID, null, this);
+		final LiveViewModel viewModel = ViewModelProviders.of(getParentFragment()).get(LiveViewModel.class);
+		getDataSource(viewModel).observe(getViewLifecycleOwner(), this);
+	}
+
+	@Override
+	public void onChanged(PagedList<StatusEvent> events) {
+		adapter.submitList(events);
+		setProgressBarVisible(false);
 	}
 
 	protected abstract String getEmptyText();
 
-	@Override
-	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
-		if (data != null) {
-			adapter.swapCursor(data);
-		}
-
-		setProgressBarVisible(false);
-	}
-
-	@Override
-	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-		adapter.swapCursor(null);
-	}
+	@NonNull
+	protected abstract LiveData<PagedList<StatusEvent>> getDataSource(@NonNull LiveViewModel viewModel);
 }

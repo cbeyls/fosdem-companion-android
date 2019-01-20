@@ -296,6 +296,42 @@ public abstract class ScheduleDao {
 	public abstract LiveData<List<StatusEvent>> getEvents(Day day, Track track);
 
 	/**
+	 * Returns events starting in the specified interval, ordered by ascending start time.
+	 */
+	@Query("SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description"
+			+ ", GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type"
+			+ ", b.event_id IS NOT NULL AS is_bookmarked"
+			+ " FROM events e"
+			+ " JOIN events_titles et ON e.id = et.`rowid`"
+			+ " JOIN days d ON e.day_index = d.`index`"
+			+ " JOIN tracks t ON e.track_id = t.id"
+			+ " LEFT JOIN events_persons ep ON e.id = ep.event_id"
+			+ " LEFT JOIN persons p ON ep.person_id = p.`rowid`"
+			+ " LEFT JOIN bookmarks b ON e.id = b.event_id"
+			+ " WHERE e.start_time BETWEEN :minStartTime AND :maxStartTime"
+			+ " GROUP BY e.id"
+			+ " ORDER BY e.start_time ASC")
+	public abstract DataSource.Factory<Integer, StatusEvent> getEventsWithStartTime(long minStartTime, long maxStartTime);
+
+	/**
+	 * Returns events in progress at the specified time, ordered by descending start time.
+	 */
+	@Query("SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description"
+			+ ", GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type"
+			+ ", b.event_id IS NOT NULL AS is_bookmarked"
+			+ " FROM events e"
+			+ " JOIN events_titles et ON e.id = et.`rowid`"
+			+ " JOIN days d ON e.day_index = d.`index`"
+			+ " JOIN tracks t ON e.track_id = t.id"
+			+ " LEFT JOIN events_persons ep ON e.id = ep.event_id"
+			+ " LEFT JOIN persons p ON ep.person_id = p.`rowid`"
+			+ " LEFT JOIN bookmarks b ON e.id = b.event_id"
+			+ " WHERE e.start_time <= :time AND :time < e.end_time"
+			+ " GROUP BY e.id"
+			+ " ORDER BY e.start_time DESC")
+	public abstract DataSource.Factory<Integer, StatusEvent> getEventsInProgress(long time);
+
+	/**
 	 * Returns the events presented by the specified person.
 	 */
 	@Query("SELECT e.id , e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description"
