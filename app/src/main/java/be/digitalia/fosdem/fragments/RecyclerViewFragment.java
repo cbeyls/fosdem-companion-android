@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -159,7 +158,7 @@ public class RecyclerViewFragment extends Fragment {
 		if (!mIsProgressBarVisible) {
 			RecyclerView.Adapter adapter = mHolder.recyclerView.getAdapter();
 			final boolean isEmptyViewVisible = (adapter != null) && (adapter.getItemCount() == 0);
-			mHolder.recyclerView.setVisibility(isEmptyViewVisible ? View.GONE : View.VISIBLE);
+			mHolder.recyclerView.setVisibility(isEmptyViewVisible ? View.INVISIBLE : View.VISIBLE);
 			mHolder.emptyView.setVisibility(isEmptyViewVisible ? View.VISIBLE : View.GONE);
 		}
 	}
@@ -175,7 +174,7 @@ public class RecyclerViewFragment extends Fragment {
 			mIsProgressBarVisible = visible;
 
 			if (visible) {
-				mHolder.recyclerView.setVisibility(View.GONE);
+				mHolder.recyclerView.setVisibility(View.INVISIBLE);
 				mHolder.emptyView.setVisibility(View.GONE);
 				mHolder.progress.show();
 			} else {
