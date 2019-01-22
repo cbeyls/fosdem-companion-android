@@ -1,9 +1,6 @@
 package be.digitalia.fosdem.viewmodels;
 
 import android.app.Application;
-
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.arch.core.util.Function;
 import androidx.core.util.Pair;
@@ -15,6 +12,8 @@ import be.digitalia.fosdem.db.AppDatabase;
 import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.StatusEvent;
 import be.digitalia.fosdem.model.Track;
+
+import java.util.List;
 
 public class TrackScheduleViewModel extends AndroidViewModel {
 
@@ -34,7 +33,7 @@ public class TrackScheduleViewModel extends AndroidViewModel {
 
 	public void setTrack(@NonNull Day day, @NonNull Track track) {
 		Pair<Day, Track> dayTrack = Pair.create(day, track);
-		if (!dayTrack.equals(this.dayTrack)) {
+		if (!dayTrack.equals(this.dayTrack.getValue())) {
 			this.dayTrack.setValue(dayTrack);
 		}
 	}
