@@ -94,4 +94,6 @@ public abstract class AppDatabase extends RoomDatabase {
 	}
 
 	public abstract ScheduleDao getScheduleDao();
+
+	public abstract BookmarksDao getBookmarksDao();
 }

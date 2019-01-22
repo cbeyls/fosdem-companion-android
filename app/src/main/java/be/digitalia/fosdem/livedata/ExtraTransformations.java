@@ -1,5 +1,6 @@
 package be.digitalia.fosdem.livedata;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
@@ -14,6 +15,8 @@ public class ExtraTransformations {
 	private ExtraTransformations() {
 	}
 
+	@MainThread
+	@NonNull
 	@SuppressWarnings("unchecked")
 	public static <T1, T2> LiveData<Pair<T1, T2>> zipLatest(@NonNull LiveData<T1> l1, @NonNull LiveData<T2> l2) {
 		final MediatorLiveData<Pair<T1, T2>> result = new MediatorLiveData<>();
@@ -43,5 +46,27 @@ public class ExtraTransformations {
 			}
 		});
 		return result;
+	}
+
+	@MainThread
+	@NonNull
+	public static <X> LiveData<X> distinctUntilChanged(@NonNull LiveData<X> source) {
+		final MediatorLiveData<X> outputLiveData = new MediatorLiveData<>();
+		outputLiveData.addSource(source, new Observer<X>() {
+
+			boolean mFirstTime = true;
+
+			@Override
+			public void onChanged(X currentValue) {
+				final X previousValue = outputLiveData.getValue();
+				if (mFirstTime
+						|| (previousValue == null && currentValue != null)
+						|| (previousValue != null && !previousValue.equals(currentValue))) {
+					mFirstTime = false;
+					outputLiveData.setValue(currentValue);
+				}
+			}
+		});
+		return outputLiveData;
 	}
 }

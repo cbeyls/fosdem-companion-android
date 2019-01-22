@@ -2,41 +2,39 @@ package be.digitalia.fosdem.fragments;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Handler;
-import android.text.format.DateUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.app.LoaderManager.LoaderCallbacks;
-import androidx.loader.content.Loader;
+import androidx.appcompat.view.ActionMode;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.adapters.BookmarksAdapter;
-import be.digitalia.fosdem.db.DatabaseManager;
-import be.digitalia.fosdem.loaders.SimpleCursorLoader;
+import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.providers.BookmarksExportProvider;
+import be.digitalia.fosdem.viewmodels.BookmarksViewModel;
+import be.digitalia.fosdem.widgets.MultiChoiceHelper;
+
+import java.util.List;
 
 /**
  * Bookmarks list, optionally filterable.
  *
  * @author Christophe Beyls
  */
-public class BookmarksListFragment extends RecyclerViewFragment implements LoaderCallbacks<Cursor> {
+public class BookmarksListFragment extends RecyclerViewFragment implements Observer<List<Event>> {
 
-	private static final int BOOKMARKS_LOADER_ID = 1;
 	private static final String PREF_UPCOMING_ONLY = "bookmarks_upcoming_only";
 	private static final String STATE_ADAPTER = "adapter";
 
+	private BookmarksViewModel viewModel;
 	private BookmarksAdapter adapter;
-	private boolean upcomingOnly;
 
 	private MenuItem filterMenuItem;
 	private MenuItem upcomingOnlyMenuItem;
@@ -45,11 +43,53 @@ public class BookmarksListFragment extends RecyclerViewFragment implements Loade
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		adapter = new BookmarksAdapter((AppCompatActivity) getActivity(), this);
+		viewModel = ViewModelProviders.of(this).get(BookmarksViewModel.class);
+		final MultiChoiceHelper.MultiChoiceModeListener multiChoiceModeListener = new MultiChoiceHelper.MultiChoiceModeListener() {
+
+			@Override
+			public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+				mode.getMenuInflater().inflate(R.menu.action_mode_bookmarks, menu);
+				return true;
+			}
+
+			private void updateSelectedCountDisplay(ActionMode mode) {
+				int count = adapter.getMultiChoiceHelper().getCheckedItemCount();
+				mode.setTitle(getResources().getQuantityString(R.plurals.selected, count, count));
+			}
+
+			@Override
+			public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+				updateSelectedCountDisplay(mode);
+				return true;
+			}
+
+			@Override
+			public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+				switch (item.getItemId()) {
+					case R.id.delete:
+						// Remove multiple bookmarks at once
+						viewModel.removeBookmarks(adapter.getMultiChoiceHelper().getCheckedItemIds());
+						mode.finish();
+						return true;
+				}
+				return false;
+			}
+
+			@Override
+			public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+				updateSelectedCountDisplay(mode);
+			}
+
+			@Override
+			public void onDestroyActionMode(ActionMode mode) {
+			}
+		};
+		adapter = new BookmarksAdapter((AppCompatActivity) getActivity(), this, multiChoiceModeListener);
 		if (savedInstanceState != null) {
-			adapter.onRestoreInstanceState(savedInstanceState.getParcelable(STATE_ADAPTER));
+			adapter.getMultiChoiceHelper().onRestoreInstanceState(savedInstanceState.getParcelable(STATE_ADAPTER));
 		}
-		upcomingOnly = getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean(PREF_UPCOMING_ONLY, false);
+		boolean upcomingOnly = getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean(PREF_UPCOMING_ONLY, false);
+		viewModel.setUpcomingOnly(upcomingOnly);
 
 		setHasOptionsMenu(true);
 	}
@@ -68,18 +108,18 @@ public class BookmarksListFragment extends RecyclerViewFragment implements Loade
 		setEmptyText(getString(R.string.no_bookmark));
 		setProgressBarVisible(true);
 
-		LoaderManager.getInstance(this).initLoader(BOOKMARKS_LOADER_ID, null, this);
+		viewModel.getBookmarks().observe(getViewLifecycleOwner(), this);
 	}
 
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putParcelable(STATE_ADAPTER, adapter.onSaveInstanceState());
+		outState.putParcelable(STATE_ADAPTER, adapter.getMultiChoiceHelper().onSaveInstanceState());
 	}
 
 	@Override
 	public void onDestroyView() {
-		adapter.onDestroyView();
+		adapter.getMultiChoiceHelper().clearChoices();
 		super.onDestroyView();
 	}
 
@@ -93,6 +133,7 @@ public class BookmarksListFragment extends RecyclerViewFragment implements Loade
 
 	private void updateFilterMenuItem() {
 		if (filterMenuItem != null) {
+			final boolean upcomingOnly = viewModel.getUpcomingOnly();
 			filterMenuItem.setIcon(upcomingOnly ?
 					R.drawable.ic_filter_list_selected_white_24dp
 					: R.drawable.ic_filter_list_white_24dp);
@@ -111,12 +152,12 @@ public class BookmarksListFragment extends RecyclerViewFragment implements Loade
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.upcoming_only:
-				upcomingOnly = !upcomingOnly;
+				final boolean upcomingOnly = !viewModel.getUpcomingOnly();
+				viewModel.setUpcomingOnly(upcomingOnly);
 				updateFilterMenuItem();
 				getActivity().getPreferences(Context.MODE_PRIVATE).edit()
 						.putBoolean(PREF_UPCOMING_ONLY, upcomingOnly)
 						.apply();
-				LoaderManager.getInstance(this).restartLoader(BOOKMARKS_LOADER_ID, null, this);
 				return true;
 			case R.id.export_bookmarks:
 				Intent exportIntent = BookmarksExportProvider.getIntent(getActivity());
@@ -126,78 +167,9 @@ public class BookmarksListFragment extends RecyclerViewFragment implements Loade
 		return false;
 	}
 
-	private static class BookmarksLoader extends SimpleCursorLoader {
-
-		// Events that just started are still shown for 5 minutes
-		private static final long TIME_OFFSET = 5L * DateUtils.MINUTE_IN_MILLIS;
-
-		private final boolean upcomingOnly;
-		private final Handler handler;
-		private final Runnable timeoutRunnable = new Runnable() {
-
-			@Override
-			public void run() {
-				onContentChanged();
-			}
-		};
-
-		public BookmarksLoader(Context context, boolean upcomingOnly) {
-			super(context);
-			this.upcomingOnly = upcomingOnly;
-			this.handler = new Handler();
-		}
-
-		@Override
-		public void deliverResult(Cursor cursor) {
-			if (upcomingOnly && !isReset()) {
-				handler.removeCallbacks(timeoutRunnable);
-				// The loader will be refreshed when the start time of the first bookmark in the list is reached
-				if ((cursor != null) && cursor.moveToFirst()) {
-					long startTime = DatabaseManager.toEventStartTimeMillis(cursor);
-					if (startTime != -1L) {
-						long delay = startTime - (System.currentTimeMillis() - TIME_OFFSET);
-						if (delay > 0L) {
-							handler.postDelayed(timeoutRunnable, delay);
-						} else {
-							onContentChanged();
-						}
-					}
-				}
-			}
-			super.deliverResult(cursor);
-		}
-
-		@Override
-		protected void onReset() {
-			super.onReset();
-			if (upcomingOnly) {
-				handler.removeCallbacks(timeoutRunnable);
-			}
-		}
-
-		@Override
-		protected Cursor getCursor() {
-			return DatabaseManager.getInstance().getBookmarks(upcomingOnly ? System.currentTimeMillis() - TIME_OFFSET : 0L);
-		}
-	}
-
-	@NonNull
 	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		return new BookmarksLoader(getActivity(), upcomingOnly);
-	}
-
-	@Override
-	public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
-		if (data != null) {
-			adapter.swapCursor(data);
-		}
-
+	public void onChanged(List<Event> bookmarks) {
+		adapter.submitList(bookmarks);
 		setProgressBarVisible(false);
-	}
-
-	@Override
-	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-		adapter.swapCursor(null);
 	}
 }

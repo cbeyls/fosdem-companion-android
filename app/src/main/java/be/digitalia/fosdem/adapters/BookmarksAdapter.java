@@ -1,187 +1,314 @@
 package be.digitalia.fosdem.adapters;
 
 import android.content.Context;
-import android.database.Cursor;
+import android.content.Intent;
 import android.graphics.Typeface;
-import android.os.AsyncTask;
-import android.os.Parcelable;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
-
-import java.util.Date;
-
+import android.view.ViewGroup;
+import android.widget.TextView;
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.ActionMode;
+import androidx.collection.SimpleArrayMap;
 import androidx.core.content.ContextCompat;
+import androidx.core.util.ObjectsCompat;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
+import androidx.recyclerview.widget.RecyclerView;
 import be.digitalia.fosdem.R;
-import be.digitalia.fosdem.db.DatabaseManager;
+import be.digitalia.fosdem.activities.EventDetailsActivity;
+import be.digitalia.fosdem.api.FosdemApi;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.RoomStatus;
 import be.digitalia.fosdem.model.Track;
+import be.digitalia.fosdem.utils.DateUtils;
 import be.digitalia.fosdem.widgets.MultiChoiceHelper;
 
-public class BookmarksAdapter extends EventsAdapter {
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
+public class BookmarksAdapter extends ListAdapter<Event, BookmarksAdapter.ViewHolder>
+		implements Observer<Map<String, RoomStatus>> {
+
+	private static final DiffUtil.ItemCallback<Event> DIFF_CALLBACK = new SimpleItemCallback<Event>() {
+		@Override
+		public boolean areContentsTheSame(@NonNull Event oldEvent, @NonNull Event newEvent) {
+			return ObjectsCompat.equals(oldEvent.getTitle(), newEvent.getTitle())
+					&& ObjectsCompat.equals(oldEvent.getPersonsSummary(), newEvent.getPersonsSummary())
+					&& ObjectsCompat.equals(oldEvent.getTrack(), newEvent.getTrack())
+					&& ObjectsCompat.equals(oldEvent.getDay(), newEvent.getDay())
+					&& ObjectsCompat.equals(oldEvent.getStartTime(), newEvent.getStartTime())
+					&& ObjectsCompat.equals(oldEvent.getEndTime(), newEvent.getEndTime())
+					&& ObjectsCompat.equals(oldEvent.getRoomName(), newEvent.getRoomName());
+		}
+	};
+	static final Object DETAILS_PAYLOAD = new Object();
+
+	private final DateFormat timeDateFormat;
 	@ColorInt
 	private final int errorColor;
+	private final SimpleArrayMap<RecyclerView.AdapterDataObserver, BookmarksDataObserverWrapper> observers = new SimpleArrayMap<>();
 	final MultiChoiceHelper multiChoiceHelper;
+	private Map<String, RoomStatus> roomStatuses;
 
-	public BookmarksAdapter(AppCompatActivity activity, LifecycleOwner owner) {
-		super(activity, owner);
+	public BookmarksAdapter(@NonNull AppCompatActivity activity, @NonNull LifecycleOwner owner,
+							@NonNull MultiChoiceHelper.MultiChoiceModeListener multiChoiceModeListener) {
+		super(DIFF_CALLBACK);
+		setHasStableIds(true);
+		timeDateFormat = DateUtils.getTimeDateFormat(activity);
 		errorColor = ContextCompat.getColor(activity, R.color.error_material);
+
 		multiChoiceHelper = new MultiChoiceHelper(activity, this);
-		multiChoiceHelper.setMultiChoiceModeListener(new MultiChoiceHelper.MultiChoiceModeListener() {
+		multiChoiceHelper.setMultiChoiceModeListener(multiChoiceModeListener);
 
-			@Override
-			public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-				mode.getMenuInflater().inflate(R.menu.action_mode_bookmarks, menu);
-				return true;
-			}
-
-			private void updateSelectedCountDisplay(ActionMode mode) {
-				int count = multiChoiceHelper.getCheckedItemCount();
-				mode.setTitle(multiChoiceHelper.getContext().getResources().getQuantityString(R.plurals.selected, count, count));
-			}
-
-			@Override
-			public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-				updateSelectedCountDisplay(mode);
-				return true;
-			}
-
-			@Override
-			public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-				switch (item.getItemId()) {
-					case R.id.delete:
-						// Remove multiple bookmarks at once
-						new RemoveBookmarksAsyncTask().execute(multiChoiceHelper.getCheckedItemIds());
-						mode.finish();
-						return true;
-				}
-				return false;
-			}
-
-			@Override
-			public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-				updateSelectedCountDisplay(mode);
-			}
-
-			@Override
-			public void onDestroyActionMode(ActionMode mode) {
-			}
-		});
+		FosdemApi.getRoomStatuses(activity).observe(owner, this);
 	}
 
-	public Parcelable onSaveInstanceState() {
-		return multiChoiceHelper.onSaveInstanceState();
-	}
-
-	public void onRestoreInstanceState(Parcelable state) {
-		multiChoiceHelper.onRestoreInstanceState(state);
-	}
-
-	public void onDestroyView() {
-		multiChoiceHelper.clearChoices();
+	@NonNull
+	public MultiChoiceHelper getMultiChoiceHelper() {
+		return multiChoiceHelper;
 	}
 
 	@Override
-	public void onBindViewHolder(ViewHolder holder, Cursor cursor) {
-		final int position = cursor.getPosition();
-		Context context = holder.itemView.getContext();
-		Event event = DatabaseManager.toEvent(cursor, holder.event);
-		holder.event = event;
-		holder.isOverlapping = isOverlapping(cursor, event.getStartTime(), event.getEndTime());
-
-		holder.title.setText(event.getTitle());
-		String personsSummary = event.getPersonsSummary();
-		holder.persons.setText(personsSummary);
-		holder.persons.setVisibility(TextUtils.isEmpty(personsSummary) ? View.GONE : View.VISIBLE);
-		Track track = event.getTrack();
-		holder.trackName.setText(track.getName());
-		holder.trackName.setTextColor(ContextCompat.getColor(context, track.getType().getColorResId()));
-		holder.trackName.setContentDescription(context.getString(R.string.track_content_description, track.getName()));
-
-		bindDetails(holder, event);
-
-		// Enable MultiChoice selection and update checked state
-		holder.bind(multiChoiceHelper, position);
+	public void onChanged(@Nullable Map<String, RoomStatus> roomStatuses) {
+		this.roomStatuses = roomStatuses;
+		notifyItemRangeChanged(0, getItemCount(), DETAILS_PAYLOAD);
 	}
 
 	@Override
-	protected void bindDetails(ViewHolder holder, Event event) {
-		Context context = holder.details.getContext();
-		Date startTime = event.getStartTime();
-		Date endTime = event.getEndTime();
-		String startTimeString = (startTime != null) ? timeDateFormat.format(startTime) : "?";
-		String endTimeString = (endTime != null) ? timeDateFormat.format(endTime) : "?";
-		String roomName = event.getRoomName();
-		String details = String.format("%1$s, %2$s ― %3$s  |  %4$s", event.getDay().getShortName(), startTimeString, endTimeString, roomName);
-		SpannableString detailsSpannable = new SpannableString(details);
-		String detailsContentDescription = details;
+	public long getItemId(int position) {
+		return getItem(position).getId();
+	}
 
-		// Highlight the date and time with error color in case of conflicting schedules
-		if (holder.isOverlapping) {
-			int endPosition = details.indexOf(" | ");
-			detailsSpannable.setSpan(new ForegroundColorSpan(errorColor), 0, endPosition, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-			detailsSpannable.setSpan(new StyleSpan(Typeface.BOLD), 0, endPosition, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-			holder.details.setText(detailsSpannable);
-			detailsContentDescription = context.getString(R.string.bookmark_conflict_content_description, detailsContentDescription);
+	@NonNull
+	@Override
+	public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+		View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_event, parent, false);
+		return new ViewHolder(view, multiChoiceHelper, timeDateFormat, errorColor);
+	}
+
+	private RoomStatus getRoomStatus(Event event) {
+		return (roomStatuses == null) ? null : roomStatuses.get(event.getRoomName());
+	}
+
+	@Override
+	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+		final Event event = getItem(position);
+		holder.bind(event);
+		final Event previous = position > 0 ? getItem(position - 1) : null;
+		final Event next = position + 1 < getItemCount() ? getItem(position + 1) : null;
+		holder.bindDetails(event, previous, next, getRoomStatus(event));
+		holder.bindSelection();
+	}
+
+	@Override
+	public void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull List<Object> payloads) {
+		if (payloads.isEmpty()) {
+			onBindViewHolder(holder, position);
+		} else {
+			final Event event = getItem(position);
+			if (payloads.contains(DETAILS_PAYLOAD)) {
+				final Event previous = position > 0 ? getItem(position - 1) : null;
+				final Event next = position + 1 < getItemCount() ? getItem(position + 1) : null;
+				holder.bindDetails(event, previous, next, getRoomStatus(event));
+			}
+			if (payloads.contains(MultiChoiceHelper.SELECTION_PAYLOAD)) {
+				holder.bindSelection();
+			}
 		}
-		if (roomStatuses != null) {
-			RoomStatus roomStatus = roomStatuses.get(roomName);
+	}
+
+	@Override
+	public void registerAdapterDataObserver(@NonNull RecyclerView.AdapterDataObserver observer) {
+		if (!observers.containsKey(observer)) {
+			final BookmarksDataObserverWrapper wrapper = new BookmarksDataObserverWrapper(observer, this);
+			observers.put(observer, wrapper);
+			super.registerAdapterDataObserver(wrapper);
+		}
+	}
+
+	@Override
+	public void unregisterAdapterDataObserver(@NonNull RecyclerView.AdapterDataObserver observer) {
+		final BookmarksDataObserverWrapper wrapper = observers.remove(observer);
+		if (wrapper != null) {
+			super.unregisterAdapterDataObserver(wrapper);
+		}
+	}
+
+	static class ViewHolder extends MultiChoiceHelper.ViewHolder implements View.OnClickListener {
+		final TextView title;
+		final TextView persons;
+		final TextView trackName;
+		final TextView details;
+
+		private final DateFormat timeDateFormat;
+		@ColorInt
+		private final int errorColor;
+
+		Event event;
+
+		public ViewHolder(@NonNull View itemView, @NonNull MultiChoiceHelper helper,
+						  @NonNull DateFormat timeDateFormat, @ColorInt int errorColor) {
+			super(itemView, helper);
+
+			title = itemView.findViewById(R.id.title);
+			persons = itemView.findViewById(R.id.persons);
+			trackName = itemView.findViewById(R.id.track_name);
+			details = itemView.findViewById(R.id.details);
+			setOnClickListener(this);
+
+			this.timeDateFormat = timeDateFormat;
+			this.errorColor = errorColor;
+		}
+
+		void bind(@NonNull Event event) {
+			Context context = itemView.getContext();
+			this.event = event;
+
+			title.setText(event.getTitle());
+			String personsSummary = event.getPersonsSummary();
+			persons.setText(personsSummary);
+			persons.setVisibility(TextUtils.isEmpty(personsSummary) ? View.GONE : View.VISIBLE);
+			Track track = event.getTrack();
+			trackName.setText(track.getName());
+			trackName.setTextColor(ContextCompat.getColor(context, track.getType().getColorResId()));
+			trackName.setContentDescription(context.getString(R.string.track_content_description, track.getName()));
+		}
+
+		void bindDetails(@NonNull Event event, @Nullable Event previous, @Nullable Event next, @Nullable RoomStatus roomStatus) {
+			Context context = details.getContext();
+			Date startTime = event.getStartTime();
+			Date endTime = event.getEndTime();
+			String startTimeString = (startTime != null) ? timeDateFormat.format(startTime) : "?";
+			String endTimeString = (endTime != null) ? timeDateFormat.format(endTime) : "?";
+			String roomName = event.getRoomName();
+			String detailsText = String.format("%1$s, %2$s ― %3$s  |  %4$s", event.getDay().getShortName(), startTimeString, endTimeString, roomName);
+			SpannableString detailsSpannable = new SpannableString(detailsText);
+			CharSequence detailsDescription = detailsText;
+
+			// Highlight the date and time with error color in case of conflicting schedules
+			if (isOverlapping(event, previous, next)) {
+				int endPosition = detailsText.indexOf(" | ");
+				detailsSpannable.setSpan(new ForegroundColorSpan(errorColor), 0, endPosition, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+				detailsSpannable.setSpan(new StyleSpan(Typeface.BOLD), 0, endPosition, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+				details.setText(detailsSpannable);
+				detailsDescription = context.getString(R.string.bookmark_conflict_content_description, detailsDescription);
+			}
 			if (roomStatus != null) {
 				int color = ContextCompat.getColor(context, roomStatus.getColorResId());
 				detailsSpannable.setSpan(new ForegroundColorSpan(color),
-						details.length() - roomName.length(),
-						details.length(),
+						detailsText.length() - roomName.length(),
+						detailsText.length(),
 						Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
+			details.setText(detailsSpannable);
+			details.setContentDescription(context.getString(R.string.details_content_description, detailsDescription));
 		}
-		holder.details.setText(detailsSpannable);
-		holder.details.setContentDescription(context.getString(R.string.details_content_description, detailsContentDescription));
-	}
 
-	/**
-	 * Checks if the current event is overlapping with the previous or next one.
-	 * Warning: this methods will update the cursor's position.
-	 */
-	private static boolean isOverlapping(Cursor cursor, Date startTime, Date endTime) {
-		final int position = cursor.getPosition();
-
-		if ((startTime != null) && (position > 0) && cursor.moveToPosition(position - 1)) {
-			long previousEndTime = DatabaseManager.toEventEndTimeMillis(cursor);
-			if ((previousEndTime != -1L) && (previousEndTime > startTime.getTime())) {
+		/**
+		 * Checks if the current event is overlapping with the previous or next one.
+		 */
+		private static boolean isOverlapping(@NonNull Event event, @Nullable Event previous, @Nullable Event next) {
+			final Date startTime = event.getStartTime();
+			final Date previousEndTime = (previous == null) ? null : previous.getEndTime();
+			if (startTime != null && previousEndTime != null && previousEndTime.getTime() > startTime.getTime()) {
 				// The event overlaps with the previous one
 				return true;
 			}
+
+			final Date endTime = event.getEndTime();
+			final Date nextStartTime = (next == null) ? null : next.getStartTime();
+			// The event overlaps with the next one
+			return endTime != null && nextStartTime != null && nextStartTime.getTime() < endTime.getTime();
 		}
 
-		if ((endTime != null) && (position < (cursor.getCount() - 1)) && cursor.moveToPosition(position + 1)) {
-			long nextStartTime = DatabaseManager.toEventStartTimeMillis(cursor);
-			if ((nextStartTime != -1L) && (nextStartTime < endTime.getTime())) {
-				// The event overlaps with the next one
-				return true;
+		@Override
+		public void onClick(View view) {
+			if (event != null) {
+				Context context = view.getContext();
+				Intent intent = new Intent(context, EventDetailsActivity.class)
+						.putExtra(EventDetailsActivity.EXTRA_EVENT, event);
+				context.startActivity(intent);
+			}
+		}
+	}
+
+	/**
+	 * An observer dispatching updates to the source observer while additionally notifying changes
+	 * of the immediately previous and next items in order to properly update their overlapping status display.
+	 */
+	static class BookmarksDataObserverWrapper extends RecyclerView.AdapterDataObserver {
+		private final RecyclerView.AdapterDataObserver observer;
+		private final RecyclerView.Adapter<?> adapter;
+
+		public BookmarksDataObserverWrapper(RecyclerView.AdapterDataObserver observer, RecyclerView.Adapter<?> adapter) {
+			this.observer = observer;
+			this.adapter = adapter;
+		}
+
+		private void updatePrevious(int position) {
+			if (position >= 0) {
+				observer.onItemRangeChanged(position, 1, DETAILS_PAYLOAD);
 			}
 		}
 
-		return false;
-	}
-
-	static class RemoveBookmarksAsyncTask extends AsyncTask<long[], Void, Void> {
-
-		@Override
-		protected Void doInBackground(long[]... params) {
-			DatabaseManager.getInstance().removeBookmarks(params[0]);
-			return null;
+		private void updateNext(int position) {
+			if (position < adapter.getItemCount()) {
+				observer.onItemRangeChanged(position, 1, DETAILS_PAYLOAD);
+			}
 		}
 
+		@Override
+		public void onChanged() {
+			observer.onChanged();
+		}
+
+		@Override
+		public void onItemRangeChanged(int positionStart, int itemCount) {
+			observer.onItemRangeChanged(positionStart, itemCount);
+			updatePrevious(positionStart - 1);
+			updateNext(positionStart + itemCount);
+		}
+
+		@Override
+		public void onItemRangeChanged(int positionStart, int itemCount, @Nullable Object payload) {
+			observer.onItemRangeChanged(positionStart, itemCount, payload);
+			updatePrevious(positionStart - 1);
+			updateNext(positionStart + itemCount);
+		}
+
+		@Override
+		public void onItemRangeInserted(int positionStart, int itemCount) {
+			observer.onItemRangeInserted(positionStart, itemCount);
+			updatePrevious(positionStart - 1);
+			updateNext(positionStart + itemCount);
+		}
+
+		@Override
+		public void onItemRangeRemoved(int positionStart, int itemCount) {
+			observer.onItemRangeRemoved(positionStart, itemCount);
+			updatePrevious(positionStart - 1);
+			updateNext(positionStart);
+		}
+
+		@Override
+		public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
+			updatePrevious(fromPosition - 1);
+			updateNext(fromPosition + itemCount);
+			observer.onItemRangeMoved(fromPosition, toPosition, itemCount);
+			updatePrevious(toPosition - 1);
+			updateNext(toPosition + itemCount);
+		}
 	}
 }

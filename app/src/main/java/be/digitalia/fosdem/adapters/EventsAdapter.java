@@ -2,7 +2,6 @@ package be.digitalia.fosdem.adapters;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -12,45 +11,61 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.content.ContextCompat;
+import androidx.core.util.ObjectsCompat;
+import androidx.core.widget.TextViewCompat;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
+import androidx.paging.PagedListAdapter;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.RecyclerView;
+import be.digitalia.fosdem.R;
+import be.digitalia.fosdem.activities.EventDetailsActivity;
+import be.digitalia.fosdem.api.FosdemApi;
+import be.digitalia.fosdem.model.Event;
+import be.digitalia.fosdem.model.RoomStatus;
+import be.digitalia.fosdem.model.StatusEvent;
+import be.digitalia.fosdem.model.Track;
+import be.digitalia.fosdem.utils.DateUtils;
 
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.content.res.AppCompatResources;
-import androidx.core.content.ContextCompat;
-import androidx.core.widget.TextViewCompat;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.Observer;
-import be.digitalia.fosdem.R;
-import be.digitalia.fosdem.activities.EventDetailsActivity;
-import be.digitalia.fosdem.api.FosdemApi;
-import be.digitalia.fosdem.db.DatabaseManager;
-import be.digitalia.fosdem.model.Event;
-import be.digitalia.fosdem.model.RoomStatus;
-import be.digitalia.fosdem.model.Track;
-import be.digitalia.fosdem.utils.DateUtils;
-import be.digitalia.fosdem.widgets.MultiChoiceHelper;
-
-public class EventsAdapter extends RecyclerViewCursorAdapter<EventsAdapter.ViewHolder>
+public class EventsAdapter extends PagedListAdapter<StatusEvent, EventsAdapter.ViewHolder>
 		implements Observer<Map<String, RoomStatus>> {
 
+	private static final DiffUtil.ItemCallback<StatusEvent> DIFF_CALLBACK = new SimpleItemCallback<StatusEvent>() {
+		@Override
+		public boolean areContentsTheSame(@NonNull StatusEvent oldItem, @NonNull StatusEvent newItem) {
+			final Event oldEvent = oldItem.getEvent();
+			final Event newEvent = newItem.getEvent();
+			return ObjectsCompat.equals(oldEvent.getTitle(), newEvent.getTitle())
+					&& ObjectsCompat.equals(oldEvent.getPersonsSummary(), newEvent.getPersonsSummary())
+					&& ObjectsCompat.equals(oldEvent.getTrack(), newEvent.getTrack())
+					&& ObjectsCompat.equals(oldEvent.getDay(), newEvent.getDay())
+					&& ObjectsCompat.equals(oldEvent.getStartTime(), newEvent.getStartTime())
+					&& ObjectsCompat.equals(oldEvent.getEndTime(), newEvent.getEndTime())
+					&& ObjectsCompat.equals(oldEvent.getRoomName(), newEvent.getRoomName())
+					&& oldItem.isBookmarked() == newItem.isBookmarked();
+		}
+	};
 	private static final Object DETAILS_PAYLOAD = new Object();
 
-	protected final LayoutInflater inflater;
-	protected final DateFormat timeDateFormat;
+	private final DateFormat timeDateFormat;
 	private final boolean showDay;
-	protected Map<String, RoomStatus> roomStatuses;
+	private Map<String, RoomStatus> roomStatuses;
 
 	public EventsAdapter(Context context, LifecycleOwner owner) {
 		this(context, owner, true);
 	}
 
 	public EventsAdapter(Context context, LifecycleOwner owner, boolean showDay) {
-		inflater = LayoutInflater.from(context);
+		super(DIFF_CALLBACK);
 		timeDateFormat = DateUtils.getTimeDateFormat(context);
 		this.showDay = showDay;
 
@@ -64,11 +79,6 @@ public class EventsAdapter extends RecyclerViewCursorAdapter<EventsAdapter.ViewH
 	}
 
 	@Override
-	public Event getItem(int position) {
-		return DatabaseManager.toEvent((Cursor) super.getItem(position));
-	}
-
-	@Override
 	public int getItemViewType(int position) {
 		return R.layout.item_event;
 	}
@@ -76,67 +86,24 @@ public class EventsAdapter extends RecyclerViewCursorAdapter<EventsAdapter.ViewH
 	@NonNull
 	@Override
 	public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-		View view = inflater.inflate(R.layout.item_event, parent, false);
-		return new ViewHolder(view);
+		View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_event, parent, false);
+		return new ViewHolder(view, timeDateFormat);
+	}
+
+	private RoomStatus getRoomStatus(Event event) {
+		return (roomStatuses == null) ? null : roomStatuses.get(event.getRoomName());
 	}
 
 	@Override
-	public void onBindViewHolder(ViewHolder holder, Cursor cursor) {
-		Context context = holder.itemView.getContext();
-		Event event = DatabaseManager.toEvent(cursor, holder.event);
-		holder.event = event;
-
-		holder.title.setText(event.getTitle());
-		boolean isBookmarked = DatabaseManager.toBookmarkStatus(cursor);
-		Drawable bookmarkDrawable = isBookmarked
-				? AppCompatResources.getDrawable(context, R.drawable.ic_bookmark_grey600_24dp)
-				: null;
-		TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(holder.title, null, null, bookmarkDrawable, null);
-		holder.title.setContentDescription(isBookmarked
-				? context.getString(R.string.in_bookmarks_content_description, event.getTitle())
-				: null
-		);
-		String personsSummary = event.getPersonsSummary();
-		holder.persons.setText(personsSummary);
-		holder.persons.setVisibility(TextUtils.isEmpty(personsSummary) ? View.GONE : View.VISIBLE);
-		Track track = event.getTrack();
-		holder.trackName.setText(track.getName());
-		holder.trackName.setTextColor(ContextCompat.getColor(context, track.getType().getColorResId()));
-		holder.trackName.setContentDescription(context.getString(R.string.track_content_description, track.getName()));
-
-		bindDetails(holder, event);
-	}
-
-	protected void bindDetails(ViewHolder holder, Event event) {
-		Context context = holder.details.getContext();
-		Date startTime = event.getStartTime();
-		Date endTime = event.getEndTime();
-		String startTimeString = (startTime != null) ? timeDateFormat.format(startTime) : "?";
-		String endTimeString = (endTime != null) ? timeDateFormat.format(endTime) : "?";
-		String roomName = event.getRoomName();
-		CharSequence details;
-		if (showDay) {
-			details = String.format("%1$s, %2$s ― %3$s  |  %4$s", event.getDay().getShortName(), startTimeString, endTimeString, roomName);
+	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+		final StatusEvent statusEvent = getItem(position);
+		if (statusEvent == null) {
+			holder.clear();
 		} else {
-			details = String.format("%1$s ― %2$s  |  %3$s", startTimeString, endTimeString, roomName);
+			final Event event = statusEvent.getEvent();
+			holder.bind(event, statusEvent.isBookmarked());
+			holder.bindDetails(event, showDay, getRoomStatus(event));
 		}
-		CharSequence detailsDescription = details;
-		if (roomStatuses != null) {
-			RoomStatus roomStatus = roomStatuses.get(roomName);
-			if (roomStatus != null) {
-				SpannableString detailsSpannable = new SpannableString(details);
-				int color = ContextCompat.getColor(context, roomStatus.getColorResId());
-				detailsSpannable.setSpan(new ForegroundColorSpan(color),
-						details.length() - roomName.length(),
-						details.length(),
-						Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-				details = detailsSpannable;
-
-				detailsDescription = String.format("%1$s (%2$s)", detailsDescription, context.getString(roomStatus.getNameResId()));
-			}
-		}
-		holder.details.setText(details);
-		holder.details.setContentDescription(context.getString(R.string.details_content_description, detailsDescription));
 	}
 
 	@Override
@@ -144,36 +111,104 @@ public class EventsAdapter extends RecyclerViewCursorAdapter<EventsAdapter.ViewH
 		if (payloads.isEmpty()) {
 			onBindViewHolder(holder, position);
 		} else {
-			if (payloads.contains(DETAILS_PAYLOAD) && (holder.event != null)) {
-				bindDetails(holder, holder.event);
+			final StatusEvent statusEvent = getItem(position);
+			if (statusEvent != null) {
+				if (payloads.contains(DETAILS_PAYLOAD)) {
+					final Event event = statusEvent.getEvent();
+					holder.bindDetails(event, showDay, getRoomStatus(event));
+				}
 			}
 		}
 	}
 
-	static class ViewHolder extends MultiChoiceHelper.ViewHolder implements View.OnClickListener {
-		TextView title;
-		TextView persons;
-		TextView trackName;
-		TextView details;
+	static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+		final TextView title;
+		final TextView persons;
+		final TextView trackName;
+		final TextView details;
+
+		private final DateFormat timeDateFormat;
 
 		Event event;
-		boolean isOverlapping;
 
-		public ViewHolder(View itemView) {
+		ViewHolder(View itemView, @NonNull DateFormat timeDateFormat) {
 			super(itemView);
 			title = itemView.findViewById(R.id.title);
 			persons = itemView.findViewById(R.id.persons);
 			trackName = itemView.findViewById(R.id.track_name);
 			details = itemView.findViewById(R.id.details);
-			setOnClickListener(this);
+			itemView.setOnClickListener(this);
+
+			this.timeDateFormat = timeDateFormat;
+		}
+
+		void clear() {
+			this.event = null;
+			title.setText(null);
+			persons.setText(null);
+			trackName.setText(null);
+			details.setText(null);
+		}
+
+		void bind(@NonNull Event event, boolean isBookmarked) {
+			Context context = itemView.getContext();
+			this.event = event;
+
+			title.setText(event.getTitle());
+			Drawable bookmarkDrawable = isBookmarked
+					? AppCompatResources.getDrawable(context, R.drawable.ic_bookmark_grey600_24dp)
+					: null;
+			TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(title, null, null, bookmarkDrawable, null);
+			title.setContentDescription(isBookmarked
+					? context.getString(R.string.in_bookmarks_content_description, event.getTitle())
+					: null
+			);
+			String personsSummary = event.getPersonsSummary();
+			persons.setText(personsSummary);
+			persons.setVisibility(TextUtils.isEmpty(personsSummary) ? View.GONE : View.VISIBLE);
+			Track track = event.getTrack();
+			trackName.setText(track.getName());
+			trackName.setTextColor(ContextCompat.getColor(context, track.getType().getColorResId()));
+			trackName.setContentDescription(context.getString(R.string.track_content_description, track.getName()));
+		}
+
+		void bindDetails(@NonNull Event event, boolean showDay, @Nullable RoomStatus roomStatus) {
+			Context context = details.getContext();
+			Date startTime = event.getStartTime();
+			Date endTime = event.getEndTime();
+			String startTimeString = (startTime != null) ? timeDateFormat.format(startTime) : "?";
+			String endTimeString = (endTime != null) ? timeDateFormat.format(endTime) : "?";
+			String roomName = event.getRoomName();
+			CharSequence detailsText;
+			if (showDay) {
+				detailsText = String.format("%1$s, %2$s ― %3$s  |  %4$s", event.getDay().getShortName(), startTimeString, endTimeString, roomName);
+			} else {
+				detailsText = String.format("%1$s ― %2$s  |  %3$s", startTimeString, endTimeString, roomName);
+			}
+			CharSequence detailsDescription = detailsText;
+			if (roomStatus != null) {
+				SpannableString detailsSpannable = new SpannableString(detailsText);
+				int color = ContextCompat.getColor(context, roomStatus.getColorResId());
+				detailsSpannable.setSpan(new ForegroundColorSpan(color),
+						detailsText.length() - roomName.length(),
+						detailsText.length(),
+						Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+				detailsText = detailsSpannable;
+
+				detailsDescription = String.format("%1$s (%2$s)", detailsDescription, context.getString(roomStatus.getNameResId()));
+			}
+			details.setText(detailsText);
+			details.setContentDescription(context.getString(R.string.details_content_description, detailsDescription));
 		}
 
 		@Override
 		public void onClick(View view) {
-			Context context = view.getContext();
-			Intent intent = new Intent(context, EventDetailsActivity.class)
-					.putExtra(EventDetailsActivity.EXTRA_EVENT, event);
-			context.startActivity(intent);
+			if (event != null) {
+				Context context = view.getContext();
+				Intent intent = new Intent(context, EventDetailsActivity.class)
+						.putExtra(EventDetailsActivity.EXTRA_EVENT, event);
+				context.startActivity(intent);
+			}
 		}
 	}
 }

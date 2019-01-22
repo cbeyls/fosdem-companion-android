@@ -10,18 +10,18 @@ import androidx.paging.PagedList;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import be.digitalia.fosdem.adapters.EventsAdapter2;
+import be.digitalia.fosdem.adapters.EventsAdapter;
 import be.digitalia.fosdem.model.StatusEvent;
 import be.digitalia.fosdem.viewmodels.LiveViewModel;
 
 public abstract class BaseLiveListFragment extends RecyclerViewFragment implements Observer<PagedList<StatusEvent>> {
 
-	private EventsAdapter2 adapter;
+	private EventsAdapter adapter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		adapter = new EventsAdapter2(getContext(), this, false);
+		adapter = new EventsAdapter(getContext(), this, false);
 	}
 
 	@Override

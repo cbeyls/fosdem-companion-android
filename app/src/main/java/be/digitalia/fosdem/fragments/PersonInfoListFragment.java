@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.adapters.ConcatAdapter;
-import be.digitalia.fosdem.adapters.EventsAdapter2;
+import be.digitalia.fosdem.adapters.EventsAdapter;
 import be.digitalia.fosdem.model.Person;
 import be.digitalia.fosdem.model.StatusEvent;
 import be.digitalia.fosdem.utils.DateUtils;
@@ -26,7 +26,7 @@ public class PersonInfoListFragment extends RecyclerViewFragment implements Obse
 	private static final String ARG_PERSON = "person";
 
 	private Person person;
-	private EventsAdapter2 adapter;
+	private EventsAdapter adapter;
 
 	public static PersonInfoListFragment newInstance(Person person) {
 		PersonInfoListFragment f = new PersonInfoListFragment();
@@ -40,7 +40,7 @@ public class PersonInfoListFragment extends RecyclerViewFragment implements Obse
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		adapter = new EventsAdapter2(getContext(), this);
+		adapter = new EventsAdapter(getContext(), this);
 		person = getArguments().getParcelable(ARG_PERSON);
 		setHasOptionsMenu(true);
 	}

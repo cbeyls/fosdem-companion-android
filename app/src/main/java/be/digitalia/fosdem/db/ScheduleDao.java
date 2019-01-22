@@ -2,7 +2,6 @@ package be.digitalia.fosdem.db;
 
 import android.app.SearchManager;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.provider.BaseColumns;
 import androidx.annotation.MainThread;
@@ -10,10 +9,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.paging.DataSource;
 import androidx.room.*;
-import be.digitalia.fosdem.BuildConfig;
+import be.digitalia.fosdem.alarms.FosdemAlarmManager;
 import be.digitalia.fosdem.db.entities.EventEntity;
 import be.digitalia.fosdem.db.entities.EventTitles;
 import be.digitalia.fosdem.db.entities.EventToPerson;
@@ -24,8 +22,6 @@ import java.util.*;
 
 @Dao
 public abstract class ScheduleDao {
-
-	public static final String ACTION_SCHEDULE_REFRESHED = BuildConfig.APPLICATION_ID + ".action.SCHEDULE_REFRESHED";
 
 	private static final String LAST_UPDATE_TIME_PREF = "last_update_time";
 	private static final String LAST_MODIFIED_TAG_PREF = "last_modified_tag";
@@ -82,7 +78,7 @@ public abstract class ScheduleDao {
 					.apply();
 			lastUpdateTime.postValue(now);
 
-			LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(ACTION_SCHEDULE_REFRESHED));
+			FosdemAlarmManager.getInstance().onScheduleRefreshed();
 		}
 		return totalEvents;
 	}
@@ -157,7 +153,7 @@ public abstract class ScheduleDao {
 	}
 
 	@Insert
-	protected abstract long insertTrack(Track track);
+	protected abstract void insertTrack(Track track);
 
 	@Insert
 	protected abstract void insertEvent(EventEntity eventEntity, EventTitles eventTitles);

@@ -8,7 +8,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Checkable;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
@@ -31,10 +30,11 @@ public class MultiChoiceHelper {
 	public static abstract class ViewHolder extends RecyclerView.ViewHolder {
 
 		View.OnClickListener clickListener;
-		MultiChoiceHelper multiChoiceHelper;
+		final MultiChoiceHelper multiChoiceHelper;
 
-		public ViewHolder(View itemView) {
+		public ViewHolder(@NonNull View itemView, @NonNull MultiChoiceHelper helper) {
 			super(itemView);
+			multiChoiceHelper = helper;
 			itemView.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {
@@ -54,7 +54,7 @@ public class MultiChoiceHelper {
 			itemView.setOnLongClickListener(new View.OnLongClickListener() {
 				@Override
 				public boolean onLongClick(View view) {
-					if ((multiChoiceHelper == null) || isMultiChoiceActive()) {
+					if (isMultiChoiceActive()) {
 						return false;
 					}
 					int position = getAdapterPosition();
@@ -80,15 +80,15 @@ public class MultiChoiceHelper {
 			this.clickListener = clickListener;
 		}
 
-		public void bind(MultiChoiceHelper multiChoiceHelper, int position) {
-			this.multiChoiceHelper = multiChoiceHelper;
-			if (multiChoiceHelper != null) {
+		public void bindSelection() {
+			int position = getAdapterPosition();
+			if (position != RecyclerView.NO_POSITION) {
 				updateCheckedState(position);
 			}
 		}
 
 		public boolean isMultiChoiceActive() {
-			return (multiChoiceHelper != null) && (multiChoiceHelper.getCheckedItemCount() > 0);
+			return multiChoiceHelper.getCheckedItemCount() > 0;
 		}
 	}
 
@@ -104,6 +104,8 @@ public class MultiChoiceHelper {
 		 */
 		void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked);
 	}
+
+	public static final Object SELECTION_PAYLOAD = new Object();
 
 	private static final int CHECK_POSITION_SEARCH_DISTANCE = 20;
 
@@ -182,7 +184,7 @@ public class MultiChoiceHelper {
 			}
 			checkedItemCount = 0;
 
-			adapter.notifyItemRangeChanged(start, end - start + 1);
+			adapter.notifyItemRangeChanged(start, end - start + 1, SELECTION_PAYLOAD);
 
 			if (choiceActionMode != null) {
 				choiceActionMode.finish();
@@ -217,7 +219,7 @@ public class MultiChoiceHelper {
 			}
 
 			if (notifyChanged) {
-				adapter.notifyItemChanged(position);
+				adapter.notifyItemChanged(position, SELECTION_PAYLOAD);
 			}
 
 			if (choiceActionMode != null) {

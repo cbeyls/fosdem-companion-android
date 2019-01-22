@@ -8,13 +8,13 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import be.digitalia.fosdem.R;
-import be.digitalia.fosdem.adapters.EventsAdapter2;
+import be.digitalia.fosdem.adapters.EventsAdapter;
 import be.digitalia.fosdem.model.StatusEvent;
 import be.digitalia.fosdem.viewmodels.SearchViewModel;
 
 public class SearchResultListFragment extends RecyclerViewFragment implements Observer<PagedList<StatusEvent>> {
 
-	private EventsAdapter2 adapter;
+	private EventsAdapter adapter;
 
 	public static SearchResultListFragment newInstance() {
 		return new SearchResultListFragment();
@@ -23,7 +23,7 @@ public class SearchResultListFragment extends RecyclerViewFragment implements Ob
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		adapter = new EventsAdapter2(getContext(), this);
+		adapter = new EventsAdapter(getContext(), this);
 	}
 
 	@Override
