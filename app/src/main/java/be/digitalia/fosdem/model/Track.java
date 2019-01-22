@@ -2,12 +2,10 @@ package be.digitalia.fosdem.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
 import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.room.Entity;
-import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import be.digitalia.fosdem.R;
@@ -58,10 +56,6 @@ public class Track implements Parcelable {
 	@NonNull
 	private Type type;
 
-	@Ignore
-	public Track() {
-	}
-
 	public Track(@NonNull String name, @NonNull Type type) {
 		this.name = name;
 		this.type = type;
@@ -80,19 +74,12 @@ public class Track implements Parcelable {
 		return name;
 	}
 
-	public void setName(@NonNull String name) {
-		this.name = name;
-	}
-
 	@NonNull
 	public Type getType() {
 		return type;
 	}
 
-	public void setType(@NonNull Type type) {
-		this.type = type;
-	}
-
+	@NonNull
 	@Override
 	public String toString() {
 		return name;

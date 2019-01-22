@@ -2,7 +2,6 @@ package be.digitalia.fosdem.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -58,6 +57,7 @@ public class Link implements Parcelable {
 		this.description = description;
 	}
 
+	@NonNull
 	@Override
 	public String toString() {
 		return description;

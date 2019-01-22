@@ -18,6 +18,7 @@ public class StatusEvent {
 		this.isBookmarked = isBookmarked;
 	}
 
+	@NonNull
 	public Event getEvent() {
 		return event;
 	}

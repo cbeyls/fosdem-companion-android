@@ -1,11 +1,6 @@
 package be.digitalia.fosdem.activities;
 
 import android.os.Bundle;
-
-import com.viewpagerindicator.UnderlinePageIndicator;
-
-import java.util.List;
-
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -26,6 +21,9 @@ import be.digitalia.fosdem.utils.NfcUtils.CreateNfcAppDataCallback;
 import be.digitalia.fosdem.utils.ThemeUtils;
 import be.digitalia.fosdem.viewmodels.TrackScheduleViewModel;
 import be.digitalia.fosdem.widgets.ContentLoadingProgressBar;
+import com.viewpagerindicator.UnderlinePageIndicator;
+
+import java.util.List;
 
 /**
  * Event view of the track schedule; allows to slide between events of the same track using a ViewPager.
@@ -38,8 +36,6 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 	public static final String EXTRA_TRACK = "track";
 	public static final String EXTRA_POSITION = "position";
 
-	private Day day;
-	private Track track;
 	private int initialPosition = -1;
 	private ContentLoadingProgressBar progress;
 	private ViewPager pager;
@@ -53,8 +49,8 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 		setContentView(R.layout.track_schedule_event);
 
 		Bundle extras = getIntent().getExtras();
-		day = extras.getParcelable(EXTRA_DAY);
-		track = extras.getParcelable(EXTRA_TRACK);
+		final Day day = extras.getParcelable(EXTRA_DAY);
+		final Track track = extras.getParcelable(EXTRA_TRACK);
 
 		progress = findViewById(R.id.progress);
 		pager = findViewById(R.id.pager);

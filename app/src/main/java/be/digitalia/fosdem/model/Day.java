@@ -2,18 +2,17 @@ package be.digitalia.fosdem.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 import be.digitalia.fosdem.db.converters.NonNullDateTypeConverters;
 import be.digitalia.fosdem.utils.DateUtils;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 @Entity(tableName = Day.TABLE_NAME)
 public class Day implements Comparable<Day>, Parcelable {
@@ -56,6 +55,7 @@ public class Day implements Comparable<Day>, Parcelable {
 		return DAY_DATE_FORMAT.format(date);
 	}
 
+	@NonNull
 	@Override
 	public String toString() {
 		return getName();

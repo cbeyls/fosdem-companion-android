@@ -71,7 +71,7 @@ public class FosdemApi {
 
 			try {
 				Iterable<DetailedEvent> events = new EventsParser().parse(httpResult.inputStream);
-				result = scheduleDao.storeSchedule(context, events, httpResult.lastModified);
+				result = scheduleDao.storeSchedule(events, httpResult.lastModified);
 			} finally {
 				try {
 					httpResult.inputStream.close();

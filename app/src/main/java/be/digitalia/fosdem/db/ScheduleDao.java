@@ -1,7 +1,6 @@
 package be.digitalia.fosdem.db;
 
 import android.app.SearchManager;
-import android.content.Context;
 import android.database.Cursor;
 import android.provider.BaseColumns;
 import androidx.annotation.MainThread;
@@ -62,7 +61,7 @@ public abstract class ScheduleDao {
 	 * @return The number of events processed.
 	 */
 	@WorkerThread
-	public int storeSchedule(Context context, Iterable<DetailedEvent> events, String lastModifiedTag) {
+	public int storeSchedule(Iterable<DetailedEvent> events, String lastModifiedTag) {
 		int totalEvents;
 		try {
 			totalEvents = storeScheduleInternal(events, lastModifiedTag);

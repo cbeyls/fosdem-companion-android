@@ -9,29 +9,12 @@ import android.graphics.drawable.Animatable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
-import android.text.TextPaint;
-import android.text.TextUtils;
+import android.text.*;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.google.android.material.snackbar.Snackbar;
-
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.browser.customtabs.CustomTabsIntent;
@@ -44,15 +27,17 @@ import androidx.lifecycle.ViewModelProviders;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.PersonInfoActivity;
 import be.digitalia.fosdem.api.FosdemApi;
-import be.digitalia.fosdem.model.Building;
-import be.digitalia.fosdem.model.Event;
-import be.digitalia.fosdem.model.Link;
-import be.digitalia.fosdem.model.Person;
-import be.digitalia.fosdem.model.RoomStatus;
+import be.digitalia.fosdem.model.*;
 import be.digitalia.fosdem.utils.ClickableArrowKeyMovementMethod;
 import be.digitalia.fosdem.utils.DateUtils;
 import be.digitalia.fosdem.utils.StringUtils;
 import be.digitalia.fosdem.viewmodels.EventDetailsViewModel;
+import com.google.android.material.snackbar.Snackbar;
+
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class EventDetailsFragment extends Fragment {
 
@@ -154,12 +139,12 @@ public class EventDetailsFragment extends Fragment {
 		if (roomImageResId != 0) {
 			roomText.setSpan(new ClickableSpan() {
 				@Override
-				public void onClick(View view) {
+				public void onClick(@NonNull View view) {
 					RoomImageDialogFragment.newInstance(roomName, roomImageResId).show(getFragmentManager());
 				}
 
 				@Override
-				public void updateDrawState(TextPaint ds) {
+				public void updateDrawState(@NonNull TextPaint ds) {
 					super.updateDrawState(ds);
 					ds.setUnderlineText(false);
 				}
@@ -427,14 +412,14 @@ public class EventDetailsFragment extends Fragment {
 		}
 
 		@Override
-		public void onClick(View v) {
+		public void onClick(@NonNull View v) {
 			Context context = v.getContext();
 			Intent intent = new Intent(context, PersonInfoActivity.class).putExtra(PersonInfoActivity.EXTRA_PERSON, person);
 			context.startActivity(intent);
 		}
 
 		@Override
-		public void updateDrawState(TextPaint ds) {
+		public void updateDrawState(@NonNull TextPaint ds) {
 			super.updateDrawState(ds);
 			ds.setUnderlineText(false);
 		}

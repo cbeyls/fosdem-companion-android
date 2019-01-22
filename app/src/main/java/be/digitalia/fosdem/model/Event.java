@@ -2,9 +2,6 @@ package be.digitalia.fosdem.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import java.util.Date;
-
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Embedded;
@@ -12,6 +9,8 @@ import androidx.room.TypeConverters;
 import be.digitalia.fosdem.api.FosdemUrls;
 import be.digitalia.fosdem.db.converters.NullableDateTypeConverters;
 import be.digitalia.fosdem.utils.DateUtils;
+
+import java.util.Date;
 
 public class Event implements Parcelable {
 
@@ -51,11 +50,12 @@ public class Event implements Parcelable {
 		this.id = id;
 	}
 
+	@NonNull
 	public Day getDay() {
 		return day;
 	}
 
-	public void setDay(Day day) {
+	public void setDay(@NonNull Day day) {
 		this.day = day;
 	}
 
@@ -125,11 +125,12 @@ public class Event implements Parcelable {
 		this.subTitle = subTitle;
 	}
 
+	@NonNull
 	public Track getTrack() {
 		return track;
 	}
 
-	public void setTrack(Track track) {
+	public void setTrack(@NonNull Track track) {
 		this.track = track;
 	}
 
@@ -161,6 +162,7 @@ public class Event implements Parcelable {
 		this.personsSummary = personsSummary;
 	}
 
+	@NonNull
 	@Override
 	public String toString() {
 		return title;
