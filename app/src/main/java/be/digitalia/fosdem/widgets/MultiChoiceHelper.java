@@ -1,6 +1,5 @@
 package be.digitalia.fosdem.widgets;
 
-import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.SparseBooleanArray;
@@ -41,8 +40,7 @@ public class MultiChoiceHelper {
 					if (isMultiChoiceActive()) {
 						int position = getAdapterPosition();
 						if (position != RecyclerView.NO_POSITION) {
-							multiChoiceHelper.toggleItemChecked(position, false);
-							updateCheckedState(position);
+							multiChoiceHelper.toggleItemChecked(position);
 						}
 					} else {
 						if (clickListener != null) {
@@ -59,21 +57,11 @@ public class MultiChoiceHelper {
 					}
 					int position = getAdapterPosition();
 					if (position != RecyclerView.NO_POSITION) {
-						multiChoiceHelper.setItemChecked(position, true, false);
-						updateCheckedState(position);
+						multiChoiceHelper.setItemChecked(position, true);
 					}
 					return true;
 				}
 			});
-		}
-
-		void updateCheckedState(int position) {
-			final boolean isChecked = multiChoiceHelper.isItemChecked(position);
-			if (itemView instanceof Checkable) {
-				((Checkable) itemView).setChecked(isChecked);
-			} else {
-				itemView.setActivated(isChecked);
-			}
 		}
 
 		public void setOnClickListener(View.OnClickListener clickListener) {
@@ -83,7 +71,12 @@ public class MultiChoiceHelper {
 		public void bindSelection() {
 			int position = getAdapterPosition();
 			if (position != RecyclerView.NO_POSITION) {
-				updateCheckedState(position);
+				final boolean isChecked = multiChoiceHelper.isItemChecked(position);
+				if (itemView instanceof Checkable) {
+					((Checkable) itemView).setChecked(isChecked);
+				} else {
+					itemView.setActivated(isChecked);
+				}
 			}
 		}
 
@@ -129,10 +122,6 @@ public class MultiChoiceHelper {
 		if (adapter.hasStableIds()) {
 			checkedIdStates = new LongSparseArray<>(0);
 		}
-	}
-
-	public Context getContext() {
-		return activity;
 	}
 
 	public void setMultiChoiceModeListener(MultiChoiceModeListener listener) {
@@ -192,7 +181,7 @@ public class MultiChoiceHelper {
 		}
 	}
 
-	public void setItemChecked(int position, boolean value, boolean notifyChanged) {
+	public void setItemChecked(int position, boolean value) {
 		// Start selection mode if needed. We don't need to if we're unchecking something.
 		if (value) {
 			startSupportActionModeIfNeeded();
@@ -218,9 +207,7 @@ public class MultiChoiceHelper {
 				checkedItemCount--;
 			}
 
-			if (notifyChanged) {
-				adapter.notifyItemChanged(position, SELECTION_PAYLOAD);
-			}
+			adapter.notifyItemChanged(position, SELECTION_PAYLOAD);
 
 			if (choiceActionMode != null) {
 				multiChoiceModeCallback.onItemCheckedStateChanged(choiceActionMode, position, id, value);
@@ -231,8 +218,8 @@ public class MultiChoiceHelper {
 		}
 	}
 
-	public void toggleItemChecked(int position, boolean notifyChanged) {
-		setItemChecked(position, !isItemChecked(position), notifyChanged);
+	public void toggleItemChecked(int position) {
+		setItemChecked(position, !isItemChecked(position));
 	}
 
 	public Parcelable onSaveInstanceState() {
