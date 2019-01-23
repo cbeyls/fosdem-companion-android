@@ -4,13 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Dialog;
 import android.app.SearchManager;
-import android.content.ActivityNotFoundException;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -23,10 +17,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
-
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -53,11 +43,9 @@ import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemApi;
 import be.digitalia.fosdem.api.FosdemUrls;
 import be.digitalia.fosdem.db.AppDatabase;
-import be.digitalia.fosdem.fragments.BookmarksListFragment;
-import be.digitalia.fosdem.fragments.LiveFragment;
-import be.digitalia.fosdem.fragments.MapFragment;
-import be.digitalia.fosdem.fragments.PersonsListFragment;
-import be.digitalia.fosdem.fragments.TracksFragment;
+import be.digitalia.fosdem.fragments.*;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
 /**
  * Main entry point of the application. Allows to switch between section fragments and update the database.
@@ -214,6 +202,7 @@ public class MainActivity extends AppCompatActivity {
 						progressBar.setProgress(100);
 						progressBar.animate()
 								.alpha(0f)
+								.withLayer()
 								.setListener(new AnimatorListenerAdapter() {
 									@Override
 									public void onAnimationEnd(Animator animation) {
