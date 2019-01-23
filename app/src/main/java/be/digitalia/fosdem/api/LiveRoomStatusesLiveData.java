@@ -1,94 +1,119 @@
 package be.digitalia.fosdem.api;
 
-import android.os.Handler;
-import android.os.Looper;
-import android.os.SystemClock;
+import android.annotation.SuppressLint;
+import android.os.*;
 import android.text.format.DateUtils;
+import androidx.lifecycle.LiveData;
+import be.digitalia.fosdem.model.RoomStatus;
+import be.digitalia.fosdem.parsers.RoomStatusesParser;
+import be.digitalia.fosdem.utils.HttpUtils;
 
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Map;
 
-import be.digitalia.fosdem.livedata.AsyncTaskLiveData;
-import be.digitalia.fosdem.model.RoomStatus;
-import be.digitalia.fosdem.parsers.RoomStatusesParser;
-import be.digitalia.fosdem.utils.HttpUtils;
-
 /**
  * Loads and maintain the Room statuses live during the event.
  */
-class LiveRoomStatusesLiveData extends AsyncTaskLiveData<Map<String, RoomStatus>> {
+class LiveRoomStatusesLiveData extends LiveData<Map<String, RoomStatus>> {
 
 	private static final long REFRESH_DELAY = 90L * DateUtils.SECOND_IN_MILLIS;
 	private static final long FIRST_ERROR_REFRESH_DELAY = 30L * DateUtils.SECOND_IN_MILLIS;
 	private static final long EXPIRATION_DELAY = 6L * DateUtils.MINUTE_IN_MILLIS;
 
-	private final Handler handler = new Handler(Looper.getMainLooper());
+	private static final int EXPIRE_WHAT = 0;
+	private static final int REFRESH_WHAT = 1;
 
-	private final Runnable expirationRunnable = new Runnable() {
+	private final Handler handler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
 		@Override
-		public void run() {
-			expire();
+		public boolean handleMessage(Message msg) {
+			switch (msg.what) {
+				case EXPIRE_WHAT:
+					expire();
+					return true;
+				case REFRESH_WHAT:
+					refresh();
+					return true;
+			}
+			return false;
 		}
-	};
+	});
+
 	private long expirationTime = Long.MAX_VALUE;
-
-	private final Runnable refreshRunnable = new Runnable() {
-		@Override
-		public void run() {
-			forceLoad();
-		}
-	};
 	private long nextRefreshTime = 0L;
 	private int retryAttempt = 0;
+	private AsyncTask<Void, Void, Map<String, RoomStatus>> currentTask = null;
 
 	@Override
 	protected void onActive() {
 		long now = SystemClock.elapsedRealtime();
 		if (expirationTime != Long.MAX_VALUE) {
 			if (now < expirationTime) {
-				handler.postDelayed(expirationRunnable, expirationTime - now);
+				handler.sendEmptyMessageDelayed(EXPIRE_WHAT, expirationTime - now);
 			} else {
 				expire();
 			}
 		}
 		if (now < nextRefreshTime) {
-			handler.postDelayed(refreshRunnable, nextRefreshTime - now);
+			handler.sendEmptyMessageDelayed(REFRESH_WHAT, nextRefreshTime - now);
 		} else {
-			forceLoad();
+			refresh();
 		}
 	}
 
 	@Override
 	protected void onInactive() {
-		handler.removeCallbacks(expirationRunnable);
-		handler.removeCallbacks(refreshRunnable);
+		handler.removeMessages(EXPIRE_WHAT);
+		handler.removeMessages(REFRESH_WHAT);
 	}
 
-	@Override
-	protected Map<String, RoomStatus> loadInBackground() throws Exception {
-		InputStream is = HttpUtils.get(FosdemUrls.getRooms());
-		try {
-			return new RoomStatusesParser().parse(is);
-		} finally {
-			is.close();
+	@SuppressLint("StaticFieldLeak")
+	void refresh() {
+		if (currentTask != null) {
+			// Let the ongoing task complete with success or error
+			return;
 		}
+		currentTask = new AsyncTask<Void, Void, Map<String, RoomStatus>>() {
+
+			@Override
+			protected Map<String, RoomStatus> doInBackground(Void... voids) {
+				try {
+					InputStream is = HttpUtils.get(FosdemUrls.getRooms());
+					try {
+						return new RoomStatusesParser().parse(is);
+					} finally {
+						is.close();
+					}
+				} catch (Throwable e) {
+					return null;
+				}
+			}
+
+			@Override
+			protected void onPostExecute(Map<String, RoomStatus> result) {
+				currentTask = null;
+				if (result != null) {
+					onSuccess(result);
+				} else {
+					onError();
+				}
+			}
+		};
+		currentTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
-	@Override
-	protected void onSuccess(Map<String, RoomStatus> result) {
+	void onSuccess(Map<String, RoomStatus> result) {
 		setValue(result);
 		retryAttempt = 0;
 		long now = SystemClock.elapsedRealtime();
 		expirationTime = now + EXPIRATION_DELAY;
 		if (hasActiveObservers()) {
-			handler.postDelayed(expirationRunnable, EXPIRATION_DELAY);
+			handler.sendEmptyMessageDelayed(EXPIRE_WHAT, EXPIRATION_DELAY);
 		}
 		scheduleNextRefresh(now, REFRESH_DELAY);
 	}
 
-	@Override
-	protected void onError(Throwable error) {
+	void onError() {
 		// Use exponential backoff for retries
 		long multiplier = (long) Math.pow(2, retryAttempt);
 		retryAttempt++;
@@ -99,7 +124,7 @@ class LiveRoomStatusesLiveData extends AsyncTaskLiveData<Map<String, RoomStatus>
 	private void scheduleNextRefresh(long now, long delay) {
 		nextRefreshTime = now + delay;
 		if (hasActiveObservers()) {
-			handler.postDelayed(refreshRunnable, delay);
+			handler.sendEmptyMessageDelayed(REFRESH_WHAT, delay);
 		}
 	}
 
