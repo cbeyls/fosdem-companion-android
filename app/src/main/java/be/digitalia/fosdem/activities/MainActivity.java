@@ -8,7 +8,6 @@ import android.content.*;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateUtils;
@@ -37,13 +36,14 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemApi;
 import be.digitalia.fosdem.api.FosdemUrls;
 import be.digitalia.fosdem.db.AppDatabase;
 import be.digitalia.fosdem.fragments.*;
+import be.digitalia.fosdem.livedata.SingleEvent;
+import be.digitalia.fosdem.model.DownloadScheduleResult;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -124,24 +124,26 @@ public class MainActivity extends AppCompatActivity {
 
 	private MenuItem searchMenuItem;
 
-	private final BroadcastReceiver scheduleDownloadResultReceiver = new BroadcastReceiver() {
+	private final Observer<SingleEvent<DownloadScheduleResult>> scheduleDownloadResultObserver = new Observer<SingleEvent<DownloadScheduleResult>>() {
 
 		@Override
-		public void onReceive(Context context, Intent intent) {
-			int result = intent.getIntExtra(FosdemApi.EXTRA_RESULT, FosdemApi.RESULT_ERROR);
+		public void onChanged(SingleEvent<DownloadScheduleResult> singleEvent) {
+			final DownloadScheduleResult result = singleEvent.consume();
+			if (result == null) {
+				return;
+			}
 			String message;
-			switch (result) {
-				case FosdemApi.RESULT_ERROR:
-					message = getString(R.string.schedule_loading_error);
-					break;
-				case FosdemApi.RESULT_UP_TO_DATE:
-					message = getString(R.string.events_download_up_to_date);
-					break;
-				case 0:
+			if (result.isError()) {
+				message = getString(R.string.schedule_loading_error);
+			} else if (result.isUpToDate()) {
+				message = getString(R.string.events_download_up_to_date);
+			} else {
+				int eventsCount = result.getEventsCount();
+				if (eventsCount == 0) {
 					message = getString(R.string.events_download_empty);
-					break;
-				default:
-					message = getResources().getQuantityString(R.plurals.events_download_completed, result, result);
+				} else {
+					message = getResources().getQuantityString(R.plurals.events_download_completed, eventsCount, eventsCount);
+				}
 			}
 			Snackbar.make(findViewById(R.id.content), message, Snackbar.LENGTH_LONG).show();
 		}
@@ -152,14 +154,14 @@ public class MainActivity extends AppCompatActivity {
 		@NonNull
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
-			return new AlertDialog.Builder(getActivity())
+			return new AlertDialog.Builder(getContext())
 					.setTitle(R.string.download_reminder_title)
 					.setMessage(R.string.download_reminder_message)
 					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
-							((MainActivity) getActivity()).startDownloadSchedule();
+							FosdemApi.downloadSchedule(getContext());
 						}
 
 					}).setNegativeButton(android.R.string.cancel, null)
@@ -214,6 +216,9 @@ public class MainActivity extends AppCompatActivity {
 				}
 			}
 		});
+
+		// Monitor the schedule download result
+		FosdemApi.getDownloadScheduleResult().observe(this, scheduleDownloadResultObserver);
 
 		// Setup drawer layout
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -357,10 +362,6 @@ public class MainActivity extends AppCompatActivity {
 	protected void onStart() {
 		super.onStart();
 
-		// Monitor the schedule download result
-		LocalBroadcastManager.getInstance(this).registerReceiver(scheduleDownloadResultReceiver,
-				new IntentFilter(FosdemApi.ACTION_DOWNLOAD_SCHEDULE_RESULT));
-
 		// Download reminder
 		long now = System.currentTimeMillis();
 		Long timeValue = AppDatabase.getInstance(this).getScheduleDao().getLastUpdateTime().getValue();
@@ -386,8 +387,6 @@ public class MainActivity extends AppCompatActivity {
 		if ((searchMenuItem != null) && searchMenuItem.isActionViewExpanded()) {
 			searchMenuItem.collapseActionView();
 		}
-
-		LocalBroadcastManager.getInstance(this).unregisterReceiver(scheduleDownloadResultReceiver);
 
 		super.onStop();
 	}
@@ -421,29 +420,10 @@ public class MainActivity extends AppCompatActivity {
 					item.setIcon(icon);
 					((Animatable) icon).start();
 				}
-				startDownloadSchedule();
+				FosdemApi.downloadSchedule(this);
 				return true;
 		}
 		return false;
-	}
-
-	public void startDownloadSchedule() {
-		new DownloadScheduleAsyncTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-	}
-
-	private static class DownloadScheduleAsyncTask extends AsyncTask<Void, Void, Void> {
-
-		private final Context appContext;
-
-		public DownloadScheduleAsyncTask(Context context) {
-			appContext = context.getApplicationContext();
-		}
-
-		@Override
-		protected Void doInBackground(Void... args) {
-			FosdemApi.downloadSchedule(appContext);
-			return null;
-		}
 	}
 
 	// MAIN MENU
