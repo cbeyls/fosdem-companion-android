@@ -4,17 +4,10 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Dialog;
 import android.app.SearchManager;
-import android.content.ActivityNotFoundException;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateUtils;
@@ -23,10 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
-
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -53,11 +42,11 @@ import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemApi;
 import be.digitalia.fosdem.api.FosdemUrls;
 import be.digitalia.fosdem.db.DatabaseManager;
-import be.digitalia.fosdem.fragments.BookmarksListFragment;
-import be.digitalia.fosdem.fragments.LiveFragment;
-import be.digitalia.fosdem.fragments.MapFragment;
-import be.digitalia.fosdem.fragments.PersonsListFragment;
-import be.digitalia.fosdem.fragments.TracksFragment;
+import be.digitalia.fosdem.fragments.*;
+import be.digitalia.fosdem.livedata.SingleEvent;
+import be.digitalia.fosdem.model.DownloadScheduleResult;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
 /**
  * Main entry point of the application. Allows to switch between section fragments and update the database.
@@ -136,24 +125,26 @@ public class MainActivity extends AppCompatActivity {
 
 	private MenuItem searchMenuItem;
 
-	private final BroadcastReceiver scheduleDownloadResultReceiver = new BroadcastReceiver() {
+	private final Observer<SingleEvent<DownloadScheduleResult>> scheduleDownloadResultObserver = new Observer<SingleEvent<DownloadScheduleResult>>() {
 
 		@Override
-		public void onReceive(Context context, Intent intent) {
-			int result = intent.getIntExtra(FosdemApi.EXTRA_RESULT, FosdemApi.RESULT_ERROR);
+		public void onChanged(SingleEvent<DownloadScheduleResult> singleEvent) {
+			final DownloadScheduleResult result = singleEvent.consume();
+			if (result == null) {
+				return;
+			}
 			String message;
-			switch (result) {
-				case FosdemApi.RESULT_ERROR:
-					message = getString(R.string.schedule_loading_error);
-					break;
-				case FosdemApi.RESULT_UP_TO_DATE:
-					message = getString(R.string.events_download_up_to_date);
-					break;
-				case 0:
+			if (result.isError()) {
+				message = getString(R.string.schedule_loading_error);
+			} else if (result.isUpToDate()) {
+				message = getString(R.string.events_download_up_to_date);
+			} else {
+				int eventsCount = result.getEventsCount();
+				if (eventsCount == 0) {
 					message = getString(R.string.events_download_empty);
-					break;
-				default:
-					message = getResources().getQuantityString(R.plurals.events_download_completed, result, result);
+				} else {
+					message = getResources().getQuantityString(R.plurals.events_download_completed, eventsCount, eventsCount);
+				}
 			}
 			Snackbar.make(findViewById(R.id.content), message, Snackbar.LENGTH_LONG).show();
 		}
@@ -172,14 +163,14 @@ public class MainActivity extends AppCompatActivity {
 		@NonNull
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
-			return new AlertDialog.Builder(getActivity())
+			return new AlertDialog.Builder(getContext())
 					.setTitle(R.string.download_reminder_title)
 					.setMessage(R.string.download_reminder_message)
 					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
-							((MainActivity) getActivity()).startDownloadSchedule();
+							FosdemApi.downloadSchedule(getContext());
 						}
 
 					}).setNegativeButton(android.R.string.cancel, null)
@@ -233,6 +224,9 @@ public class MainActivity extends AppCompatActivity {
 				}
 			}
 		});
+
+		// Monitor the schedule download result
+		FosdemApi.getDownloadScheduleResult().observe(this, scheduleDownloadResultObserver);
 
 		// Setup drawer layout
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -296,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
 		updateLastUpdateTime();
 
 		if (savedInstanceState == null) {
-		    // Select initial section
+			// Select initial section
 			currentSection = Section.TRACKS;
 			String action = getIntent().getAction();
 			if (action != null) {
@@ -375,10 +369,6 @@ public class MainActivity extends AppCompatActivity {
 	protected void onStart() {
 		super.onStart();
 
-		// Monitor the schedule download result
-		LocalBroadcastManager.getInstance(this).registerReceiver(scheduleDownloadResultReceiver,
-				new IntentFilter(FosdemApi.ACTION_DOWNLOAD_SCHEDULE_RESULT));
-
 		// Download reminder
 		long now = System.currentTimeMillis();
 		long time = DatabaseManager.getInstance().getLastUpdateTime();
@@ -403,8 +393,6 @@ public class MainActivity extends AppCompatActivity {
 		if ((searchMenuItem != null) && searchMenuItem.isActionViewExpanded()) {
 			searchMenuItem.collapseActionView();
 		}
-
-		LocalBroadcastManager.getInstance(this).unregisterReceiver(scheduleDownloadResultReceiver);
 
 		super.onStop();
 	}
@@ -444,35 +432,16 @@ public class MainActivity extends AppCompatActivity {
 					item.setIcon(icon);
 					((Animatable) icon).start();
 				}
-				startDownloadSchedule();
+				FosdemApi.downloadSchedule(this);
 				return true;
 		}
 		return false;
 	}
 
-	public void startDownloadSchedule() {
-		new DownloadScheduleAsyncTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-	}
-
-	private static class DownloadScheduleAsyncTask extends AsyncTask<Void, Void, Void> {
-
-		private final Context appContext;
-
-		public DownloadScheduleAsyncTask(Context context) {
-			appContext = context.getApplicationContext();
-		}
-
-		@Override
-		protected Void doInBackground(Void... args) {
-			FosdemApi.downloadSchedule(appContext);
-			return null;
-		}
-	}
-
 	// MAIN MENU
 
 	void handleNavigationMenuItem(@NonNull MenuItem menuItem) {
-	    final int menuItemId = menuItem.getItemId();
+		final int menuItemId = menuItem.getItemId();
 		final Section section = Section.fromMenuItemId(menuItemId);
 		if (section != null) {
 			selectMenuSection(section, menuItem);

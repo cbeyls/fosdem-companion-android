@@ -1,23 +1,21 @@
 package be.digitalia.fosdem.api;
 
 import android.content.Context;
-import android.content.Intent;
-
-import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
+import android.os.AsyncTask;
 import androidx.annotation.MainThread;
 import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.db.DatabaseManager;
+import be.digitalia.fosdem.livedata.SingleEvent;
+import be.digitalia.fosdem.model.DownloadScheduleResult;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.RoomStatus;
 import be.digitalia.fosdem.parsers.EventsParser;
 import be.digitalia.fosdem.utils.HttpUtils;
+
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Main API entry point.
@@ -26,31 +24,36 @@ import be.digitalia.fosdem.utils.HttpUtils;
  */
 public class FosdemApi {
 
-	// Local broadcasts parameters
-	public static final String ACTION_DOWNLOAD_SCHEDULE_RESULT = BuildConfig.APPLICATION_ID + ".action.DOWNLOAD_SCHEDULE_RESULT";
-	public static final String EXTRA_RESULT = "RESULT";
-
-	public static final int RESULT_ERROR = -1;
-	public static final int RESULT_UP_TO_DATE = -2;
-
-	private static final Lock scheduleLock = new ReentrantLock();
+	private static final AtomicBoolean isLoading = new AtomicBoolean();
 	private static final MutableLiveData<Integer> progress = new MutableLiveData<>();
+	private static final MutableLiveData<SingleEvent<DownloadScheduleResult>> result = new MutableLiveData<>();
 	private static LiveData<Map<String, RoomStatus>> roomStatuses;
 
 	/**
 	 * Download & store the schedule to the database.
 	 * Only one thread at a time will perform the actual action, the other ones will return immediately.
-	 * The result will be sent back in the form of a local broadcast with an ACTION_DOWNLOAD_SCHEDULE_RESULT action.
+	 * The result will be sent back in the consumable Result LiveData.
 	 */
-	@WorkerThread
+	@MainThread
 	public static void downloadSchedule(Context context) {
-		if (!scheduleLock.tryLock()) {
+		if (!isLoading.compareAndSet(false, true)) {
 			// If a download is already in progress, return immediately
 			return;
 		}
+		final Context appContext = context.getApplicationContext();
+		AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+			@Override
+			public void run() {
+				downloadScheduleInternal(appContext);
+				isLoading.set(false);
+			}
+		});
+	}
 
+	@WorkerThread
+	private static void downloadScheduleInternal(Context context) {
 		progress.postValue(-1);
-		int result = RESULT_ERROR;
+		DownloadScheduleResult res = DownloadScheduleResult.error();
 		try {
 			DatabaseManager dbManager = DatabaseManager.getInstance();
 			HttpUtils.HttpResult httpResult = HttpUtils.get(
@@ -64,13 +67,14 @@ public class FosdemApi {
 					});
 			if (httpResult.inputStream == null) {
 				// Nothing to parse, the result is up-to-date.
-				result = RESULT_UP_TO_DATE;
+				res = DownloadScheduleResult.upToDate();
 				return;
 			}
 
 			try {
 				Iterable<Event> events = new EventsParser().parse(httpResult.inputStream);
-				result = dbManager.storeSchedule(events, httpResult.lastModified);
+				int count = dbManager.storeSchedule(events, httpResult.lastModified);
+				res = DownloadScheduleResult.success(count);
 			} finally {
 				try {
 					httpResult.inputStream.close();
@@ -80,12 +84,10 @@ public class FosdemApi {
 
 		} catch (Exception e) {
 			e.printStackTrace();
+			res = DownloadScheduleResult.error();
 		} finally {
 			progress.postValue(100);
-			Intent resultIntent = new Intent(ACTION_DOWNLOAD_SCHEDULE_RESULT)
-					.putExtra(EXTRA_RESULT, result);
-			LocalBroadcastManager.getInstance(context).sendBroadcast(resultIntent);
-			scheduleLock.unlock();
+			result.postValue(new SingleEvent<>(res));
 		}
 	}
 
@@ -97,6 +99,10 @@ public class FosdemApi {
 	 */
 	public static LiveData<Integer> getDownloadScheduleProgress() {
 		return progress;
+	}
+
+	public static LiveData<SingleEvent<DownloadScheduleResult>> getDownloadScheduleResult() {
+		return result;
 	}
 
 	@MainThread
