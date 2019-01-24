@@ -2,6 +2,7 @@ package be.digitalia.fosdem.db;
 
 import android.app.SearchManager;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.provider.BaseColumns;
 import androidx.annotation.MainThread;
 import androidx.annotation.Nullable;
@@ -418,15 +419,23 @@ public abstract class ScheduleDao {
 			+ " ORDER BY name COLLATE NOCASE")
 	public abstract DataSource.Factory<Integer, Person> getPersons();
 
-	/**
-	 * Returns persons presenting the specified event.
-	 */
+	public LiveData<EventDetails> getEventDetails(final Event event) {
+		final MutableLiveData<EventDetails> result = new MutableLiveData<>();
+		AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+			@Override
+			public void run() {
+				result.postValue(new EventDetails(getPersons(event), getLinks(event)));
+			}
+		});
+		return result;
+	}
+
 	@Query("SELECT p.`rowid`, p.name"
 			+ " FROM persons p"
 			+ " JOIN events_persons ep ON p.`rowid` = ep.person_id"
 			+ " WHERE ep.event_id = :event")
-	public abstract LiveData<List<Person>> getPersons(Event event);
+	protected abstract List<Person> getPersons(Event event);
 
 	@Query("SELECT * FROM links WHERE event_id = :event ORDER BY id ASC")
-	public abstract LiveData<List<Link>> getLinks(Event event);
+	protected abstract List<Link> getLinks(Event event);
 }

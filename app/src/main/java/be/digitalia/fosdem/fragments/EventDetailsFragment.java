@@ -20,7 +20,6 @@ import androidx.annotation.Nullable;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -60,7 +59,6 @@ public class EventDetailsFragment extends Fragment {
 	private static final String ARG_EVENT = "event";
 
 	Event event;
-	int personsCount = 1;
 	ViewHolder holder;
 	EventDetailsViewModel viewModel;
 
@@ -200,10 +198,12 @@ public class EventDetailsFragment extends Fragment {
 				updateBookmarkMenuItem(isBookmarked, true);
 			}
 		});
-		viewModel.getEventDetails().observe(getViewLifecycleOwner(), new Observer<Pair<List<Person>, List<Link>>>() {
+		viewModel.getEventDetails().observe(getViewLifecycleOwner(), new Observer<EventDetails>() {
 			@Override
-			public void onChanged(Pair<List<Person>, List<Link>> eventDetails) {
-				setEventDetails(eventDetails);
+			public void onChanged(EventDetails eventDetails) {
+				if (eventDetails != null) {
+					setEventDetails(eventDetails);
+				}
 			}
 		});
 
@@ -341,6 +341,8 @@ public class EventDetailsFragment extends Fragment {
 		}
 		description = StringUtils.stripHtml(description);
 		// Add speaker info if available
+		EventDetails details = viewModel.getEventDetails().getValue();
+		final int personsCount = (details == null) ? 0 : details.getPersons().size();
 		if (personsCount > 0) {
 			description = String.format("%1$s: %2$s\n\n%3$s", getResources().getQuantityString(R.plurals.speakers, personsCount), event.getPersonsSummary(),
 					description);
@@ -361,33 +363,30 @@ public class EventDetailsFragment extends Fragment {
 		}
 	}
 
-	void setEventDetails(@NonNull Pair<List<Person>, List<Link>> data) {
+	void setEventDetails(@NonNull EventDetails eventDetails) {
 		// 1. Persons
-		final List<Person> persons = data.first;
-		if (persons != null) {
-			personsCount = persons.size();
-			if (personsCount > 0) {
-				// Build a list of clickable persons
-				SpannableStringBuilder sb = new SpannableStringBuilder();
-				int length = 0;
-				for (Person person : persons) {
-					if (length != 0) {
-						sb.append(", ");
-					}
-					String name = person.getName();
-					sb.append(name);
-					length = sb.length();
-					sb.setSpan(new PersonClickableSpan(person), length - name.length(), length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		final List<Person> persons = eventDetails.getPersons();
+		if (persons.size() > 0) {
+			// Build a list of clickable persons
+			SpannableStringBuilder sb = new SpannableStringBuilder();
+			int length = 0;
+			for (Person person : persons) {
+				if (length != 0) {
+					sb.append(", ");
 				}
-				holder.personsTextView.setText(sb);
-				holder.personsTextView.setVisibility(View.VISIBLE);
+				String name = person.getName();
+				sb.append(name);
+				length = sb.length();
+				sb.setSpan(new PersonClickableSpan(person), length - name.length(), length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
+			holder.personsTextView.setText(sb);
+			holder.personsTextView.setVisibility(View.VISIBLE);
 		}
 
 		// 2. Links
-		final List<Link> links = data.second;
+		final List<Link> links = eventDetails.getLinks();
 		holder.linksContainer.removeAllViews();
-		if ((links != null) && (links.size() > 0)) {
+		if (links.size() > 0) {
 			holder.linksHeader.setVisibility(View.VISIBLE);
 			holder.linksContainer.setVisibility(View.VISIBLE);
 			for (Link link : links) {

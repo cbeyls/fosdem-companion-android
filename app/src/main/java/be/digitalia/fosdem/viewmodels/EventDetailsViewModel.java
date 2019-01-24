@@ -4,7 +4,6 @@ import android.app.Application;
 import android.os.AsyncTask;
 import androidx.annotation.NonNull;
 import androidx.arch.core.util.Function;
-import androidx.core.util.Pair;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -12,10 +11,7 @@ import androidx.lifecycle.Transformations;
 import be.digitalia.fosdem.db.AppDatabase;
 import be.digitalia.fosdem.livedata.ExtraTransformations;
 import be.digitalia.fosdem.model.Event;
-import be.digitalia.fosdem.model.Link;
-import be.digitalia.fosdem.model.Person;
-
-import java.util.List;
+import be.digitalia.fosdem.model.EventDetails;
 
 public class EventDetailsViewModel extends AndroidViewModel {
 
@@ -31,14 +27,11 @@ public class EventDetailsViewModel extends AndroidViewModel {
 					);
 				}
 			});
-	private final LiveData<Pair<List<Person>, List<Link>>> eventDetails = Transformations.switchMap(event,
-			new Function<Event, LiveData<Pair<List<Person>, List<Link>>>>() {
+	private final LiveData<EventDetails> eventDetails = Transformations.switchMap(event,
+			new Function<Event, LiveData<EventDetails>>() {
 				@Override
-				public LiveData<Pair<List<Person>, List<Link>>> apply(Event event) {
-					return ExtraTransformations.zipLatest(
-							appDatabase.getScheduleDao().getPersons(event),
-							appDatabase.getScheduleDao().getLinks(event)
-					);
+				public LiveData<EventDetails> apply(Event event) {
+					return appDatabase.getScheduleDao().getEventDetails(event);
 				}
 			});
 
@@ -73,7 +66,7 @@ public class EventDetailsViewModel extends AndroidViewModel {
 		}
 	}
 
-	public LiveData<Pair<List<Person>, List<Link>>> getEventDetails() {
+	public LiveData<EventDetails> getEventDetails() {
 		return eventDetails;
 	}
 }
