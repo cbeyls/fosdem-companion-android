@@ -3,9 +3,7 @@ package be.digitalia.fosdem.activities;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.BaseColumns;
-
-import com.viewpagerindicator.UnderlinePageIndicator;
-
+import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,6 +25,7 @@ import be.digitalia.fosdem.utils.NfcUtils;
 import be.digitalia.fosdem.utils.NfcUtils.CreateNfcAppDataCallback;
 import be.digitalia.fosdem.utils.ThemeUtils;
 import be.digitalia.fosdem.widgets.ContentLoadingProgressBar;
+import com.viewpagerindicator.UnderlinePageIndicator;
 
 /**
  * Event view of the track schedule; allows to slide between events of the same track using a ViewPager.
@@ -67,8 +66,6 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Loa
 
 		if (savedInstanceState == null) {
 			initialPosition = extras.getInt(EXTRA_POSITION, -1);
-			pager.setAdapter(adapter);
-			pageIndicator.setViewPager(pager);
 		}
 
 		ActionBar bar = getSupportActionBar();
@@ -121,9 +118,10 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Loa
 		setCustomProgressVisibility(false);
 
 		if (data != null) {
+			pager.setVisibility(View.VISIBLE);
 			adapter.setCursor(data);
 
-			// Delay setting the adapter when the instance state is restored
+			// Delay setting the adapter
 			// to ensure the current position is restored properly
 			if (pager.getAdapter() == null) {
 				pager.setAdapter(adapter);
