@@ -231,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
 		// Setup drawer layout
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		drawerLayout = findViewById(R.id.drawer_layout);
-		drawerLayout.setDrawerShadow(ContextCompat.getDrawable(this, R.drawable.drawer_shadow), GravityCompat.START);
+		drawerLayout.setDrawerShadow(ContextCompat.getDrawable(this, R.drawable.drawer_shadow_start), GravityCompat.START);
 		drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.main_menu, R.string.close_menu) {
 
 			@Override
