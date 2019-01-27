@@ -6,7 +6,7 @@ This is a new implementation of the [legacy FOSDEM app](https://github.com/rkall
 
 The name FOSDEM and the gear logo are registered trademarks of FOSDEM VZW. Used with permission.
 
-[<img src="https://f-droid.org/badge/get-it-on.png"
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
      alt="Get it on F-Droid"
    height="80">](https://f-droid.org/packages/be.digitalia.fosdem/)
 [<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
