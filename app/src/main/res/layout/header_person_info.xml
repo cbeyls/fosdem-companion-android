@@ -2,4 +2,6 @@
 <TextView
     style="@style/Header"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:text="@string/talks_header"/>
+    android:text="@string/talks_header"
+    android:textAlignment="viewStart"
+    android:gravity="start" />

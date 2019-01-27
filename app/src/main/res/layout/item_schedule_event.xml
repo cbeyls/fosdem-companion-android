@@ -36,7 +36,9 @@
         android:drawablePadding="8dp"
         android:paddingTop="@dimen/list_item_padding"
         android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        android:textAlignment="viewStart"
         android:textSize="@dimen/abc_text_size_medium_material"
+        android:gravity="start"
         tools:text="Welcome to FOSDEM 2015" />
 
     <TextView
@@ -48,7 +50,9 @@
         android:layout_alignLeft="@+id/title"
         android:layout_alignEnd="@+id/title"
         android:layout_alignRight="@+id/title"
+        android:textAlignment="viewStart"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:gravity="start"
         tools:text="FOSDEM Staff" />
 
     <TextView
@@ -62,7 +66,9 @@
         android:layout_alignRight="@+id/title"
         android:layout_marginTop="4dp"
         android:paddingBottom="@dimen/list_item_padding"
+        android:textAlignment="viewStart"
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:gravity="start"
         tools:text="Janson" />
 
 </RelativeLayout>

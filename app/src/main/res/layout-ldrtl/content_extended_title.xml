@@ -17,8 +17,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            app:collapsedTitleGravity="start|center_vertical"
-            app:expandedTitleGravity="start|bottom"
+            app:collapsedTitleGravity="end|center_vertical"
+            app:expandedTitleGravity="end|bottom"
             app:expandedTitleMarginEnd="16dp"
             app:expandedTitleMarginStart="16dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">

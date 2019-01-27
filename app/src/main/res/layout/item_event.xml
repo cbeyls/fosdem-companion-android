@@ -22,6 +22,8 @@
         android:drawablePadding="8dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Title"
         android:textSize="@dimen/abc_text_size_medium_material"
+        android:textAlignment="viewStart"
+        android:gravity="start"
         tools:text="Welcome to FOSDEM 2015"/>
 
     <TextView
@@ -29,7 +31,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        tools:text="FOSDEM Staff"/>
+        android:textAlignment="viewStart"
+        android:gravity="start"
+        tools:text="FOSDEM Staff"
+        />
 
     <TextView
         android:id="@+id/track_name"
@@ -37,6 +42,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+        android:textAlignment="viewStart"
+        android:gravity="start"
         tools:text="Keynotes"/>
 
     <TextView
@@ -44,6 +51,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:textAlignment="viewStart"
+        android:gravity="start"
         tools:text="Saturday, 09:30 - 09:55 | Janson"/>
 
 </com.google.android.material.internal.ForegroundLinearLayout>

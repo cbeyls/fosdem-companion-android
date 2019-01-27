@@ -24,6 +24,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textIsSelectable="true"
+                android:textAlignment="viewStart"
+                android:gravity="start"
                 tools:text="Welcome to FOSDEM"/>
 
             <TextView
@@ -32,6 +34,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textIsSelectable="true"
+                android:textAlignment="viewStart"
+                android:gravity="start"
                 tools:text="An introduction to your favourite Free Software meeting"/>
 
             <TextView
@@ -41,6 +45,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:saveEnabled="false"
+                android:textAlignment="viewStart"
+                android:gravity="start"
                 tools:text="FOSDEM Staff"/>
 
             <View
@@ -55,6 +61,8 @@
                 android:layout_marginTop="8dp"
                 android:drawableLeft="@drawable/ic_local_offer_grey600_18dp"
                 android:drawableStart="@drawable/ic_local_offer_grey600_18dp"
+                android:textAlignment="viewStart"
+                android:gravity="start"
                 tools:text="Keynotes"/>
 
             <TextView
@@ -64,6 +72,8 @@
                 android:layout_height="wrap_content"
                 android:drawableLeft="@drawable/ic_access_time_grey600_18dp"
                 android:drawableStart="@drawable/ic_access_time_grey600_18dp"
+                android:textAlignment="viewStart"
+                android:gravity="start"
                 tools:text="Day 1 (Saturday), 09:30 - 09:55"/>
 
             <TextView
@@ -74,6 +84,8 @@
                 android:drawableLeft="@drawable/ic_place_grey600_18dp"
                 android:drawableStart="@drawable/ic_place_grey600_18dp"
                 android:saveEnabled="false"
+                android:textAlignment="viewStart"
+                android:gravity="start"
                 tools:text="Janson (Building J)"/>
 
             <TextView
@@ -84,6 +96,8 @@
                 android:paddingLeft="26dp"
                 android:paddingStart="26dp"
                 android:saveEnabled="false"
+                android:textAlignment="viewStart"
+                android:gravity="start"
                 tools:text="Open"/>
 
         </LinearLayout>
@@ -97,6 +111,8 @@
             android:padding="@dimen/content_margin"
             android:saveEnabled="false"
             android:textIsSelectable="true"
+            android:textAlignment="viewStart"
+            android:gravity="start"
             tools:text="FOSDEM welcome and opening talk."/>
 
         <TextView
@@ -107,6 +123,8 @@
             android:padding="@dimen/content_margin"
             android:saveEnabled="false"
             android:textIsSelectable="true"
+            android:textAlignment="viewStart"
+            android:gravity="start"
             tools:text="Welcome to FOSDEM 2015!"/>
 
         <TextView
@@ -118,7 +136,10 @@
             android:layout_marginStart="@dimen/content_margin"
             android:layout_marginTop="8dp"
             android:text="@string/related_links_header"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            android:textAlignment="viewStart"
+            android:gravity="start"
+            tools:visibility="visible"/>
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/links_container"

@@ -18,13 +18,17 @@
         android:id="@android:id/text1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?attr/textAppearanceListItem"/>
+        android:textAppearance="?attr/textAppearanceListItem"
+        android:textAlignment="viewStart"
+        android:gravity="start" />
 
     <TextView
         android:id="@android:id/text2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?attr/textAppearanceListItem"
-        android:textSize="@dimen/abc_text_size_small_material"/>
+        android:textSize="@dimen/abc_text_size_small_material"
+        android:textAlignment="viewStart"
+        android:gravity="start" />
 
 </LinearLayout>
