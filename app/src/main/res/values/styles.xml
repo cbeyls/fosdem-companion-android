@@ -12,10 +12,10 @@
 
         <item name="activatedBackgroundIndicator">@drawable/activated_background</item>
         <item name="recyclerViewStyle">@style/RecyclerView</item>
+        <item name="materialHorizontalProgressBarStyle">@style/Widget.MaterialHorizontalProgressBar</item>
     </style>
 
     <style name="AppTheme" parent="Base.AppTheme">
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBar.Fosdem</item>
         <item name="android:selectableItemBackground">?attr/selectableItemBackground</item>
         <item name="android:listChoiceBackgroundIndicator">?attr/listChoiceBackgroundIndicator
         </item>
@@ -50,11 +50,10 @@
         <item name="android:theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
     </style>
 
-    <style name="ProgressBar.Fosdem" parent="android:Widget.Holo.ProgressBar.Horizontal">
-        <item name="android:indeterminateDrawable">
-            @drawable/fosdem_progress_indeterminate_horizontal_holo_light
-        </item>
-        <item name="android:progressDrawable">@drawable/fosdem_progress_horizontal_holo_light</item>
+    <style name="Widget.MaterialHorizontalProgressBar" parent="Widget.AppCompat.ProgressBar.Horizontal">
+        <!-- Will be set in code -->
+        <item name="android:progressDrawable">@null</item>
+        <item name="android:indeterminateDrawable">@null</item>
     </style>
 
     <!-- Styles -->
