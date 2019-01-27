@@ -67,7 +67,6 @@
 
         <TextView
             android:id="@+id/last_update"
-            style="@style/TextAppearance.AppCompat.Caption"
             android:layout_width="match_parent"
             android:layout_height="@dimen/main_menu_footer_height"
             android:layout_gravity="bottom"
@@ -79,6 +78,7 @@
             android:paddingLeft="4dp"
             android:paddingEnd="4dp"
             android:paddingRight="4dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
             tools:text="DB last updated: 1 jan. 2015 13:37:00" />
 
     </FrameLayout>

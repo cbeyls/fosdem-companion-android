@@ -15,7 +15,9 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:background="@color/schedule_time_background"
+        android:gravity="start"
         android:padding="@dimen/list_item_padding"
+        android:textAlignment="viewStart"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textStyle="bold"
         tools:text="09:30" />
@@ -27,14 +29,16 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_marginStart="@dimen/list_item_padding"
-        android:layout_marginLeft="@dimen/list_item_padding"
-        android:layout_marginEnd="@dimen/list_item_padding"
-        android:layout_marginRight="@dimen/list_item_padding"
+        android:layout_marginStart="?attr/listPreferredItemPaddingLeft"
+        android:layout_marginLeft="?attr/listPreferredItemPaddingLeft"
+        android:layout_marginEnd="?attr/listPreferredItemPaddingRight"
+        android:layout_marginRight="?attr/listPreferredItemPaddingRight"
         android:layout_toEndOf="@+id/time"
         android:layout_toRightOf="@+id/time"
         android:drawablePadding="8dp"
+        android:gravity="start"
         android:paddingTop="@dimen/list_item_padding"
+        android:textAlignment="viewStart"
         android:textAppearance="@style/TextAppearance.AppCompat.Title"
         android:textSize="@dimen/abc_text_size_medium_material"
         tools:text="Welcome to FOSDEM 2015" />
@@ -48,6 +52,8 @@
         android:layout_alignLeft="@+id/title"
         android:layout_alignEnd="@+id/title"
         android:layout_alignRight="@+id/title"
+        android:gravity="start"
+        android:textAlignment="viewStart"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
         tools:text="FOSDEM Staff" />
 
@@ -61,7 +67,9 @@
         android:layout_alignEnd="@+id/title"
         android:layout_alignRight="@+id/title"
         android:layout_marginTop="4dp"
+        android:gravity="start"
         android:paddingBottom="@dimen/list_item_padding"
+        android:textAlignment="viewStart"
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
         tools:text="Janson" />
 
