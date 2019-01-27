@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.internal.ForegroundLinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.internal.ForegroundLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -8,42 +7,50 @@
     android:focusable="true"
     android:foreground="@drawable/activated_background"
     android:orientation="vertical"
-    android:paddingBottom="@dimen/list_item_padding"
-    android:paddingEnd="?attr/listPreferredItemPaddingRight"
-    android:paddingLeft="?attr/listPreferredItemPaddingLeft"
-    android:paddingRight="?attr/listPreferredItemPaddingRight"
     android:paddingStart="?attr/listPreferredItemPaddingLeft"
-    android:paddingTop="@dimen/list_item_padding">
+    android:paddingLeft="?attr/listPreferredItemPaddingLeft"
+    android:paddingTop="@dimen/list_item_padding"
+    android:paddingEnd="?attr/listPreferredItemPaddingRight"
+    android:paddingRight="?attr/listPreferredItemPaddingRight"
+    android:paddingBottom="@dimen/list_item_padding">
 
     <TextView
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:drawablePadding="8dp"
+        android:gravity="start"
+        android:textAlignment="viewStart"
         android:textAppearance="@style/TextAppearance.AppCompat.Title"
         android:textSize="@dimen/abc_text_size_medium_material"
-        tools:text="Welcome to FOSDEM 2015"/>
+        tools:text="Welcome to FOSDEM 2015" />
 
     <TextView
         android:id="@+id/persons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="start"
+        android:textAlignment="viewStart"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        tools:text="FOSDEM Staff"/>
+        tools:text="FOSDEM Staff" />
 
     <TextView
         android:id="@+id/track_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
+        android:gravity="start"
+        android:textAlignment="viewStart"
         android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-        tools:text="Keynotes"/>
+        tools:text="Keynotes" />
 
     <TextView
         android:id="@+id/details"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="start"
+        android:textAlignment="viewStart"
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
-        tools:text="Saturday, 09:30 - 09:55 | Janson"/>
+        tools:text="Saturday, 09:30 - 09:55 | Janson" />
 
 </com.google.android.material.internal.ForegroundLinearLayout>

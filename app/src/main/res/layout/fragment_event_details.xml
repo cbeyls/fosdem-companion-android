@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
             xmlns:tools="http://schemas.android.com/tools"
             android:id="@+id/scroll_view"
             android:layout_width="match_parent"
@@ -20,27 +19,33 @@
 
             <TextView
                 android:id="@+id/title"
-                style="@style/TextAppearance.AppCompat.Headline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="start"
+                android:textAlignment="viewStart"
+                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
                 android:textIsSelectable="true"
                 tools:text="Welcome to FOSDEM"/>
 
             <TextView
                 android:id="@+id/subtitle"
-                style="@style/TextAppearance.AppCompat.Subhead"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="start"
+                android:textAlignment="viewStart"
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                 android:textIsSelectable="true"
                 tools:text="An introduction to your favourite Free Software meeting"/>
 
             <TextView
                 android:id="@+id/persons"
-                style="@style/TextAppearance.AppCompat.Body2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:gravity="start"
                 android:saveEnabled="false"
+                android:textAlignment="viewStart"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 tools:text="FOSDEM Staff"/>
 
             <View
@@ -78,34 +83,38 @@
 
             <TextView
                 android:id="@+id/room_status"
-                style="@style/TextAppearance.AppCompat.Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="26dp"
+                android:gravity="start"
                 android:paddingStart="26dp"
+                android:paddingLeft="26dp"
+                android:paddingEnd="0dp"
+                android:paddingRight="0dp"
                 android:saveEnabled="false"
+                android:textAlignment="viewStart"
+                android:textAppearance="@style/TextAppearance.AppCompat.Button"
                 tools:text="Open"/>
 
         </LinearLayout>
 
         <TextView
             android:id="@+id/abstract_text"
-            style="@style/TextAppearance.AppCompat.Body1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/translucent_grey"
             android:padding="@dimen/content_margin"
             android:saveEnabled="false"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textIsSelectable="true"
             tools:text="FOSDEM welcome and opening talk."/>
 
         <TextView
             android:id="@+id/description"
-            style="@style/TextAppearance.AppCompat.Body1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="@dimen/content_margin"
             android:saveEnabled="false"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textIsSelectable="true"
             tools:text="Welcome to FOSDEM 2015!"/>
 
@@ -120,19 +129,19 @@
             android:text="@string/related_links_header"
             android:visibility="gone"/>
 
-        <androidx.appcompat.widget.LinearLayoutCompat
+        <LinearLayout
             android:id="@+id/links_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:divider="?android:attr/listDivider"
             android:orientation="vertical"
-            android:paddingBottom="@dimen/content_margin"
-            android:paddingEnd="@dimen/content_margin"
-            android:paddingLeft="@dimen/content_margin"
-            android:paddingRight="@dimen/content_margin"
             android:paddingStart="@dimen/content_margin"
-            android:visibility="gone"
-            app:divider="?android:attr/listDivider"
-            app:showDividers="middle"/>
+            android:paddingLeft="@dimen/content_margin"
+            android:paddingEnd="@dimen/content_margin"
+            android:paddingRight="@dimen/content_margin"
+            android:paddingBottom="@dimen/content_margin"
+            android:showDividers="middle"
+            android:visibility="gone"/>
     </LinearLayout>
 
 </ScrollView>

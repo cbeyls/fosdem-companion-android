@@ -1,6 +1,7 @@
 package be.digitalia.fosdem.activities;
 
 import android.os.Bundle;
+import android.view.View;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -60,8 +61,6 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 
 		if (savedInstanceState == null) {
 			initialPosition = extras.getInt(EXTRA_POSITION, -1);
-			pager.setAdapter(adapter);
-			pageIndicator.setViewPager(pager);
 		}
 
 		ActionBar bar = getSupportActionBar();
@@ -110,9 +109,10 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 		setCustomProgressVisibility(false);
 
 		if (schedule != null) {
+			pager.setVisibility(View.VISIBLE);
 			adapter.setSchedule(schedule);
 
-			// Delay setting the adapter when the instance state is restored
+			// Delay setting the adapter
 			// to ensure the current position is restored properly
 			if (pager.getAdapter() == null) {
 				pager.setAdapter(adapter);
