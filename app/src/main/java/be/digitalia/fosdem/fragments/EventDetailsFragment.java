@@ -393,7 +393,7 @@ public class EventDetailsFragment extends Fragment {
 				View view = holder.inflater.inflate(R.layout.item_link, holder.linksContainer, false);
 				TextView tv = view.findViewById(R.id.description);
 				tv.setText(link.getDescription());
-				view.setOnClickListener(new LinkClickListener(link));
+				view.setOnClickListener(new LinkClickListener(event, link));
 				holder.linksContainer.addView(view);
 			}
 		} else {
@@ -424,29 +424,29 @@ public class EventDetailsFragment extends Fragment {
 		}
 	}
 
-	private class LinkClickListener implements View.OnClickListener {
+	private static class LinkClickListener implements View.OnClickListener {
 
+		private final Event event;
 		private final Link link;
 
-		public LinkClickListener(Link link) {
+		LinkClickListener(@NonNull Event event, @NonNull Link link) {
+			this.event = event;
 			this.link = link;
 		}
 
 		@Override
 		public void onClick(View v) {
 			String url = link.getUrl();
-			if (url != null) {
-				try {
-					Activity context = getActivity();
-					new CustomTabsIntent.Builder()
-							.setToolbarColor(ContextCompat.getColor(context, event.getTrack().getType().getColorResId()))
-							.setShowTitle(true)
-							.setStartAnimations(context, R.anim.slide_in_right, R.anim.slide_out_left)
-							.setExitAnimations(context, R.anim.slide_in_left, R.anim.slide_out_right)
-							.build()
-							.launchUrl(context, Uri.parse(url));
-				} catch (ActivityNotFoundException ignore) {
-				}
+			try {
+				final Context context = v.getContext();
+				new CustomTabsIntent.Builder()
+						.setToolbarColor(ContextCompat.getColor(context, event.getTrack().getType().getColorResId()))
+						.setShowTitle(true)
+						.setStartAnimations(context, R.anim.slide_in_right, R.anim.slide_out_left)
+						.setExitAnimations(context, R.anim.slide_in_left, R.anim.slide_out_right)
+						.build()
+						.launchUrl(context, Uri.parse(url));
+			} catch (ActivityNotFoundException ignore) {
 			}
 		}
 	}
