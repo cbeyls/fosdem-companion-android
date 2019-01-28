@@ -59,7 +59,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 				String eventIdString;
 				if (NfcUtils.hasAppData(intent)) {
 					// NFC intent
-					eventIdString = new String(NfcUtils.extractAppData(intent));
+					eventIdString = NfcUtils.toEventIdString((NfcUtils.extractAppData(intent)));
 				} else {
 					// Normal in-app intent
 					eventIdString = intent.getDataString();
@@ -128,6 +128,6 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 
 	@Override
 	public NdefRecord createNfcAppData() {
-		return NfcUtils.createSingleEventAppData(this, event);
+		return NfcUtils.createEventAppData(this, event);
 	}
 }

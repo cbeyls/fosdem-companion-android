@@ -96,7 +96,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 		if (event == null) {
 			return null;
 		}
-		return NfcUtils.createSingleEventAppData(this, event);
+		return NfcUtils.createEventAppData(this, event);
 	}
 
 	@Override

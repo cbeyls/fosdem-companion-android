@@ -59,10 +59,14 @@ public class NfcUtils {
 		return true;
 	}
 
-	public static NdefRecord createSingleEventAppData(@NonNull Context context, @NonNull Event event) {
+	public static NdefRecord createEventAppData(@NonNull Context context, @NonNull Event event) {
 		String mimeType = "application/" + context.getPackageName();
 		byte[] mimeData = String.valueOf(event.getId()).getBytes();
 		return NdefRecord.createMime(mimeType, mimeData);
+	}
+
+	public static String toEventIdString(@NonNull NdefRecord record) {
+		return new String(record.getPayload());
 	}
 
 	/**
@@ -73,14 +77,14 @@ public class NfcUtils {
 	}
 
 	/**
-	 * Extracts application-specific data sent through NFC from an intent. You must first ensure that the intent contains NFC data by calling hasAppData().
+	 * Extracts application-specific data sent through NFC from an intent.
+	 * You must first ensure that the intent contains NFC data by calling hasAppData().
 	 *
-	 * @param intent
-	 * @return The extracted data
+	 * @return The extracted app data as an NdefRecord
 	 */
-	public static byte[] extractAppData(Intent intent) {
+	public static NdefRecord extractAppData(Intent intent) {
 		Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
 		NdefMessage msg = (NdefMessage) rawMsgs[0];
-		return msg.getRecords()[0].getPayload();
+		return msg.getRecords()[0];
 	}
 }

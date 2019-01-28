@@ -152,6 +152,6 @@ public class TrackScheduleActivity extends AppCompatActivity
 		if (lastSelectedEvent == null) {
 			return null;
 		}
-		return NfcUtils.createSingleEventAppData(this, lastSelectedEvent);
+		return NfcUtils.createEventAppData(this, lastSelectedEvent);
 	}
 }
