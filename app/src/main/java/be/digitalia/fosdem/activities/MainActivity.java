@@ -36,12 +36,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemApi;
 import be.digitalia.fosdem.api.FosdemUrls;
-import be.digitalia.fosdem.db.DatabaseManager;
+import be.digitalia.fosdem.db.AppDatabase;
 import be.digitalia.fosdem.fragments.*;
 import be.digitalia.fosdem.livedata.SingleEvent;
 import be.digitalia.fosdem.model.DownloadScheduleResult;
@@ -150,14 +149,6 @@ public class MainActivity extends AppCompatActivity {
 		}
 	};
 
-	private final BroadcastReceiver scheduleRefreshedReceiver = new BroadcastReceiver() {
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			updateLastUpdateTime();
-		}
-	};
-
 	public static class DownloadScheduleReminderDialogFragment extends DialogFragment {
 
 		@NonNull
@@ -213,6 +204,7 @@ public class MainActivity extends AppCompatActivity {
 						progressBar.setProgress(100);
 						progressBar.animate()
 								.alpha(0f)
+								.withLayer()
 								.setListener(new AnimatorListenerAdapter() {
 									@Override
 									public void onAnimationEnd(Animator animation) {
@@ -283,11 +275,10 @@ public class MainActivity extends AppCompatActivity {
 			}
 		});
 
-		LocalBroadcastManager.getInstance(this).registerReceiver(scheduleRefreshedReceiver, new IntentFilter(DatabaseManager.ACTION_SCHEDULE_REFRESHED));
-
 		// Last update date, below the list
 		lastUpdateTextView = mainMenu.findViewById(R.id.last_update);
-		updateLastUpdateTime();
+		AppDatabase.getInstance(this).getScheduleDao().getLastUpdateTime()
+				.observe(this, lastUpdateTimeObserver);
 
 		if (savedInstanceState == null) {
 			// Select initial section
@@ -319,13 +310,15 @@ public class MainActivity extends AppCompatActivity {
 		}
 	}
 
-	void updateLastUpdateTime() {
-		long lastUpdateTime = DatabaseManager.getInstance().getLastUpdateTime();
-		lastUpdateTextView.setText(getString(R.string.last_update,
-				(lastUpdateTime == -1L)
-						? getString(R.string.never)
-						: android.text.format.DateFormat.format(LAST_UPDATE_DATE_FORMAT, lastUpdateTime)));
-	}
+	private final Observer<Long> lastUpdateTimeObserver = new Observer<Long>() {
+		@Override
+		public void onChanged(Long lastUpdateTime) {
+			lastUpdateTextView.setText(getString(R.string.last_update,
+					(lastUpdateTime == -1L)
+							? getString(R.string.never)
+							: android.text.format.DateFormat.format(LAST_UPDATE_DATE_FORMAT, lastUpdateTime)));
+		}
+	};
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
@@ -371,7 +364,8 @@ public class MainActivity extends AppCompatActivity {
 
 		// Download reminder
 		long now = System.currentTimeMillis();
-		long time = DatabaseManager.getInstance().getLastUpdateTime();
+		Long timeValue = AppDatabase.getInstance(this).getScheduleDao().getLastUpdateTime().getValue();
+		long time = (timeValue == null) ? -1L : timeValue;
 		if ((time == -1L) || (time < (now - DATABASE_VALIDITY_DURATION))) {
 			SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
 			time = prefs.getLong(PREF_LAST_DOWNLOAD_REMINDER_TIME, -1L);
@@ -395,12 +389,6 @@ public class MainActivity extends AppCompatActivity {
 		}
 
 		super.onStop();
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		LocalBroadcastManager.getInstance(this).unregisterReceiver(scheduleRefreshedReceiver);
 	}
 
 	@Override

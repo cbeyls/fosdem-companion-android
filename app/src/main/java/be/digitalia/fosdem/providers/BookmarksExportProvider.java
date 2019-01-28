@@ -11,29 +11,24 @@ import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
-
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Locale;
-import java.util.TimeZone;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ShareCompat;
 import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemUrls;
-import be.digitalia.fosdem.db.DatabaseManager;
+import be.digitalia.fosdem.db.AppDatabase;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.utils.DateUtils;
 import be.digitalia.fosdem.utils.ICalendarWriter;
 import be.digitalia.fosdem.utils.StringUtils;
+
+import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * Content Provider generating the current bookmarks list in iCalendar format.
@@ -105,7 +100,7 @@ public class BookmarksExportProvider extends ContentProvider {
 		for (String col : projection) {
 			if (OpenableColumns.DISPLAY_NAME.equals(col)) {
 				cols[i] = OpenableColumns.DISPLAY_NAME;
-				values[i++] = getContext().getString(R.string.export_bookmarks_file_name, DatabaseManager.getInstance().getYear());
+				values[i++] = getContext().getString(R.string.export_bookmarks_file_name, AppDatabase.getInstance(getContext()).getScheduleDao().getYear());
 			} else if (OpenableColumns.SIZE.equals(col)) {
 				cols[i] = OpenableColumns.SIZE;
 				// Unknown size, content will be generated on-the-fly
@@ -126,7 +121,10 @@ public class BookmarksExportProvider extends ContentProvider {
 	public ParcelFileDescriptor openFile(@NonNull Uri uri, @NonNull String mode) throws FileNotFoundException {
 		try {
 			ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
-			new DownloadThread(new ParcelFileDescriptor.AutoCloseOutputStream(pipe[1])).start();
+			new DownloadThread(
+					new ParcelFileDescriptor.AutoCloseOutputStream(pipe[1]),
+					AppDatabase.getInstance(getContext())
+			).start();
 			return pipe[0];
 		} catch (IOException e) {
 			throw new FileNotFoundException("Could not open pipe");
@@ -149,15 +147,17 @@ public class BookmarksExportProvider extends ContentProvider {
 	static class DownloadThread extends Thread {
 		private final ICalendarWriter writer;
 
+		private final AppDatabase appDatabase;
 		private final Calendar calendar = Calendar.getInstance(DateUtils.getBelgiumTimeZone(), Locale.US);
 		private final DateFormat dateFormat;
 		private final String dtStamp;
 		private final TextUtils.StringSplitter personsSplitter = new StringUtils.SimpleStringSplitter(", ");
 
-		DownloadThread(OutputStream out) {
+		DownloadThread(OutputStream out, AppDatabase appDatabase) {
 			this.writer = new ICalendarWriter(new BufferedWriter(new OutputStreamWriter(out)));
 
 			// Format all times in GMT
+			this.appDatabase = appDatabase;
 			this.dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'", Locale.US);
 			this.dateFormat.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 			this.dtStamp = dateFormat.format(System.currentTimeMillis());
@@ -166,23 +166,16 @@ public class BookmarksExportProvider extends ContentProvider {
 		@Override
 		public void run() {
 			try {
-				final Cursor cursor = DatabaseManager.getInstance().getBookmarks(0L);
-				try {
-					writer.write("BEGIN", "VCALENDAR");
-					writer.write("VERSION", "2.0");
-					writer.write("PRODID", "-//" + BuildConfig.APPLICATION_ID + "//NONSGML " + BuildConfig.VERSION_NAME + "//EN");
+				final Event[] bookmarks = appDatabase.getBookmarksDao().getBookmarks();
+				writer.write("BEGIN", "VCALENDAR");
+				writer.write("VERSION", "2.0");
+				writer.write("PRODID", "-//" + BuildConfig.APPLICATION_ID + "//NONSGML " + BuildConfig.VERSION_NAME + "//EN");
 
-					Event event = null;
-					while (cursor.moveToNext()) {
-						event = DatabaseManager.toEvent(cursor, event);
-						writeEvent(event);
-					}
-
-					writer.write("END", "VCALENDAR");
-
-				} finally {
-					cursor.close();
+				for (Event event : bookmarks) {
+					writeEvent(event);
 				}
+
+				writer.write("END", "VCALENDAR");
 			} catch (Exception ignore) {
 			} finally {
 				try {

@@ -2,20 +2,29 @@ package be.digitalia.fosdem.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
+import be.digitalia.fosdem.db.converters.NonNullDateTypeConverters;
+import be.digitalia.fosdem.utils.DateUtils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import androidx.annotation.NonNull;
-import be.digitalia.fosdem.utils.DateUtils;
-
+@Entity(tableName = Day.TABLE_NAME)
 public class Day implements Comparable<Day>, Parcelable {
+
+	public static final String TABLE_NAME = "days";
 
 	private static final DateFormat DAY_DATE_FORMAT = DateUtils.withBelgiumTimeZone(new SimpleDateFormat("EEEE", Locale.US));
 
+	@PrimaryKey
 	private int index;
+	@TypeConverters({NonNullDateTypeConverters.class})
+	@NonNull
 	private Date date;
 
 	public Day() {
@@ -29,11 +38,12 @@ public class Day implements Comparable<Day>, Parcelable {
 		this.index = index;
 	}
 
+	@NonNull
 	public Date getDate() {
 		return date;
 	}
 
-	public void setDate(Date date) {
+	public void setDate(@NonNull Date date) {
 		this.date = date;
 	}
 
@@ -45,6 +55,7 @@ public class Day implements Comparable<Day>, Parcelable {
 		return DAY_DATE_FORMAT.format(date);
 	}
 
+	@NonNull
 	@Override
 	public String toString() {
 		return getName();
@@ -78,7 +89,7 @@ public class Day implements Comparable<Day>, Parcelable {
 	@Override
 	public void writeToParcel(Parcel out, int flags) {
 		out.writeInt(index);
-		out.writeLong((date == null) ? 0L : date.getTime());
+		out.writeLong(date.getTime());
 	}
 
 	public static final Parcelable.Creator<Day> CREATOR = new Parcelable.Creator<Day>() {
@@ -93,9 +104,6 @@ public class Day implements Comparable<Day>, Parcelable {
 
 	Day(Parcel in) {
 		index = in.readInt();
-		long time = in.readLong();
-		if (time != 0L) {
-			date = new Date(time);
-		}
+		date = new Date(in.readLong());
 	}
 }

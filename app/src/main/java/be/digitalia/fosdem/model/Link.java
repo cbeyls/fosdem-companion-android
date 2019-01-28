@@ -2,20 +2,50 @@ package be.digitalia.fosdem.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.Index;
+import androidx.room.PrimaryKey;
 
+@Entity(tableName = "links", indices = {@Index(value = {"event_id"}, name = "link_event_id_idx")})
 public class Link implements Parcelable {
 
+	public static final String TABLE_NAME = "links";
+
+	@PrimaryKey(autoGenerate = true)
+	private long id;
+	@ColumnInfo(name = "event_id")
+	private long eventId;
+	@NonNull
 	private String url;
 	private String description;
 
 	public Link() {
 	}
 
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public long getEventId() {
+		return eventId;
+	}
+
+	public void setEventId(long eventId) {
+		this.eventId = eventId;
+	}
+
+	@NonNull
 	public String getUrl() {
 		return url;
 	}
 
-	public void setUrl(String url) {
+	public void setUrl(@NonNull String url) {
 		this.url = url;
 	}
 
@@ -27,6 +57,7 @@ public class Link implements Parcelable {
 		this.description = description;
 	}
 
+	@NonNull
 	@Override
 	public String toString() {
 		return description;
@@ -54,6 +85,8 @@ public class Link implements Parcelable {
 
 	@Override
 	public void writeToParcel(Parcel out, int flags) {
+		out.writeLong(id);
+		out.writeLong(eventId);
 		out.writeString(url);
 		out.writeString(description);
 	}
@@ -69,6 +102,8 @@ public class Link implements Parcelable {
 	};
 
 	Link(Parcel in) {
+		id = in.readLong();
+		eventId = in.readLong();
 		url = in.readString();
 		description = in.readString();
 	}

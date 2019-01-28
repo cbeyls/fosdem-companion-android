@@ -2,30 +2,42 @@ package be.digitalia.fosdem.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.text.TextUtils;
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Embedded;
+import androidx.room.TypeConverters;
+import be.digitalia.fosdem.api.FosdemUrls;
+import be.digitalia.fosdem.db.converters.NullableDateTypeConverters;
+import be.digitalia.fosdem.utils.DateUtils;
 
 import java.util.Date;
-import java.util.List;
-
-import be.digitalia.fosdem.api.FosdemUrls;
-import be.digitalia.fosdem.utils.DateUtils;
 
 public class Event implements Parcelable {
 
 	private long id;
+	@Embedded(prefix = "day_")
+	@NonNull
 	private Day day;
+	@ColumnInfo(name = "start_time")
+	@TypeConverters({NullableDateTypeConverters.class})
 	private Date startTime;
+	@ColumnInfo(name = "end_time")
+	@TypeConverters({NullableDateTypeConverters.class})
 	private Date endTime;
+	@ColumnInfo(name = "room_name")
 	private String roomName;
 	private String slug;
 	private String title;
+	@ColumnInfo(name = "subtitle")
 	private String subTitle;
+	@Embedded(prefix = "track_")
+	@NonNull
 	private Track track;
+	@ColumnInfo(name = "abstract")
 	private String abstractText;
 	private String description;
+	@ColumnInfo(name = "persons")
 	private String personsSummary;
-	private List<Person> persons; // Optional
-	private List<Link> links; // Optional
 
 	public Event() {
 	}
@@ -38,11 +50,12 @@ public class Event implements Parcelable {
 		this.id = id;
 	}
 
+	@NonNull
 	public Day getDay() {
 		return day;
 	}
 
-	public void setDay(Day day) {
+	public void setDay(@NonNull Day day) {
 		this.day = day;
 	}
 
@@ -112,11 +125,12 @@ public class Event implements Parcelable {
 		this.subTitle = subTitle;
 	}
 
+	@NonNull
 	public Track getTrack() {
 		return track;
 	}
 
-	public void setTrack(Track track) {
+	public void setTrack(@NonNull Track track) {
 		this.track = track;
 	}
 
@@ -136,12 +150,10 @@ public class Event implements Parcelable {
 		this.description = description;
 	}
 
+	@NonNull
 	public String getPersonsSummary() {
 		if (personsSummary != null) {
 			return personsSummary;
-		}
-		if (persons != null) {
-			return TextUtils.join(", ", persons);
 		}
 		return "";
 	}
@@ -150,22 +162,7 @@ public class Event implements Parcelable {
 		this.personsSummary = personsSummary;
 	}
 
-	public List<Person> getPersons() {
-		return persons;
-	}
-
-	public void setPersons(List<Person> persons) {
-		this.persons = persons;
-	}
-
-	public List<Link> getLinks() {
-		return links;
-	}
-
-	public void setLinks(List<Link> links) {
-		this.links = links;
-	}
-
+	@NonNull
 	@Override
 	public String toString() {
 		return title;
@@ -205,8 +202,6 @@ public class Event implements Parcelable {
 		out.writeString(abstractText);
 		out.writeString(description);
 		out.writeString(personsSummary);
-		out.writeTypedList(persons);
-		out.writeTypedList(links);
 	}
 
 	public static final Parcelable.Creator<Event> CREATOR = new Parcelable.Creator<Event>() {
@@ -238,7 +233,5 @@ public class Event implements Parcelable {
 		abstractText = in.readString();
 		description = in.readString();
 		personsSummary = in.readString();
-		persons = in.createTypedArrayList(Person.CREATOR);
-		links = in.createTypedArrayList(Link.CREATOR);
 	}
 }

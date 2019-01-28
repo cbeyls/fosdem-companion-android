@@ -1,16 +1,11 @@
 package be.digitalia.fosdem.services;
 
-import android.app.AlarmManager;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
+import android.app.*;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
@@ -20,13 +15,9 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.core.app.AlarmManagerCompat;
-import androidx.core.app.JobIntentService;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
+import androidx.core.app.*;
 import androidx.core.app.TaskStackBuilder;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
@@ -35,8 +26,9 @@ import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.EventDetailsActivity;
 import be.digitalia.fosdem.activities.MainActivity;
 import be.digitalia.fosdem.activities.RoomImageDialogActivity;
-import be.digitalia.fosdem.db.DatabaseManager;
+import be.digitalia.fosdem.db.AppDatabase;
 import be.digitalia.fosdem.fragments.SettingsFragment;
+import be.digitalia.fosdem.model.AlarmInfo;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.receivers.AlarmReceiver;
 import be.digitalia.fosdem.utils.StringUtils;
@@ -56,6 +48,12 @@ public class AlarmIntentService extends JobIntentService {
 
 	public static final String ACTION_UPDATE_ALARMS = BuildConfig.APPLICATION_ID + ".action.UPDATE_ALARMS";
 	public static final String ACTION_DISABLE_ALARMS = BuildConfig.APPLICATION_ID + ".action.DISABLE_ALARMS";
+	public static final String ACTION_ADD_BOOKMARK = BuildConfig.APPLICATION_ID + ".action.ADD_BOOKMARK";
+	public static final String EXTRA_EVENT_ID = "event_id";
+	public static final String EXTRA_EVENT_START_TIME = "event_start";
+	public static final String ACTION_REMOVE_BOOKMARKS = BuildConfig.APPLICATION_ID + ".action.REMOVE_BOOKMARKS";
+	public static final String EXTRA_EVENT_IDS = "event_ids";
+
 
 	private AlarmManager alarmManager;
 
@@ -89,23 +87,16 @@ public class AlarmIntentService extends JobIntentService {
 				final long delay = getDelay();
 				final long now = System.currentTimeMillis();
 				boolean hasAlarms = false;
-				Cursor cursor = DatabaseManager.getInstance().getBookmarks(0L);
-				try {
-					while (cursor.moveToNext()) {
-						long eventId = DatabaseManager.toEventId(cursor);
-						long notificationTime = DatabaseManager.toEventStartTimeMillis(cursor) - delay;
-						PendingIntent pi = getAlarmPendingIntent(eventId);
-						if (notificationTime < now) {
-							// Cancel pending alarms that are now scheduled in the past, if any
-							alarmManager.cancel(pi);
-						} else {
-							AlarmManagerCompat.setExact(alarmManager, AlarmManager.RTC_WAKEUP, notificationTime, pi);
-							hasAlarms = true;
-						}
+				for (AlarmInfo info : AppDatabase.getInstance(this).getBookmarksDao().getBookmarksAlarmInfo(0L)) {
+					final long notificationTime = info.getStartTime() == null ? -1L : info.getStartTime().getTime() - delay;
+					PendingIntent pi = getAlarmPendingIntent(info.getEventId());
+					if (notificationTime < now) {
+						// Cancel pending alarms that are now scheduled in the past, if any
+						alarmManager.cancel(pi);
+					} else {
+						AlarmManagerCompat.setExact(alarmManager, AlarmManager.RTC_WAKEUP, notificationTime, pi);
+						hasAlarms = true;
 					}
-
-				} finally {
-					cursor.close();
 				}
 				setAlarmReceiverEnabled(hasAlarms);
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && hasAlarms) {
@@ -117,24 +108,18 @@ public class AlarmIntentService extends JobIntentService {
 			case ACTION_DISABLE_ALARMS: {
 
 				// Cancel alarms of every bookmark in the future
-				Cursor cursor = DatabaseManager.getInstance().getBookmarks(System.currentTimeMillis());
-				try {
-					while (cursor.moveToNext()) {
-						long eventId = DatabaseManager.toEventId(cursor);
-						alarmManager.cancel(getAlarmPendingIntent(eventId));
-					}
-				} finally {
-					cursor.close();
+				for (AlarmInfo info : AppDatabase.getInstance(this).getBookmarksDao().getBookmarksAlarmInfo(System.currentTimeMillis())) {
+					alarmManager.cancel(getAlarmPendingIntent(info.getEventId()));
 				}
 				setAlarmReceiverEnabled(false);
 
 				break;
 			}
-			case DatabaseManager.ACTION_ADD_BOOKMARK: {
+			case ACTION_ADD_BOOKMARK: {
 
 				long delay = getDelay();
-				long eventId = intent.getLongExtra(DatabaseManager.EXTRA_EVENT_ID, -1L);
-				long startTime = intent.getLongExtra(DatabaseManager.EXTRA_EVENT_START_TIME, -1L);
+				long eventId = intent.getLongExtra(EXTRA_EVENT_ID, -1L);
+				long startTime = intent.getLongExtra(EXTRA_EVENT_START_TIME, -1L);
 				// Only schedule future events. If they start before the delay, the alarm will go off immediately
 				if ((startTime == -1L) || (startTime < System.currentTimeMillis())) {
 					break;
@@ -147,10 +132,10 @@ public class AlarmIntentService extends JobIntentService {
 
 				break;
 			}
-			case DatabaseManager.ACTION_REMOVE_BOOKMARKS: {
+			case ACTION_REMOVE_BOOKMARKS: {
 
 				// Cancel matching alarms, might they exist or not
-				long[] eventIds = intent.getLongArrayExtra(DatabaseManager.EXTRA_EVENT_IDS);
+				long[] eventIds = intent.getLongArrayExtra(EXTRA_EVENT_IDS);
 				for (long eventId : eventIds) {
 					alarmManager.cancel(getAlarmPendingIntent(eventId));
 				}
@@ -160,7 +145,7 @@ public class AlarmIntentService extends JobIntentService {
 			case AlarmReceiver.ACTION_NOTIFY_EVENT: {
 
 				long eventId = Long.parseLong(intent.getDataString());
-				Event event = DatabaseManager.getInstance().getEvent(eventId);
+				Event event = AppDatabase.getInstance(this).getScheduleDao().getEvent(eventId);
 				if (event != null) {
 					NotificationManagerCompat.from(this).notify((int) eventId, buildNotification(event));
 				}

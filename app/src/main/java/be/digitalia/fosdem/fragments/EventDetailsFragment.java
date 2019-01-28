@@ -9,28 +9,12 @@ import android.graphics.drawable.Animatable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
-import android.text.TextPaint;
-import android.text.TextUtils;
+import android.text.*;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.google.android.material.snackbar.Snackbar;
-
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.Map;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.browser.customtabs.CustomTabsIntent;
@@ -42,15 +26,17 @@ import androidx.lifecycle.ViewModelProviders;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.PersonInfoActivity;
 import be.digitalia.fosdem.api.FosdemApi;
-import be.digitalia.fosdem.model.Building;
-import be.digitalia.fosdem.model.Event;
-import be.digitalia.fosdem.model.Link;
-import be.digitalia.fosdem.model.Person;
-import be.digitalia.fosdem.model.RoomStatus;
+import be.digitalia.fosdem.model.*;
 import be.digitalia.fosdem.utils.ClickableArrowKeyMovementMethod;
 import be.digitalia.fosdem.utils.DateUtils;
 import be.digitalia.fosdem.utils.StringUtils;
 import be.digitalia.fosdem.viewmodels.EventDetailsViewModel;
+import com.google.android.material.snackbar.Snackbar;
+
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class EventDetailsFragment extends Fragment {
 
@@ -73,7 +59,6 @@ public class EventDetailsFragment extends Fragment {
 	private static final String ARG_EVENT = "event";
 
 	Event event;
-	int personsCount = 1;
 	ViewHolder holder;
 	EventDetailsViewModel viewModel;
 
@@ -152,12 +137,12 @@ public class EventDetailsFragment extends Fragment {
 		if (roomImageResId != 0) {
 			roomText.setSpan(new ClickableSpan() {
 				@Override
-				public void onClick(View view) {
+				public void onClick(@NonNull View view) {
 					RoomImageDialogFragment.newInstance(roomName, roomImageResId).show(getFragmentManager());
 				}
 
 				@Override
-				public void updateDrawState(TextPaint ds) {
+				public void updateDrawState(@NonNull TextPaint ds) {
 					super.updateDrawState(ds);
 					ds.setUnderlineText(false);
 				}
@@ -213,15 +198,17 @@ public class EventDetailsFragment extends Fragment {
 				updateBookmarkMenuItem(isBookmarked, true);
 			}
 		});
-		viewModel.getEventDetails().observe(getViewLifecycleOwner(), new Observer<EventDetailsViewModel.EventDetails>() {
+		viewModel.getEventDetails().observe(getViewLifecycleOwner(), new Observer<EventDetails>() {
 			@Override
-			public void onChanged(@Nullable EventDetailsViewModel.EventDetails eventDetails) {
-				setEventDetails(eventDetails);
+			public void onChanged(EventDetails eventDetails) {
+				if (eventDetails != null) {
+					setEventDetails(eventDetails);
+				}
 			}
 		});
 
 		// Live room status
-		FosdemApi.getRoomStatuses().observe(getViewLifecycleOwner(), new Observer<Map<String, RoomStatus>>() {
+		FosdemApi.getRoomStatuses(getContext()).observe(getViewLifecycleOwner(), new Observer<Map<String, RoomStatus>>() {
 			@Override
 			public void onChanged(Map<String, RoomStatus> roomStatuses) {
 				RoomStatus roomStatus = roomStatuses.get(event.getRoomName());
@@ -354,6 +341,8 @@ public class EventDetailsFragment extends Fragment {
 		}
 		description = StringUtils.stripHtml(description);
 		// Add speaker info if available
+		EventDetails details = viewModel.getEventDetails().getValue();
+		final int personsCount = (details == null) ? 0 : details.getPersons().size();
 		if (personsCount > 0) {
 			description = String.format("%1$s: %2$s\n\n%3$s", getResources().getQuantityString(R.plurals.speakers, personsCount), event.getPersonsSummary(),
 					description);
@@ -374,34 +363,33 @@ public class EventDetailsFragment extends Fragment {
 		}
 	}
 
-	void setEventDetails(@NonNull EventDetailsViewModel.EventDetails data) {
+	void setEventDetails(@NonNull EventDetails eventDetails) {
 		// 1. Persons
-		if (data.persons != null) {
-			personsCount = data.persons.size();
-			if (personsCount > 0) {
-				// Build a list of clickable persons
-				SpannableStringBuilder sb = new SpannableStringBuilder();
-				int length = 0;
-				for (Person person : data.persons) {
-					if (length != 0) {
-						sb.append(", ");
-					}
-					String name = person.getName();
-					sb.append(name);
-					length = sb.length();
-					sb.setSpan(new PersonClickableSpan(person), length - name.length(), length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		final List<Person> persons = eventDetails.getPersons();
+		if (persons.size() > 0) {
+			// Build a list of clickable persons
+			SpannableStringBuilder sb = new SpannableStringBuilder();
+			int length = 0;
+			for (Person person : persons) {
+				if (length != 0) {
+					sb.append(", ");
 				}
-				holder.personsTextView.setText(sb);
-				holder.personsTextView.setVisibility(View.VISIBLE);
+				String name = person.getName();
+				sb.append(name);
+				length = sb.length();
+				sb.setSpan(new PersonClickableSpan(person), length - name.length(), length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
+			holder.personsTextView.setText(sb);
+			holder.personsTextView.setVisibility(View.VISIBLE);
 		}
 
 		// 2. Links
+		final List<Link> links = eventDetails.getLinks();
 		holder.linksContainer.removeAllViews();
-		if ((data.links != null) && (data.links.size() > 0)) {
+		if (links.size() > 0) {
 			holder.linksHeader.setVisibility(View.VISIBLE);
 			holder.linksContainer.setVisibility(View.VISIBLE);
-			for (Link link : data.links) {
+			for (Link link : links) {
 				View view = holder.inflater.inflate(R.layout.item_link, holder.linksContainer, false);
 				TextView tv = view.findViewById(R.id.description);
 				tv.setText(link.getDescription());
@@ -423,14 +411,14 @@ public class EventDetailsFragment extends Fragment {
 		}
 
 		@Override
-		public void onClick(View v) {
+		public void onClick(@NonNull View v) {
 			Context context = v.getContext();
 			Intent intent = new Intent(context, PersonInfoActivity.class).putExtra(PersonInfoActivity.EXTRA_PERSON, person);
 			context.startActivity(intent);
 		}
 
 		@Override
-		public void updateDrawState(TextPaint ds) {
+		public void updateDrawState(@NonNull TextPaint ds) {
 			super.updateDrawState(ds);
 			ds.setUnderlineText(false);
 		}

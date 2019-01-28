@@ -6,10 +6,11 @@ import androidx.annotation.MainThread;
 import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import be.digitalia.fosdem.db.DatabaseManager;
+import be.digitalia.fosdem.db.AppDatabase;
+import be.digitalia.fosdem.db.ScheduleDao;
 import be.digitalia.fosdem.livedata.SingleEvent;
+import be.digitalia.fosdem.model.DetailedEvent;
 import be.digitalia.fosdem.model.DownloadScheduleResult;
-import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.RoomStatus;
 import be.digitalia.fosdem.parsers.EventsParser;
 import be.digitalia.fosdem.utils.HttpUtils;
@@ -55,10 +56,10 @@ public class FosdemApi {
 		progress.postValue(-1);
 		DownloadScheduleResult res = DownloadScheduleResult.error();
 		try {
-			DatabaseManager dbManager = DatabaseManager.getInstance();
+			ScheduleDao scheduleDao = AppDatabase.getInstance(context).getScheduleDao();
 			HttpUtils.HttpResult httpResult = HttpUtils.get(
 					FosdemUrls.getSchedule(),
-					dbManager.getLastModifiedTag(),
+					scheduleDao.getLastModifiedTag(),
 					new HttpUtils.ProgressUpdateListener() {
 						@Override
 						public void onProgressUpdate(int percent) {
@@ -72,8 +73,8 @@ public class FosdemApi {
 			}
 
 			try {
-				Iterable<Event> events = new EventsParser().parse(httpResult.inputStream);
-				int count = dbManager.storeSchedule(events, httpResult.lastModified);
+				Iterable<DetailedEvent> events = new EventsParser().parse(httpResult.inputStream);
+				int count = scheduleDao.storeSchedule(events, httpResult.lastModified);
 				res = DownloadScheduleResult.success(count);
 			} finally {
 				try {
@@ -106,12 +107,12 @@ public class FosdemApi {
 	}
 
 	@MainThread
-	public static LiveData<Map<String, RoomStatus>> getRoomStatuses() {
+	public static LiveData<Map<String, RoomStatus>> getRoomStatuses(Context context) {
 		if (roomStatuses == null) {
 			// The room statuses will only be loaded when the event is live.
 			// RoomStatusesLiveData uses the days from the database to determine it.
-			roomStatuses = new RoomStatusesLiveData(DatabaseManager.getInstance().getDays());
-			// Implementors: replace the above live with the next one to disable room status support
+			roomStatuses = new RoomStatusesLiveData(AppDatabase.getInstance(context).getScheduleDao().getDays());
+			// Implementors: replace the above line with the next one to disable room status support
 			// roomStatuses = new MutableLiveData<>();
 		}
 		return roomStatuses;
