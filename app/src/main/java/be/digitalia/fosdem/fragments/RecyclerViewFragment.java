@@ -135,6 +135,9 @@ public class RecyclerViewFragment extends Fragment {
 	 */
 	public void setAdapter(@Nullable RecyclerView.Adapter adapter) {
 		final RecyclerView.Adapter oldAdapter = mHolder.recyclerView.getAdapter();
+		if (oldAdapter == adapter) {
+			return;
+		}
 		if (oldAdapter != null) {
 			oldAdapter.unregisterAdapterDataObserver(mEmptyObserver);
 		}
@@ -158,7 +161,6 @@ public class RecyclerViewFragment extends Fragment {
 		if (!mIsProgressBarVisible) {
 			RecyclerView.Adapter adapter = mHolder.recyclerView.getAdapter();
 			final boolean isEmptyViewVisible = (adapter != null) && (adapter.getItemCount() == 0);
-			mHolder.recyclerView.setVisibility(isEmptyViewVisible ? View.INVISIBLE : View.VISIBLE);
 			mHolder.emptyView.setVisibility(isEmptyViewVisible ? View.VISIBLE : View.GONE);
 		}
 	}
@@ -174,10 +176,11 @@ public class RecyclerViewFragment extends Fragment {
 			mIsProgressBarVisible = visible;
 
 			if (visible) {
-				mHolder.recyclerView.setVisibility(View.INVISIBLE);
+				mHolder.recyclerView.setVisibility(View.GONE);
 				mHolder.emptyView.setVisibility(View.GONE);
 				mHolder.progress.show();
 			} else {
+				mHolder.recyclerView.setVisibility(View.VISIBLE);
 				updateEmptyViewVisibility();
 				mHolder.progress.hide();
 			}
