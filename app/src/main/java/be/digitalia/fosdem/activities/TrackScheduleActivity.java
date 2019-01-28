@@ -1,9 +1,9 @@
 package be.digitalia.fosdem.activities;
 
 import android.content.Intent;
+import android.nfc.NdefRecord;
 import android.os.Bundle;
 import android.widget.ImageView;
-
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -148,10 +148,10 @@ public class TrackScheduleActivity extends AppCompatActivity
 	// CreateNfcAppDataCallback
 
 	@Override
-	public byte[] createNfcAppData() {
+	public NdefRecord createNfcAppData() {
 		if (lastSelectedEvent == null) {
 			return null;
 		}
-		return String.valueOf(lastSelectedEvent.getId()).getBytes();
+		return NfcUtils.createSingleEventAppData(this, lastSelectedEvent);
 	}
 }

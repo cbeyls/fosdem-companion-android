@@ -1,9 +1,9 @@
 package be.digitalia.fosdem.activities;
 
 import android.content.Intent;
+import android.nfc.NdefRecord;
 import android.os.Bundle;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
@@ -124,8 +124,10 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 		return true;
 	}
 
+	// CreateNfcAppDataCallback
+
 	@Override
-	public byte[] createNfcAppData() {
-		return String.valueOf(event.getId()).getBytes();
+	public NdefRecord createNfcAppData() {
+		return NfcUtils.createSingleEventAppData(this, event);
 	}
 }

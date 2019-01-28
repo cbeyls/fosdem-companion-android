@@ -1,14 +1,16 @@
 package be.digitalia.fosdem.utils;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.os.Parcelable;
-
-import java.nio.charset.Charset;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import be.digitalia.fosdem.model.Event;
 
 /**
  * NFC helper methods.
@@ -24,12 +26,13 @@ public class NfcUtils {
 		/**
 		 * @return The app data, or null if no data is currently available for sharing.
 		 */
-		byte[] createNfcAppData();
+		@Nullable
+		NdefRecord createNfcAppData();
 	}
 
 	/**
-	 * Call this method in an Activity, between onCreate() and onDestroy(), to make its content sharable using Android Beam if available. MIME type of the data
-	 * to share will be "application/" followed by the app's package name. Declare it in your Manifest's intent filters as the data type with an action of
+	 * Call this method in an Activity, between onCreate() and onDestroy(), to make its content sharable using Android Beam if available.
+	 * Declare the corresponding MIME type of the NDEF record it in your Manifest's intent filters as the data type with an action of
 	 * android.nfc.action.NDEF_DISCOVERED to handle the NFC Intents on the receiver side.
 	 *
 	 * @return true if NFC is available and the content was made available, false if not.
@@ -44,12 +47,11 @@ public class NfcUtils {
 
 			@Override
 			public NdefMessage createNdefMessage(NfcEvent event) {
-				byte[] appData = callback.createNfcAppData();
+				final NdefRecord appData = callback.createNfcAppData();
 				if (appData == null) {
 					return null;
 				}
-				NdefRecord[] records = new NdefRecord[]{createMimeRecord("application/" + packageName, appData),
-						NdefRecord.createApplicationRecord(packageName)};
+				NdefRecord[] records = new NdefRecord[]{appData, NdefRecord.createApplicationRecord(packageName)};
 				return new NdefMessage(records);
 			}
 
@@ -57,9 +59,10 @@ public class NfcUtils {
 		return true;
 	}
 
-	static NdefRecord createMimeRecord(String mimeType, byte[] payload) {
-		byte[] mimeBytes = mimeType.getBytes(Charset.forName("US-ASCII"));
-		return new NdefRecord(NdefRecord.TNF_MIME_MEDIA, mimeBytes, new byte[0], payload);
+	public static NdefRecord createSingleEventAppData(@NonNull Context context, @NonNull Event event) {
+		String mimeType = "application/" + context.getPackageName();
+		byte[] mimeData = String.valueOf(event.getId()).getBytes();
+		return NdefRecord.createMime(mimeType, mimeData);
 	}
 
 	/**

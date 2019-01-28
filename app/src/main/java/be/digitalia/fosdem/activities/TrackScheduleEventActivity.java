@@ -1,5 +1,6 @@
 package be.digitalia.fosdem.activities;
 
+import android.nfc.NdefRecord;
 import android.os.Bundle;
 import android.view.View;
 import androidx.appcompat.app.ActionBar;
@@ -87,7 +88,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 	}
 
 	@Override
-	public byte[] createNfcAppData() {
+	public NdefRecord createNfcAppData() {
 		if (adapter.getCount() == 0) {
 			return null;
 		}
@@ -95,7 +96,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 		if (event == null) {
 			return null;
 		}
-		return String.valueOf(event.getId()).getBytes();
+		return NfcUtils.createSingleEventAppData(this, event);
 	}
 
 	@Override
