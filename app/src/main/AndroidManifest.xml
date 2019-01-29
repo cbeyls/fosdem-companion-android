@@ -50,11 +50,7 @@
         <activity
             android:name=".activities.TrackScheduleActivity"
             android:parentActivityName=".activities.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.MainActivity"/>
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".activities.TrackScheduleEventActivity"
             android:label="@string/event_details"/>
@@ -69,9 +65,6 @@
 
                 <data android:mimeType="application/${applicationId}"/>
             </intent-filter>
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.TrackScheduleActivity"/>
         </activity>
         <activity
             android:name=".activities.PersonInfoActivity"
