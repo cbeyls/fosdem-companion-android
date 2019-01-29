@@ -2,11 +2,13 @@ package be.digitalia.fosdem.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.nfc.NdefRecord;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
 import androidx.lifecycle.Observer;
@@ -18,6 +20,7 @@ import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.adapters.BookmarksAdapter;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.providers.BookmarksExportProvider;
+import be.digitalia.fosdem.utils.NfcUtils;
 import be.digitalia.fosdem.viewmodels.BookmarksViewModel;
 import be.digitalia.fosdem.widgets.MultiChoiceHelper;
 
@@ -28,7 +31,8 @@ import java.util.List;
  *
  * @author Christophe Beyls
  */
-public class BookmarksListFragment extends RecyclerViewFragment implements Observer<List<Event>> {
+public class BookmarksListFragment extends RecyclerViewFragment
+		implements Observer<List<Event>>, NfcUtils.CreateNfcAppDataCallback {
 
 	private static final String PREF_UPCOMING_ONLY = "bookmarks_upcoming_only";
 	private static final String STATE_ADAPTER = "adapter";
@@ -171,5 +175,16 @@ public class BookmarksListFragment extends RecyclerViewFragment implements Obser
 	public void onChanged(List<Event> bookmarks) {
 		adapter.submitList(bookmarks);
 		setProgressBarVisible(false);
+	}
+
+	@Nullable
+	@Override
+	public NdefRecord createNfcAppData() {
+		Context context = getContext();
+		List<Event> bookmarks = (viewModel == null) ? null : viewModel.getBookmarks().getValue();
+		if (context == null || bookmarks == null || bookmarks.size() == 0) {
+			return null;
+		}
+		return NfcUtils.createBookmarksAppData(context, bookmarks);
 	}
 }

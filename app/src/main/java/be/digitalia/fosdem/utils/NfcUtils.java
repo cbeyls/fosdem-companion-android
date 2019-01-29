@@ -12,6 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import be.digitalia.fosdem.model.Event;
 
+import java.nio.ByteBuffer;
+import java.util.List;
+
 /**
  * NFC helper methods.
  *
@@ -67,6 +70,32 @@ public class NfcUtils {
 
 	public static String toEventIdString(@NonNull NdefRecord record) {
 		return new String(record.getPayload());
+	}
+
+	public static NdefRecord createBookmarksAppData(@NonNull Context context, List<Event> bookmarks) {
+		String mimeType = "application/" + context.getPackageName() + "-bookmarks";
+		final int size = bookmarks.size();
+		ByteBuffer buffer = ByteBuffer.allocate(4 + size * 8);
+		buffer.putInt(size);
+		for (int i = 0; i < size; ++i) {
+			buffer.putLong(bookmarks.get(i).getId());
+		}
+		return NdefRecord.createMime(mimeType, buffer.array());
+	}
+
+	@Nullable
+	public static long[] toBookmarks(@NonNull NdefRecord ndefRecord) {
+		try {
+			ByteBuffer buffer = ByteBuffer.wrap(ndefRecord.getPayload());
+			final int size = buffer.getInt();
+			long[] bookmarks = new long[size];
+			for (int i = 0; i < size; ++i) {
+				bookmarks[i] = buffer.getLong();
+			}
+			return bookmarks;
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	/**

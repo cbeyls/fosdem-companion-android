@@ -87,6 +87,18 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/main_searchable"/>
         </activity>
+        <activity
+            android:name=".activities.ExternalBookmarksActivity"
+            android:label="@string/external_bookmarks_title"
+            android:parentActivityName=".activities.MainActivity">
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="application/${applicationId}-bookmarks" />
+            </intent-filter>
+        </activity>
         <!-- Clearing the Task Affinity allows this dialog activity to be displayed without bringing to front the main application with it. -->
         <activity
             android:name=".activities.RoomImageDialogActivity"

@@ -8,6 +8,7 @@ import android.content.*;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.nfc.NdefRecord;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateUtils;
@@ -44,6 +45,7 @@ import be.digitalia.fosdem.db.AppDatabase;
 import be.digitalia.fosdem.fragments.*;
 import be.digitalia.fosdem.livedata.SingleEvent;
 import be.digitalia.fosdem.model.DownloadScheduleResult;
+import be.digitalia.fosdem.utils.NfcUtils;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -52,7 +54,7 @@ import com.google.android.material.snackbar.Snackbar;
  *
  * @author Christophe Beyls
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNfcAppDataCallback {
 
 	public static final String ACTION_SHORTCUT_BOOKMARKS = BuildConfig.APPLICATION_ID + ".intent.action.SHORTCUT_BOOKMARKS";
 	public static final String ACTION_SHORTCUT_LIVE = BuildConfig.APPLICATION_ID + ".intent.action.SHORTCUT_LIVE";
@@ -300,6 +302,8 @@ public class MainActivity extends AppCompatActivity {
 			Fragment f = Fragment.instantiate(this, fragmentClassName);
 			getSupportFragmentManager().beginTransaction().add(R.id.content, f, fragmentClassName).commit();
 		}
+
+		NfcUtils.setAppDataPushMessageCallbackIfAvailable(this, this);
 	}
 
 	private void updateActionBar(@NonNull Section section, @NonNull MenuItem menuItem) {
@@ -478,5 +482,16 @@ public class MainActivity extends AppCompatActivity {
 			currentSection = section;
 			updateActionBar(section, menuItem);
 		}
+	}
+
+	@Nullable
+	@Override
+	public NdefRecord createNfcAppData() {
+		// Delegate to the currently displayed fragment if it provides NFC data
+		Fragment f = getSupportFragmentManager().findFragmentById(R.id.content);
+		if (f instanceof NfcUtils.CreateNfcAppDataCallback) {
+			return ((NfcUtils.CreateNfcAppDataCallback) f).createNfcAppData();
+		}
+		return null;
 	}
 }
