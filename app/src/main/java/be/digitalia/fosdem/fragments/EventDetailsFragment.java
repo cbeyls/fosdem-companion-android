@@ -1,11 +1,8 @@
 package be.digitalia.fosdem.fragments;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Animatable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract;
@@ -13,10 +10,8 @@ import android.text.*;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.*;
-import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.ContextCompat;
@@ -40,14 +35,6 @@ import java.util.Map;
 
 public class EventDetailsFragment extends Fragment {
 
-	/**
-	 * Interface implemented by container activities
-	 */
-	public interface FloatingActionButtonProvider {
-		// May return null
-		ImageView getActionButton();
-	}
-
 	static class ViewHolder {
 		LayoutInflater inflater;
 		TextView personsTextView;
@@ -61,9 +48,6 @@ public class EventDetailsFragment extends Fragment {
 	Event event;
 	ViewHolder holder;
 	EventDetailsViewModel viewModel;
-
-	private MenuItem bookmarkMenuItem;
-	private ImageView actionButton;
 
 	public static EventDetailsFragment newInstance(Event event) {
 		EventDetailsFragment f = new EventDetailsFragment();
@@ -79,6 +63,7 @@ public class EventDetailsFragment extends Fragment {
 		event = getArguments().getParcelable(ARG_EVENT);
 		viewModel = ViewModelProviders.of(this).get(EventDetailsViewModel.class);
 		viewModel.setEvent(event);
+		setHasOptionsMenu(true);
 	}
 
 	public Event getEvent() {
@@ -181,23 +166,6 @@ public class EventDetailsFragment extends Fragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		Activity activity = getActivity();
-		if (activity instanceof FloatingActionButtonProvider) {
-			actionButton = ((FloatingActionButtonProvider) activity).getActionButton();
-			if (actionButton != null) {
-				actionButton.setOnClickListener(actionButtonClickListener);
-			}
-		}
-
-		// Ensure the actionButton is initialized before creating the options menu
-		setHasOptionsMenu(true);
-
-		viewModel.getBookmarkStatus().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-			@Override
-			public void onChanged(@Nullable Boolean isBookmarked) {
-				updateBookmarkMenuItem(isBookmarked, true);
-			}
-		});
 		viewModel.getEventDetails().observe(getViewLifecycleOwner(), new Observer<EventDetails>() {
 			@Override
 			public void onChanged(EventDetails eventDetails) {
@@ -222,34 +190,16 @@ public class EventDetailsFragment extends Fragment {
 		});
 	}
 
-	private final View.OnClickListener actionButtonClickListener = new View.OnClickListener() {
-
-		@Override
-		public void onClick(View view) {
-			viewModel.toggleBookmarkStatus();
-		}
-	};
-
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
 		holder = null;
-		if (actionButton != null) {
-			// Clear the reference to this fragment
-			actionButton.setOnClickListener(null);
-			actionButton = null;
-		}
 	}
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.event, menu);
 		menu.findItem(R.id.share).setIntent(getShareChooserIntent());
-		bookmarkMenuItem = menu.findItem(R.id.bookmark);
-		if (actionButton != null) {
-			bookmarkMenuItem.setEnabled(false).setVisible(false);
-		}
-		updateBookmarkMenuItem(viewModel.getBookmarkStatus().getValue(), false);
 	}
 
 	private Intent getShareChooserIntent() {
@@ -261,67 +211,9 @@ public class EventDetailsFragment extends Fragment {
 				.createChooserIntent();
 	}
 
-	void updateBookmarkMenuItem(Boolean isBookmarked, boolean animate) {
-		if (actionButton != null) {
-			// Action Button is used as bookmark button
-
-			if (isBookmarked == null) {
-				actionButton.setEnabled(false);
-			} else {
-				// Only animate if the button was showing a previous value
-				animate = animate && actionButton.isEnabled();
-				actionButton.setEnabled(true);
-
-				if (isBookmarked) {
-					actionButton.setContentDescription(getString(R.string.remove_bookmark));
-					actionButton.setImageResource(animate ? R.drawable.avd_bookmark_add_24dp : R.drawable.ic_bookmark_white_24dp);
-				} else {
-					actionButton.setContentDescription(getString(R.string.add_bookmark));
-					actionButton.setImageResource(animate ? R.drawable.avd_bookmark_remove_24dp : R.drawable.ic_bookmark_outline_white_24dp);
-				}
-				if (animate) {
-					((Animatable) actionButton.getDrawable()).start();
-				}
-			}
-		} else {
-			// Standard menu item is used as bookmark button
-
-			if (bookmarkMenuItem != null) {
-				if (isBookmarked == null) {
-					bookmarkMenuItem.setEnabled(false);
-				} else {
-					// Only animate if the menu item was showing a previous value
-					animate = animate && bookmarkMenuItem.isEnabled();
-					bookmarkMenuItem.setEnabled(true);
-
-					if (isBookmarked) {
-						bookmarkMenuItem.setTitle(R.string.remove_bookmark);
-						bookmarkMenuItem.setIcon(animate ? R.drawable.avd_bookmark_add_24dp : R.drawable.ic_bookmark_white_24dp);
-					} else {
-						bookmarkMenuItem.setTitle(R.string.add_bookmark);
-						bookmarkMenuItem.setIcon(animate ? R.drawable.avd_bookmark_remove_24dp : R.drawable.ic_bookmark_outline_white_24dp);
-					}
-					if (animate) {
-						((Animatable) bookmarkMenuItem.getIcon()).stop();
-						((Animatable) bookmarkMenuItem.getIcon()).start();
-					}
-				}
-			}
-		}
-	}
-
-	@Override
-	public void onDestroyOptionsMenu() {
-		super.onDestroyOptionsMenu();
-		bookmarkMenuItem = null;
-	}
-
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.bookmark:
-				viewModel.toggleBookmarkStatus();
-				return true;
 			case R.id.add_to_agenda:
 				addToAgenda();
 				return true;
@@ -329,7 +221,6 @@ public class EventDetailsFragment extends Fragment {
 		return false;
 	}
 
-	@SuppressLint("InlinedApi")
 	private void addToAgenda() {
 		Intent intent = new Intent(Intent.ACTION_EDIT);
 		intent.setType("vnd.android.cursor.item/event");
@@ -344,8 +235,7 @@ public class EventDetailsFragment extends Fragment {
 		EventDetails details = viewModel.getEventDetails().getValue();
 		final int personsCount = (details == null) ? 0 : details.getPersons().size();
 		if (personsCount > 0) {
-			description = String.format("%1$s: %2$s\n\n%3$s", getResources().getQuantityString(R.plurals.speakers, personsCount), event.getPersonsSummary(),
-					description);
+			description = String.format("%1$s: %2$s\n\n%3$s", getResources().getQuantityString(R.plurals.speakers, personsCount), event.getPersonsSummary(), description);
 		}
 		intent.putExtra(CalendarContract.Events.DESCRIPTION, description);
 		Date time = event.getStartTime();

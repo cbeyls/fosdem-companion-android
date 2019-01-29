@@ -18,7 +18,7 @@
         style="@style/Toolbar.Fosdem"
         android:layout_width="match_parent"
         android:layout_height="128dp"
-        android:elevation="4dp"
+        android:elevation="@dimen/toolbar_elevation"
         android:gravity="top" />
 
     <androidx.cardview.widget.CardView
@@ -36,15 +36,12 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
+        style="@style/FloatingActionButton.BookmarkStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/detail_fab_margin_end"
         android:layout_marginRight="@dimen/detail_fab_margin_end"
-        android:contentDescription="@string/add_bookmark"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark"
-        app:fabSize="normal"
         app:layout_anchor="@+id/toolbar"
-        app:layout_anchorGravity="bottom|end"
-        app:srcCompat="@drawable/ic_bookmark_outline_white_24dp" />
+        app:layout_anchorGravity="bottom|end" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

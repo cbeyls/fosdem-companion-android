@@ -1,10 +1,12 @@
 package be.digitalia.fosdem.activities;
 
+import android.content.res.ColorStateList;
 import android.nfc.NdefRecord;
 import android.os.Bundle;
 import android.view.View;
-import androidx.appcompat.app.ActionBar;
+import android.widget.ImageButton;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -21,9 +23,12 @@ import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.NfcUtils;
 import be.digitalia.fosdem.utils.NfcUtils.CreateNfcAppDataCallback;
 import be.digitalia.fosdem.utils.ThemeUtils;
+import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel;
 import be.digitalia.fosdem.viewmodels.TrackScheduleViewModel;
+import be.digitalia.fosdem.widgets.BookmarkStatusAdapter;
 import be.digitalia.fosdem.widgets.ContentLoadingProgressBar;
-import com.viewpagerindicator.UnderlinePageIndicator;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.bottomappbar.BottomAppBar;
 
 import java.util.List;
 
@@ -41,14 +46,18 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 	private int initialPosition = -1;
 	private ContentLoadingProgressBar progress;
 	private ViewPager pager;
-	private UnderlinePageIndicator pageIndicator;
-	private TrackScheduleEventAdapter adapter;
+	TrackScheduleEventAdapter adapter;
+
+	BookmarkStatusViewModel bookmarkStatusViewModel;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		setContentView(R.layout.track_schedule_event);
+		AppBarLayout appBarLayout = findViewById(R.id.appbar);
+		Toolbar toolbar = findViewById(R.id.toolbar);
+		BottomAppBar bottomAppBar = findViewById(R.id.bottom_appbar);
+		setSupportActionBar(bottomAppBar);
 
 		Bundle extras = getIntent().getExtras();
 		final Day day = extras.getParcelable(EXTRA_DAY);
@@ -57,26 +66,45 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 		progress = findViewById(R.id.progress);
 		pager = findViewById(R.id.pager);
 		adapter = new TrackScheduleEventAdapter(getSupportFragmentManager());
-		pageIndicator = findViewById(R.id.indicator);
-		pageIndicator.setSelectedColor(ContextCompat.getColor(this, track.getType().getColorResId()));
 
 		if (savedInstanceState == null) {
 			initialPosition = extras.getInt(EXTRA_POSITION, -1);
 		}
 
-		ActionBar bar = getSupportActionBar();
-		bar.setDisplayHomeAsUpEnabled(true);
-		bar.setTitle(track.toString());
-		bar.setSubtitle(day.toString());
-		ThemeUtils.setActionBarTrackColor(this, track.getType());
+		toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_material);
+		toolbar.setNavigationContentDescription(R.string.abc_action_bar_up_description);
+		toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				finish();
+			}
+		});
+		toolbar.setTitle(track.toString());
+		toolbar.setSubtitle(day.toString());
+		setTitle(String.format("%1$s, %2$s", track.toString(), day.toString()));
+		ThemeUtils.setStatusBarTrackColor(this, track.getType());
+		final ColorStateList trackColor = ContextCompat.getColorStateList(this, track.getType().getColorResId());
+		appBarLayout.setBackgroundColor(trackColor.getDefaultColor());
+		bottomAppBar.setBackgroundTint(trackColor);
 
-		// Enable Android Beam
-		NfcUtils.setAppDataPushMessageCallbackIfAvailable(this, this);
+		// Monitor the currently displayed event to update the bookmark status in FAB
+		ImageButton floatingActionButton = findViewById(R.id.fab);
+		bookmarkStatusViewModel = ViewModelProviders.of(this).get(BookmarkStatusViewModel.class);
+		BookmarkStatusAdapter.setupWithImageButton(bookmarkStatusViewModel, this, floatingActionButton);
+		pager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+			@Override
+			public void onPageSelected(int position) {
+				bookmarkStatusViewModel.setEvent(adapter.getEvent(position));
+			}
+		});
 
 		setCustomProgressVisibility(true);
 		final TrackScheduleViewModel viewModel = ViewModelProviders.of(this).get(TrackScheduleViewModel.class);
 		viewModel.setTrack(day, track);
 		viewModel.getSchedule().observe(this, this);
+
+		// Enable Android Beam
+		NfcUtils.setAppDataPushMessageCallbackIfAvailable(this, this);
 	}
 
 	private void setCustomProgressVisibility(boolean isVisible) {
@@ -100,12 +128,6 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 	}
 
 	@Override
-	public boolean onSupportNavigateUp() {
-		finish();
-		return true;
-	}
-
-	@Override
 	public void onChanged(List<StatusEvent> schedule) {
 		setCustomProgressVisibility(false);
 
@@ -117,21 +139,25 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 			// to ensure the current position is restored properly
 			if (pager.getAdapter() == null) {
 				pager.setAdapter(adapter);
-				pageIndicator.setViewPager(pager);
-			}
 
-			if (initialPosition != -1) {
-				pager.setCurrentItem(initialPosition, false);
-				initialPosition = -1;
+				if (initialPosition != -1) {
+					pager.setCurrentItem(initialPosition, false);
+					initialPosition = -1;
+				}
+
+				final int currentPosition = pager.getCurrentItem();
+				if (currentPosition >= 0) {
+					bookmarkStatusViewModel.setEvent(adapter.getEvent(currentPosition));
+				}
 			}
 		}
 	}
 
-	public static class TrackScheduleEventAdapter extends FragmentStatePagerAdapter {
+	private static class TrackScheduleEventAdapter extends FragmentStatePagerAdapter {
 
 		private List<StatusEvent> events = null;
 
-		public TrackScheduleEventAdapter(FragmentManager fm) {
+		TrackScheduleEventAdapter(FragmentManager fm) {
 			super(fm);
 		}
 

@@ -53,11 +53,13 @@
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".activities.TrackScheduleEventActivity"
-            android:label="@string/event_details"/>
+            android:label="@string/event_details"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".activities.EventDetailsActivity"
             android:label="@string/event_details"
-            android:parentActivityName=".activities.TrackScheduleActivity">
+            android:parentActivityName=".activities.TrackScheduleActivity"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
 

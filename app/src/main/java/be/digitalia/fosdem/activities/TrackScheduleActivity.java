@@ -3,13 +3,15 @@ package be.digitalia.fosdem.activities;
 import android.content.Intent;
 import android.nfc.NdefRecord;
 import android.os.Bundle;
-import android.widget.ImageView;
+import android.widget.ImageButton;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProviders;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.EventDetailsFragment;
 import be.digitalia.fosdem.fragments.RoomImageDialogFragment;
@@ -20,6 +22,8 @@ import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.NfcUtils;
 import be.digitalia.fosdem.utils.NfcUtils.CreateNfcAppDataCallback;
 import be.digitalia.fosdem.utils.ThemeUtils;
+import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel;
+import be.digitalia.fosdem.widgets.BookmarkStatusAdapter;
 
 /**
  * Track Schedule container, works in both single pane and dual pane modes.
@@ -27,9 +31,7 @@ import be.digitalia.fosdem.utils.ThemeUtils;
  * @author Christophe Beyls
  */
 public class TrackScheduleActivity extends AppCompatActivity
-		implements TrackScheduleListFragment.Callbacks,
-		EventDetailsFragment.FloatingActionButtonProvider,
-		CreateNfcAppDataCallback {
+		implements TrackScheduleListFragment.Callbacks, CreateNfcAppDataCallback {
 
 	public static final String EXTRA_DAY = "day";
 	public static final String EXTRA_TRACK = "track";
@@ -41,15 +43,14 @@ public class TrackScheduleActivity extends AppCompatActivity
 	private boolean isTabletLandscape;
 	private Event lastSelectedEvent;
 
-	private ImageView floatingActionButton;
+	private BookmarkStatusViewModel bookmarkStatusViewModel = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.track_schedule);
-		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
-
-		floatingActionButton = findViewById(R.id.fab);
+		Toolbar toolbar = findViewById(R.id.toolbar);
+		setSupportActionBar(toolbar);
 
 		Bundle extras = getIntent().getExtras();
 		day = extras.getParcelable(EXTRA_DAY);
@@ -60,7 +61,9 @@ public class TrackScheduleActivity extends AppCompatActivity
 		bar.setTitle(track.toString());
 		bar.setSubtitle(day.toString());
 		setTitle(String.format("%1$s, %2$s", track.toString(), day.toString()));
-		ThemeUtils.setActionBarTrackColor(this, track.getType());
+		ThemeUtils.setStatusBarTrackColor(this, track.getType());
+		final int trackColor = ContextCompat.getColor(this, track.getType().getColorResId());
+		toolbar.setBackgroundColor(trackColor);
 
 		isTabletLandscape = getResources().getBoolean(R.bool.tablet_landscape);
 
@@ -100,6 +103,12 @@ public class TrackScheduleActivity extends AppCompatActivity
 		}
 
 		if (isTabletLandscape) {
+			ImageButton floatingActionButton = findViewById(R.id.fab);
+			if (floatingActionButton != null) {
+				bookmarkStatusViewModel = ViewModelProviders.of(this).get(BookmarkStatusViewModel.class);
+				BookmarkStatusAdapter.setupWithImageButton(bookmarkStatusViewModel, this, floatingActionButton);
+			}
+
 			// Enable Android Beam
 			NfcUtils.setAppDataPushMessageCallbackIfAvailable(this, this);
 		}
@@ -128,6 +137,10 @@ public class TrackScheduleActivity extends AppCompatActivity
 					fm.beginTransaction().remove(currentFragment).commitAllowingStateLoss();
 				}
 			}
+
+			if (bookmarkStatusViewModel != null) {
+				bookmarkStatusViewModel.setEvent(event);
+			}
 		} else {
 			// Classic mode: Show event details in a new activity
 			Intent intent = new Intent(this, TrackScheduleEventActivity.class);
@@ -136,13 +149,6 @@ public class TrackScheduleActivity extends AppCompatActivity
 			intent.putExtra(TrackScheduleEventActivity.EXTRA_POSITION, position);
 			startActivity(intent);
 		}
-	}
-
-	// EventDetailsFragment.FloatingActionButtonProvider
-
-	@Override
-	public ImageView getActionButton() {
-		return floatingActionButton;
 	}
 
 	// CreateNfcAppDataCallback

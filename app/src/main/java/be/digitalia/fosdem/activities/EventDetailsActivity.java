@@ -1,15 +1,19 @@
 package be.digitalia.fosdem.activities;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.nfc.NdefRecord;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageButton;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NavUtils;
 import androidx.core.app.TaskStackBuilder;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
@@ -17,10 +21,15 @@ import androidx.lifecycle.ViewModelProviders;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.EventDetailsFragment;
 import be.digitalia.fosdem.model.Event;
+import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.NfcUtils;
 import be.digitalia.fosdem.utils.NfcUtils.CreateNfcAppDataCallback;
 import be.digitalia.fosdem.utils.ThemeUtils;
+import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel;
 import be.digitalia.fosdem.viewmodels.EventViewModel;
+import be.digitalia.fosdem.widgets.BookmarkStatusAdapter;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.bottomappbar.BottomAppBar;
 
 /**
  * Displays a single event passed either as a complete Parcelable object in extras or as an id in data.
@@ -31,16 +40,25 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 
 	public static final String EXTRA_EVENT = "event";
 
+	private AppBarLayout appBarLayout;
+	private Toolbar toolbar;
+	private BottomAppBar bottomAppBar;
+
+	private BookmarkStatusViewModel bookmarkStatusViewModel;
 	private Event event;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.content);
+		setContentView(R.layout.single_event);
+		appBarLayout = findViewById(R.id.appbar);
+		toolbar = findViewById(R.id.toolbar);
+		bottomAppBar = findViewById(R.id.bottom_appbar);
+		setSupportActionBar(bottomAppBar);
 
-		ActionBar bar = getSupportActionBar();
-		bar.setDisplayHomeAsUpEnabled(false);
-		bar.setDisplayShowTitleEnabled(false);
+		ImageButton floatingActionButton = findViewById(R.id.fab);
+		bookmarkStatusViewModel = ViewModelProviders.of(this).get(BookmarkStatusViewModel.class);
+		BookmarkStatusAdapter.setupWithImageButton(bookmarkStatusViewModel, this, floatingActionButton);
 
 		Event event = getIntent().getParcelableExtra(EXTRA_EVENT);
 
@@ -94,14 +112,28 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 	private void initEvent(@NonNull Event event) {
 		this.event = event;
 		// Enable up navigation only after getting the event details
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		ThemeUtils.setActionBarTrackColor(this, event.getTrack().getType());
+		toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_material);
+		toolbar.setNavigationContentDescription(R.string.abc_action_bar_up_description);
+		toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				navigateUp();
+			}
+		});
+
+		final Track.Type trackType = event.getTrack().getType();
+		ThemeUtils.setStatusBarTrackColor(this, trackType);
+		final ColorStateList trackColor = ContextCompat.getColorStateList(this, trackType.getColorResId());
+		appBarLayout.setBackgroundColor(trackColor.getDefaultColor());
+		bottomAppBar.setBackgroundTint(trackColor);
+
+		bookmarkStatusViewModel.setEvent(event);
+
 		// Enable Android Beam
 		NfcUtils.setAppDataPushMessageCallbackIfAvailable(this, this);
 	}
 
-	@Override
-	public boolean onSupportNavigateUp() {
+	void navigateUp() {
 		// Navigate up to the track associated with this event
 		Intent upIntent = new Intent(this, TrackScheduleActivity.class);
 		upIntent.putExtra(TrackScheduleActivity.EXTRA_DAY, event.getDay());
@@ -121,7 +153,6 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 			startActivity(upIntent);
 			finish();
 		}
-		return true;
 	}
 
 	// CreateNfcAppDataCallback

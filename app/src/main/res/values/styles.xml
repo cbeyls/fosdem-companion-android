@@ -70,6 +70,14 @@
         <item name="tabIndicatorColor">@android:color/white</item>
     </style>
 
+    <style name="FloatingActionButton.BookmarkStatus" parent="Widget.Design.FloatingActionButton">
+        <item name="android:contentDescription">@string/add_bookmark</item>
+        <item name="android:enabled">false</item>
+        <item name="android:theme">@style/ThemeOverlay.AppCompat.Dark</item>
+        <item name="fabSize">normal</item>
+        <item name="srcCompat">@drawable/ic_bookmark_outline_white_24dp</item>
+    </style>
+
     <style name="SeparatorLine">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
