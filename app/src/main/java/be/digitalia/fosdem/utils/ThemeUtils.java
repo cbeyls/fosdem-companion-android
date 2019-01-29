@@ -9,6 +9,7 @@ import be.digitalia.fosdem.model.Track;
 
 public class ThemeUtils {
 
+	@SuppressWarnings("deprecation")
 	public static void setStatusBarTrackColor(@NonNull Activity activity, @NonNull Track.Type trackType) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			final int color = ContextCompat.getColor(activity, trackType.getColorResId());
