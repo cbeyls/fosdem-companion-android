@@ -292,6 +292,22 @@ public abstract class ScheduleDao {
 	public abstract LiveData<List<StatusEvent>> getEvents(Day day, Track track);
 
 	/**
+	 * Returns a snapshot of the events for a specified track (without the bookmark status).
+	 */
+	@Query("SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description"
+			+ ", GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type"
+			+ " FROM events e"
+			+ " JOIN events_titles et ON e.id = et.`rowid`"
+			+ " JOIN days d ON e.day_index = d.`index`"
+			+ " JOIN tracks t ON e.track_id = t.id"
+			+ " LEFT JOIN events_persons ep ON e.id = ep.event_id"
+			+ " LEFT JOIN persons p ON ep.person_id = p.`rowid`"
+			+ " WHERE e.day_index = :day AND e.track_id = :track"
+			+ " GROUP BY e.id"
+			+ " ORDER BY e.start_time ASC")
+	public abstract List<Event> getEventsSnapshot(Day day, Track track);
+
+	/**
 	 * Returns events starting in the specified interval, ordered by ascending start time.
 	 */
 	@Query("SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description"

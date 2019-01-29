@@ -18,13 +18,12 @@ import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.EventDetailsFragment;
 import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Event;
-import be.digitalia.fosdem.model.StatusEvent;
 import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.NfcUtils;
 import be.digitalia.fosdem.utils.NfcUtils.CreateNfcAppDataCallback;
 import be.digitalia.fosdem.utils.ThemeUtils;
 import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel;
-import be.digitalia.fosdem.viewmodels.TrackScheduleViewModel;
+import be.digitalia.fosdem.viewmodels.TrackScheduleEventViewModel;
 import be.digitalia.fosdem.widgets.BookmarkStatusAdapter;
 import be.digitalia.fosdem.widgets.ContentLoadingProgressBar;
 import com.google.android.material.appbar.AppBarLayout;
@@ -37,7 +36,7 @@ import java.util.List;
  *
  * @author Christophe Beyls
  */
-public class TrackScheduleEventActivity extends AppCompatActivity implements Observer<List<StatusEvent>>, CreateNfcAppDataCallback {
+public class TrackScheduleEventActivity extends AppCompatActivity implements Observer<List<Event>>, CreateNfcAppDataCallback {
 
 	public static final String EXTRA_DAY = "day";
 	public static final String EXTRA_TRACK = "track";
@@ -99,9 +98,9 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 		});
 
 		setCustomProgressVisibility(true);
-		final TrackScheduleViewModel viewModel = ViewModelProviders.of(this).get(TrackScheduleViewModel.class);
+		final TrackScheduleEventViewModel viewModel = ViewModelProviders.of(this).get(TrackScheduleEventViewModel.class);
 		viewModel.setTrack(day, track);
-		viewModel.getSchedule().observe(this, this);
+		viewModel.getScheduleSnapshot().observe(this, this);
 
 		// Enable Android Beam
 		NfcUtils.setAppDataPushMessageCallbackIfAvailable(this, this);
@@ -128,7 +127,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 	}
 
 	@Override
-	public void onChanged(List<StatusEvent> schedule) {
+	public void onChanged(List<Event> schedule) {
 		setCustomProgressVisibility(false);
 
 		if (schedule != null) {
@@ -155,13 +154,13 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 
 	private static class TrackScheduleEventAdapter extends FragmentStatePagerAdapter {
 
-		private List<StatusEvent> events = null;
+		private List<Event> events = null;
 
 		TrackScheduleEventAdapter(FragmentManager fm) {
 			super(fm);
 		}
 
-		public void setSchedule(List<StatusEvent> schedule) {
+		public void setSchedule(List<Event> schedule) {
 			this.events = schedule;
 			notifyDataSetChanged();
 		}
@@ -173,14 +172,14 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 
 		@Override
 		public Fragment getItem(int position) {
-			return EventDetailsFragment.newInstance(events.get(position).getEvent());
+			return EventDetailsFragment.newInstance(events.get(position));
 		}
 
 		public Event getEvent(int position) {
 			if (position < 0 || position >= getCount()) {
 				return null;
 			}
-			return events.get(position).getEvent();
+			return events.get(position);
 		}
 	}
 }
