@@ -1,7 +1,6 @@
 package be.digitalia.fosdem.viewmodels;
 
 import android.app.Application;
-import android.os.AsyncTask;
 import androidx.annotation.NonNull;
 import androidx.arch.core.util.Function;
 import androidx.core.util.Pair;
@@ -25,7 +24,7 @@ public class TrackScheduleEventViewModel extends AndroidViewModel {
 				@Override
 				public LiveData<List<Event>> apply(final Pair<Day, Track> dayTrack) {
 					final MutableLiveData<List<Event>> resultLiveData = new MutableLiveData<>();
-					AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+					appDatabase.getQueryExecutor().execute(new Runnable() {
 						@Override
 						public void run() {
 							final List<Event> result = appDatabase.getScheduleDao().getEventsSnapshot(dayTrack.first, dayTrack.second);

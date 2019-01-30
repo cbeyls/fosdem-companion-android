@@ -2,7 +2,6 @@ package be.digitalia.fosdem.db;
 
 import android.app.SearchManager;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.provider.BaseColumns;
 import androidx.annotation.MainThread;
 import androidx.annotation.Nullable;
@@ -455,7 +454,7 @@ public abstract class ScheduleDao {
 
 	public LiveData<EventDetails> getEventDetails(final Event event) {
 		final MutableLiveData<EventDetails> result = new MutableLiveData<>();
-		AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+		appDatabase.getQueryExecutor().execute(new Runnable() {
 			@Override
 			public void run() {
 				result.postValue(new EventDetails(getPersons(event), getLinks(event)));

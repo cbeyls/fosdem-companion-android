@@ -1,8 +1,6 @@
 package be.digitalia.fosdem.viewmodels;
 
 import android.app.Application;
-import android.os.AsyncTask;
-
 import androidx.annotation.NonNull;
 import androidx.arch.core.util.Function;
 import androidx.lifecycle.AndroidViewModel;
@@ -21,7 +19,7 @@ public class EventViewModel extends AndroidViewModel {
 				@Override
 				public LiveData<Event> apply(final Long id) {
 					final MutableLiveData<Event> resultLiveData = new MutableLiveData<>();
-					AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+					appDatabase.getQueryExecutor().execute(new Runnable() {
 						@Override
 						public void run() {
 							final Event result = appDatabase.getScheduleDao().getEvent(id);
