@@ -126,7 +126,8 @@ public class RecyclerViewFragment extends Fragment {
 	 * Get the fragments's RecyclerView widget.
 	 */
 	public RecyclerView getRecyclerView() {
-		return mHolder.recyclerView;
+		final ViewHolder holder = mHolder;
+		return (holder == null) ? null : holder.recyclerView;
 	}
 
 	/**

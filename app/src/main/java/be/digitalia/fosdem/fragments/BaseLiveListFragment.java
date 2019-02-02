@@ -52,8 +52,10 @@ public abstract class BaseLiveListFragment extends RecyclerViewFragment implemen
 		public void run() {
 			// Ensure we stay at scroll position 0 so we can see the insertion animation
 			final RecyclerView recyclerView = getRecyclerView();
-			if (recyclerView.getScrollY() == 0) {
-				recyclerView.scrollToPosition(0);
+			if (recyclerView != null) {
+				if (recyclerView.getScrollY() == 0) {
+					recyclerView.scrollToPosition(0);
+				}
 			}
 		}
 	};
