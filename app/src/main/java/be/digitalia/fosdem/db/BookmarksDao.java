@@ -3,10 +3,7 @@ package be.digitalia.fosdem.db;
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
-import androidx.room.Dao;
-import androidx.room.Delete;
-import androidx.room.Insert;
-import androidx.room.Query;
+import androidx.room.*;
 import be.digitalia.fosdem.alarms.FosdemAlarmManager;
 import be.digitalia.fosdem.db.entities.Bookmark;
 import be.digitalia.fosdem.model.AlarmInfo;
@@ -67,7 +64,7 @@ public abstract class BookmarksDao {
 		}
 	}
 
-	@Insert
+	@Insert(onConflict = OnConflictStrategy.IGNORE)
 	protected abstract long addBookmarkInternal(Bookmark bookmark);
 
 	@Delete
