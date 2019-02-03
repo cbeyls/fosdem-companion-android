@@ -60,20 +60,43 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 	public static final String ACTION_SHORTCUT_LIVE = BuildConfig.APPLICATION_ID + ".intent.action.SHORTCUT_LIVE";
 
 	private enum Section {
-		TRACKS(R.id.menu_tracks, TracksFragment.class, true, true),
-		BOOKMARKS(R.id.menu_bookmarks, BookmarksListFragment.class, false, false),
-		LIVE(R.id.menu_live, LiveFragment.class, true, false),
-		SPEAKERS(R.id.menu_speakers, PersonsListFragment.class, false, false),
-		MAP(R.id.menu_map, MapFragment.class, false, false);
+		TRACKS(R.id.menu_tracks, true, true) {
+			@Override
+			public Fragment createFragment() {
+				return new TracksFragment();
+			}
+		},
+		BOOKMARKS(R.id.menu_bookmarks, false, false) {
+			@Override
+			public Fragment createFragment() {
+				return new BookmarksListFragment();
+			}
+		},
+		LIVE(R.id.menu_live, true, false) {
+			@Override
+			public Fragment createFragment() {
+				return new LiveFragment();
+			}
+		},
+		SPEAKERS(R.id.menu_speakers, false, false) {
+			@Override
+			public Fragment createFragment() {
+				return new PersonsListFragment();
+			}
+		},
+		MAP(R.id.menu_map, false, false) {
+			@Override
+			public Fragment createFragment() {
+				return new MapFragment();
+			}
+		};
 
 		private final int menuItemId;
-		private final String fragmentClassName;
 		private final boolean extendsAppBar;
 		private final boolean keep;
 
-		Section(@IdRes int menuItemId, Class<? extends Fragment> fragmentClass, boolean extendsAppBar, boolean keep) {
+		Section(@IdRes int menuItemId, boolean extendsAppBar, boolean keep) {
 			this.menuItemId = menuItemId;
-			this.fragmentClassName = fragmentClass.getName();
 			this.extendsAppBar = extendsAppBar;
 			this.keep = keep;
 		}
@@ -83,9 +106,7 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 			return menuItemId;
 		}
 
-		public String getFragmentClassName() {
-			return fragmentClassName;
-		}
+		public abstract Fragment createFragment();
 
 		public boolean extendsAppBar() {
 			return extendsAppBar;
@@ -298,9 +319,9 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 			}
 			navigationView.setCheckedItem(currentSection.getMenuItemId());
 
-			String fragmentClassName = currentSection.getFragmentClassName();
-			Fragment f = Fragment.instantiate(this, fragmentClassName);
-			getSupportFragmentManager().beginTransaction().add(R.id.content, f, fragmentClassName).commit();
+			getSupportFragmentManager().beginTransaction()
+					.add(R.id.content, currentSection.createFragment(), currentSection.name())
+					.commit();
 		}
 
 		NfcUtils.setAppDataPushMessageCallbackIfAvailable(this, this);
@@ -470,12 +491,10 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 					ft.remove(f);
 				}
 			}
-			String fragmentClassName = section.getFragmentClassName();
-			if (section.shouldKeep() && ((f = fm.findFragmentByTag(fragmentClassName)) != null)) {
+			if (section.shouldKeep() && ((f = fm.findFragmentByTag(section.name())) != null)) {
 				ft.attach(f);
 			} else {
-				f = Fragment.instantiate(MainActivity.this, fragmentClassName);
-				ft.add(R.id.content, f, fragmentClassName);
+				ft.add(R.id.content, section.createFragment(), section.name());
 			}
 			ft.commit();
 
