@@ -1,10 +1,12 @@
 package be.digitalia.fosdem.activities;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.nfc.NdefRecord;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
@@ -75,7 +77,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 		toolbar.setNavigationOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				finish();
+				onSupportNavigateUp();
 			}
 		});
 		toolbar.setTitle(track.toString());
@@ -114,12 +116,23 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 		}
 	}
 
+	@Nullable
 	@Override
-	public NdefRecord createNfcAppData() {
-		if (adapter.getCount() == 0) {
+	public Intent getSupportParentActivityIntent() {
+		final Event event = bookmarkStatusViewModel.getEvent();
+		if (event == null) {
 			return null;
 		}
-		Event event = adapter.getEvent(pager.getCurrentItem());
+		// Navigate up to the track associated with this event
+		return new Intent(this, TrackScheduleActivity.class)
+				.putExtra(TrackScheduleActivity.EXTRA_DAY, event.getDay())
+				.putExtra(TrackScheduleActivity.EXTRA_TRACK, event.getTrack())
+				.putExtra(TrackScheduleActivity.EXTRA_FROM_EVENT_ID, event.getId());
+	}
+
+	@Override
+	public NdefRecord createNfcAppData() {
+		final Event event = bookmarkStatusViewModel.getEvent();
 		if (event == null) {
 			return null;
 		}

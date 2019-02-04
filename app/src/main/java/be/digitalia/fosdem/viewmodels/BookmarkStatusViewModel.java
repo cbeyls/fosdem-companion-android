@@ -3,6 +3,7 @@ package be.digitalia.fosdem.viewmodels;
 import android.app.Application;
 import android.os.AsyncTask;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.arch.core.util.Function;
 import androidx.core.util.ObjectsCompat;
 import androidx.lifecycle.AndroidViewModel;
@@ -57,6 +58,11 @@ public class BookmarkStatusViewModel extends AndroidViewModel {
 			firstResultReceived = false;
 			this.event.setValue(event);
 		}
+	}
+
+	@Nullable
+	public Event getEvent() {
+		return event.getValue();
 	}
 
 	public LiveData<BookmarkStatus> getBookmarkStatus() {

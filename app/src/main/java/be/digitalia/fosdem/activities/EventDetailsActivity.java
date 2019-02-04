@@ -11,8 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.NavUtils;
-import androidx.core.app.TaskStackBuilder;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -117,7 +115,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 		toolbar.setNavigationOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				navigateUp();
+				onSupportNavigateUp();
 			}
 		});
 
@@ -133,26 +131,24 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 		NfcUtils.setAppDataPushMessageCallbackIfAvailable(this, this);
 	}
 
-	void navigateUp() {
+	@Nullable
+	@Override
+	public Intent getSupportParentActivityIntent() {
 		// Navigate up to the track associated with this event
-		Intent upIntent = new Intent(this, TrackScheduleActivity.class);
-		upIntent.putExtra(TrackScheduleActivity.EXTRA_DAY, event.getDay());
-		upIntent.putExtra(TrackScheduleActivity.EXTRA_TRACK, event.getTrack());
-		upIntent.putExtra(TrackScheduleActivity.EXTRA_FROM_EVENT_ID, event.getId());
+		return new Intent(this, TrackScheduleActivity.class)
+				.putExtra(TrackScheduleActivity.EXTRA_DAY, event.getDay())
+				.putExtra(TrackScheduleActivity.EXTRA_TRACK, event.getTrack())
+				.putExtra(TrackScheduleActivity.EXTRA_FROM_EVENT_ID, event.getId());
+	}
 
-		if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
-			TaskStackBuilder.create(this)
-					.addNextIntentWithParentStack(upIntent)
-					.startActivities();
-			finish();
-		} else {
-			// Replicate the compatibility implementation of NavUtils.navigateUpTo()
-			// to ensure the parent Activity is always launched
-			// even if not present on the back stack.
-			upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(upIntent);
-			finish();
-		}
+	@Override
+	public void supportNavigateUpTo(@NonNull Intent upIntent) {
+		// Replicate the compatibility implementation of NavUtils.navigateUpTo()
+		// to ensure the parent Activity is always launched
+		// even if not present on the back stack.
+		upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(upIntent);
+		finish();
 	}
 
 	// CreateNfcAppDataCallback
