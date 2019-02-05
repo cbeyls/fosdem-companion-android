@@ -7,14 +7,13 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.BulletSpan;
 import android.text.style.LeadingMarginSpan;
-
+import androidx.annotation.NonNull;
+import androidx.collection.CircularIntArray;
+import androidx.core.text.HtmlCompat;
 import org.xml.sax.XMLReader;
 
 import java.util.Iterator;
 import java.util.Locale;
-
-import androidx.annotation.NonNull;
-import androidx.collection.CircularIntArray;
 
 /**
  * Various methods to transform strings
@@ -123,14 +122,12 @@ public class StringUtils {
 		return source;
 	}
 
-	@SuppressWarnings("deprecation")
 	public static String stripHtml(@NonNull String html) {
-		return trimEnd(Html.fromHtml(html)).toString();
+		return trimEnd(HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_SEPARATOR_LINE_BREAK_LIST_ITEM)).toString();
 	}
 
-	@SuppressWarnings("deprecation")
 	public static CharSequence parseHtml(@NonNull String html, Resources res) {
-		return trimEnd(Html.fromHtml(html, null, new ListsTagHandler(res)));
+		return trimEnd(HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_SEPARATOR_LINE_BREAK_LIST_ITEM, null, new ListsTagHandler(res)));
 	}
 
 	public static CharSequence trimEnd(@NonNull CharSequence source) {

@@ -6,7 +6,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.ViewTreeObserver;
-
 import com.github.chrisbanes.photoview.PhotoView;
 
 /**
@@ -54,13 +53,12 @@ public class SaveStatePhotoView extends PhotoView {
 		super.onRestoreInstanceState(ss.getSuperState());
 
 		getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-			@SuppressWarnings("deprecation")
 			@Override
 			public void onGlobalLayout() {
 				float scale = Math.max(ss.scale, getMinimumScale());
 				scale = Math.min(scale, getMaximumScale());
 				setScale(scale, getWidth() * ss.pivotX, getHeight() * ss.pivotY, false);
-				getViewTreeObserver().removeGlobalOnLayoutListener(this);
+				getViewTreeObserver().removeOnGlobalLayoutListener(this);
 			}
 		});
 	}
