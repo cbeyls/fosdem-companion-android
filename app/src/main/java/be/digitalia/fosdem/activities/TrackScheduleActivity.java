@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.nfc.NdefRecord;
 import android.os.Bundle;
 import android.widget.ImageButton;
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -115,12 +115,13 @@ public class TrackScheduleActivity extends AppCompatActivity
 		}
 	}
 
+	@Nullable
 	@Override
-	public void supportNavigateUpTo(@NonNull Intent upIntent) {
+	public Intent getSupportParentActivityIntent() {
+		final Intent intent = super.getSupportParentActivityIntent();
 		// Add FLAG_ACTIVITY_SINGLE_TOP to ensure the Main activity in the back stack is not re-created
-		upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-		startActivity(upIntent);
-		finish();
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		return intent;
 	}
 
 	// TrackScheduleListFragment.Callbacks
