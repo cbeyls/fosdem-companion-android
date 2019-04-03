@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.nfc.NdefRecord;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -112,12 +111,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 		// Enable up navigation only after getting the event details
 		toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_material);
 		toolbar.setNavigationContentDescription(R.string.abc_action_bar_up_description);
-		toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onSupportNavigateUp();
-			}
-		});
+		toolbar.setNavigationOnClickListener(v -> onSupportNavigateUp());
 
 		final Track.Type trackType = event.getTrack().getType();
 		ThemeUtils.setStatusBarTrackColor(this, trackType);

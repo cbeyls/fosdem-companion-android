@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
-import android.nfc.NfcEvent;
 import android.os.Parcelable;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -46,18 +45,13 @@ public class NfcUtils {
 			return false;
 		}
 		final String packageName = activity.getPackageName();
-		adapter.setNdefPushMessageCallback(new NfcAdapter.CreateNdefMessageCallback() {
-
-			@Override
-			public NdefMessage createNdefMessage(NfcEvent event) {
-				final NdefRecord appData = callback.createNfcAppData();
-				if (appData == null) {
-					return null;
-				}
-				NdefRecord[] records = new NdefRecord[]{appData, NdefRecord.createApplicationRecord(packageName)};
-				return new NdefMessage(records);
+		adapter.setNdefPushMessageCallback(event -> {
+			final NdefRecord appData = callback.createNfcAppData();
+			if (appData == null) {
+				return null;
 			}
-
+			NdefRecord[] records = new NdefRecord[]{appData, NdefRecord.createApplicationRecord(packageName)};
+			return new NdefMessage(records);
 		}, activity);
 		return true;
 	}

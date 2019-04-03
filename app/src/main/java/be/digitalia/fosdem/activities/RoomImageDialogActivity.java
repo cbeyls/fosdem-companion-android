@@ -9,17 +9,12 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
-import android.view.MenuItem;
 import android.widget.ImageView;
-
-import java.util.Map;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.Observer;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemApi;
 import be.digitalia.fosdem.api.FosdemUrls;
@@ -56,40 +51,34 @@ public class RoomImageDialogActivity extends AppCompatActivity {
 			final Context context = toolbar.getContext();
 
 			toolbar.inflateMenu(R.menu.room_image_dialog);
-			toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-				@Override
-				public boolean onMenuItemClick(MenuItem item) {
-					switch (item.getItemId()) {
-						case R.id.navigation:
-							String localNavigationUrl = FosdemUrls.getLocalNavigationToLocation(StringUtils.toSlug(roomName));
-							try {
-								new CustomTabsIntent.Builder()
-										.setToolbarColor(ContextCompat.getColor(context, R.color.color_primary))
-										.setShowTitle(true)
-										.build()
-										.launchUrl(context, Uri.parse(localNavigationUrl));
-							} catch (ActivityNotFoundException ignore) {
-							}
-							break;
-					}
-					return false;
+			toolbar.setOnMenuItemClickListener(item -> {
+				switch (item.getItemId()) {
+					case R.id.navigation:
+						String localNavigationUrl = FosdemUrls.getLocalNavigationToLocation(StringUtils.toSlug(roomName));
+						try {
+							new CustomTabsIntent.Builder()
+									.setToolbarColor(ContextCompat.getColor(context, R.color.color_primary))
+									.setShowTitle(true)
+									.build()
+									.launchUrl(context, Uri.parse(localNavigationUrl));
+						} catch (ActivityNotFoundException ignore) {
+						}
+						break;
 				}
+				return false;
 			});
 
 			// Display the room status as subtitle
-			FosdemApi.getRoomStatuses(toolbar.getContext()).observe(owner, new Observer<Map<String, RoomStatus>>() {
-				@Override
-				public void onChanged(Map<String, RoomStatus> roomStatuses) {
-					RoomStatus roomStatus = roomStatuses.get(roomName);
-					if (roomStatus != null) {
-						SpannableString roomNameSpannable = new SpannableString(context.getString(roomStatus.getNameResId()));
-						int color = ContextCompat.getColor(context, roomStatus.getColorResId());
-						roomNameSpannable.setSpan(new ForegroundColorSpan(color),
-								0, roomNameSpannable.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-						toolbar.setSubtitle(roomNameSpannable);
-					} else {
-						toolbar.setSubtitle(null);
-					}
+			FosdemApi.getRoomStatuses(toolbar.getContext()).observe(owner, roomStatuses -> {
+				RoomStatus roomStatus = roomStatuses.get(roomName);
+				if (roomStatus != null) {
+					SpannableString roomNameSpannable = new SpannableString(context.getString(roomStatus.getNameResId()));
+					int color = ContextCompat.getColor(context, roomStatus.getColorResId());
+					roomNameSpannable.setSpan(new ForegroundColorSpan(color),
+							0, roomNameSpannable.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+					toolbar.setSubtitle(roomNameSpannable);
+				} else {
+					toolbar.setSubtitle(null);
 				}
 			});
 		}

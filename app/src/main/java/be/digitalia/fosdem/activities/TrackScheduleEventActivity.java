@@ -74,12 +74,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 
 		toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_material);
 		toolbar.setNavigationContentDescription(R.string.abc_action_bar_up_description);
-		toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onSupportNavigateUp();
-			}
-		});
+		toolbar.setNavigationOnClickListener(v -> onSupportNavigateUp());
 		toolbar.setTitle(track.toString());
 		toolbar.setSubtitle(day.toString());
 		setTitle(String.format("%1$s, %2$s", track.toString(), day.toString()));

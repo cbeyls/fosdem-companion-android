@@ -24,22 +24,14 @@ public class ContentLoadingProgressBar extends ProgressBar {
 	private boolean mIsShown;
 	long mStartTime = -1L;
 
-	private final Runnable mDelayedHide = new Runnable() {
-
-		@Override
-		public void run() {
-			setVisibility(View.GONE);
-			mStartTime = -1L;
-		}
+	private final Runnable mDelayedHide = () -> {
+		setVisibility(View.GONE);
+		mStartTime = -1L;
 	};
 
-	private final Runnable mDelayedShow = new Runnable() {
-
-		@Override
-		public void run() {
-			mStartTime = SystemClock.uptimeMillis();
-			setVisibility(View.VISIBLE);
-		}
+	private final Runnable mDelayedShow = () -> {
+		mStartTime = SystemClock.uptimeMillis();
+		setVisibility(View.VISIBLE);
 	};
 
 	public ContentLoadingProgressBar(Context context) {

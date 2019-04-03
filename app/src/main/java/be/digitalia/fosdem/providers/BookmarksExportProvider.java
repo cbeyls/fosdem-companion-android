@@ -145,19 +145,18 @@ public class BookmarksExportProvider extends ContentProvider {
 
 
 	static class DownloadThread extends Thread {
-		private final ICalendarWriter writer;
 
+		private final OutputStream outputStream;
 		private final AppDatabase appDatabase;
 		private final Calendar calendar = Calendar.getInstance(DateUtils.getBelgiumTimeZone(), Locale.US);
 		private final DateFormat dateFormat;
 		private final String dtStamp;
 		private final TextUtils.StringSplitter personsSplitter = new StringUtils.SimpleStringSplitter(", ");
 
-		DownloadThread(OutputStream out, AppDatabase appDatabase) {
-			this.writer = new ICalendarWriter(new BufferedWriter(new OutputStreamWriter(out)));
-
-			// Format all times in GMT
+		DownloadThread(OutputStream outputStream, AppDatabase appDatabase) {
+			this.outputStream = outputStream;
 			this.appDatabase = appDatabase;
+			// Format all times in GMT
 			this.dateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'", Locale.US);
 			this.dateFormat.setTimeZone(TimeZone.getTimeZone("GMT+0"));
 			this.dtStamp = dateFormat.format(System.currentTimeMillis());
@@ -165,27 +164,22 @@ public class BookmarksExportProvider extends ContentProvider {
 
 		@Override
 		public void run() {
-			try {
+			try (ICalendarWriter writer = new ICalendarWriter(new BufferedWriter(new OutputStreamWriter(outputStream)))) {
 				final Event[] bookmarks = appDatabase.getBookmarksDao().getBookmarks();
 				writer.write("BEGIN", "VCALENDAR");
 				writer.write("VERSION", "2.0");
 				writer.write("PRODID", "-//" + BuildConfig.APPLICATION_ID + "//NONSGML " + BuildConfig.VERSION_NAME + "//EN");
 
 				for (Event event : bookmarks) {
-					writeEvent(event);
+					writeEvent(writer, event);
 				}
 
 				writer.write("END", "VCALENDAR");
 			} catch (Exception ignore) {
-			} finally {
-				try {
-					writer.close();
-				} catch (IOException ignore) {
-				}
 			}
 		}
 
-		private void writeEvent(Event event) throws IOException {
+		private void writeEvent(ICalendarWriter writer, Event event) throws IOException {
 			writer.write("BEGIN", "VEVENT");
 
 			final int year = DateUtils.getYear(event.getDay().getDate().getTime(), calendar);

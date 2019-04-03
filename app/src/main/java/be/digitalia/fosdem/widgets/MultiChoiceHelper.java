@@ -34,33 +34,27 @@ public class MultiChoiceHelper {
 		public ViewHolder(@NonNull View itemView, @NonNull MultiChoiceHelper helper) {
 			super(itemView);
 			multiChoiceHelper = helper;
-			itemView.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					if (isMultiChoiceActive()) {
-						int position = getAdapterPosition();
-						if (position != RecyclerView.NO_POSITION) {
-							multiChoiceHelper.toggleItemChecked(position);
-						}
-					} else {
-						if (clickListener != null) {
-							clickListener.onClick(view);
-						}
+			itemView.setOnClickListener(view -> {
+				if (isMultiChoiceActive()) {
+					int position = getAdapterPosition();
+					if (position != RecyclerView.NO_POSITION) {
+						multiChoiceHelper.toggleItemChecked(position);
+					}
+				} else {
+					if (clickListener != null) {
+						clickListener.onClick(view);
 					}
 				}
 			});
-			itemView.setOnLongClickListener(new View.OnLongClickListener() {
-				@Override
-				public boolean onLongClick(View view) {
-					if (isMultiChoiceActive()) {
-						return false;
-					}
-					int position = getAdapterPosition();
-					if (position != RecyclerView.NO_POSITION) {
-						multiChoiceHelper.setItemChecked(position, true);
-					}
-					return true;
+			itemView.setOnLongClickListener(view -> {
+				if (isMultiChoiceActive()) {
+					return false;
 				}
+				int position = getAdapterPosition();
+				if (position != RecyclerView.NO_POSITION) {
+					multiChoiceHelper.setItemChecked(position, true);
+				}
+				return true;
 			});
 		}
 
@@ -244,12 +238,7 @@ public class MultiChoiceHelper {
 				if (adapter.getItemCount() > 0) {
 					confirmCheckedPositions();
 				}
-				activity.getWindow().getDecorView().post(new Runnable() {
-					@Override
-					public void run() {
-						completeRestoreInstanceState();
-					}
-				});
+				activity.getWindow().getDecorView().post(this::completeRestoreInstanceState);
 			}
 		}
 	}

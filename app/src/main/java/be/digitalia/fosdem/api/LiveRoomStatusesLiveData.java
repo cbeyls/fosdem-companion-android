@@ -1,7 +1,10 @@
 package be.digitalia.fosdem.api;
 
 import android.annotation.SuppressLint;
-import android.os.*;
+import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.SystemClock;
 import android.text.format.DateUtils;
 import androidx.lifecycle.LiveData;
 import be.digitalia.fosdem.model.RoomStatus;
@@ -24,19 +27,16 @@ class LiveRoomStatusesLiveData extends LiveData<Map<String, RoomStatus>> {
 	private static final int EXPIRE_WHAT = 0;
 	private static final int REFRESH_WHAT = 1;
 
-	private final Handler handler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
-		@Override
-		public boolean handleMessage(Message msg) {
-			switch (msg.what) {
-				case EXPIRE_WHAT:
-					expire();
-					return true;
-				case REFRESH_WHAT:
-					refresh();
-					return true;
-			}
-			return false;
+	private final Handler handler = new Handler(Looper.getMainLooper(), msg -> {
+		switch (msg.what) {
+			case EXPIRE_WHAT:
+				expire();
+				return true;
+			case REFRESH_WHAT:
+				refresh();
+				return true;
 		}
+		return false;
 	});
 
 	private long expirationTime = Long.MAX_VALUE;
@@ -77,13 +77,8 @@ class LiveRoomStatusesLiveData extends LiveData<Map<String, RoomStatus>> {
 
 			@Override
 			protected Map<String, RoomStatus> doInBackground(Void... voids) {
-				try {
-					InputStream is = HttpUtils.get(FosdemUrls.getRooms());
-					try {
-						return new RoomStatusesParser().parse(is);
-					} finally {
-						is.close();
-					}
+				try (InputStream is = HttpUtils.get(FosdemUrls.getRooms())) {
+					return new RoomStatusesParser().parse(is);
 				} catch (Throwable e) {
 					return null;
 				}

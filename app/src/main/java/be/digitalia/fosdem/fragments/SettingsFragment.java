@@ -5,12 +5,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.R;
@@ -42,22 +40,16 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 	@RequiresApi(api = Build.VERSION_CODES.O)
 	private void setupNotificationsChannel() {
 		findPreference(KEY_PREF_NOTIFICATIONS_CHANNEL).setOnPreferenceClickListener(
-				new Preference.OnPreferenceClickListener() {
-					@Override
-					public boolean onPreferenceClick(Preference preference) {
-						AlarmIntentService.startChannelNotificationSettingsActivity(getContext());
-						return true;
-					}
+				preference -> {
+					AlarmIntentService.startChannelNotificationSettingsActivity(getContext());
+					return true;
 				});
 	}
 
 	private void setupAboutDialog() {
-		findPreference(KEY_PREF_ABOUT).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				new AboutDialogFragment().show(getFragmentManager(), "about");
-				return true;
-			}
+		findPreference(KEY_PREF_ABOUT).setOnPreferenceClickListener(preference -> {
+			new AboutDialogFragment().show(getFragmentManager(), "about");
+			return true;
 		});
 	}
 

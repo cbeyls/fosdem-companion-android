@@ -4,7 +4,10 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Dialog;
 import android.app.SearchManager;
-import android.content.*;
+import android.content.ActivityNotFoundException;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -28,9 +31,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
-import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -147,29 +148,25 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 
 	private MenuItem searchMenuItem;
 
-	private final Observer<SingleEvent<DownloadScheduleResult>> scheduleDownloadResultObserver = new Observer<SingleEvent<DownloadScheduleResult>>() {
-
-		@Override
-		public void onChanged(SingleEvent<DownloadScheduleResult> singleEvent) {
-			final DownloadScheduleResult result = singleEvent.consume();
-			if (result == null) {
-				return;
-			}
-			String message;
-			if (result.isError()) {
-				message = getString(R.string.schedule_loading_error);
-			} else if (result.isUpToDate()) {
-				message = getString(R.string.events_download_up_to_date);
-			} else {
-				int eventsCount = result.getEventsCount();
-				if (eventsCount == 0) {
-					message = getString(R.string.events_download_empty);
-				} else {
-					message = getResources().getQuantityString(R.plurals.events_download_completed, eventsCount, eventsCount);
-				}
-			}
-			Snackbar.make(findViewById(R.id.content), message, Snackbar.LENGTH_LONG).show();
+	private final Observer<SingleEvent<DownloadScheduleResult>> scheduleDownloadResultObserver = singleEvent -> {
+		final DownloadScheduleResult result = singleEvent.consume();
+		if (result == null) {
+			return;
 		}
+		String message;
+		if (result.isError()) {
+			message = getString(R.string.schedule_loading_error);
+		} else if (result.isUpToDate()) {
+			message = getString(R.string.events_download_up_to_date);
+		} else {
+			int eventsCount = result.getEventsCount();
+			if (eventsCount == 0) {
+				message = getString(R.string.events_download_empty);
+			} else {
+				message = getResources().getQuantityString(R.plurals.events_download_completed, eventsCount, eventsCount);
+			}
+		}
+		Snackbar.make(findViewById(R.id.content), message, Snackbar.LENGTH_LONG).show();
 	};
 
 	public static class DownloadScheduleReminderDialogFragment extends DialogFragment {
@@ -180,14 +177,8 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 			return new AlertDialog.Builder(getContext())
 					.setTitle(R.string.download_reminder_title)
 					.setMessage(R.string.download_reminder_message)
-					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							FosdemApi.downloadSchedule(getContext());
-						}
-
-					}).setNegativeButton(android.R.string.cancel, null)
+					.setPositiveButton(android.R.string.ok, (dialog, which) -> FosdemApi.downloadSchedule(getContext()))
+					.setNegativeButton(android.R.string.cancel, null)
 					.create();
 		}
 	}
@@ -202,40 +193,36 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 
 		// Progress bar setup
 		final ProgressBar progressBar = findViewById(R.id.progress);
-		FosdemApi.getDownloadScheduleProgress().observe(this, new Observer<Integer>() {
-
-			@Override
-			public void onChanged(Integer progressInteger) {
-				int progress = progressInteger;
-				if (progress != 100) {
-					// Visible
-					if (progressBar.getVisibility() == View.GONE) {
-						progressBar.clearAnimation();
-						progressBar.setVisibility(View.VISIBLE);
-					}
-					if (progress == -1) {
-						progressBar.setIndeterminate(true);
-					} else {
-						progressBar.setIndeterminate(false);
-						progressBar.setProgress(progress);
-					}
+		FosdemApi.getDownloadScheduleProgress().observe(this, progressInteger -> {
+			int progress = progressInteger;
+			if (progress != 100) {
+				// Visible
+				if (progressBar.getVisibility() == View.GONE) {
+					progressBar.clearAnimation();
+					progressBar.setVisibility(View.VISIBLE);
+				}
+				if (progress == -1) {
+					progressBar.setIndeterminate(true);
 				} else {
-					// Invisible
-					if (progressBar.getVisibility() == View.VISIBLE) {
-						// Hide the progress bar with a fill and fade out animation
-						progressBar.setIndeterminate(false);
-						progressBar.setProgress(100);
-						progressBar.animate()
-								.alpha(0f)
-								.withLayer()
-								.setListener(new AnimatorListenerAdapter() {
-									@Override
-									public void onAnimationEnd(Animator animation) {
-										progressBar.setVisibility(View.GONE);
-										progressBar.setAlpha(1f);
-									}
-								});
-					}
+					progressBar.setIndeterminate(false);
+					progressBar.setProgress(progress);
+				}
+			} else {
+				// Invisible
+				if (progressBar.getVisibility() == View.VISIBLE) {
+					// Hide the progress bar with a fill and fade out animation
+					progressBar.setIndeterminate(false);
+					progressBar.setProgress(100);
+					progressBar.animate()
+							.alpha(0f)
+							.withLayer()
+							.setListener(new AnimatorListenerAdapter() {
+								@Override
+								public void onAnimationEnd(Animator animation) {
+									progressBar.setVisibility(View.GONE);
+									progressBar.setAlpha(1f);
+								}
+							});
 				}
 			}
 		});
@@ -282,20 +269,12 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 		// Setup Main menu
 		mainMenu = findViewById(R.id.main_menu);
 		// Forward window insets to NavigationView
-		ViewCompat.setOnApplyWindowInsetsListener(mainMenu, new OnApplyWindowInsetsListener() {
-			@Override
-			public WindowInsetsCompat onApplyWindowInsets(View v, WindowInsetsCompat insets) {
-				return insets;
-			}
-		});
+		ViewCompat.setOnApplyWindowInsetsListener(mainMenu, (v, insets) -> insets);
 		navigationView = findViewById(R.id.nav_view);
-		navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-			@Override
-			public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-				pendingNavigationMenuItem = menuItem;
-				drawerLayout.closeDrawer(mainMenu);
-				return true;
-			}
+		navigationView.setNavigationItemSelectedListener(menuItem -> {
+			pendingNavigationMenuItem = menuItem;
+			drawerLayout.closeDrawer(mainMenu);
+			return true;
 		});
 
 		// Last update date, below the list

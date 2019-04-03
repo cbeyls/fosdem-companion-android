@@ -47,15 +47,12 @@ public abstract class BaseLiveListFragment extends RecyclerViewFragment implemen
 		getDataSource(viewModel).observe(getViewLifecycleOwner(), this);
 	}
 
-	private final Runnable preserveScrollPositionRunnable = new Runnable() {
-		@Override
-		public void run() {
-			// Ensure we stay at scroll position 0 so we can see the insertion animation
-			final RecyclerView recyclerView = getRecyclerView();
-			if (recyclerView != null) {
-				if (recyclerView.getScrollY() == 0) {
-					recyclerView.scrollToPosition(0);
-				}
+	private final Runnable preserveScrollPositionRunnable = () -> {
+		// Ensure we stay at scroll position 0 so we can see the insertion animation
+		final RecyclerView recyclerView = getRecyclerView();
+		if (recyclerView != null) {
+			if (recyclerView.getScrollY() == 0) {
+				recyclerView.scrollToPosition(0);
 			}
 		}
 	};

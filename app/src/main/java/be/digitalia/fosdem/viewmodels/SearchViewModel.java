@@ -3,7 +3,6 @@ package be.digitalia.fosdem.viewmodels;
 import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.arch.core.util.Function;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -20,17 +19,14 @@ public class SearchViewModel extends AndroidViewModel {
 	private final AppDatabase appDatabase = AppDatabase.getInstance(getApplication());
 	private final MutableLiveData<String> query = new MutableLiveData<>();
 	private final LiveData<PagedList<StatusEvent>> results = Transformations.switchMap(query,
-			new Function<String, LiveData<PagedList<StatusEvent>>>() {
-				@Override
-				public LiveData<PagedList<StatusEvent>> apply(String query) {
-					if (isQueryTooShort(query)) {
-						MutableLiveData<PagedList<StatusEvent>> emptyResult = new MutableLiveData<>();
-						emptyResult.setValue(null);
-						return emptyResult;
-					}
-					return new LivePagedListBuilder<>(appDatabase.getScheduleDao().getSearchResults(query), 20)
-							.build();
+			query -> {
+				if (isQueryTooShort(query)) {
+					MutableLiveData<PagedList<StatusEvent>> emptyResult = new MutableLiveData<>();
+					emptyResult.setValue(null);
+					return emptyResult;
 				}
+				return new LivePagedListBuilder<>(appDatabase.getScheduleDao().getSearchResults(query), 20)
+						.build();
 			});
 
 	public SearchViewModel(@NonNull Application application) {

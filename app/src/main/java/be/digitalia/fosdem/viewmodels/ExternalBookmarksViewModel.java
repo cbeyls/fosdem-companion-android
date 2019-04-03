@@ -2,7 +2,6 @@ package be.digitalia.fosdem.viewmodels;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
-import androidx.arch.core.util.Function;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -19,13 +18,8 @@ public class ExternalBookmarksViewModel extends AndroidViewModel {
 	private final AppDatabase appDatabase = AppDatabase.getInstance(getApplication());
 	private final MutableLiveData<long[]> bookmarkIds = new MutableLiveData<>();
 	private final LiveData<PagedList<StatusEvent>> bookmarks = Transformations.switchMap(bookmarkIds,
-			new Function<long[], LiveData<PagedList<StatusEvent>>>() {
-				@Override
-				public LiveData<PagedList<StatusEvent>> apply(long[] bookmarkIds) {
-					return new LivePagedListBuilder<>(appDatabase.getScheduleDao().getEvents(bookmarkIds), 20)
-							.build();
-				}
-			});
+			bookmarkIds -> new LivePagedListBuilder<>(appDatabase.getScheduleDao().getEvents(bookmarkIds), 20)
+					.build());
 
 	public ExternalBookmarksViewModel(@NonNull Application application) {
 		super(application);

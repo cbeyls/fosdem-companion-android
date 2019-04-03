@@ -4,7 +4,6 @@ import android.app.Application;
 import android.os.AsyncTask;
 import android.text.format.DateUtils;
 import androidx.annotation.NonNull;
-import androidx.arch.core.util.Function;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -24,23 +23,15 @@ public class BookmarksViewModel extends AndroidViewModel {
 	private final AppDatabase appDatabase = AppDatabase.getInstance(getApplication());
 	private final MutableLiveData<Boolean> upcomingOnly = new MutableLiveData<>();
 	private final LiveData<List<Event>> bookmarks = Transformations.switchMap(upcomingOnly,
-			new Function<Boolean, LiveData<List<Event>>>() {
-				@Override
-				public LiveData<List<Event>> apply(Boolean upcomingOnly) {
-					if (upcomingOnly == Boolean.TRUE) {
-						// Refresh upcoming bookmarks every 2 minutes
-						final LiveData<Long> heartbeat = LiveDataFactory.interval(2L, TimeUnit.MINUTES);
-						return Transformations.switchMap(heartbeat,
-								new Function<Long, LiveData<List<Event>>>() {
-									@Override
-									public LiveData<List<Event>> apply(Long version) {
-										return appDatabase.getBookmarksDao().getBookmarks(System.currentTimeMillis() - TIME_OFFSET);
-									}
-								});
-					}
-
-					return appDatabase.getBookmarksDao().getBookmarks(-1L);
+			upcomingOnly -> {
+				if (upcomingOnly == Boolean.TRUE) {
+					// Refresh upcoming bookmarks every 2 minutes
+					final LiveData<Long> heartbeat = LiveDataFactory.interval(2L, TimeUnit.MINUTES);
+					return Transformations.switchMap(heartbeat,
+							version -> appDatabase.getBookmarksDao().getBookmarks(System.currentTimeMillis() - TIME_OFFSET));
 				}
+
+				return appDatabase.getBookmarksDao().getBookmarks(-1L);
 			});
 
 	public BookmarksViewModel(@NonNull Application application) {
@@ -63,11 +54,6 @@ public class BookmarksViewModel extends AndroidViewModel {
 	}
 
 	public void removeBookmarks(final long[] eventIds) {
-		AsyncTask.SERIAL_EXECUTOR.execute(new Runnable() {
-			@Override
-			public void run() {
-				appDatabase.getBookmarksDao().removeBookmarks(eventIds);
-			}
-		});
+		AsyncTask.SERIAL_EXECUTOR.execute(() -> appDatabase.getBookmarksDao().removeBookmarks(eventIds));
 	}
 }

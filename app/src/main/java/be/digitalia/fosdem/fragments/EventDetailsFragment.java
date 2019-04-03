@@ -16,7 +16,6 @@ import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.PersonInfoActivity;
@@ -31,7 +30,6 @@ import com.google.android.material.snackbar.Snackbar;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public class EventDetailsFragment extends Fragment {
 
@@ -166,26 +164,20 @@ public class EventDetailsFragment extends Fragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		viewModel.getEventDetails().observe(getViewLifecycleOwner(), new Observer<EventDetails>() {
-			@Override
-			public void onChanged(EventDetails eventDetails) {
-				if (eventDetails != null) {
-					setEventDetails(eventDetails);
-				}
+		viewModel.getEventDetails().observe(getViewLifecycleOwner(), eventDetails -> {
+			if (eventDetails != null) {
+				setEventDetails(eventDetails);
 			}
 		});
 
 		// Live room status
-		FosdemApi.getRoomStatuses(getContext()).observe(getViewLifecycleOwner(), new Observer<Map<String, RoomStatus>>() {
-			@Override
-			public void onChanged(Map<String, RoomStatus> roomStatuses) {
-				RoomStatus roomStatus = roomStatuses.get(event.getRoomName());
-				if (roomStatus == null) {
-					holder.roomStatus.setText(null);
-				} else {
-					holder.roomStatus.setText(roomStatus.getNameResId());
-					holder.roomStatus.setTextColor(ContextCompat.getColor(getContext(), roomStatus.getColorResId()));
-				}
+		FosdemApi.getRoomStatuses(getContext()).observe(getViewLifecycleOwner(), roomStatuses -> {
+			RoomStatus roomStatus = roomStatuses.get(event.getRoomName());
+			if (roomStatus == null) {
+				holder.roomStatus.setText(null);
+			} else {
+				holder.roomStatus.setText(roomStatus.getNameResId());
+				holder.roomStatus.setTextColor(ContextCompat.getColor(getContext(), roomStatus.getColorResId()));
 			}
 		});
 	}

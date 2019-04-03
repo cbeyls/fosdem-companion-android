@@ -1,14 +1,14 @@
 package be.digitalia.fosdem.utils;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.zip.GZIPInputStream;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 /**
  * Utility class to perform HTTP requests.
@@ -74,13 +74,10 @@ public class HttpUtils {
 		if ((listener != null) && (length != -1)) {
 			// Broadcast the progression in percents, with a precision of 1/10 of the total file size
 			result.inputStream = new ByteCountInputStream(result.inputStream,
-					new ByteCountInputStream.ByteCountListener() {
-						@Override
-						public void onNewCount(int byteCount) {
-							// Cap percent to 100
-							int percent = (byteCount >= length) ? 100 : byteCount * 100 / length;
-							listener.onProgressUpdate(percent);
-						}
+					byteCount -> {
+						// Cap percent to 100
+						int percent = (byteCount >= length) ? 100 : byteCount * 100 / length;
+						listener.onProgressUpdate(percent);
 					}, length / 10);
 		}
 

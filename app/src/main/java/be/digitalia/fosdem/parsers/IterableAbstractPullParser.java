@@ -5,8 +5,6 @@ import org.xmlpull.v1.XmlPullParser;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import androidx.annotation.NonNull;
-
 /**
  * An abstract class for easy implementation of an iterable pull parser.
  *
@@ -61,15 +59,7 @@ public abstract class IterableAbstractPullParser<T> extends AbstractPullParser<I
 
 	@Override
 	protected Iterable<T> parse(final XmlPullParser parser) throws Exception {
-		return new Iterable<T>() {
-
-			@NonNull
-			@Override
-			public Iterator<T> iterator() {
-				return new ParserIterator(parser);
-			}
-
-		};
+		return () -> new ParserIterator(parser);
 	}
 
 	/**

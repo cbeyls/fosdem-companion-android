@@ -3,7 +3,6 @@ package be.digitalia.fosdem.viewmodels;
 import android.app.Application;
 import android.text.format.DateUtils;
 import androidx.annotation.NonNull;
-import androidx.arch.core.util.Function;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
@@ -22,22 +21,16 @@ public class LiveViewModel extends AndroidViewModel {
 	private final AppDatabase appDatabase = AppDatabase.getInstance(getApplication());
 	private final LiveData<Long> heartbeat = LiveDataFactory.interval(1L, TimeUnit.MINUTES);
 	private final LiveData<PagedList<StatusEvent>> nextEvents = Transformations.switchMap(heartbeat,
-			new Function<Long, LiveData<PagedList<StatusEvent>>>() {
-				@Override
-				public LiveData<PagedList<StatusEvent>> apply(Long version) {
-					final long now = System.currentTimeMillis();
-					return new LivePagedListBuilder<>(appDatabase.getScheduleDao().getEventsWithStartTime(now, now + NEXT_EVENTS_INTERVAL), 20)
-							.build();
-				}
+			version -> {
+				final long now = System.currentTimeMillis();
+				return new LivePagedListBuilder<>(appDatabase.getScheduleDao().getEventsWithStartTime(now, now + NEXT_EVENTS_INTERVAL), 20)
+						.build();
 			});
 	private final LiveData<PagedList<StatusEvent>> eventsInProgress = Transformations.switchMap(heartbeat,
-			new Function<Long, LiveData<PagedList<StatusEvent>>>() {
-				@Override
-				public LiveData<PagedList<StatusEvent>> apply(Long version) {
-					final long now = System.currentTimeMillis();
-					return new LivePagedListBuilder<>(appDatabase.getScheduleDao().getEventsInProgress(now), 20)
-							.build();
-				}
+			version -> {
+				final long now = System.currentTimeMillis();
+				return new LivePagedListBuilder<>(appDatabase.getScheduleDao().getEventsInProgress(now), 20)
+						.build();
 			});
 
 	public LiveViewModel(@NonNull Application application) {

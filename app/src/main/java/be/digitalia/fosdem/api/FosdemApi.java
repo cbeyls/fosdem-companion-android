@@ -15,6 +15,7 @@ import be.digitalia.fosdem.model.RoomStatus;
 import be.digitalia.fosdem.parsers.EventsParser;
 import be.digitalia.fosdem.utils.HttpUtils;
 
+import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -42,12 +43,9 @@ public class FosdemApi {
 			return;
 		}
 		final Context appContext = context.getApplicationContext();
-		AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
-			@Override
-			public void run() {
-				downloadScheduleInternal(appContext);
-				isLoading.set(false);
-			}
+		AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
+			downloadScheduleInternal(appContext);
+			isLoading.set(false);
 		});
 	}
 
@@ -60,27 +58,17 @@ public class FosdemApi {
 			HttpUtils.HttpResult httpResult = HttpUtils.get(
 					FosdemUrls.getSchedule(),
 					scheduleDao.getLastModifiedTag(),
-					new HttpUtils.ProgressUpdateListener() {
-						@Override
-						public void onProgressUpdate(int percent) {
-							progress.postValue(percent);
-						}
-					});
+					progress::postValue);
 			if (httpResult.inputStream == null) {
 				// Nothing to parse, the result is up-to-date.
 				res = DownloadScheduleResult.upToDate();
 				return;
 			}
 
-			try {
-				Iterable<DetailedEvent> events = new EventsParser().parse(httpResult.inputStream);
+			try (InputStream is = httpResult.inputStream) {
+				Iterable<DetailedEvent> events = new EventsParser().parse(is);
 				int count = scheduleDao.storeSchedule(events, httpResult.lastModified);
 				res = DownloadScheduleResult.success(count);
-			} finally {
-				try {
-					httpResult.inputStream.close();
-				} catch (Exception ignored) {
-				}
 			}
 
 		} catch (Exception e) {

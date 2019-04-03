@@ -2,7 +2,6 @@ package be.digitalia.fosdem.viewmodels;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
-import androidx.arch.core.util.Function;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -15,19 +14,13 @@ public class EventViewModel extends AndroidViewModel {
 	private final AppDatabase appDatabase = AppDatabase.getInstance(getApplication());
 	private final MutableLiveData<Long> eventId = new MutableLiveData<>();
 	private final LiveData<Event> event = Transformations.switchMap(eventId,
-			new Function<Long, LiveData<Event>>() {
-				@Override
-				public LiveData<Event> apply(final Long id) {
-					final MutableLiveData<Event> resultLiveData = new MutableLiveData<>();
-					appDatabase.getQueryExecutor().execute(new Runnable() {
-						@Override
-						public void run() {
-							final Event result = appDatabase.getScheduleDao().getEvent(id);
-							resultLiveData.postValue(result);
-						}
-					});
-					return resultLiveData;
-				}
+			id -> {
+				final MutableLiveData<Event> resultLiveData = new MutableLiveData<>();
+				appDatabase.getQueryExecutor().execute(() -> {
+					final Event result = appDatabase.getScheduleDao().getEvent(id);
+					resultLiveData.postValue(result);
+				});
+				return resultLiveData;
 			});
 
 	public EventViewModel(@NonNull Application application) {

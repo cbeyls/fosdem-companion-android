@@ -33,16 +33,13 @@ public class BookmarkStatusViewModel extends AndroidViewModel {
 							// Prevent updating the UI when a bookmark is added back or removed back
 							ExtraTransformations.distinctUntilChanged(
 									appDatabase.getBookmarksDao().getBookmarkStatus(event)
-							), new Function<Boolean, BookmarkStatus>() {
-								@Override
-								public BookmarkStatus apply(Boolean isBookmarked) {
-									if (isBookmarked == null) {
-										return null;
-									}
-									final boolean isUpdate = firstResultReceived;
-									firstResultReceived = true;
-									return new BookmarkStatus(isBookmarked, isUpdate);
+							), isBookmarked -> {
+								if (isBookmarked == null) {
+									return null;
 								}
+								final boolean isUpdate = firstResultReceived;
+								firstResultReceived = true;
+								return new BookmarkStatus(isBookmarked, isUpdate);
 							}
 					);
 				}
@@ -74,14 +71,11 @@ public class BookmarkStatusViewModel extends AndroidViewModel {
 		final BookmarkStatus currentStatus = bookmarkStatus.getValue();
 		// Ignore the action if the status for the current event hasn't been received yet
 		if (event != null && currentStatus != null && firstResultReceived) {
-			AsyncTask.SERIAL_EXECUTOR.execute(new Runnable() {
-				@Override
-				public void run() {
-					if (currentStatus.isBookmarked()) {
-						appDatabase.getBookmarksDao().removeBookmark(event);
-					} else {
-						appDatabase.getBookmarksDao().addBookmark(event);
-					}
+			AsyncTask.SERIAL_EXECUTOR.execute(() -> {
+				if (currentStatus.isBookmarked()) {
+					appDatabase.getBookmarksDao().removeBookmark(event);
+				} else {
+					appDatabase.getBookmarksDao().addBookmark(event);
 				}
 			});
 		}

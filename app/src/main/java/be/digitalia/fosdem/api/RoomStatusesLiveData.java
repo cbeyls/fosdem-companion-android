@@ -3,17 +3,14 @@ package be.digitalia.fosdem.api;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.format.DateUtils;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
+import be.digitalia.fosdem.model.Day;
+import be.digitalia.fosdem.model.RoomStatus;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import androidx.annotation.Nullable;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.Observer;
-import be.digitalia.fosdem.model.Day;
-import be.digitalia.fosdem.model.RoomStatus;
 
 class RoomStatusesLiveData extends MediatorLiveData<Map<String, RoomStatus>> {
 
@@ -23,24 +20,16 @@ class RoomStatusesLiveData extends MediatorLiveData<Map<String, RoomStatus>> {
 	private static final long DAY_END_TIME = 19 * DateUtils.HOUR_IN_MILLIS;
 
 	private final Handler handler = new Handler(Looper.getMainLooper());
-	private final Runnable updateRunnable = new Runnable() {
-		@Override
-		public void run() {
-			updateStrategy();
-		}
-	};
+	private final Runnable updateRunnable = this::updateStrategy;
 
 	private final LiveData<Map<String, RoomStatus>> liveRoomStatuses = new LiveRoomStatusesLiveData();
 	List<Day> days = null;
 	private boolean isLive = false;
 
 	RoomStatusesLiveData(LiveData<List<Day>> daysLiveData) {
-		addSource(daysLiveData, new Observer<List<Day>>() {
-			@Override
-			public void onChanged(@Nullable List<Day> days) {
-				RoomStatusesLiveData.this.days = days;
-				updateStrategy();
-			}
+		addSource(daysLiveData, days -> {
+			RoomStatusesLiveData.this.days = days;
+			updateStrategy();
 		});
 	}
 
@@ -85,16 +74,11 @@ class RoomStatusesLiveData extends MediatorLiveData<Map<String, RoomStatus>> {
 		if (this.isLive != isLive) {
 			if (isLive) {
 				// Event is live, connect to the LiveData providing live values
-				addSource(liveRoomStatuses, new Observer<Map<String, RoomStatus>>() {
-					@Override
-					public void onChanged(@Nullable Map<String, RoomStatus> value) {
-						setValue(value);
-					}
-				});
+				addSource(liveRoomStatuses, this::setValue);
 			} else {
 				// Event is offline, provide empty values
 				removeSource(liveRoomStatuses);
-				setValue(Collections.<String, RoomStatus>emptyMap());
+				setValue(Collections.emptyMap());
 			}
 			this.isLive = isLive;
 		}

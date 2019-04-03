@@ -454,12 +454,7 @@ public abstract class ScheduleDao {
 
 	public LiveData<EventDetails> getEventDetails(final Event event) {
 		final MutableLiveData<EventDetails> result = new MutableLiveData<>();
-		appDatabase.getQueryExecutor().execute(new Runnable() {
-			@Override
-			public void run() {
-				result.postValue(new EventDetails(getPersons(event), getLinks(event)));
-			}
-		});
+		appDatabase.getQueryExecutor().execute(() -> result.postValue(new EventDetails(getPersons(event), getLinks(event))));
 		return result;
 	}
 
