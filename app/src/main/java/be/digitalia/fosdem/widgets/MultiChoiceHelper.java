@@ -191,7 +191,7 @@ public class MultiChoiceHelper {
 				if (value) {
 					checkedIdStates.put(id, position);
 				} else {
-					checkedIdStates.delete(id);
+					checkedIdStates.remove(id);
 				}
 			}
 
@@ -356,7 +356,7 @@ public class MultiChoiceHelper {
 					}
 
 					if (!found) {
-						checkedIdStates.delete(id);
+						checkedIdStates.remove(id);
 						checkedIndex--;
 						checkedItemCount--;
 						checkedCountChanged = true;

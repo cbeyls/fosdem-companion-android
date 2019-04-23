@@ -1,6 +1,5 @@
 package be.digitalia.fosdem.activities;
 
-import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -93,7 +92,6 @@ public class SearchResultActivity extends AppCompatActivity {
 		}
 	}
 
-	@SuppressLint("NewApi")
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.search, menu);
