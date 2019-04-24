@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/scroll_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -60,28 +61,28 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:drawableLeft="@drawable/ic_local_offer_grey600_18dp"
-                android:drawableStart="@drawable/ic_local_offer_grey600_18dp"
-                tools:text="Keynotes"/>
+                app:drawableLeftCompat="@drawable/ic_local_offer_grey600_18dp"
+                app:drawableStartCompat="@drawable/ic_local_offer_grey600_18dp"
+                tools:text="Keynotes" />
 
             <TextView
                 android:id="@+id/time"
                 style="@style/Metadata"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawableLeft="@drawable/ic_access_time_grey600_18dp"
-                android:drawableStart="@drawable/ic_access_time_grey600_18dp"
-                tools:text="Day 1 (Saturday), 09:30 - 09:55"/>
+                app:drawableLeftCompat="@drawable/ic_access_time_grey600_18dp"
+                app:drawableStartCompat="@drawable/ic_access_time_grey600_18dp"
+                tools:text="Day 1 (Saturday), 09:30 - 09:55" />
 
             <TextView
                 android:id="@+id/room"
                 style="@style/Metadata"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawableLeft="@drawable/ic_place_grey600_18dp"
-                android:drawableStart="@drawable/ic_place_grey600_18dp"
                 android:saveEnabled="false"
-                tools:text="Janson (Building J)"/>
+                app:drawableLeftCompat="@drawable/ic_place_grey600_18dp"
+                app:drawableStartCompat="@drawable/ic_place_grey600_18dp"
+                tools:text="Janson (Building J)" />
 
             <TextView
                 android:id="@+id/room_status"
