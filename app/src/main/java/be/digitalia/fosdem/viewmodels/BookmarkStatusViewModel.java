@@ -11,7 +11,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import be.digitalia.fosdem.db.AppDatabase;
-import be.digitalia.fosdem.livedata.ExtraTransformations;
 import be.digitalia.fosdem.model.BookmarkStatus;
 import be.digitalia.fosdem.model.Event;
 
@@ -31,7 +30,7 @@ public class BookmarkStatusViewModel extends AndroidViewModel {
 
 					return Transformations.map(
 							// Prevent updating the UI when a bookmark is added back or removed back
-							ExtraTransformations.distinctUntilChanged(
+							Transformations.distinctUntilChanged(
 									appDatabase.getBookmarksDao().getBookmarkStatus(event)
 							), isBookmarked -> {
 								if (isBookmarked == null) {
