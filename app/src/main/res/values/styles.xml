@@ -75,7 +75,7 @@
         <item name="android:enabled">false</item>
         <item name="android:theme">@style/ThemeOverlay.AppCompat.Dark</item>
         <item name="fabSize">normal</item>
-        <item name="srcCompat">@drawable/ic_bookmark_outline_white_24dp</item>
+        <item name="srcCompat">@drawable/asld_bookmark_24dp</item>
     </style>
 
     <style name="SeparatorLine">
