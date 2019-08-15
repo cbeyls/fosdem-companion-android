@@ -3,7 +3,6 @@
 
     <!-- Drawable used as a background for activated items. -->
     <attr name="activatedBackgroundIndicator" format="reference"/>
-    <attr name="recyclerViewStyle" format="reference"/>
     <attr name="materialHorizontalProgressBarStyle" format="reference"/>
 
     <declare-styleable name="PrimaryTextColors">

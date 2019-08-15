@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
-import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.widgets.ContentLoadingProgressBar;
 
 /**
@@ -57,7 +56,7 @@ public class RecyclerViewFragment extends Fragment {
 	 */
 	@NonNull
 	protected RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup container, @Nullable Bundle savedInstanceState) {
-		return new RecyclerView(inflater.getContext(), null, R.attr.recyclerViewStyle);
+		return new RecyclerView(inflater.getContext());
 	}
 
 	/**
