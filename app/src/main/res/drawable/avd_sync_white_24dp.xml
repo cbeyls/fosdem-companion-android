@@ -1,6 +1,13 @@
 <animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
-                 android:drawable="@drawable/ic_sync_white_24dp">
-    <target
-        android:name="rotationGroup"
-        android:animation="@animator/sync_rotation"/>
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:drawable="@drawable/ic_sync_white_24dp">
+    <target android:name="rotationGroup">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="500"
+                android:propertyName="rotation"
+                android:valueFrom="0"
+                android:valueTo="-180" />
+        </aapt:attr>
+    </target>
 </animated-vector>

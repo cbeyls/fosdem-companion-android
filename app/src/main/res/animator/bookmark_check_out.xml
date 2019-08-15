@@ -1,7 +1,0 @@
-<objectAnimator
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:duration="300"
-    android:interpolator="@android:anim/decelerate_interpolator"
-    android:propertyName="scaleX"
-    android:valueFrom="0"
-    android:valueTo="1"/>

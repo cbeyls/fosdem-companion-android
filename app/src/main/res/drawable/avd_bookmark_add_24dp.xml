@@ -1,12 +1,51 @@
 <animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
-                 android:drawable="@drawable/ic_avd_bookmark_24dp">
-    <target
-        android:name="outline_extension"
-        android:animation="@animator/bookmark_toggle_in"/>
-    <target
-        android:name="zoom_group"
-        android:animation="@animator/bookmark_zoom_in"/>
-    <target
-        android:name="filler_group"
-        android:animation="@animator/bookmark_check_in"/>
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:drawable="@drawable/ic_avd_bookmark_24dp">
+
+    <target android:name="outline_extension">
+        <aapt:attr name="android:animation">
+            <set android:ordering="sequentially">
+                <objectAnimator
+                    android:duration="250"
+                    android:propertyName="fillAlpha"
+                    android:valueFrom="1"
+                    android:valueTo="1" />
+                <objectAnimator
+                    android:duration="0"
+                    android:propertyName="fillAlpha"
+                    android:valueFrom="1"
+                    android:valueTo="0" />
+            </set>
+        </aapt:attr>
+    </target>
+
+    <target android:name="zoom_group">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="250"
+                android:interpolator="@android:anim/accelerate_interpolator"
+                android:propertyName="scaleY"
+                android:valueFrom="0"
+                android:valueTo="1" />
+        </aapt:attr>
+    </target>
+
+    <target android:name="filler_group">
+        <aapt:attr name="android:animation">
+            <set android:ordering="sequentially">
+                <objectAnimator
+                    android:duration="200"
+                    android:propertyName="scaleX"
+                    android:valueFrom="1"
+                    android:valueTo="1" />
+                <objectAnimator
+                    android:duration="300"
+                    android:interpolator="@android:anim/accelerate_interpolator"
+                    android:propertyName="scaleX"
+                    android:valueFrom="1"
+                    android:valueTo="0" />
+            </set>
+        </aapt:attr>
+    </target>
+
 </animated-vector>
