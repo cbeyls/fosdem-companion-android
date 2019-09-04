@@ -1,12 +1,21 @@
 package be.digitalia.fosdem.utils.network;
 
+import android.os.Build;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.KeyStore;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 
 import be.digitalia.fosdem.utils.ByteCountSource;
 import okhttp3.OkHttpClient;
@@ -25,7 +34,7 @@ public class HttpUtils {
 	private static final long DEFAULT_CONNECT_TIMEOUT = 10L;
 	private static final long DEFAULT_READ_TIMEOUT = 10L;
 
-	private static OkHttpClient sClient = new OkHttpClient.Builder()
+	private static OkHttpClient sClient = enableTls12(new OkHttpClient.Builder())
 			.connectTimeout(DEFAULT_CONNECT_TIMEOUT, TimeUnit.SECONDS)
 			.readTimeout(DEFAULT_READ_TIMEOUT, TimeUnit.SECONDS)
 			.build();
@@ -97,5 +106,27 @@ public class HttpUtils {
 		}
 
 		return response;
+	}
+
+	private static OkHttpClient.Builder enableTls12(OkHttpClient.Builder builder) {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1) {
+			try {
+				final TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+				trustManagerFactory.init((KeyStore) null);
+				final TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
+				if (trustManagers.length != 1 || !(trustManagers[0] instanceof X509TrustManager)) {
+					throw new IllegalStateException("Unexpected default trust managers: " + Arrays.toString(trustManagers));
+				}
+				final X509TrustManager trustManager = (X509TrustManager) trustManagers[0];
+
+				final SSLContext sslContext = SSLContext.getInstance("TLS");
+				sslContext.init(null, new TrustManager[]{trustManager}, null);
+
+				builder.sslSocketFactory(new Tls12SocketFactory(sslContext.getSocketFactory()), trustManager);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return builder;
 	}
 }
