@@ -2,10 +2,15 @@ package be.digitalia.fosdem.api;
 
 import android.content.Context;
 import android.os.AsyncTask;
+
 import androidx.annotation.MainThread;
 import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import be.digitalia.fosdem.db.AppDatabase;
 import be.digitalia.fosdem.db.ScheduleDao;
 import be.digitalia.fosdem.livedata.SingleEvent;
@@ -13,11 +18,8 @@ import be.digitalia.fosdem.model.DetailedEvent;
 import be.digitalia.fosdem.model.DownloadScheduleResult;
 import be.digitalia.fosdem.model.RoomStatus;
 import be.digitalia.fosdem.parsers.EventsParser;
-import be.digitalia.fosdem.utils.HttpUtils;
-
-import java.io.InputStream;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
+import be.digitalia.fosdem.utils.network.HttpUtils;
+import okio.BufferedSource;
 
 /**
  * Main API entry point.
@@ -55,19 +57,19 @@ public class FosdemApi {
 		DownloadScheduleResult res = DownloadScheduleResult.error();
 		try {
 			ScheduleDao scheduleDao = AppDatabase.getInstance(context).getScheduleDao();
-			HttpUtils.HttpResult httpResult = HttpUtils.get(
+			HttpUtils.Response httpResponse = HttpUtils.get(
 					FosdemUrls.getSchedule(),
 					scheduleDao.getLastModifiedTag(),
 					progress::postValue);
-			if (httpResult.inputStream == null) {
+			if (httpResponse.source == null) {
 				// Nothing to parse, the result is up-to-date.
 				res = DownloadScheduleResult.upToDate();
 				return;
 			}
 
-			try (InputStream is = httpResult.inputStream) {
-				Iterable<DetailedEvent> events = new EventsParser().parse(is);
-				int count = scheduleDao.storeSchedule(events, httpResult.lastModified);
+			try (BufferedSource source = httpResponse.source) {
+				Iterable<DetailedEvent> events = new EventsParser().parse(source);
+				int count = scheduleDao.storeSchedule(events, httpResponse.lastModified);
 				res = DownloadScheduleResult.success(count);
 			}
 

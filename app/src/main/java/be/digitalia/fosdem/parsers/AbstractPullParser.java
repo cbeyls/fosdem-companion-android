@@ -5,11 +5,12 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
+
+import okio.BufferedSource;
 
 /**
  * Base class with helper methods for XML pull parsing.
- * 
+ *
  * @author Christophe Beyls
  */
 public abstract class AbstractPullParser<T> implements Parser<T> {
@@ -64,9 +65,10 @@ public abstract class AbstractPullParser<T> implements Parser<T> {
 		}
 	}
 
-	public T parse(InputStream is) throws Exception {
+	@Override
+	public T parse(BufferedSource source) throws Exception {
 		m_parser = getFactory().newPullParser();
-		m_parser.setInput(is, null);
+		m_parser.setInput(source.inputStream(), null);
 
 		return parse(m_parser);
 	}

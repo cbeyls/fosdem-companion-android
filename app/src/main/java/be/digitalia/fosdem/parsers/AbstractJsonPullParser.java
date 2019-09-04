@@ -2,14 +2,15 @@ package be.digitalia.fosdem.parsers;
 
 import android.util.JsonReader;
 
-import java.io.InputStream;
 import java.io.InputStreamReader;
+
+import okio.BufferedSource;
 
 public abstract class AbstractJsonPullParser<T> implements Parser<T> {
 
 	@Override
-	public T parse(InputStream source) throws Exception {
-		JsonReader reader = new JsonReader(new InputStreamReader(source));
+	public T parse(BufferedSource source) throws Exception {
+		JsonReader reader = new JsonReader(new InputStreamReader(source.inputStream()));
 		return parse(reader);
 	}
 

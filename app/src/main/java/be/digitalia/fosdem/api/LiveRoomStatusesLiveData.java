@@ -9,7 +9,8 @@ import android.text.format.DateUtils;
 import androidx.lifecycle.LiveData;
 import be.digitalia.fosdem.model.RoomStatus;
 import be.digitalia.fosdem.parsers.RoomStatusesParser;
-import be.digitalia.fosdem.utils.HttpUtils;
+import be.digitalia.fosdem.utils.network.HttpUtils;
+import okio.BufferedSource;
 
 import java.io.InputStream;
 import java.util.Collections;
@@ -77,8 +78,8 @@ class LiveRoomStatusesLiveData extends LiveData<Map<String, RoomStatus>> {
 
 			@Override
 			protected Map<String, RoomStatus> doInBackground(Void... voids) {
-				try (InputStream is = HttpUtils.get(FosdemUrls.getRooms())) {
-					return new RoomStatusesParser().parse(is);
+				try (BufferedSource source = HttpUtils.get(FosdemUrls.getRooms())) {
+					return new RoomStatusesParser().parse(source);
 				} catch (Throwable e) {
 					return null;
 				}
