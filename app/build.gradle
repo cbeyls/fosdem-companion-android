@@ -46,6 +46,6 @@ dependencies {
     implementation 'androidx.paging:paging-runtime:2.1.0'
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
-    implementation 'com.squareup.okhttp3:okhttp:3.12.3'
+    implementation 'com.squareup.okhttp3:okhttp:3.12.4'
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 }
