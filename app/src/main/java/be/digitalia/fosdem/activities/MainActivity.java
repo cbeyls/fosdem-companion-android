@@ -401,6 +401,19 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 
 		MenuItem searchMenuItem = menu.findItem(R.id.search);
 		this.searchMenuItem = searchMenuItem;
+		searchMenuItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+			@Override
+			public boolean onMenuItemActionExpand(MenuItem item) {
+				return true;
+			}
+
+			@Override
+			public boolean onMenuItemActionCollapse(MenuItem item) {
+				// Workaround for disappearing menu items bug
+				supportInvalidateOptionsMenu();
+				return true;
+			}
+		});
 		// Associate searchable configuration with the SearchView
 		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
 		SearchView searchView = (SearchView) searchMenuItem.getActionView();
