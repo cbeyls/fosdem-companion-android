@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/cbeyls/fosdem-companion-android.svg?branch=master)](https://travis-ci.org/cbeyls/fosdem-companion-android)
+
 # FOSDEM Companion
 
 Advanced native Android schedule browser application for the [FOSDEM](http://fosdem.org/) conference in Brussels, Belgium.
