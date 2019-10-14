@@ -12,6 +12,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,11 +25,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.collection.SimpleArrayMap;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.ObjectsCompat;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.savedstate.SavedStateRegistryOwner;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.EventDetailsActivity;
 import be.digitalia.fosdem.api.FosdemApi;
@@ -32,11 +38,6 @@ import be.digitalia.fosdem.model.RoomStatus;
 import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.DateUtils;
 import be.digitalia.fosdem.widgets.MultiChoiceHelper;
-
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 public class BookmarksAdapter extends ListAdapter<Event, BookmarksAdapter.ViewHolder>
 		implements Observer<Map<String, RoomStatus>> {
@@ -62,14 +63,14 @@ public class BookmarksAdapter extends ListAdapter<Event, BookmarksAdapter.ViewHo
 	final MultiChoiceHelper multiChoiceHelper;
 	private Map<String, RoomStatus> roomStatuses;
 
-	public BookmarksAdapter(@NonNull AppCompatActivity activity, @NonNull LifecycleOwner owner,
+	public BookmarksAdapter(@NonNull AppCompatActivity activity, @NonNull SavedStateRegistryOwner owner,
 							@NonNull MultiChoiceHelper.MultiChoiceModeListener multiChoiceModeListener) {
 		super(DIFF_CALLBACK);
 		setHasStableIds(true);
 		timeDateFormat = DateUtils.getTimeDateFormat(activity);
 		errorColor = ContextCompat.getColor(activity, R.color.error_material);
 
-		multiChoiceHelper = new MultiChoiceHelper(activity, this);
+		multiChoiceHelper = new MultiChoiceHelper(activity, owner, this);
 		multiChoiceHelper.setMultiChoiceModeListener(multiChoiceModeListener);
 
 		FosdemApi.getRoomStatuses(activity).observe(owner, this);

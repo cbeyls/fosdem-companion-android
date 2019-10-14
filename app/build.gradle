@@ -33,6 +33,7 @@ android {
 }
 
 dependencies {
+    def lifecycle_version = "2.1.0"
     def room_version = "2.2.0"
 
     implementation 'androidx.appcompat:appcompat:1.1.0'
@@ -41,7 +42,8 @@ dependencies {
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.preference:preference:1.1.0'
     implementation 'androidx.browser:browser:1.0.0'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
+    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
     implementation 'androidx.paging:paging-runtime:2.1.0'
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"

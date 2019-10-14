@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import java.util.List;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,8 +27,6 @@ import be.digitalia.fosdem.utils.NfcUtils;
 import be.digitalia.fosdem.viewmodels.BookmarksViewModel;
 import be.digitalia.fosdem.widgets.MultiChoiceHelper;
 
-import java.util.List;
-
 /**
  * Bookmarks list, optionally filterable.
  *
@@ -35,7 +36,6 @@ public class BookmarksListFragment extends RecyclerViewFragment
 		implements Observer<List<Event>>, NfcUtils.CreateNfcAppDataCallback {
 
 	private static final String PREF_UPCOMING_ONLY = "bookmarks_upcoming_only";
-	private static final String STATE_ADAPTER = "adapter";
 
 	private BookmarksViewModel viewModel;
 	private BookmarksAdapter adapter;
@@ -88,11 +88,8 @@ public class BookmarksListFragment extends RecyclerViewFragment
 			public void onDestroyActionMode(ActionMode mode) {
 			}
 		};
-		adapter = new BookmarksAdapter((AppCompatActivity) getActivity(), this, multiChoiceModeListener);
-		if (savedInstanceState != null) {
-			adapter.getMultiChoiceHelper().onRestoreInstanceState(savedInstanceState.getParcelable(STATE_ADAPTER));
-		}
-		boolean upcomingOnly = getActivity().getPreferences(Context.MODE_PRIVATE).getBoolean(PREF_UPCOMING_ONLY, false);
+		adapter = new BookmarksAdapter((AppCompatActivity) requireActivity(), this, multiChoiceModeListener);
+		boolean upcomingOnly = requireActivity().getPreferences(Context.MODE_PRIVATE).getBoolean(PREF_UPCOMING_ONLY, false);
 		viewModel.setUpcomingOnly(upcomingOnly);
 
 		setHasOptionsMenu(true);
@@ -116,19 +113,7 @@ public class BookmarksListFragment extends RecyclerViewFragment
 	}
 
 	@Override
-	public void onSaveInstanceState(@NonNull Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putParcelable(STATE_ADAPTER, adapter.getMultiChoiceHelper().onSaveInstanceState());
-	}
-
-	@Override
-	public void onDestroyView() {
-		adapter.getMultiChoiceHelper().clearChoices();
-		super.onDestroyView();
-	}
-
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+	public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.bookmarks, menu);
 		filterMenuItem = menu.findItem(R.id.filter);
 		upcomingOnlyMenuItem = menu.findItem(R.id.upcoming_only);
@@ -159,7 +144,7 @@ public class BookmarksListFragment extends RecyclerViewFragment
 				final boolean upcomingOnly = !viewModel.getUpcomingOnly();
 				viewModel.setUpcomingOnly(upcomingOnly);
 				updateFilterMenuItem();
-				getActivity().getPreferences(Context.MODE_PRIVATE).edit()
+				requireActivity().getPreferences(Context.MODE_PRIVATE).edit()
 						.putBoolean(PREF_UPCOMING_ONLY, upcomingOnly)
 						.apply();
 				return true;

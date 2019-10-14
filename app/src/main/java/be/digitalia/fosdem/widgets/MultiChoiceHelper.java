@@ -1,5 +1,6 @@
 package be.digitalia.fosdem.widgets;
 
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.SparseBooleanArray;
@@ -7,15 +8,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Checkable;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
 import androidx.collection.LongSparseArray;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.savedstate.SavedStateRegistryOwner;
 
 /**
  * Helper class to reproduce ListView's modal MultiChoice mode with a RecyclerView.
- * Compatible with API 7+.
  * Declare and use this class from inside your Adapter.
  *
  * @author Christophe Beyls
@@ -94,6 +98,8 @@ public class MultiChoiceHelper {
 
 	public static final Object SELECTION_PAYLOAD = new Object();
 
+	private static final String STATE_KEY = "MultiChoiceHelper";
+	private static final String PARCELABLE_KEY = "saved_state";
 	private static final int CHECK_POSITION_SEARCH_DISTANCE = 20;
 
 	private final AppCompatActivity activity;
@@ -108,7 +114,9 @@ public class MultiChoiceHelper {
 	 * Make sure this constructor is called before setting the adapter on the RecyclerView
 	 * so this class will be notified before the RecyclerView in case of data set changes.
 	 */
-	public MultiChoiceHelper(@NonNull AppCompatActivity activity, @NonNull RecyclerView.Adapter adapter) {
+	public MultiChoiceHelper(@NonNull AppCompatActivity activity,
+							 @NonNull SavedStateRegistryOwner owner,
+							 @NonNull RecyclerView.Adapter adapter) {
 		this.activity = activity;
 		this.adapter = adapter;
 		adapter.registerAdapterDataObserver(new AdapterDataSetObserver());
@@ -116,6 +124,36 @@ public class MultiChoiceHelper {
 		if (adapter.hasStableIds()) {
 			checkedIdStates = new LongSparseArray<>(0);
 		}
+
+		final Bundle restoreBundle = owner.getSavedStateRegistry().consumeRestoredStateForKey(STATE_KEY);
+		if (restoreBundle != null) {
+			SavedState savedState = restoreBundle.getParcelable(PARCELABLE_KEY);
+			checkedItemCount = savedState.checkedItemCount;
+			checkStates = savedState.checkStates;
+			checkedIdStates = savedState.checkedIdStates;
+
+			// Try early restoration, otherwise do it when items are inserted
+			if (adapter.getItemCount() > 0) {
+				onAdapterPopulated();
+			}
+		}
+		owner.getSavedStateRegistry().registerSavedStateProvider(STATE_KEY, () -> {
+			final Bundle saveBundle = new Bundle();
+			SavedState savedState = new SavedState();
+			savedState.checkedItemCount = checkedItemCount;
+			savedState.checkStates = checkStates.clone();
+			if (checkedIdStates != null) {
+				savedState.checkedIdStates = checkedIdStates.clone();
+			}
+			saveBundle.putParcelable(PARCELABLE_KEY, savedState);
+			return saveBundle;
+		});
+		owner.getLifecycle().addObserver(new DefaultLifecycleObserver() {
+			@Override
+			public void onDestroy(@NonNull LifecycleOwner owner) {
+				clearChoices();
+			}
+		});
 	}
 
 	public void setMultiChoiceModeListener(MultiChoiceModeListener listener) {
@@ -176,7 +214,7 @@ public class MultiChoiceHelper {
 	}
 
 	public void setItemChecked(int position, boolean value) {
-		// Start selection mode if needed. We don't need to if we're unchecking something.
+		// Start selection mode if needed. We don't need it if we're unchecking something.
 		if (value) {
 			startSupportActionModeIfNeeded();
 		}
@@ -216,41 +254,10 @@ public class MultiChoiceHelper {
 		setItemChecked(position, !isItemChecked(position));
 	}
 
-	public Parcelable onSaveInstanceState() {
-		SavedState savedState = new SavedState();
-		savedState.checkedItemCount = checkedItemCount;
-		savedState.checkStates = checkStates.clone();
-		if (checkedIdStates != null) {
-			savedState.checkedIdStates = checkedIdStates.clone();
-		}
-		return savedState;
-	}
-
-	public void onRestoreInstanceState(Parcelable state) {
-		if ((state != null) && (checkedItemCount == 0)) {
-			SavedState savedState = (SavedState) state;
-			checkedItemCount = savedState.checkedItemCount;
-			checkStates = savedState.checkStates;
-			checkedIdStates = savedState.checkedIdStates;
-
-			if (checkedItemCount > 0) {
-				// Empty adapter is given a chance to be populated before completeRestoreInstanceState()
-				if (adapter.getItemCount() > 0) {
-					confirmCheckedPositions();
-				}
-				activity.getWindow().getDecorView().post(this::completeRestoreInstanceState);
-			}
-		}
-	}
-
-	void completeRestoreInstanceState() {
+	void onAdapterPopulated() {
+		confirmCheckedPositions();
 		if (checkedItemCount > 0) {
-			if (adapter.getItemCount() == 0) {
-				// Adapter was not populated, clear the selection
-				confirmCheckedPositions();
-			} else {
-				startSupportActionModeIfNeeded();
-			}
+			startSupportActionModeIfNeeded();
 		}
 	}
 
@@ -397,7 +404,9 @@ public class MultiChoiceHelper {
 
 		@Override
 		public void onItemRangeInserted(int positionStart, int itemCount) {
-			confirmCheckedPositions();
+			if (itemCount > 0) {
+				onAdapterPopulated();
+			}
 		}
 
 		@Override
