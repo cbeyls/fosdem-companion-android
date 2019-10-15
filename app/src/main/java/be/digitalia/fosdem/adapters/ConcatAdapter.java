@@ -80,7 +80,17 @@ public class ConcatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 		public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
 			if (totalItemCount != -1) {
 				final int offset = offsets[adapterIndex];
-				notifyItemMoved(fromPosition + offset, toPosition + offset);
+				if (itemCount == 1) {
+					notifyItemMoved(fromPosition + offset, toPosition + offset);
+				} else if (fromPosition < toPosition) {
+					for (int i = itemCount - 1; i >= 0; --i) {
+						notifyItemMoved(fromPosition + i + offset, toPosition + i + offset);
+					}
+				} else {
+					for (int i = 0; i < itemCount; ++i) {
+						notifyItemMoved(fromPosition + i + offset, toPosition + i + offset);
+					}
+				}
 			}
 		}
 	}
