@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.format.DateUtils;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
@@ -12,6 +13,9 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.List;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.adapters.TrackScheduleAdapter;
 import be.digitalia.fosdem.model.Day;
@@ -19,8 +23,6 @@ import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.StatusEvent;
 import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.viewmodels.TrackScheduleViewModel;
-
-import java.util.List;
 
 public class TrackScheduleListFragment extends RecyclerViewFragment
 		implements TrackScheduleAdapter.EventClickListener, Handler.Callback, Observer<List<StatusEvent>> {
@@ -74,7 +76,8 @@ public class TrackScheduleListFragment extends RecyclerViewFragment
 		super.onCreate(savedInstanceState);
 		selectionEnabled = getResources().getBoolean(R.bool.tablet_landscape);
 
-		day = getArguments().getParcelable(ARG_DAY);
+		final Bundle args = requireArguments();
+		day = args.getParcelable(ARG_DAY);
 		handler = new Handler(this);
 		adapter = new TrackScheduleAdapter(getActivity(), this);
 
@@ -82,7 +85,7 @@ public class TrackScheduleListFragment extends RecyclerViewFragment
 			isListAlreadyShown = savedInstanceState.getBoolean(STATE_IS_LIST_ALREADY_SHOWN);
 		}
 		if (savedInstanceState == null) {
-			setSelectedId(getArguments().getLong(ARG_FROM_EVENT_ID, -1L));
+			setSelectedId(args.getLong(ARG_FROM_EVENT_ID, -1L));
 		} else {
 			setSelectedId(savedInstanceState.getLong(STATE_SELECTED_ID));
 		}
@@ -103,7 +106,7 @@ public class TrackScheduleListFragment extends RecyclerViewFragment
 	}
 
 	@Override
-	public void onAttach(Context context) {
+	public void onAttach(@NonNull Context context) {
 		super.onAttach(context);
 		if (context instanceof Callbacks) {
 			listener = (Callbacks) context;
@@ -136,7 +139,7 @@ public class TrackScheduleListFragment extends RecyclerViewFragment
 		setEmptyText(getString(R.string.no_data));
 		setProgressBarVisible(true);
 
-		Track track = getArguments().getParcelable(ARG_TRACK);
+		Track track = requireArguments().getParcelable(ARG_TRACK);
 		final TrackScheduleViewModel viewModel = ViewModelProviders.of(this).get(TrackScheduleViewModel.class);
 		viewModel.setTrack(day, track);
 		viewModel.getSchedule().observe(getViewLifecycleOwner(), this);

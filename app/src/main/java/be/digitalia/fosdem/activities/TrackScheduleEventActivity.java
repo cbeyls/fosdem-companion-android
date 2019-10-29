@@ -6,6 +6,8 @@ import android.nfc.NdefRecord;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -178,6 +180,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 			return (events == null) ? 0 : events.size();
 		}
 
+		@NonNull
 		@Override
 		public Fragment getItem(int position) {
 			return EventDetailsFragment.newInstance(events.get(position));

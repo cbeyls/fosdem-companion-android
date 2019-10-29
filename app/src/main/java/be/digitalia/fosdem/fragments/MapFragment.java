@@ -1,7 +1,7 @@
 package be.digitalia.fosdem.fragments;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,12 +12,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.Locale;
-
 import androidx.annotation.NonNull;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+
+import java.util.Locale;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemUrls;
 
@@ -38,7 +39,7 @@ public class MapFragment extends Fragment {
 	}
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+	public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.map, menu);
 	}
 
@@ -71,7 +72,7 @@ public class MapFragment extends Fragment {
 
 	private void launchLocalNavigation() {
 		try {
-			Activity context = getActivity();
+			Context context = requireContext();
 			new CustomTabsIntent.Builder()
 					.setToolbarColor(ContextCompat.getColor(context, R.color.color_primary))
 					.setShowTitle(true)

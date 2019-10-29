@@ -64,13 +64,11 @@ public abstract class IterableAbstractPullParser<T> extends AbstractPullParser<I
 
 	/**
 	 * @return true if the header was parsed successfully and the main items list has been reached.
-	 * @throws Exception
 	 */
 	protected abstract boolean parseHeader(XmlPullParser parser) throws Exception;
 
 	/**
 	 * @return the next item, or null if no more items are found.
-	 * @throws Exception
 	 */
 	protected abstract T parseNext(XmlPullParser parser) throws Exception;
 

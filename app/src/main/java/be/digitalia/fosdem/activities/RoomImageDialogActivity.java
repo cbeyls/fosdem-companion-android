@@ -10,11 +10,13 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.widget.ImageView;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemApi;
 import be.digitalia.fosdem.api.FosdemUrls;
@@ -41,7 +43,7 @@ public class RoomImageDialogActivity extends AppCompatActivity {
 
 		setContentView(R.layout.dialog_room_image);
 		((ImageView) findViewById(R.id.room_image)).setImageResource(intent.getIntExtra(EXTRA_ROOM_IMAGE_RESOURCE_ID, 0));
-		configureToolbar(this, (Toolbar) findViewById(R.id.toolbar), roomName);
+		configureToolbar(this, findViewById(R.id.toolbar), roomName);
 	}
 
 	public static void configureToolbar(LifecycleOwner owner,

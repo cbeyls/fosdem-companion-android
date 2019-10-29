@@ -3,6 +3,7 @@ package be.digitalia.fosdem.db;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
@@ -75,7 +76,7 @@ public abstract class AppDatabase extends RoomDatabase {
 		return sharedPreferences;
 	}
 
-	public static AppDatabase getInstance(Context context) {
+	public static AppDatabase getInstance(@NonNull Context context) {
 		AppDatabase res = INSTANCE;
 		if (res == null) {
 			synchronized (AppDatabase.class) {

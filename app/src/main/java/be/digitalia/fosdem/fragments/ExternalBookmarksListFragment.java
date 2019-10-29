@@ -1,6 +1,7 @@
 package be.digitalia.fosdem.fragments;
 
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -8,6 +9,7 @@ import androidx.paging.PagedList;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.adapters.EventsAdapter;
 import be.digitalia.fosdem.model.StatusEvent;
@@ -47,7 +49,7 @@ public class ExternalBookmarksListFragment extends RecyclerViewFragment implemen
 		setEmptyText(getString(R.string.no_bookmark));
 		setProgressBarVisible(true);
 
-		long[] bookmarkIds = getArguments().getLongArray(ARG_BOOKMARK_IDS);
+		long[] bookmarkIds = requireArguments().getLongArray(ARG_BOOKMARK_IDS);
 		final ExternalBookmarksViewModel viewModel = ViewModelProviders.of(this).get(ExternalBookmarksViewModel.class);
 		viewModel.setBookmarkIds(bookmarkIds);
 		viewModel.getBookmarks().observe(getViewLifecycleOwner(), this);

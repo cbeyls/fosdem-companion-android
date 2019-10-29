@@ -1,10 +1,16 @@
 package be.digitalia.fosdem.fragments;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.content.ContextCompat;
@@ -13,6 +19,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.adapters.ConcatAdapter;
 import be.digitalia.fosdem.adapters.EventsAdapter;
@@ -41,12 +48,12 @@ public class PersonInfoListFragment extends RecyclerViewFragment implements Obse
 		super.onCreate(savedInstanceState);
 
 		adapter = new EventsAdapter(getContext(), this);
-		person = getArguments().getParcelable(ARG_PERSON);
+		person = requireArguments().getParcelable(ARG_PERSON);
 		setHasOptionsMenu(true);
 	}
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+	public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.person, menu);
 	}
 
@@ -69,7 +76,7 @@ public class PersonInfoListFragment extends RecyclerViewFragment implements Obse
 					String url = person.getUrl(year);
 					if (url != null) {
 						try {
-							Activity context = getActivity();
+							Context context = requireContext();
 							new CustomTabsIntent.Builder()
 									.setToolbarColor(ContextCompat.getColor(context, R.color.color_primary))
 									.setStartAnimations(context, R.anim.slide_in_right, R.anim.slide_out_left)

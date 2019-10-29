@@ -6,15 +6,16 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.text.format.DateUtils;
+
 import androidx.lifecycle.LiveData;
+
+import java.util.Collections;
+import java.util.Map;
+
 import be.digitalia.fosdem.model.RoomStatus;
 import be.digitalia.fosdem.parsers.RoomStatusesParser;
 import be.digitalia.fosdem.utils.network.HttpUtils;
 import okio.BufferedSource;
-
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.Map;
 
 /**
  * Loads and maintain the Room statuses live during the event.
@@ -126,7 +127,7 @@ class LiveRoomStatusesLiveData extends LiveData<Map<String, RoomStatus>> {
 
 	void expire() {
 		// When the data expires, replace it with an empty value
-		setValue(Collections.<String, RoomStatus>emptyMap());
+		setValue(Collections.emptyMap());
 		expirationTime = Long.MAX_VALUE;
 	}
 }

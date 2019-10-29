@@ -7,10 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.material.tabs.TabLayout;
-
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -19,6 +15,11 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.material.tabs.TabLayout;
+
+import java.util.List;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.db.AppDatabase;
 import be.digitalia.fosdem.model.Day;
@@ -45,7 +46,7 @@ public class TracksFragment extends Fragment implements RecycledViewPoolProvider
 
 		if (savedInstanceState == null) {
 			// Restore the current page from preferences
-			savedCurrentPage = getActivity().getPreferences(Context.MODE_PRIVATE).getInt(PREF_CURRENT_PAGE, -1);
+			savedCurrentPage = requireActivity().getPreferences(Context.MODE_PRIVATE).getInt(PREF_CURRENT_PAGE, -1);
 		}
 	}
 
@@ -74,7 +75,7 @@ public class TracksFragment extends Fragment implements RecycledViewPoolProvider
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		AppDatabase.getInstance(getContext()).getScheduleDao().getDays()
+		AppDatabase.getInstance(requireContext()).getScheduleDao().getDays()
 				.observe(getViewLifecycleOwner(), this);
 	}
 
@@ -83,7 +84,7 @@ public class TracksFragment extends Fragment implements RecycledViewPoolProvider
 		super.onStop();
 		// Save the current page to preferences if it has changed
 		final int page = holder.pager.getCurrentItem();
-		SharedPreferences prefs = getActivity().getPreferences(Context.MODE_PRIVATE);
+		SharedPreferences prefs = requireActivity().getPreferences(Context.MODE_PRIVATE);
 		if (prefs.getInt(PREF_CURRENT_PAGE, -1) != page) {
 			prefs.edit()
 					.putInt(PREF_CURRENT_PAGE, page)
@@ -138,6 +139,7 @@ public class TracksFragment extends Fragment implements RecycledViewPoolProvider
 			return (days == null) ? 0 : days.size();
 		}
 
+		@NonNull
 		@Override
 		public Fragment getItem(int position) {
 			return TracksListFragment.newInstance(days.get(position));

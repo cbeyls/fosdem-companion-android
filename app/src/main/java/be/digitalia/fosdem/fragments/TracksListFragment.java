@@ -40,7 +40,7 @@ public class TracksListFragment extends RecyclerViewFragment implements Observer
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		day = getArguments().getParcelable(ARG_DAY);
+		day = requireArguments().getParcelable(ARG_DAY);
 		adapter = new TracksAdapter(day);
 	}
 

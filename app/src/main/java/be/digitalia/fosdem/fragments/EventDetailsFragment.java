@@ -6,30 +6,47 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract;
-import android.text.*;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.TextPaint;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
-import be.digitalia.fosdem.R;
-import be.digitalia.fosdem.activities.PersonInfoActivity;
-import be.digitalia.fosdem.api.FosdemApi;
-import be.digitalia.fosdem.model.*;
-import be.digitalia.fosdem.utils.ClickableArrowKeyMovementMethod;
-import be.digitalia.fosdem.utils.DateUtils;
-import be.digitalia.fosdem.utils.StringUtils;
-import be.digitalia.fosdem.viewmodels.EventDetailsViewModel;
+
 import com.google.android.material.snackbar.Snackbar;
 
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
+
+import be.digitalia.fosdem.R;
+import be.digitalia.fosdem.activities.PersonInfoActivity;
+import be.digitalia.fosdem.api.FosdemApi;
+import be.digitalia.fosdem.model.Building;
+import be.digitalia.fosdem.model.Event;
+import be.digitalia.fosdem.model.EventDetails;
+import be.digitalia.fosdem.model.Link;
+import be.digitalia.fosdem.model.Person;
+import be.digitalia.fosdem.model.RoomStatus;
+import be.digitalia.fosdem.utils.ClickableArrowKeyMovementMethod;
+import be.digitalia.fosdem.utils.DateUtils;
+import be.digitalia.fosdem.utils.StringUtils;
+import be.digitalia.fosdem.viewmodels.EventDetailsViewModel;
 
 public class EventDetailsFragment extends Fragment {
 
@@ -58,7 +75,7 @@ public class EventDetailsFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		event = getArguments().getParcelable(ARG_EVENT);
+		event = requireArguments().getParcelable(ARG_EVENT);
 		viewModel = ViewModelProviders.of(this).get(EventDetailsViewModel.class);
 		viewModel.setEvent(event);
 		setHasOptionsMenu(true);
@@ -115,7 +132,7 @@ public class EventDetailsFragment extends Fragment {
 		textView = view.findViewById(R.id.room);
 		final String roomName = event.getRoomName();
 		Spannable roomText = new SpannableString(String.format("%1$s (Building %2$s)", roomName, Building.fromRoomName(roomName)));
-		final int roomImageResId = getResources().getIdentifier(StringUtils.roomNameToResourceName(roomName), "drawable", getActivity().getPackageName());
+		final int roomImageResId = getResources().getIdentifier(StringUtils.roomNameToResourceName(roomName), "drawable", requireActivity().getPackageName());
 		// If the room image exists, make the room text clickable to display it
 		if (roomImageResId != 0) {
 			roomText.setSpan(new ClickableSpan() {
@@ -171,13 +188,13 @@ public class EventDetailsFragment extends Fragment {
 		});
 
 		// Live room status
-		FosdemApi.getRoomStatuses(getContext()).observe(getViewLifecycleOwner(), roomStatuses -> {
+		FosdemApi.getRoomStatuses(requireContext()).observe(getViewLifecycleOwner(), roomStatuses -> {
 			RoomStatus roomStatus = roomStatuses.get(event.getRoomName());
 			if (roomStatus == null) {
 				holder.roomStatus.setText(null);
 			} else {
 				holder.roomStatus.setText(roomStatus.getNameResId());
-				holder.roomStatus.setTextColor(ContextCompat.getColor(getContext(), roomStatus.getColorResId()));
+				holder.roomStatus.setTextColor(ContextCompat.getColor(requireContext(), roomStatus.getColorResId()));
 			}
 		});
 	}
@@ -189,13 +206,13 @@ public class EventDetailsFragment extends Fragment {
 	}
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+	public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.event, menu);
 		menu.findItem(R.id.share).setIntent(getShareChooserIntent());
 	}
 
 	private Intent getShareChooserIntent() {
-		return ShareCompat.IntentBuilder.from(getActivity())
+		return ShareCompat.IntentBuilder.from(requireActivity())
 				.setSubject(String.format("%1$s (FOSDEM)", event.getTitle()))
 				.setType("text/plain")
 				.setText(String.format("%1$s %2$s #FOSDEM", event.getTitle(), event.getUrl()))
@@ -241,7 +258,7 @@ public class EventDetailsFragment extends Fragment {
 		try {
 			startActivity(intent);
 		} catch (ActivityNotFoundException e) {
-			Snackbar.make(getView(), R.string.calendar_not_found, Snackbar.LENGTH_LONG).show();
+			Snackbar.make(requireView(), R.string.calendar_not_found, Snackbar.LENGTH_LONG).show();
 		}
 	}
 
@@ -288,7 +305,7 @@ public class EventDetailsFragment extends Fragment {
 
 		private final Person person;
 
-		public PersonClickableSpan(Person person) {
+		PersonClickableSpan(Person person) {
 			this.person = person;
 		}
 

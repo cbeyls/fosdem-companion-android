@@ -5,11 +5,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.preference.PreferenceFragmentCompat;
+
 import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.services.AlarmIntentService;
@@ -48,7 +50,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
 	private void setupAboutDialog() {
 		findPreference(KEY_PREF_ABOUT).setOnPreferenceClickListener(preference -> {
-			new AboutDialogFragment().show(getFragmentManager(), "about");
+			new AboutDialogFragment().show(requireFragmentManager(), "about");
 			return true;
 		});
 	}
@@ -58,7 +60,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 		@NonNull
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
-			return new AlertDialog.Builder(getContext())
+			return new AlertDialog.Builder(requireContext())
 					.setTitle(R.string.app_name)
 					.setIcon(R.mipmap.ic_launcher)
 					.setMessage(getResources().getText(R.string.about_text))
@@ -70,7 +72,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 		public void onStart() {
 			super.onStart();
 			// Make links clickable; must be called after the dialog is shown
-			((TextView) getDialog().findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+			((TextView) requireDialog().findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
 		}
 	}
 

@@ -1,6 +1,7 @@
 package be.digitalia.fosdem.fragments;
 
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
@@ -10,6 +11,7 @@ import androidx.paging.PagedList;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import be.digitalia.fosdem.adapters.EventsAdapter;
 import be.digitalia.fosdem.model.StatusEvent;
 import be.digitalia.fosdem.viewmodels.LiveViewModel;
@@ -43,7 +45,7 @@ public abstract class BaseLiveListFragment extends RecyclerViewFragment implemen
 		setEmptyText(getEmptyText());
 		setProgressBarVisible(true);
 
-		final LiveViewModel viewModel = ViewModelProviders.of(getParentFragment()).get(LiveViewModel.class);
+		final LiveViewModel viewModel = ViewModelProviders.of(requireParentFragment()).get(LiveViewModel.class);
 		getDataSource(viewModel).observe(getViewLifecycleOwner(), this);
 	}
 

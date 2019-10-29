@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -39,7 +40,7 @@ public class FosdemApi {
 	 * The result will be sent back in the consumable Result LiveData.
 	 */
 	@MainThread
-	public static void downloadSchedule(Context context) {
+	public static void downloadSchedule(@NonNull Context context) {
 		if (!isLoading.compareAndSet(false, true)) {
 			// If a download is already in progress, return immediately
 			return;
@@ -52,7 +53,7 @@ public class FosdemApi {
 	}
 
 	@WorkerThread
-	private static void downloadScheduleInternal(Context context) {
+	private static void downloadScheduleInternal(@NonNull Context context) {
 		progress.postValue(-1);
 		DownloadScheduleResult res = DownloadScheduleResult.error();
 		try {
@@ -97,7 +98,7 @@ public class FosdemApi {
 	}
 
 	@MainThread
-	public static LiveData<Map<String, RoomStatus>> getRoomStatuses(Context context) {
+	public static LiveData<Map<String, RoomStatus>> getRoomStatuses(@NonNull Context context) {
 		if (roomStatuses == null) {
 			// The room statuses will only be loaded when the event is live.
 			// RoomStatusesLiveData uses the days from the database to determine it.

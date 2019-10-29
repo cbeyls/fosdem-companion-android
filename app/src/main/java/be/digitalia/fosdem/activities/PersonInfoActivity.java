@@ -4,8 +4,8 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.PersonInfoListFragment;
 import be.digitalia.fosdem.model.Person;
@@ -18,7 +18,7 @@ public class PersonInfoActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.content_extended_title);
-		setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+		setSupportActionBar(findViewById(R.id.toolbar));
 
 		Person person = getIntent().getParcelableExtra(EXTRA_PERSON);
 

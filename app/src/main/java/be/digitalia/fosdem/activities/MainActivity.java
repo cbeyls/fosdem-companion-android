@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,17 +39,23 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
+
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
+
 import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemApi;
 import be.digitalia.fosdem.api.FosdemUrls;
 import be.digitalia.fosdem.db.AppDatabase;
-import be.digitalia.fosdem.fragments.*;
+import be.digitalia.fosdem.fragments.BookmarksListFragment;
+import be.digitalia.fosdem.fragments.LiveFragment;
+import be.digitalia.fosdem.fragments.MapFragment;
+import be.digitalia.fosdem.fragments.PersonsListFragment;
+import be.digitalia.fosdem.fragments.TracksFragment;
 import be.digitalia.fosdem.livedata.SingleEvent;
 import be.digitalia.fosdem.model.DownloadScheduleResult;
 import be.digitalia.fosdem.utils.NfcUtils;
-import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
 
 /**
  * Main entry point of the application. Allows to switch between section fragments and update the database.
@@ -174,10 +181,11 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 		@NonNull
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
-			return new AlertDialog.Builder(getContext())
+			final Context context = requireContext();
+			return new AlertDialog.Builder(context)
 					.setTitle(R.string.download_reminder_title)
 					.setMessage(R.string.download_reminder_message)
-					.setPositiveButton(android.R.string.ok, (dialog, which) -> FosdemApi.downloadSchedule(getContext()))
+					.setPositiveButton(android.R.string.ok, (dialog, which) -> FosdemApi.downloadSchedule(context))
 					.setNegativeButton(android.R.string.cancel, null)
 					.create();
 		}
@@ -351,7 +359,7 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 	}
 
 	@Override
-	protected void onSaveInstanceState(Bundle outState) {
+	protected void onSaveInstanceState(@NonNull Bundle outState) {
 		// Ensure no fragment transaction attempt will occur after onSaveInstanceState()
 		if (pendingNavigationMenuItem != null) {
 			pendingNavigationMenuItem = null;
