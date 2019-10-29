@@ -27,15 +27,11 @@ public class LiveDataFactory {
 
 		@Override
 		protected void onActive() {
-			if (version == 0L) {
-				run();
+			final long now = SystemClock.elapsedRealtime();
+			if (now >= updateTime) {
+				update(now);
 			} else {
-				final long now = SystemClock.elapsedRealtime();
-				if (now >= updateTime) {
-					handler.post(this);
-				} else {
-					handler.postDelayed(this, updateTime - now);
-				}
+				handler.postDelayed(this, updateTime - now);
 			}
 		}
 
@@ -44,11 +40,15 @@ public class LiveDataFactory {
 			handler.removeCallbacks(this);
 		}
 
+		private void update(long now) {
+			setValue(version++);
+			updateTime = now + periodInMillis;
+			handler.postDelayed(this, periodInMillis);
+		}
+
 		@Override
 		public void run() {
-			setValue(version++);
-			updateTime = SystemClock.elapsedRealtime() + periodInMillis;
-			handler.postDelayed(this, periodInMillis);
+			update(SystemClock.elapsedRealtime());
 		}
 	}
 
