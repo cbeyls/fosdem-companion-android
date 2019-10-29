@@ -2,9 +2,6 @@ package be.digitalia.fosdem.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.text.format.DateUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,7 +22,7 @@ import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.viewmodels.TrackScheduleViewModel;
 
 public class TrackScheduleListFragment extends RecyclerViewFragment
-		implements TrackScheduleAdapter.EventClickListener, Handler.Callback, Observer<List<StatusEvent>> {
+		implements TrackScheduleAdapter.EventClickListener, Observer<List<StatusEvent>> {
 
 	/**
 	 * Interface implemented by container activities
@@ -34,9 +31,6 @@ public class TrackScheduleListFragment extends RecyclerViewFragment
 		void onEventSelected(int position, Event event);
 	}
 
-	private static final int REFRESH_TIME_WHAT = 1;
-	private static final long REFRESH_TIME_INTERVAL = DateUtils.MINUTE_IN_MILLIS;
-
 	private static final String ARG_DAY = "day";
 	private static final String ARG_TRACK = "track";
 	private static final String ARG_FROM_EVENT_ID = "from_event_id";
@@ -44,9 +38,8 @@ public class TrackScheduleListFragment extends RecyclerViewFragment
 	private static final String STATE_IS_LIST_ALREADY_SHOWN = "isListAlreadyShown";
 	private static final String STATE_SELECTED_ID = "selectedId";
 
-	private Day day;
-	private Handler handler;
 	private TrackScheduleAdapter adapter;
+	private TrackScheduleViewModel viewModel;
 	private Callbacks listener;
 	private boolean selectionEnabled = false;
 	private long selectedId = -1L;
@@ -76,10 +69,14 @@ public class TrackScheduleListFragment extends RecyclerViewFragment
 		super.onCreate(savedInstanceState);
 		selectionEnabled = getResources().getBoolean(R.bool.tablet_landscape);
 
-		final Bundle args = requireArguments();
-		day = args.getParcelable(ARG_DAY);
-		handler = new Handler(this);
 		adapter = new TrackScheduleAdapter(getActivity(), this);
+
+		final Bundle args = requireArguments();
+		final Day day = args.getParcelable(ARG_DAY);
+		final Track track = args.getParcelable(ARG_TRACK);
+		viewModel = ViewModelProviders.of(this).get(TrackScheduleViewModel.class);
+		viewModel.setTrack(day, track);
+		viewModel.getCurrentTime().observe(this, now -> adapter.setCurrentTime(now));
 
 		if (savedInstanceState != null) {
 			isListAlreadyShown = savedInstanceState.getBoolean(STATE_IS_LIST_ALREADY_SHOWN);
@@ -139,54 +136,13 @@ public class TrackScheduleListFragment extends RecyclerViewFragment
 		setEmptyText(getString(R.string.no_data));
 		setProgressBarVisible(true);
 
-		Track track = requireArguments().getParcelable(ARG_TRACK);
-		final TrackScheduleViewModel viewModel = ViewModelProviders.of(this).get(TrackScheduleViewModel.class);
-		viewModel.setTrack(day, track);
 		viewModel.getSchedule().observe(getViewLifecycleOwner(), this);
-	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
-
-		// Setup display auto-refresh during the track's day
-		long now = System.currentTimeMillis();
-		long dayStart = day.getDate().getTime();
-		if (now < dayStart) {
-			// Before track day, schedule refresh in the future
-			adapter.setCurrentTime(-1L);
-			handler.sendEmptyMessageDelayed(REFRESH_TIME_WHAT, dayStart - now);
-		} else if (now < dayStart + android.text.format.DateUtils.DAY_IN_MILLIS) {
-			// During track day, start refresh immediately
-			adapter.setCurrentTime(now);
-			handler.sendEmptyMessageDelayed(REFRESH_TIME_WHAT, REFRESH_TIME_INTERVAL);
-		} else {
-			// After track day, disable refresh
-			adapter.setCurrentTime(-1L);
-		}
-	}
-
-	@Override
-	public void onStop() {
-		handler.removeMessages(REFRESH_TIME_WHAT);
-		super.onStop();
 	}
 
 	@Override
 	public void onEventClick(int position, Event event) {
 		setSelectedId(event.getId());
 		notifyEventSelected(position, event);
-	}
-
-	@Override
-	public boolean handleMessage(Message msg) {
-		switch (msg.what) {
-			case REFRESH_TIME_WHAT:
-				adapter.setCurrentTime(System.currentTimeMillis());
-				handler.sendEmptyMessageDelayed(REFRESH_TIME_WHAT, REFRESH_TIME_INTERVAL);
-				return true;
-		}
-		return false;
 	}
 
 	@Override

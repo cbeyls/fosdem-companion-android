@@ -2,19 +2,25 @@ package be.digitalia.fosdem.api;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.text.format.DateUtils;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import be.digitalia.fosdem.db.AppDatabase;
 import be.digitalia.fosdem.db.ScheduleDao;
+import be.digitalia.fosdem.livedata.LiveDataFactory;
 import be.digitalia.fosdem.livedata.SingleEvent;
+import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.DetailedEvent;
 import be.digitalia.fosdem.model.DownloadScheduleResult;
 import be.digitalia.fosdem.model.RoomStatus;
@@ -28,6 +34,11 @@ import okio.BufferedSource;
  * @author Christophe Beyls
  */
 public class FosdemApi {
+
+	// 8:30 (local time)
+	private static final long DAY_START_TIME = 8 * DateUtils.HOUR_IN_MILLIS + 30 * DateUtils.MINUTE_IN_MILLIS;
+	// 19:00 (local time)
+	private static final long DAY_END_TIME = 19 * DateUtils.HOUR_IN_MILLIS;
 
 	private static final AtomicBoolean isLoading = new AtomicBoolean();
 	private static final MutableLiveData<Integer> progress = new MutableLiveData<>();
@@ -101,9 +112,22 @@ public class FosdemApi {
 	public static LiveData<Map<String, RoomStatus>> getRoomStatuses(@NonNull Context context) {
 		if (roomStatuses == null) {
 			// The room statuses will only be loaded when the event is live.
-			// RoomStatusesLiveData uses the days from the database to determine it.
-			roomStatuses = new RoomStatusesLiveData(AppDatabase.getInstance(context).getScheduleDao().getDays());
-			// Implementors: replace the above line with the next one to disable room status support
+			// Use the days from the database to determine it.
+			final LiveData<List<Day>> daysLiveData = AppDatabase.getInstance(context).getScheduleDao().getDays();
+			final LiveData<Boolean> scheduler = Transformations.switchMap(daysLiveData, days -> {
+				final long[] startEndTimestamps = new long[days.size() * 2];
+				int index = 0;
+				for (Day day : days) {
+					final long dayStart = day.getDate().getTime();
+					startEndTimestamps[index++] = dayStart + DAY_START_TIME;
+					startEndTimestamps[index++] = dayStart + DAY_END_TIME;
+				}
+				return LiveDataFactory.scheduler(startEndTimestamps);
+			});
+			final LiveData<Map<String, RoomStatus>> liveRoomStatuses = new LiveRoomStatusesLiveData();
+			final LiveData<Map<String, RoomStatus>> offlineRoomStatuses = new MutableLiveData<>(Collections.emptyMap());
+			roomStatuses = Transformations.switchMap(scheduler, isLive -> isLive ? liveRoomStatuses : offlineRoomStatuses);
+			// Implementors: replace the above code with the next line to disable room status support
 			// roomStatuses = new MutableLiveData<>();
 		}
 		return roomStatuses;
