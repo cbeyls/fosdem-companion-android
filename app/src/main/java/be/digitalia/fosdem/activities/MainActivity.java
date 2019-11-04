@@ -2,6 +2,7 @@ package be.digitalia.fosdem.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
@@ -12,7 +13,6 @@ import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.nfc.NdefRecord;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.view.Menu;
@@ -25,13 +25,10 @@ import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
-import androidx.appcompat.widget.Toolbar;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.DialogFragment;
@@ -40,6 +37,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -142,14 +140,13 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 	private static final String LAST_UPDATE_DATE_FORMAT = "d MMM yyyy kk:mm:ss";
 
 
-	private Toolbar toolbar;
+	private View contentView;
 
 	// Main menu
 	Section currentSection;
 	MenuItem pendingNavigationMenuItem = null;
 	DrawerLayout drawerLayout;
 	private ActionBarDrawerToggle drawerToggle;
-	View mainMenu;
 	private NavigationView navigationView;
 	private TextView lastUpdateTextView;
 
@@ -182,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 			final Context context = requireContext();
-			return new AlertDialog.Builder(context)
+			return new MaterialAlertDialogBuilder(context)
 					.setTitle(R.string.download_reminder_title)
 					.setMessage(R.string.download_reminder_message)
 					.setPositiveButton(android.R.string.ok, (dialog, which) -> FosdemApi.downloadSchedule(context))
@@ -196,8 +193,8 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		toolbar = findViewById(R.id.toolbar);
-		setSupportActionBar(toolbar);
+		setSupportActionBar(findViewById(R.id.toolbar));
+		contentView = findViewById(R.id.content);
 
 		// Progress bar setup
 		final ProgressBar progressBar = findViewById(R.id.progress);
@@ -241,7 +238,6 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 		// Setup drawer layout
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		drawerLayout = findViewById(R.id.drawer_layout);
-		drawerLayout.setDrawerShadow(ContextCompat.getDrawable(this, R.drawable.drawer_shadow_start), GravityCompat.START);
 		drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.main_menu, R.string.close_menu) {
 
 			@Override
@@ -256,7 +252,7 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 			public void onDrawerOpened(View drawerView) {
 				super.onDrawerOpened(drawerView);
 				// Make keypad navigation easier
-				mainMenu.requestFocus();
+				navigationView.requestFocus();
 			}
 
 			@Override
@@ -275,18 +271,15 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 		drawerLayout.setFocusable(false);
 
 		// Setup Main menu
-		mainMenu = findViewById(R.id.main_menu);
-		// Forward window insets to NavigationView
-		ViewCompat.setOnApplyWindowInsetsListener(mainMenu, (v, insets) -> insets);
 		navigationView = findViewById(R.id.nav_view);
 		navigationView.setNavigationItemSelectedListener(menuItem -> {
 			pendingNavigationMenuItem = menuItem;
-			drawerLayout.closeDrawer(mainMenu);
+			drawerLayout.closeDrawer(navigationView);
 			return true;
 		});
 
 		// Last update date, below the list
-		lastUpdateTextView = mainMenu.findViewById(R.id.last_update);
+		lastUpdateTextView = navigationView.findViewById(R.id.last_update);
 		AppDatabase.getInstance(this).getScheduleDao().getLastUpdateTime()
 				.observe(this, lastUpdateTimeObserver);
 
@@ -314,12 +307,11 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 		NfcUtils.setAppDataPushMessageCallbackIfAvailable(this, this);
 	}
 
+	@SuppressLint("PrivateResource")
 	private void updateActionBar(@NonNull Section section, @NonNull MenuItem menuItem) {
 		setTitle(menuItem.getTitle());
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			toolbar.setElevation(section.extendsAppBar()
-					? 0f : getResources().getDimension(R.dimen.toolbar_elevation));
-		}
+		ViewCompat.setTranslationZ(contentView, section.extendsAppBar()
+				? getResources().getDimension(R.dimen.design_appbar_elevation) : 0f);
 	}
 
 	private final Observer<Long> lastUpdateTimeObserver = new Observer<Long>() {
@@ -351,8 +343,8 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 
 	@Override
 	public void onBackPressed() {
-		if (drawerLayout.isDrawerOpen(mainMenu)) {
-			drawerLayout.closeDrawer(mainMenu);
+		if (drawerLayout.isDrawerOpen(navigationView)) {
+			drawerLayout.closeDrawer(navigationView);
 		} else {
 			super.onBackPressed();
 		}

@@ -6,10 +6,9 @@
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabs"
-        style="@style/Tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:elevation="@dimen/toolbar_elevation"
+        android:elevation="@dimen/design_appbar_elevation"
         android:layoutDirection="ltr" />
 
     <androidx.viewpager.widget.ViewPager

@@ -3,14 +3,13 @@
 
     <color name="color_primary">#a91991</color>
     <color name="color_primary_dark">#76005e</color>
-    <color name="color_accent">#3479c4</color>
-    <color name="fosdem_blue_translucent">#663479c4</color>
-    <color name="main_menu_background">#fafafa</color>
-    <color name="main_menu_footer_background">#eaeaea</color>
-    <color name="translucent_grey">#0c000000</color>
+    <color name="color_secondary">#3479c4</color>
+    <color name="color_activated">#663479c4</color>
+    <color name="abstract_background">#0c000000</color>
     <color name="schedule_time_background">#29000000</color>
-    <color name="schedule_time_running_background">@color/color_accent</color>
-    <color name="error_material">#dd2c00</color>
+    <color name="schedule_time_running_background">@color/color_secondary</color>
+    <color name="color_error">@color/design_default_color_error</color>
+    <color name="color_error_inverse">@color/design_dark_default_color_error</color>
     <color name="shortcut_background">#F5F5F5</color>
 
     <!-- Track types -->

@@ -9,4 +9,4 @@
     android:minHeight="48dp"
     android:padding="@dimen/list_item_padding"
     android:textAlignment="viewStart"
-    android:textAppearance="@style/TextAppearance.AppCompat.Menu" />
+    android:textAppearance="?textAppearanceSubtitle1" />

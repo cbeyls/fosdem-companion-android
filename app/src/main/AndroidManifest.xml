@@ -1,27 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="be.digitalia.fosdem"
     android:installLocation="auto"
     tools:ignore="GoogleAppIndexingWarning">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.NFC"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.NFC" />
 
     <!-- Permissions required for alarms -->
     <uses-permission
         android:name="android.permission.WAKE_LOCK"
-        android:maxSdkVersion="25"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+        android:maxSdkVersion="25" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission
         android:name="android.permission.VIBRATE"
-        android:maxSdkVersion="18"/>
+        android:maxSdkVersion="18" />
 
     <!-- Make touch screen optional since all screens can be used with a pad -->
     <uses-feature
         android:name="android.hardware.touchscreen"
-        android:required="false"/>
+        android:required="false" />
 
     <application
         android:name=".FosdemApplication"
@@ -33,59 +32,54 @@
         <activity
             android:name=".activities.MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar.WindowDrawsSystemBarBackgrounds">
+            android:theme="@style/AppTheme.WindowDrawsSystemBarBackgrounds">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
             <meta-data
                 android:name="android.app.default_searchable"
-                android:value=".activities.SearchResultActivity"/>
+                android:value=".activities.SearchResultActivity" />
             <meta-data
                 android:name="android.app.shortcuts"
-                android:resource="@xml/shortcuts"/>
+                android:resource="@xml/shortcuts" />
         </activity>
         <activity
             android:name=".activities.TrackScheduleActivity"
-            android:parentActivityName=".activities.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:parentActivityName=".activities.MainActivity" />
         <activity
             android:name=".activities.TrackScheduleEventActivity"
-            android:label="@string/event_details"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:label="@string/event_details" />
         <activity
             android:name=".activities.EventDetailsActivity"
             android:label="@string/event_details"
-            android:parentActivityName=".activities.TrackScheduleActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:parentActivityName=".activities.TrackScheduleActivity">
             <intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
 
-                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.DEFAULT" />
 
-                <data android:mimeType="application/${applicationId}"/>
+                <data android:mimeType="application/${applicationId}" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activities.PersonInfoActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name=".activities.PersonInfoActivity" />
         <activity
             android:name=".activities.SearchResultActivity"
             android:label="@string/search_events"
             android:launchMode="singleTop">
             <intent-filter>
-                <action android:name="android.intent.action.SEARCH"/>
+                <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
             <intent-filter>
-                <action android:name="com.google.android.gms.actions.SEARCH_ACTION"/>
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="com.google.android.gms.actions.SEARCH_ACTION" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
             <meta-data
                 android:name="android.app.searchable"
-                android:resource="@xml/main_searchable"/>
+                android:resource="@xml/main_searchable" />
         </activity>
         <activity
             android:name=".activities.ExternalBookmarksActivity"
@@ -104,13 +98,13 @@
             android:name=".activities.RoomImageDialogActivity"
             android:excludeFromRecents="true"
             android:taskAffinity=""
-            android:theme="@style/AlertDialogTheme.NoActionBar"/>
+            android:theme="@style/AlertDialogTheme.NoActionBar" />
         <activity
             android:name=".activities.SettingsActivity"
             android:label="@string/settings">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.NOTIFICATION_PREFERENCES"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.NOTIFICATION_PREFERENCES" />
             </intent-filter>
         </activity>
 
@@ -118,24 +112,24 @@
             android:name=".receivers.AlarmReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
         <service
             android:name=".services.AlarmIntentService"
             android:exported="false"
-            android:permission="android.permission.BIND_JOB_SERVICE"/>
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <provider
             android:name=".providers.SearchSuggestionProvider"
             android:authorities="${applicationId}.search"
-            android:exported="true"/>
+            android:exported="true" />
         <provider
             android:name=".providers.BookmarksExportProvider"
             android:authorities="${applicationId}.bookmarks"
             android:exported="false"
-            android:grantUriPermissions="true"/>
+            android:grantUriPermissions="true" />
     </application>
 
 </manifest>

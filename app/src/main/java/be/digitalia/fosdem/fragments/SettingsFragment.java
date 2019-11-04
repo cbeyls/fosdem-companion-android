@@ -8,9 +8,10 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.preference.PreferenceFragmentCompat;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.R;
@@ -60,7 +61,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 		@NonNull
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
-			return new AlertDialog.Builder(requireContext())
+			return new MaterialAlertDialogBuilder(requireContext())
 					.setTitle(R.string.app_name)
 					.setIcon(R.mipmap.ic_launcher)
 					.setMessage(getResources().getText(R.string.about_text))

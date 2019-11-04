@@ -3,7 +3,7 @@
 
     <item android:state_activated="true">
         <shape>
-            <solid android:color="@color/fosdem_blue_translucent"/>
+            <solid android:color="@color/color_activated"/>
         </shape>
     </item>
     <item android:drawable="@android:color/transparent"/>

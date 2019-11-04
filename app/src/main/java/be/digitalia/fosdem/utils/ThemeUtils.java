@@ -2,10 +2,15 @@ package be.digitalia.fosdem.utils;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.content.res.ColorStateList;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.shape.MaterialShapeDrawable;
 
 import be.digitalia.fosdem.model.Track;
 
@@ -23,6 +28,13 @@ public class ThemeUtils {
 				taskDescription = new ActivityManager.TaskDescription(null, null, color | 0xFF000000);
 			}
 			activity.setTaskDescription(taskDescription);
+		}
+	}
+
+	public static void setAppBarLayoutBackgroundColor(@NonNull AppBarLayout appBarLayout, ColorStateList backgroundColor) {
+		Drawable background = appBarLayout.getBackground();
+		if (background instanceof MaterialShapeDrawable) {
+			((MaterialShapeDrawable) background).setFillColor(backgroundColor);
 		}
 	}
 }

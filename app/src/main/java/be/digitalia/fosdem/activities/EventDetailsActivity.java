@@ -6,6 +6,7 @@ import android.nfc.NdefRecord;
 import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,6 +16,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.bottomappbar.BottomAppBar;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.EventDetailsFragment;
 import be.digitalia.fosdem.model.Event;
@@ -25,8 +30,6 @@ import be.digitalia.fosdem.utils.ThemeUtils;
 import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel;
 import be.digitalia.fosdem.viewmodels.EventViewModel;
 import be.digitalia.fosdem.widgets.BookmarkStatusAdapter;
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.bottomappbar.BottomAppBar;
 
 /**
  * Displays a single event passed either as a complete Parcelable object in extras or as an id in data.
@@ -112,11 +115,12 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 		toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_material);
 		toolbar.setNavigationContentDescription(R.string.abc_action_bar_up_description);
 		toolbar.setNavigationOnClickListener(v -> onSupportNavigateUp());
+		toolbar.setTitle(event.getTrack().getName());
 
 		final Track.Type trackType = event.getTrack().getType();
 		ThemeUtils.setStatusBarTrackColor(this, trackType);
 		final ColorStateList trackColor = ContextCompat.getColorStateList(this, trackType.getColorResId());
-		appBarLayout.setBackgroundColor(trackColor.getDefaultColor());
+		ThemeUtils.setAppBarLayoutBackgroundColor(appBarLayout, trackColor);
 		bottomAppBar.setBackgroundTint(trackColor);
 
 		bookmarkStatusViewModel.setEvent(event);

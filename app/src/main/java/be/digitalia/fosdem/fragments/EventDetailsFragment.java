@@ -113,11 +113,6 @@ public class EventDetailsFragment extends Fragment {
 		}
 
 
-		textView = view.findViewById(R.id.track);
-		text = event.getTrack().getName();
-		textView.setText(text);
-		textView.setContentDescription(getString(R.string.track_content_description, text));
-
 		textView = view.findViewById(R.id.time);
 		Date startTime = event.getStartTime();
 		Date endTime = event.getEndTime();

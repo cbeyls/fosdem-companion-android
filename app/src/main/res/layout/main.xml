@@ -19,9 +19,9 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <androidx.appcompat.widget.Toolbar
+            <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
-                style="@style/Toolbar.Fosdem"
+                style="@style/Widget.Fosdem.Toolbar.Primary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
@@ -47,40 +47,30 @@
 
     <!-- Navigation drawer -->
 
-    <FrameLayout
-        android:id="@+id/main_menu"
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:fitsSystemWindows="true">
-
-        <com.google.android.material.navigation.NavigationView
-            android:id="@+id/nav_view"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="@dimen/main_menu_footer_height"
-            android:background="@color/main_menu_background"
-            android:fitsSystemWindows="true"
-            app:elevation="0dp"
-            app:headerLayout="@layout/navigation_header"
-            app:menu="@menu/main_navigation" />
+        app:headerLayout="@layout/navigation_header"
+        app:menu="@menu/main_navigation">
 
         <TextView
             android:id="@+id/last_update"
             android:layout_width="match_parent"
             android:layout_height="@dimen/main_menu_footer_height"
             android:layout_gravity="bottom"
-            android:background="@color/main_menu_footer_background"
-            android:ellipsize="end"
+            android:background="?colorControlHighlight"
+            android:ellipsize="start"
             android:gravity="center"
-            android:lines="1"
             android:paddingStart="4dp"
             android:paddingLeft="4dp"
             android:paddingEnd="4dp"
             android:paddingRight="4dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            android:singleLine="true"
+            android:textAppearance="?textAppearanceCaption"
             tools:text="DB last updated: 1 jan. 2015 13:37:00" />
 
-    </FrameLayout>
+    </com.google.android.material.navigation.NavigationView>
 
 </be.digitalia.fosdem.widgets.PhotoViewDrawerLayout>

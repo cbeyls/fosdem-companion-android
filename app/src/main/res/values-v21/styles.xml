@@ -3,13 +3,13 @@
 
     <!-- Main theme -->
 
-    <style name="AppTheme" parent="Base.AppTheme"/>
+    <style name="AppTheme" parent="Base.AppTheme" />
 
-    <style name="AppTheme.NoActionBar.WindowDrawsSystemBarBackgrounds">
+    <style name="AppTheme.WindowDrawsSystemBarBackgrounds">
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
-    <style name="Widget.MaterialHorizontalProgressBar" parent="Widget.AppCompat.ProgressBar.Horizontal"/>
+    <style name="Widget.MaterialHorizontalProgressBar" parent="Widget.AppCompat.ProgressBar.Horizontal" />
 
 </resources>

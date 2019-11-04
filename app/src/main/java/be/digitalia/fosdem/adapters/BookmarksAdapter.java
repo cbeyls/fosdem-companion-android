@@ -68,7 +68,7 @@ public class BookmarksAdapter extends ListAdapter<Event, BookmarksAdapter.ViewHo
 		super(DIFF_CALLBACK);
 		setHasStableIds(true);
 		timeDateFormat = DateUtils.getTimeDateFormat(activity);
-		errorColor = ContextCompat.getColor(activity, R.color.error_material);
+		errorColor = ContextCompat.getColor(activity, R.color.color_error);
 
 		multiChoiceHelper = new MultiChoiceHelper(activity, owner, this);
 		multiChoiceHelper.setMultiChoiceModeListener(multiChoiceModeListener);

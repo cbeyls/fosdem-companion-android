@@ -11,16 +11,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
+
+import com.google.android.material.snackbar.Snackbar;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.SearchResultListFragment;
 import be.digitalia.fosdem.viewmodels.SearchViewModel;
-import com.google.android.material.snackbar.Snackbar;
 
-public class SearchResultActivity extends AppCompatActivity {
+public class SearchResultActivity extends SimpleToolbarActivity {
 
 	private static final String STATE_CURRENT_QUERY = "current_query";
 	// Search Intent sent by Google Now
@@ -32,7 +33,6 @@ public class SearchResultActivity extends AppCompatActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.content);
 
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -78,7 +78,7 @@ public class SearchResultActivity extends AppCompatActivity {
 
 			if (SearchViewModel.isQueryTooShort(query)) {
 				SpannableString errorMessage = new SpannableString(getString(R.string.search_length_error));
-				int textColor = ContextCompat.getColor(this, R.color.error_material);
+				int textColor = ContextCompat.getColor(this, R.color.color_error_inverse);
 				errorMessage.setSpan(new ForegroundColorSpan(textColor), 0, errorMessage.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 				Snackbar.make(findViewById(R.id.content), errorMessage, Snackbar.LENGTH_LONG).show();
 			}

@@ -12,7 +12,17 @@
     android:paddingTop="@dimen/list_item_padding"
     android:paddingEnd="?attr/listPreferredItemPaddingRight"
     android:paddingRight="?attr/listPreferredItemPaddingRight"
-    android:paddingBottom="@dimen/list_item_padding">
+    android:paddingBottom="@dimen/list_item_padding"
+    tools:ignore="UnusedAttribute">
+
+    <TextView
+        android:id="@+id/track_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        android:textAlignment="viewStart"
+        android:textAppearance="?textAppearanceOverline"
+        tools:text="Keynotes" />
 
     <TextView
         android:id="@+id/title"
@@ -21,8 +31,8 @@
         android:drawablePadding="8dp"
         android:gravity="start"
         android:textAlignment="viewStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-        android:textSize="@dimen/abc_text_size_medium_material"
+        android:textAppearance="?textAppearanceHeadline6"
+        android:textSize="18sp"
         tools:text="Welcome to FOSDEM 2015" />
 
     <TextView
@@ -31,26 +41,19 @@
         android:layout_height="wrap_content"
         android:gravity="start"
         android:textAlignment="viewStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textAppearance="?textAppearanceSubtitle2"
         tools:text="FOSDEM Staff" />
 
-    <TextView
-        android:id="@+id/track_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:gravity="start"
-        android:textAlignment="viewStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-        tools:text="Keynotes" />
 
     <TextView
         android:id="@+id/details"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
         android:gravity="start"
         android:textAlignment="viewStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:textAppearance="?textAppearanceBody2"
+        android:textColor="?android:textColorTertiary"
         tools:text="Saturday, 09:30 - 09:55 | Janson" />
 
 </com.google.android.material.internal.ForegroundLinearLayout>

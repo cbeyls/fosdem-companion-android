@@ -13,15 +13,14 @@
         android:layout_gravity="start"
         android:layout_marginTop="128dp" />
 
-    <androidx.appcompat.widget.Toolbar
+    <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
-        style="@style/Toolbar.Fosdem"
+        style="@style/Widget.Fosdem.Toolbar.Primary"
         android:layout_width="match_parent"
         android:layout_height="128dp"
-        android:elevation="@dimen/toolbar_elevation"
         android:gravity="top" />
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/event"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

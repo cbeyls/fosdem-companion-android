@@ -6,4 +6,5 @@
     android:contentDescription="@string/app_name"
     android:padding="@dimen/main_menu_padding"
     android:scaleType="center"
-    app:srcCompat="@drawable/fosdem_title" />
+    app:srcCompat="@drawable/fosdem_title"
+    app:tint="?colorOnSurface" />

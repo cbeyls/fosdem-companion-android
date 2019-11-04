@@ -10,10 +10,11 @@ import android.widget.ImageView;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.RoomImageDialogActivity;
@@ -45,7 +46,7 @@ public class RoomImageDialogFragment extends DialogFragment {
 		Toolbar toolbar = contentView.findViewById(R.id.toolbar);
 		RoomImageDialogActivity.configureToolbar(this, toolbar, args.getString(ARG_ROOM_NAME));
 
-		Dialog dialog = new AlertDialog.Builder(requireContext())
+		Dialog dialog = new MaterialAlertDialogBuilder(requireContext())
 				.setView(contentView)
 				.create();
 		Window window = dialog.getWindow();

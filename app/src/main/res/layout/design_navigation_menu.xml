@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.internal.NavigationMenuView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/design_navigation_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginBottom="@dimen/main_menu_footer_height"
+    android:clipToPadding="false"
+    android:paddingBottom="@dimen/design_navigation_padding_bottom"
+    android:scrollbars="vertical"
+    tools:ignore="PrivateResource" />

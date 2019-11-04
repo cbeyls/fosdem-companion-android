@@ -18,6 +18,12 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.bottomappbar.BottomAppBar;
+
+import java.util.List;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.EventDetailsFragment;
 import be.digitalia.fosdem.model.Day;
@@ -30,10 +36,6 @@ import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel;
 import be.digitalia.fosdem.viewmodels.TrackScheduleEventViewModel;
 import be.digitalia.fosdem.widgets.BookmarkStatusAdapter;
 import be.digitalia.fosdem.widgets.ContentLoadingProgressBar;
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.bottomappbar.BottomAppBar;
-
-import java.util.List;
 
 /**
  * Event view of the track schedule; allows to slide between events of the same track using a ViewPager.
@@ -82,7 +84,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 		setTitle(String.format("%1$s, %2$s", track.toString(), day.toString()));
 		ThemeUtils.setStatusBarTrackColor(this, track.getType());
 		final ColorStateList trackColor = ContextCompat.getColorStateList(this, track.getType().getColorResId());
-		appBarLayout.setBackgroundColor(trackColor.getDefaultColor());
+		ThemeUtils.setAppBarLayoutBackgroundColor(appBarLayout, trackColor);
 		bottomAppBar.setBackgroundTint(trackColor);
 
 		// Monitor the currently displayed event to update the bookmark status in FAB

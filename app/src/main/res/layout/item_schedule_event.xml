@@ -23,7 +23,7 @@
         android:paddingRight="@dimen/list_item_padding"
         android:paddingBottom="@dimen/list_item_padding"
         android:textAlignment="viewStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textAppearance="?textAppearanceBody2"
         android:textStyle="bold"
         tools:text="09:30" />
 
@@ -44,8 +44,8 @@
         android:gravity="start"
         android:paddingTop="@dimen/list_item_padding"
         android:textAlignment="viewStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-        android:textSize="@dimen/abc_text_size_medium_material"
+        android:textAppearance="?textAppearanceHeadline6"
+        android:textSize="18sp"
         tools:text="Welcome to FOSDEM 2015" />
 
     <TextView
@@ -59,7 +59,7 @@
         android:layout_alignRight="@+id/title"
         android:gravity="start"
         android:textAlignment="viewStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textAppearance="?textAppearanceSubtitle2"
         tools:text="FOSDEM Staff" />
 
     <TextView
@@ -75,7 +75,8 @@
         android:gravity="start"
         android:paddingBottom="@dimen/list_item_padding"
         android:textAlignment="viewStart"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:textAppearance="?textAppearanceBody2"
+        android:textColor="?android:textColorTertiary"
         tools:text="Janson" />
 
 </RelativeLayout>
