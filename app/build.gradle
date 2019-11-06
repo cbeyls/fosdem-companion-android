@@ -16,13 +16,9 @@ android {
 
     buildTypes {
         release {
-            postprocessing {
-                removeUnusedCode true
-                removeUnusedResources true
-                obfuscate true
-                optimizeCode true
-                proguardFiles 'proguard-rules.pro'
-            }
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles 'proguard-defaults.txt', 'proguard-rules.pro'
         }
     }
 
