@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Override styles of unused widgets so their resources get removed by the shrinker -->
+
+    <style name="Base.Widget.AppCompat.RatingBar" parent="" tools:ignore="PrivateResource" />
+
+    <style name="Base.Widget.AppCompat.RatingBar.Indicator" parent="" tools:ignore="PrivateResource" />
+
+    <style name="Base.Widget.AppCompat.RatingBar.Small" parent="" tools:ignore="PrivateResource" />
+
+    <style name="Base.Widget.AppCompat.SeekBar" parent="" tools:ignore="PrivateResource" />
+
+    <style name="Base.Widget.AppCompat.SeekBar.Discrete" parent="" tools:ignore="PrivateResource" />
+
+    <style name="Widget.Design.TextInputLayout" parent="" />
+
+</resources>
