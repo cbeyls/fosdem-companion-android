@@ -5,11 +5,8 @@
     <color name="color_primary_dark">#76005e</color>
     <color name="color_secondary">#3479c4</color>
     <color name="color_activated">#663479c4</color>
-    <color name="abstract_background">#0c000000</color>
     <color name="schedule_time_background">#29000000</color>
     <color name="schedule_time_running_background">@color/color_secondary</color>
-    <color name="color_error">@color/design_default_color_error</color>
-    <color name="color_on_error">@color/design_default_color_on_error</color>
     <color name="shortcut_background">#F5F5F5</color>
 
     <!-- Track types -->

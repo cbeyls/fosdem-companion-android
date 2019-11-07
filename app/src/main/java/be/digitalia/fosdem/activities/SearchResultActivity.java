@@ -3,13 +3,13 @@ package be.digitalia.fosdem.activities;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -74,9 +74,14 @@ public class SearchResultActivity extends SimpleToolbarActivity {
 			viewModel.setQuery(query);
 
 			if (SearchViewModel.isQueryTooShort(query)) {
+				TypedArray a = getTheme().obtainStyledAttributes(R.styleable.ErrorColors);
+				int textColor = a.getColor(R.styleable.ErrorColors_colorOnError, 0);
+				int backgroundColor = a.getColor(R.styleable.ErrorColors_colorError, 0);
+				a.recycle();
+
 				Snackbar.make(findViewById(R.id.content), R.string.search_length_error, Snackbar.LENGTH_LONG)
-						.setTextColor(ContextCompat.getColor(this, R.color.color_on_error))
-						.setBackgroundTint(ContextCompat.getColor(this, R.color.color_error))
+						.setTextColor(textColor)
+						.setBackgroundTint(backgroundColor)
 						.show();
 			}
 

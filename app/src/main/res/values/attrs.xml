@@ -2,12 +2,17 @@
 <resources>
 
     <!-- Drawable used as a background for activated items. -->
-    <attr name="activatedBackgroundIndicator" format="reference"/>
-    <attr name="materialHorizontalProgressBarStyle" format="reference"/>
+    <attr name="activatedBackgroundIndicator" format="reference" />
+    <attr name="materialHorizontalProgressBarStyle" format="reference" />
 
     <declare-styleable name="PrimaryTextColors">
-        <attr name="android:textColorPrimary"/>
-        <attr name="android:textColorPrimaryInverse"/>
+        <attr name="android:textColorPrimary" />
+        <attr name="android:textColorPrimaryInverse" />
+    </declare-styleable>
+
+    <declare-styleable name="ErrorColors">
+        <attr name="colorError" />
+        <attr name="colorOnError" />
     </declare-styleable>
 
 </resources>

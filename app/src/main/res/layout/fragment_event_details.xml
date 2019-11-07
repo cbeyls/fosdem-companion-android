@@ -95,12 +95,13 @@
             android:id="@+id/abstract_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/abstract_background"
+            android:background="@drawable/white_background"
             android:padding="@dimen/content_margin"
             android:saveEnabled="false"
             android:textAppearance="?textAppearanceBody1"
             android:textIsSelectable="true"
-            tools:text="FOSDEM welcome and opening talk."/>
+            app:backgroundTint="@color/abstract_background"
+            tools:text="FOSDEM welcome and opening talk." />
 
         <TextView
             android:id="@+id/description"

@@ -14,7 +14,6 @@
         <item name="colorSecondary">@color/color_secondary</item>
         <item name="colorOnPrimary">@color/design_default_color_on_primary</item>
         <item name="colorOnSecondary">@color/design_default_color_on_primary</item>
-        <item name="colorError">@color/color_error</item>
         <item name="alertDialogTheme">@style/AlertDialogTheme</item>
         <item name="android:windowContentOverlay">@null</item>
 

@@ -2,6 +2,7 @@ package be.digitalia.fosdem.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -12,11 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -30,6 +26,12 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.savedstate.SavedStateRegistryOwner;
+
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.EventDetailsActivity;
 import be.digitalia.fosdem.api.FosdemApi;
@@ -68,7 +70,9 @@ public class BookmarksAdapter extends ListAdapter<Event, BookmarksAdapter.ViewHo
 		super(DIFF_CALLBACK);
 		setHasStableIds(true);
 		timeDateFormat = DateUtils.getTimeDateFormat(activity);
-		errorColor = ContextCompat.getColor(activity, R.color.color_error);
+		TypedArray a = activity.getTheme().obtainStyledAttributes(R.styleable.ErrorColors);
+		errorColor = a.getColor(R.styleable.ErrorColors_colorError, 0);
+		a.recycle();
 
 		multiChoiceHelper = new MultiChoiceHelper(activity, owner, this);
 		multiChoiceHelper.setMultiChoiceModeListener(multiChoiceModeListener);
