@@ -9,7 +9,7 @@
     <color name="schedule_time_background">#29000000</color>
     <color name="schedule_time_running_background">@color/color_secondary</color>
     <color name="color_error">@color/design_default_color_error</color>
-    <color name="color_error_inverse">@color/design_dark_default_color_error</color>
+    <color name="color_on_error">@color/design_default_color_on_error</color>
     <color name="shortcut_background">#F5F5F5</color>
 
     <!-- Track types -->

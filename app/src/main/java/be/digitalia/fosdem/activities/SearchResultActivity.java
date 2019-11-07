@@ -4,9 +4,6 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.style.ForegroundColorSpan;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -77,10 +74,10 @@ public class SearchResultActivity extends SimpleToolbarActivity {
 			viewModel.setQuery(query);
 
 			if (SearchViewModel.isQueryTooShort(query)) {
-				SpannableString errorMessage = new SpannableString(getString(R.string.search_length_error));
-				int textColor = ContextCompat.getColor(this, R.color.color_error_inverse);
-				errorMessage.setSpan(new ForegroundColorSpan(textColor), 0, errorMessage.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-				Snackbar.make(findViewById(R.id.content), errorMessage, Snackbar.LENGTH_LONG).show();
+				Snackbar.make(findViewById(R.id.content), R.string.search_length_error, Snackbar.LENGTH_LONG)
+						.setTextColor(ContextCompat.getColor(this, R.color.color_on_error))
+						.setBackgroundTint(ContextCompat.getColor(this, R.color.color_error))
+						.show();
 			}
 
 		} else if (Intent.ACTION_VIEW.equals(intentAction)) {
