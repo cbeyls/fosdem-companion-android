@@ -10,6 +10,7 @@ import android.widget.ImageView;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
@@ -41,12 +42,14 @@ public class RoomImageDialogFragment extends DialogFragment {
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		Bundle args = requireArguments();
 
-		View contentView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_room_image, null);
+		AlertDialog.Builder dialogBuilder = new MaterialAlertDialogBuilder(requireContext());
+
+		View contentView = LayoutInflater.from(dialogBuilder.getContext()).inflate(R.layout.dialog_room_image, null);
 		((ImageView) contentView.findViewById(R.id.room_image)).setImageResource(args.getInt(ARG_ROOM_IMAGE_RESOURCE_ID));
 		Toolbar toolbar = contentView.findViewById(R.id.toolbar);
 		RoomImageDialogActivity.configureToolbar(this, toolbar, args.getString(ARG_ROOM_NAME));
 
-		Dialog dialog = new MaterialAlertDialogBuilder(requireContext())
+		Dialog dialog = dialogBuilder
 				.setView(contentView)
 				.create();
 		Window window = dialog.getWindow();
