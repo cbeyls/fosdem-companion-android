@@ -15,7 +15,7 @@
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/collapsing_toolbar"
-            style="@style/Widget.Fosdem.CollapsingToolbar"
+            style="@style/Widget.App.CollapsingToolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:expandedTitleMarginEnd="16dp"

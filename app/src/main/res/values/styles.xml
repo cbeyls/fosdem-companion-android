@@ -18,7 +18,7 @@
         <item name="android:windowContentOverlay">@null</item>
 
         <item name="activatedBackgroundIndicator">@drawable/activated_background</item>
-        <item name="toolbarStyle">@style/Widget.Fosdem.Toolbar</item>
+        <item name="toolbarStyle">@style/Widget.App.Toolbar</item>
         <item name="tabStyle">@style/Widget.MaterialComponents.TabLayout.Colored</item>
         <item name="recyclerViewStyle">@style/RecyclerView</item>
         <item name="materialHorizontalProgressBarStyle">@style/Widget.MaterialHorizontalProgressBar</item>
@@ -44,16 +44,16 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Widget.Fosdem.Toolbar" parent="Widget.MaterialComponents.Toolbar">
+    <style name="Widget.App.Toolbar" parent="Widget.MaterialComponents.Toolbar">
         <item name="popupTheme">?actionBarPopupTheme</item>
     </style>
 
-    <style name="Widget.Fosdem.Toolbar.Primary" parent="Widget.MaterialComponents.Toolbar.Primary">
+    <style name="Widget.App.Toolbar.Primary" parent="Widget.MaterialComponents.Toolbar.Primary">
         <item name="android:elevation" tools:ignore="NewApi,PrivateResource">@dimen/design_appbar_elevation</item>
         <item name="android:theme">?actionBarTheme</item>
     </style>
 
-    <style name="Widget.Fosdem.CollapsingToolbar" parent="Widget.Design.CollapsingToolbar" />
+    <style name="Widget.App.CollapsingToolbar" parent="Widget.Design.CollapsingToolbar" />
 
     <style name="Widget.MaterialHorizontalProgressBar" parent="Widget.AppCompat.ProgressBar.Horizontal">
         <!-- Will be set in code -->
