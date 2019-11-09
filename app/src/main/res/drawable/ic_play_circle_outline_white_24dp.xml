@@ -4,6 +4,6 @@
         android:viewportWidth="24.0"
         android:viewportHeight="24.0">
     <path
-        android:fillColor="#FF757575"
+        android:fillColor="#FFFFFFFF"
         android:pathData="@string/path_ic_play_circle_outline"/>
 </vector>

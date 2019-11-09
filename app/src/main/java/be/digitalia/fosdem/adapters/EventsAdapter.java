@@ -156,7 +156,7 @@ public class EventsAdapter extends PagedListAdapter<StatusEvent, EventsAdapter.V
 
 			title.setText(event.getTitle());
 			Drawable bookmarkDrawable = isBookmarked
-					? AppCompatResources.getDrawable(context, R.drawable.ic_bookmark_grey600_24dp)
+					? AppCompatResources.getDrawable(context, R.drawable.ic_bookmark_white_24dp)
 					: null;
 			TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(title, null, null, bookmarkDrawable, null);
 			title.setContentDescription(isBookmarked

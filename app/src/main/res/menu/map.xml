@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/directions"
         android:icon="@drawable/ic_directions_white_24dp"
         android:title="@string/directions"
-        app:showAsAction="ifRoom"/>
+        app:iconTint="?colorControlNormal"
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/navigation"
         android:icon="@drawable/ic_navigation_white_24dp"
         android:title="@string/navigation"
-        app:showAsAction="ifRoom"/>
+        app:iconTint="?colorControlNormal"
+        app:showAsAction="ifRoom" />
 
 </menu>

@@ -5,23 +5,23 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/menu_tracks"
-            android:icon="@drawable/ic_event_grey600_24dp"
+            android:icon="@drawable/ic_event_white_24dp"
             android:title="@string/menu_tracks" />
         <item
             android:id="@+id/menu_bookmarks"
-            android:icon="@drawable/ic_bookmark_grey600_24dp"
+            android:icon="@drawable/ic_bookmark_white_24dp"
             android:title="@string/menu_bookmarks" />
         <item
             android:id="@+id/menu_live"
-            android:icon="@drawable/ic_play_circle_outline_grey600_24dp"
+            android:icon="@drawable/ic_play_circle_outline_white_24dp"
             android:title="@string/menu_live" />
         <item
             android:id="@+id/menu_speakers"
-            android:icon="@drawable/ic_people_grey600_24dp"
+            android:icon="@drawable/ic_people_white_24dp"
             android:title="@string/menu_speakers" />
         <item
             android:id="@+id/menu_map"
-            android:icon="@drawable/ic_map_grey600_24dp"
+            android:icon="@drawable/ic_map_white_24dp"
             android:title="@string/menu_map" />
     </group>
     <group

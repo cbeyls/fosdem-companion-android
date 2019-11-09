@@ -4,7 +4,7 @@
     <PreferenceCategory app:title="@string/settings_notifications">
         <SwitchPreferenceCompat
             app:defaultValue="true"
-            app:icon="@drawable/ic_notifications_grey600_24dp"
+            app:icon="@drawable/ic_notifications_normal_24dp"
             app:key="notifications_enabled"
             app:summary="@string/settings_notifications_enabled_summary"
             app:title="@string/settings_notifications_enabled_title" />
@@ -32,7 +32,7 @@
 
     <PreferenceCategory app:title="@string/settings_info">
         <Preference
-            app:icon="@drawable/ic_info_outline_grey600_24dp"
+            app:icon="@drawable/ic_info_outline_normal_24dp"
             app:key="about"
             app:title="@string/settings_info_about_title" />
         <Preference

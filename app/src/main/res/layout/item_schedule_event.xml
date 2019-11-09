@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="?attr/selectableItemBackground"
     android:focusable="true">
 
@@ -46,6 +47,7 @@
         android:textAlignment="viewStart"
         android:textAppearance="?textAppearanceHeadline6"
         android:textSize="18sp"
+        app:drawableTint="?colorControlNormal"
         tools:text="Welcome to FOSDEM 2015" />
 
     <TextView

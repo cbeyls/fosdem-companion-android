@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/search"
@@ -8,12 +8,15 @@
         android:menuCategory="secondary"
         android:title="@string/search_events"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
-        app:showAsAction="ifRoom|collapseActionView"/>
+        app:iconTint="?colorControlNormal"
+
+        app:showAsAction="ifRoom|collapseActionView" />
     <item
         android:id="@+id/refresh"
         android:icon="@drawable/avd_sync_white_24dp"
         android:menuCategory="secondary"
         android:title="@string/update_events_db"
-        app:showAsAction="ifRoom"/>
+        app:iconTint="?colorControlNormal"
+        app:showAsAction="ifRoom" />
 
 </menu>
