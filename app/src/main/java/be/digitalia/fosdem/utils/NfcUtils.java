@@ -39,6 +39,7 @@ public class NfcUtils {
 	 *
 	 * @return true if NFC is available and the content was made available, false if not.
 	 */
+	@SuppressWarnings("deprecation")
 	public static boolean setAppDataPushMessageCallbackIfAvailable(Activity activity, final CreateNfcAppDataCallback callback) {
 		NfcAdapter adapter = NfcAdapter.getDefaultAdapter(activity);
 		if (adapter == null) {

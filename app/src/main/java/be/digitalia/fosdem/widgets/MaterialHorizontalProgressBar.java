@@ -4,13 +4,16 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.ProgressBar;
+
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.ContextCompat;
+
 import be.digitalia.fosdem.R;
 
 public class MaterialHorizontalProgressBar extends ProgressBar {
@@ -50,14 +53,14 @@ public class MaterialHorizontalProgressBar extends ProgressBar {
 
 			final Drawable backgroundDrawable = layerDrawable.findDrawableByLayerId(android.R.id.background);
 			backgroundDrawable.setAlpha(disabledAlpha);
-			backgroundDrawable.mutate().setColorFilter(colorControlNormal, PorterDuff.Mode.SRC_IN);
+			backgroundDrawable.mutate().setColorFilter(new PorterDuffColorFilter(colorControlNormal, PorterDuff.Mode.SRC_IN));
 
 			final Drawable secondaryProgressDrawable = layerDrawable.findDrawableByLayerId(android.R.id.secondaryProgress);
 			secondaryProgressDrawable.setAlpha(disabledAlpha);
-			secondaryProgressDrawable.mutate().setColorFilter(colorControlActivated, PorterDuff.Mode.SRC_IN);
+			secondaryProgressDrawable.mutate().setColorFilter(new PorterDuffColorFilter(colorControlActivated, PorterDuff.Mode.SRC_IN));
 
 			final Drawable progressDrawable = layerDrawable.findDrawableByLayerId(android.R.id.progress);
-			progressDrawable.mutate().setColorFilter(colorControlActivated, PorterDuff.Mode.SRC_IN);
+			progressDrawable.mutate().setColorFilter(new PorterDuffColorFilter(colorControlActivated, PorterDuff.Mode.SRC_IN));
 		}
 		return layerDrawable;
 	}

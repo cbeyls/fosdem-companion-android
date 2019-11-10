@@ -80,7 +80,7 @@ public class TracksListFragment extends RecyclerViewFragment implements Observer
 			@Override
 			public boolean areContentsTheSame(@NonNull Track oldItem, @NonNull Track newItem) {
 				return oldItem.getName().equals(newItem.getName())
-						&& oldItem.getType() == newItem.getType();
+						&& oldItem.getType().equals(newItem.getType());
 			}
 		};
 

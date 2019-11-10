@@ -423,7 +423,7 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		// Will close the drawer if the home button is pressed
 		if (drawerToggle.onOptionsItemSelected(item)) {
 			return true;

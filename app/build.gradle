@@ -1,12 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
+    buildToolsVersion "29.0.2"
 
     defaultConfig {
         applicationId "be.digitalia.fosdem"
         minSdkVersion 16
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 1600162
         versionName "1.6.2"
         // Supported languages
@@ -32,9 +33,13 @@ dependencies {
     def lifecycle_version = "2.1.0"
     def room_version = "2.2.1"
 
+    implementation 'androidx.core:core:1.2.0-beta02'
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'com.google.android.material:material:1.1.0-beta01'
+    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.1.0-rc01'
+    implementation 'androidx.transition:transition:1.2.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0-rc01'
+    implementation 'androidx.drawerlayout:drawerlayout:1.1.0-alpha03'
     implementation 'androidx.preference:preference:1.1.0'
     implementation 'androidx.browser:browser:1.0.0'
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
