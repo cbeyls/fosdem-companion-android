@@ -13,11 +13,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomappbar.BottomAppBar;
@@ -50,7 +50,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 
 	private int initialPosition = -1;
 	private ContentLoadingProgressBar progress;
-	private ViewPager pager;
+	private ViewPager2 pager;
 	TrackScheduleEventAdapter adapter;
 
 	BookmarkStatusViewModel bookmarkStatusViewModel;
@@ -70,7 +70,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 
 		progress = findViewById(R.id.progress);
 		pager = findViewById(R.id.pager);
-		adapter = new TrackScheduleEventAdapter(getSupportFragmentManager());
+		adapter = new TrackScheduleEventAdapter(this);
 
 		if (savedInstanceState == null) {
 			initialPosition = extras.getInt(EXTRA_POSITION, -1);
@@ -91,7 +91,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 		ImageButton floatingActionButton = findViewById(R.id.fab);
 		bookmarkStatusViewModel = ViewModelProviders.of(this).get(BookmarkStatusViewModel.class);
 		BookmarkStatusAdapter.setupWithImageButton(bookmarkStatusViewModel, this, floatingActionButton);
-		pager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+		pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
 			@Override
 			public void onPageSelected(int position) {
 				bookmarkStatusViewModel.setEvent(adapter.getEvent(position));
@@ -164,12 +164,12 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 		}
 	}
 
-	private static class TrackScheduleEventAdapter extends FragmentStatePagerAdapter {
+	private static class TrackScheduleEventAdapter extends FragmentStateAdapter {
 
 		private List<Event> events = null;
 
-		TrackScheduleEventAdapter(FragmentManager fm) {
-			super(fm);
+		TrackScheduleEventAdapter(@NonNull FragmentActivity fragmentActivity) {
+			super(fragmentActivity);
 		}
 
 		public void setSchedule(List<Event> schedule) {
@@ -178,18 +178,37 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 		}
 
 		@Override
-		public int getCount() {
+		public int getItemCount() {
 			return (events == null) ? 0 : events.size();
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return events.get(position).getId();
+		}
+
+		@Override
+		public boolean containsItem(long itemId) {
+			final int count = getItemCount();
+			for (int i = 0; i < count; ++i) {
+				if (events.get(i).getId() == itemId) {
+					return true;
+				}
+			}
+			return false;
 		}
 
 		@NonNull
 		@Override
-		public Fragment getItem(int position) {
-			return EventDetailsFragment.newInstance(events.get(position));
+		public Fragment createFragment(int position) {
+			final Fragment f = EventDetailsFragment.newInstance(events.get(position));
+			// Workaround for duplicate menu items bug
+			f.setMenuVisibility(false);
+			return f;
 		}
 
 		public Event getEvent(int position) {
-			if (position < 0 || position >= getCount()) {
+			if (position < 0 || position >= getItemCount()) {
 				return null;
 			}
 			return events.get(position);

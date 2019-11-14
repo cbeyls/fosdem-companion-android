@@ -8,19 +8,19 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import be.digitalia.fosdem.R;
 
 public class LiveFragment extends Fragment implements RecycledViewPoolProvider {
 
 	static class ViewHolder {
-		ViewPager pager;
+		ViewPager2 pager;
 		TabLayout tabs;
 		RecyclerView.RecycledViewPool recycledViewPool;
 	}
@@ -33,9 +33,12 @@ public class LiveFragment extends Fragment implements RecycledViewPoolProvider {
 
 		holder = new ViewHolder();
 		holder.pager = view.findViewById(R.id.pager);
-		holder.pager.setAdapter(new LivePagerAdapter(getChildFragmentManager(), getResources()));
+		final LivePagerAdapter adapter = new LivePagerAdapter(this);
+		holder.pager.setAdapter(adapter);
+		holder.pager.setOffscreenPageLimit(1);
 		holder.tabs = view.findViewById(R.id.tabs);
-		holder.tabs.setupWithViewPager(holder.pager, false);
+		new TabLayoutMediator(holder.tabs, holder.pager, false,
+				(tab, position) -> tab.setText(adapter.getPageTitle(position))).attach();
 		holder.recycledViewPool = new RecyclerView.RecycledViewPool();
 
 		return view;
@@ -52,23 +55,23 @@ public class LiveFragment extends Fragment implements RecycledViewPoolProvider {
 		return (holder == null) ? null : holder.recycledViewPool;
 	}
 
-	private static class LivePagerAdapter extends FragmentPagerAdapter {
+	private static class LivePagerAdapter extends FragmentStateAdapter {
 
 		private final Resources resources;
 
-		public LivePagerAdapter(FragmentManager fm, Resources resources) {
-			super(fm);
-			this.resources = resources;
+		LivePagerAdapter(Fragment fragment) {
+			super(fragment);
+			this.resources = fragment.getResources();
 		}
 
 		@Override
-		public int getCount() {
+		public int getItemCount() {
 			return 2;
 		}
 
 		@NonNull
 		@Override
-		public Fragment getItem(int position) {
+		public Fragment createFragment(int position) {
 			switch (position) {
 				case 0:
 					return new NextLiveListFragment();
@@ -78,8 +81,7 @@ public class LiveFragment extends Fragment implements RecycledViewPoolProvider {
 			throw new IllegalStateException();
 		}
 
-		@Override
-		public CharSequence getPageTitle(int position) {
+		CharSequence getPageTitle(int position) {
 			switch (position) {
 				case 0:
 					return resources.getString(R.string.next);
@@ -87,15 +89,6 @@ public class LiveFragment extends Fragment implements RecycledViewPoolProvider {
 					return resources.getString(R.string.now);
 			}
 			return null;
-		}
-
-		@NonNull
-		@Override
-		public Object instantiateItem(@NonNull ViewGroup container, int position) {
-			// Allow the non-primary fragments to start as soon as they are visible
-			Fragment f = (Fragment) super.instantiateItem(container, position);
-			f.setUserVisibleHint(true);
-			return f;
 		}
 	}
 }
