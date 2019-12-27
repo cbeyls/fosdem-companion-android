@@ -11,6 +11,16 @@ import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
+import java.util.TimeZone;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ShareCompat;
@@ -22,13 +32,7 @@ import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.utils.DateUtils;
 import be.digitalia.fosdem.utils.ICalendarWriter;
 import be.digitalia.fosdem.utils.StringUtils;
-
-import java.io.*;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Locale;
-import java.util.TimeZone;
+import okio.Okio;
 
 /**
  * Content Provider generating the current bookmarks list in iCalendar format.
@@ -164,7 +168,7 @@ public class BookmarksExportProvider extends ContentProvider {
 
 		@Override
 		public void run() {
-			try (ICalendarWriter writer = new ICalendarWriter(new BufferedWriter(new OutputStreamWriter(outputStream)))) {
+			try (ICalendarWriter writer = new ICalendarWriter(Okio.buffer(Okio.sink(outputStream)))) {
 				final Event[] bookmarks = appDatabase.getBookmarksDao().getBookmarks();
 				writer.write("BEGIN", "VCALENDAR");
 				writer.write("VERSION", "2.0");

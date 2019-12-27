@@ -2,10 +2,10 @@ package be.digitalia.fosdem.utils;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.Writer;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import okio.BufferedSink;
 
 /**
  * Simple wrapper to write to iCalendar file format.
@@ -14,16 +14,16 @@ public class ICalendarWriter implements Closeable {
 
 	private static final String CRLF = "\r\n";
 
-	private final Writer writer;
+	private final BufferedSink sink;
 
-	public ICalendarWriter(@NonNull Writer writer) {
-		this.writer = writer;
+	public ICalendarWriter(@NonNull BufferedSink sink) {
+		this.sink = sink;
 	}
 
 	public void write(@NonNull String key, @Nullable String value) throws IOException {
 		if (value != null) {
-			writer.write(key);
-			writer.write(':');
+			sink.writeUtf8(key);
+			sink.writeUtf8CodePoint(':');
 
 			// Escape line break sequences
 			final int length = value.length();
@@ -32,9 +32,9 @@ public class ICalendarWriter implements Closeable {
 			while (end < length) {
 				final char c = value.charAt(end);
 				if (c == '\r' || c == '\n') {
-					writer.write(value, start, end - start);
-					writer.write(CRLF);
-					writer.write(' ');
+					sink.writeUtf8(value, start, end - start);
+					sink.writeUtf8(CRLF);
+					sink.writeUtf8CodePoint(' ');
 					do {
 						end++;
 					}
@@ -44,14 +44,14 @@ public class ICalendarWriter implements Closeable {
 					end++;
 				}
 			}
-			writer.write(value, start, end - start);
+			sink.writeUtf8(value, start, end - start);
 
-			writer.write(CRLF);
+			sink.writeUtf8(CRLF);
 		}
 	}
 
 	@Override
 	public void close() throws IOException {
-		writer.close();
+		sink.close();
 	}
 }
