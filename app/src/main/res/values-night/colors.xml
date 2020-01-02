@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="color_primary">#de55c2</color>
+    <color name="color_on_primary">#000000</color>
+    <color name="color_primary_dark">#000000</color>
+    <color name="color_secondary">#64b5f6</color>
+    <color name="color_on_secondary">#000000</color>
+    <color name="color_activated">#6664b5f6</color>
+    <color name="schedule_time_background">#29ffffff</color>
+    <color name="light_emphasis_background">#1affffff</color>
+
+    <!-- Track types -->
+    <color name="track_type_main">#ef5350</color>
+    <color name="track_type_developer_room">#8c9eff</color>
+    <color name="track_type_lightning_talk">#66bb6a</color>
+    <color name="track_type_certification_exam">#be9c91</color>
+    <color name="track_type_other">#bdbdbd</color>
+
+    <!-- Room statuses -->
+    <color name="room_status_open">#66bb6a</color>
+    <color name="room_status_full">#ef5350</color>
+    <color name="room_status_emergency_evacuation">#ef5350</color>
+
+</resources>

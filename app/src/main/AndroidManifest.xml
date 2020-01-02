@@ -32,7 +32,7 @@
         <activity
             android:name=".activities.MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.WindowDrawsSystemBarBackgrounds">
+            android:theme="@style/AppTheme.TranslucentStatusBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -64,7 +64,9 @@
                 <data android:mimeType="application/${applicationId}" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.PersonInfoActivity" />
+        <activity
+            android:name=".activities.PersonInfoActivity"
+            android:theme="@style/AppTheme.TranslucentStatusBar" />
         <activity
             android:name=".activities.SearchResultActivity"
             android:label="@string/search_events"

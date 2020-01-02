@@ -18,7 +18,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.bottomappbar.BottomAppBar;
 
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.EventDetailsFragment;
@@ -42,7 +41,6 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 
 	private AppBarLayout appBarLayout;
 	private Toolbar toolbar;
-	private BottomAppBar bottomAppBar;
 
 	private BookmarkStatusViewModel bookmarkStatusViewModel;
 	private Event event;
@@ -53,8 +51,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 		setContentView(R.layout.single_event);
 		appBarLayout = findViewById(R.id.appbar);
 		toolbar = findViewById(R.id.toolbar);
-		bottomAppBar = findViewById(R.id.bottom_appbar);
-		setSupportActionBar(bottomAppBar);
+		setSupportActionBar(findViewById(R.id.bottom_appbar));
 
 		ImageButton floatingActionButton = findViewById(R.id.fab);
 		bookmarkStatusViewModel = ViewModelProviders.of(this).get(BookmarkStatusViewModel.class);
@@ -118,10 +115,14 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 		toolbar.setTitle(event.getTrack().getName());
 
 		final Track.Type trackType = event.getTrack().getType();
-		ThemeUtils.setStatusBarTrackColor(this, trackType);
 		final ColorStateList trackColor = ContextCompat.getColorStateList(this, trackType.getColorResId());
-		ThemeUtils.setAppBarLayoutBackgroundColor(appBarLayout, trackColor);
-		bottomAppBar.setBackgroundTint(trackColor);
+		if (ThemeUtils.isLightTheme(this)) {
+			final int trackDarkColor = ContextCompat.getColor(this, trackType.getDarkColorResId());
+			ThemeUtils.setActivityColors(this, trackColor.getDefaultColor(), trackDarkColor);
+			ThemeUtils.tintBackground(appBarLayout, trackColor);
+		} else {
+			toolbar.setTitleTextColor(trackColor);
+		}
 
 		bookmarkStatusViewModel.setEvent(event);
 

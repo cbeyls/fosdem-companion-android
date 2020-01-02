@@ -11,16 +11,18 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.browser.customtabs.CustomTabsIntent;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import java.util.Locale;
 
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemUrls;
+import be.digitalia.fosdem.utils.CustomTabsUtils;
+import be.digitalia.fosdem.utils.ThemeUtils;
 
 public class MapFragment extends Fragment {
 
@@ -35,7 +37,12 @@ public class MapFragment extends Fragment {
 
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.fragment_map, container, false);
+		final View view = inflater.inflate(R.layout.fragment_map, container, false);
+		final ImageView imageView = view.findViewById(R.id.map);
+		if (!ThemeUtils.isLightTheme(imageView.getContext())) {
+			ThemeUtils.invertImageColors(imageView);
+		}
+		return view;
 	}
 
 	@Override
@@ -72,9 +79,8 @@ public class MapFragment extends Fragment {
 
 	private void launchLocalNavigation() {
 		try {
-			Context context = requireContext();
-			new CustomTabsIntent.Builder()
-					.setToolbarColor(ContextCompat.getColor(context, R.color.color_primary))
+			final Context context = requireContext();
+			CustomTabsUtils.configureToolbarColors(new CustomTabsIntent.Builder(), context, R.color.color_primary)
 					.setShowTitle(true)
 					.build()
 					.launchUrl(context, Uri.parse(FosdemUrls.getLocalNavigation()));

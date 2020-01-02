@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/scroll_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -97,12 +97,11 @@
             android:id="@+id/abstract_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/white_background"
+            android:background="@color/light_emphasis_background"
             android:padding="@dimen/content_margin"
             android:saveEnabled="false"
             android:textAppearance="?textAppearanceBody1"
             android:textIsSelectable="true"
-            app:backgroundTint="@color/abstract_background"
             tools:text="FOSDEM welcome and opening talk." />
 
         <TextView
@@ -130,7 +129,7 @@
             android:id="@+id/links_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:divider="?android:attr/listDivider"
+            android:divider="?android:listDivider"
             android:orientation="vertical"
             android:paddingStart="@dimen/content_margin"
             android:paddingLeft="@dimen/content_margin"

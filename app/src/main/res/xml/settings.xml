@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <PreferenceCategory app:title="@string/settings_appearance">
+        <ListPreference
+            app:defaultValue="-1"
+            app:entries="@array/settings_appearance_theme_entries"
+            app:entryValues="@array/settings_appearance_theme_values"
+            app:key="theme"
+            app:title="@string/settings_appearance_theme_title"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
     <PreferenceCategory app:title="@string/settings_notifications">
         <SwitchPreferenceCompat
             app:defaultValue="true"

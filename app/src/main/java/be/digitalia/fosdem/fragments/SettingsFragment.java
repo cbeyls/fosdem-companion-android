@@ -19,6 +19,7 @@ import be.digitalia.fosdem.services.AlarmIntentService;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
+	public static final String KEY_PREF_THEME = "theme";
 	public static final String KEY_PREF_NOTIFICATIONS_ENABLED = "notifications_enabled";
 	// Android >= O only
 	public static final String KEY_PREF_NOTIFICATIONS_CHANNEL = "notifications_channel";

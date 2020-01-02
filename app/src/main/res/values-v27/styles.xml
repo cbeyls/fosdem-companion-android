@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Main theme -->
+
+    <style name="AppTheme" parent="Base.AppTheme">
+        <item name="android:navigationBarColor">?android:colorBackground</item>
+        <item name="android:windowLightNavigationBar">?isLightTheme</item>
+        <item name="android:navigationBarDividerColor">@color/color_on_background_10</item>
+    </style>
+
+</resources>

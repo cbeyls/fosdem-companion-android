@@ -11,7 +11,6 @@ import android.widget.ImageView;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -19,6 +18,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.RoomImageDialogActivity;
+import be.digitalia.fosdem.utils.ThemeUtils;
 
 public class RoomImageDialogFragment extends DialogFragment {
 
@@ -45,9 +45,12 @@ public class RoomImageDialogFragment extends DialogFragment {
 		AlertDialog.Builder dialogBuilder = new MaterialAlertDialogBuilder(requireContext());
 
 		View contentView = LayoutInflater.from(dialogBuilder.getContext()).inflate(R.layout.dialog_room_image, null);
-		((ImageView) contentView.findViewById(R.id.room_image)).setImageResource(args.getInt(ARG_ROOM_IMAGE_RESOURCE_ID));
-		Toolbar toolbar = contentView.findViewById(R.id.toolbar);
-		RoomImageDialogActivity.configureToolbar(this, toolbar, args.getString(ARG_ROOM_NAME));
+		final ImageView imageView = contentView.findViewById(R.id.room_image);
+		if (!ThemeUtils.isLightTheme(imageView.getContext())) {
+			ThemeUtils.invertImageColors(imageView);
+		}
+		imageView.setImageResource(args.getInt(ARG_ROOM_IMAGE_RESOURCE_ID));
+		RoomImageDialogActivity.configureToolbar(this, contentView.findViewById(R.id.toolbar), args.getString(ARG_ROOM_NAME));
 
 		Dialog dialog = dialogBuilder
 				.setView(contentView)

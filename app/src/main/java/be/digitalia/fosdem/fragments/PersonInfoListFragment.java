@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.browser.customtabs.CustomTabsIntent;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.paging.PagedList;
@@ -25,6 +24,7 @@ import be.digitalia.fosdem.adapters.ConcatAdapter;
 import be.digitalia.fosdem.adapters.EventsAdapter;
 import be.digitalia.fosdem.model.Person;
 import be.digitalia.fosdem.model.StatusEvent;
+import be.digitalia.fosdem.utils.CustomTabsUtils;
 import be.digitalia.fosdem.utils.DateUtils;
 import be.digitalia.fosdem.viewmodels.PersonInfoViewModel;
 
@@ -76,9 +76,8 @@ public class PersonInfoListFragment extends RecyclerViewFragment implements Obse
 					String url = person.getUrl(year);
 					if (url != null) {
 						try {
-							Context context = requireContext();
-							new CustomTabsIntent.Builder()
-									.setToolbarColor(ContextCompat.getColor(context, R.color.color_primary))
+							final Context context = requireContext();
+							CustomTabsUtils.configureToolbarColors(new CustomTabsIntent.Builder(), context, R.color.color_primary)
 									.setStartAnimations(context, R.anim.slide_in_right, R.anim.slide_out_left)
 									.setExitAnimations(context, R.anim.slide_in_left, R.anim.slide_out_right)
 									.build()

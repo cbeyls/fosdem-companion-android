@@ -82,10 +82,15 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 		toolbar.setTitle(track.toString());
 		toolbar.setSubtitle(day.toString());
 		setTitle(String.format("%1$s, %2$s", track.toString(), day.toString()));
-		ThemeUtils.setStatusBarTrackColor(this, track.getType());
-		final ColorStateList trackColor = ContextCompat.getColorStateList(this, track.getType().getColorResId());
-		ThemeUtils.setAppBarLayoutBackgroundColor(appBarLayout, trackColor);
-		bottomAppBar.setBackgroundTint(trackColor);
+		final Track.Type trackType = track.getType();
+		final ColorStateList trackColor = ContextCompat.getColorStateList(this, trackType.getColorResId());
+		if (ThemeUtils.isLightTheme(this)) {
+			final int trackDarkColor = ContextCompat.getColor(this, trackType.getDarkColorResId());
+			ThemeUtils.setActivityColors(this, trackColor.getDefaultColor(), trackDarkColor);
+			ThemeUtils.tintBackground(appBarLayout, trackColor);
+		} else {
+			toolbar.setTitleTextColor(trackColor);
+		}
 
 		// Monitor the currently displayed event to update the bookmark status in FAB
 		ImageButton floatingActionButton = findViewById(R.id.fab);

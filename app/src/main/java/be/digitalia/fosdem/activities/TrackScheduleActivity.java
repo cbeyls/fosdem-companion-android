@@ -1,9 +1,11 @@
 package be.digitalia.fosdem.activities;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.nfc.NdefRecord;
 import android.os.Bundle;
 import android.widget.ImageButton;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.EventDetailsFragment;
 import be.digitalia.fosdem.fragments.RoomImageDialogFragment;
@@ -50,7 +53,7 @@ public class TrackScheduleActivity extends AppCompatActivity
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.track_schedule);
-		Toolbar toolbar = findViewById(R.id.toolbar);
+		final Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
 		Bundle extras = getIntent().getExtras();
@@ -62,9 +65,15 @@ public class TrackScheduleActivity extends AppCompatActivity
 		bar.setTitle(track.toString());
 		bar.setSubtitle(day.toString());
 		setTitle(String.format("%1$s, %2$s", track.toString(), day.toString()));
-		ThemeUtils.setStatusBarTrackColor(this, track.getType());
-		final int trackColor = ContextCompat.getColor(this, track.getType().getColorResId());
-		toolbar.setBackgroundColor(trackColor);
+		final Track.Type trackType = track.getType();
+		final ColorStateList trackColor = ContextCompat.getColorStateList(this, trackType.getColorResId());
+		if (ThemeUtils.isLightTheme(this)) {
+			final int trackDarkColor = ContextCompat.getColor(this, trackType.getDarkColorResId());
+			ThemeUtils.setActivityColors(this, trackColor.getDefaultColor(), trackDarkColor);
+			ThemeUtils.tintBackground(toolbar, trackColor);
+		} else {
+			toolbar.setTitleTextColor(trackColor);
+		}
 
 		isTabletLandscape = getResources().getBoolean(R.bool.tablet_landscape);
 

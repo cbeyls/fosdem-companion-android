@@ -7,10 +7,13 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ShareCompat;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -21,9 +24,6 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ShareCompat;
 import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemUrls;
@@ -50,19 +50,12 @@ public class BookmarksExportProvider extends ContentProvider {
 
 
 	public static Intent getIntent(Activity activity) {
-		final Intent exportIntent;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-			// Supports granting read permission for the attached shared file
-			exportIntent = ShareCompat.IntentBuilder.from(activity)
-					.setStream(URI)
-					.setType(TYPE)
-					.getIntent();
-		} else {
-			// Fallback: open file directly
-			exportIntent = new Intent(Intent.ACTION_VIEW).setDataAndType(URI, TYPE);
-		}
-		exportIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-		return exportIntent;
+		// Supports granting read permission for the attached shared file
+		return ShareCompat.IntentBuilder.from(activity)
+				.setStream(URI)
+				.setType(TYPE)
+				.getIntent()
+				.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 	}
 
 	@Override

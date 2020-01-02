@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:scrollbars="none"
     app:fastScrollEnabled="true"
-    app:fastScrollHorizontalThumbDrawable="@drawable/fastscroll_thumb_material_light"
-    app:fastScrollHorizontalTrackDrawable="@drawable/fastscroll_track_material_light"
-    app:fastScrollVerticalThumbDrawable="@drawable/fastscroll_thumb_material_light"
-    app:fastScrollVerticalTrackDrawable="@drawable/fastscroll_track_material_light" />
+    app:fastScrollHorizontalThumbDrawable="@drawable/fastscroll_thumb_material"
+    app:fastScrollHorizontalTrackDrawable="@drawable/fastscroll_track_material"
+    app:fastScrollVerticalThumbDrawable="@drawable/fastscroll_thumb_material"
+    app:fastScrollVerticalTrackDrawable="@drawable/fastscroll_track_material" />

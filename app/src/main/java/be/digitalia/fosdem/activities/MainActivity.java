@@ -13,6 +13,7 @@ import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.nfc.NdefRecord;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.view.Menu;
@@ -28,7 +29,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.browser.customtabs.CustomTabsIntent;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.DialogFragment;
@@ -53,6 +53,7 @@ import be.digitalia.fosdem.fragments.PersonsListFragment;
 import be.digitalia.fosdem.fragments.TracksFragment;
 import be.digitalia.fosdem.livedata.SingleEvent;
 import be.digitalia.fosdem.model.DownloadScheduleResult;
+import be.digitalia.fosdem.utils.CustomTabsUtils;
 import be.digitalia.fosdem.utils.NfcUtils;
 
 /**
@@ -364,6 +365,11 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 
 	@Override
 	protected void onStart() {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+			if (getDelegate().applyDayNight()) {
+				recreate();
+			}
+		}
 		super.onStart();
 
 		// Download reminder
@@ -458,8 +464,7 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 					break;
 				case R.id.menu_volunteer:
 					try {
-						new CustomTabsIntent.Builder()
-								.setToolbarColor(ContextCompat.getColor(this, R.color.color_primary))
+						CustomTabsUtils.configureToolbarColors(new CustomTabsIntent.Builder(), this, R.color.color_primary)
 								.setShowTitle(true)
 								.build()
 								.launchUrl(this, Uri.parse(FosdemUrls.getVolunteer()));

@@ -5,7 +5,7 @@
 
     <style name="AppTheme" parent="Base.AppTheme" />
 
-    <style name="AppTheme.WindowDrawsSystemBarBackgrounds">
+    <style name="AppTheme.TranslucentStatusBar">
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>

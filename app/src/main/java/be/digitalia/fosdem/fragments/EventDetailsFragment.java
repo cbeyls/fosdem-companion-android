@@ -44,6 +44,7 @@ import be.digitalia.fosdem.model.Link;
 import be.digitalia.fosdem.model.Person;
 import be.digitalia.fosdem.model.RoomStatus;
 import be.digitalia.fosdem.utils.ClickableArrowKeyMovementMethod;
+import be.digitalia.fosdem.utils.CustomTabsUtils;
 import be.digitalia.fosdem.utils.DateUtils;
 import be.digitalia.fosdem.utils.StringUtils;
 import be.digitalia.fosdem.viewmodels.EventDetailsViewModel;
@@ -333,8 +334,7 @@ public class EventDetailsFragment extends Fragment {
 			String url = link.getUrl();
 			try {
 				final Context context = v.getContext();
-				new CustomTabsIntent.Builder()
-						.setToolbarColor(ContextCompat.getColor(context, event.getTrack().getType().getColorResId()))
+				CustomTabsUtils.configureToolbarColors(new CustomTabsIntent.Builder(), context, event.getTrack().getType().getColorResId())
 						.setShowTitle(true)
 						.setStartAnimations(context, R.anim.slide_in_right, R.anim.slide_out_left)
 						.setExitAnimations(context, R.anim.slide_in_left, R.anim.slide_out_right)

@@ -21,7 +21,9 @@ import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemApi;
 import be.digitalia.fosdem.api.FosdemUrls;
 import be.digitalia.fosdem.model.RoomStatus;
+import be.digitalia.fosdem.utils.CustomTabsUtils;
 import be.digitalia.fosdem.utils.StringUtils;
+import be.digitalia.fosdem.utils.ThemeUtils;
 
 /**
  * A special Activity which is displayed like a dialog and shows a room image.
@@ -42,7 +44,11 @@ public class RoomImageDialogActivity extends AppCompatActivity {
 		setTitle(roomName);
 
 		setContentView(R.layout.dialog_room_image);
-		((ImageView) findViewById(R.id.room_image)).setImageResource(intent.getIntExtra(EXTRA_ROOM_IMAGE_RESOURCE_ID, 0));
+		final ImageView imageView = findViewById(R.id.room_image);
+		if (!ThemeUtils.isLightTheme(imageView.getContext())) {
+			ThemeUtils.invertImageColors(imageView);
+		}
+		imageView.setImageResource(intent.getIntExtra(EXTRA_ROOM_IMAGE_RESOURCE_ID, 0));
 		configureToolbar(this, findViewById(R.id.toolbar), roomName);
 	}
 
@@ -58,8 +64,7 @@ public class RoomImageDialogActivity extends AppCompatActivity {
 					case R.id.navigation:
 						String localNavigationUrl = FosdemUrls.getLocalNavigationToLocation(StringUtils.toSlug(roomName));
 						try {
-							new CustomTabsIntent.Builder()
-									.setToolbarColor(ContextCompat.getColor(context, R.color.color_primary))
+							CustomTabsUtils.configureToolbarColors(new CustomTabsIntent.Builder(), context, R.color.color_primary)
 									.setShowTitle(true)
 									.build()
 									.launchUrl(context, Uri.parse(localNavigationUrl));

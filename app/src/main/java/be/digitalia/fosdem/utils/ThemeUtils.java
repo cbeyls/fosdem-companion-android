@@ -2,24 +2,27 @@ package be.digitalia.fosdem.utils;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.util.TypedValue;
+import android.view.View;
+import android.widget.ImageView;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
+import androidx.annotation.Nullable;
+import androidx.core.graphics.drawable.DrawableCompat;
 
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.shape.MaterialShapeDrawable;
-
-import be.digitalia.fosdem.model.Track;
+import be.digitalia.fosdem.R;
 
 public class ThemeUtils {
 
-	public static void setStatusBarTrackColor(@NonNull Activity activity, @NonNull Track.Type trackType) {
+	public static void setActivityColors(@NonNull Activity activity, @ColorInt int color, @ColorInt int darkColor) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			final int color = ContextCompat.getColor(activity, trackType.getColorResId());
-			final int darkColor = ContextCompat.getColor(activity, trackType.getDarkColorResId());
 			activity.getWindow().setStatusBarColor(darkColor);
 			final ActivityManager.TaskDescription taskDescription;
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -31,10 +34,34 @@ public class ThemeUtils {
 		}
 	}
 
-	public static void setAppBarLayoutBackgroundColor(@NonNull AppBarLayout appBarLayout, ColorStateList backgroundColor) {
-		Drawable background = appBarLayout.getBackground();
-		if (background instanceof MaterialShapeDrawable) {
-			((MaterialShapeDrawable) background).setFillColor(backgroundColor);
+	public static void tintBackground(@NonNull View view, @Nullable ColorStateList backgroundColor) {
+		final Drawable background = view.getBackground();
+		if (background != null) {
+			background.mutate();
+			DrawableCompat.setTintList(background, backgroundColor);
 		}
+	}
+
+	public static boolean isLightTheme(@NonNull Context context) {
+		final TypedValue value = new TypedValue();
+		return context.getTheme().resolveAttribute(R.attr.isLightTheme, value, true)
+				&& value.data != 0;
+	}
+
+	@ColorInt
+	public static int getColorSurface(@NonNull Context context) {
+		final TypedValue value = new TypedValue();
+		context.getTheme().resolveAttribute(R.attr.colorSurface, value, true);
+		return value.data;
+	}
+
+	public static void invertImageColors(@NonNull ImageView imageView) {
+		final ColorFilter invertColorFilter = new ColorMatrixColorFilter(new float[]{
+				-1.0f, 0.0f, 0.0f, 0.0f, 255.0f,
+				0.0f, -1.0f, 0.0f, 0.0f, 255.0f,
+				0.0f, 0.0f, -1.0f, 0.0f, 255.0f,
+				0.0f, 0.0f, 0.0f, 1.0f, 0.0f
+		});
+		imageView.setColorFilter(invertColorFilter);
 	}
 }
