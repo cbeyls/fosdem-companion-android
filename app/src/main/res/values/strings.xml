@@ -6,8 +6,6 @@
     <string name="main_menu">Main menu</string>
     <string name="close_menu">Close menu</string>
     <string name="last_update">DB last updated: %1$s</string>
-    <string name="download_reminder_title">Update</string>
-    <string name="download_reminder_message">This will update the schedule database to the latest version. Make sure you are connected to the internet.</string>
     <string name="never">Never</string>
     <string name="update_events_db">Update events database</string>
     <string name="events_download_up_to_date">Database is already up-to-date</string>
@@ -68,7 +66,8 @@
 
     <!-- Errors -->
     <string name="event_not_found_error">Unable to load the session details.\nMake sure the database has been updated to the latest version.</string>
-    <string name="schedule_loading_error">An error occurred while updating the schedule. Please try again later.</string>
+    <string name="schedule_loading_error">An error occurred during schedule update. Check your device connectivity.</string>
+    <string name="schedule_loading_retry_action">Retry</string>
     <string name="search_length_error">The minimum search text length is 3 chars.</string>
 
     <!-- Settings -->

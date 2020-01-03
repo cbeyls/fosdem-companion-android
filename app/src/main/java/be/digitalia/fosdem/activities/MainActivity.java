@@ -3,7 +3,6 @@ package be.digitalia.fosdem.activities;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -22,6 +21,9 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
+
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,16 +33,10 @@ import androidx.appcompat.widget.SearchView;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.view.ViewCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
-
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
-
 import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemApi;
@@ -134,9 +130,10 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 		}
 	}
 
+	private static final int ERROR_MESSAGE_DISPLAY_DURATION = 5000;
 	private static final long DATABASE_VALIDITY_DURATION = DateUtils.DAY_IN_MILLIS;
-	private static final long DOWNLOAD_REMINDER_SNOOZE_DURATION = DateUtils.DAY_IN_MILLIS;
-	private static final String PREF_LAST_DOWNLOAD_REMINDER_TIME = "last_download_reminder_time";
+	private static final long AUTO_UPDATE_SNOOZE_DURATION = DateUtils.DAY_IN_MILLIS;
+	private static final String PREF_LAST_AUTO_UPDATE_TIME = "last_download_reminder_time";
 
 	private static final String LAST_UPDATE_DATE_FORMAT = "d MMM yyyy kk:mm:ss";
 
@@ -153,41 +150,30 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 
 	private MenuItem searchMenuItem;
 
+	@SuppressLint("WrongConstant")
 	private final Observer<SingleEvent<DownloadScheduleResult>> scheduleDownloadResultObserver = singleEvent -> {
 		final DownloadScheduleResult result = singleEvent.consume();
 		if (result == null) {
 			return;
 		}
-		String message;
+		final Snackbar snackbar;
 		if (result.isError()) {
-			message = getString(R.string.schedule_loading_error);
+			snackbar = Snackbar.make(contentView, R.string.schedule_loading_error, ERROR_MESSAGE_DISPLAY_DURATION)
+					.setAction(R.string.schedule_loading_retry_action, v -> FosdemApi.downloadSchedule(this));
 		} else if (result.isUpToDate()) {
-			message = getString(R.string.events_download_up_to_date);
+			snackbar = Snackbar.make(contentView, R.string.events_download_up_to_date, Snackbar.LENGTH_LONG);
 		} else {
-			int eventsCount = result.getEventsCount();
+			final int eventsCount = result.getEventsCount();
+			final String message;
 			if (eventsCount == 0) {
 				message = getString(R.string.events_download_empty);
 			} else {
 				message = getResources().getQuantityString(R.plurals.events_download_completed, eventsCount, eventsCount);
 			}
+			snackbar = Snackbar.make(contentView, message, Snackbar.LENGTH_LONG);
 		}
-		Snackbar.make(findViewById(R.id.content), message, Snackbar.LENGTH_LONG).show();
+		snackbar.show();
 	};
-
-	public static class DownloadScheduleReminderDialogFragment extends DialogFragment {
-
-		@NonNull
-		@Override
-		public Dialog onCreateDialog(Bundle savedInstanceState) {
-			final Context context = requireContext();
-			return new MaterialAlertDialogBuilder(context)
-					.setTitle(R.string.download_reminder_title)
-					.setMessage(R.string.download_reminder_message)
-					.setPositiveButton(android.R.string.ok, (dialog, which) -> FosdemApi.downloadSchedule(context))
-					.setNegativeButton(android.R.string.cancel, null)
-					.create();
-		}
-	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -372,22 +358,20 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 		}
 		super.onStart();
 
-		// Download reminder
-		long now = System.currentTimeMillis();
-		Long timeValue = AppDatabase.getInstance(this).getScheduleDao().getLastUpdateTime().getValue();
+		// Scheduled database update
+		final long now = System.currentTimeMillis();
+		final Long timeValue = AppDatabase.getInstance(this).getScheduleDao().getLastUpdateTime().getValue();
 		long time = (timeValue == null) ? -1L : timeValue;
 		if ((time == -1L) || (time < (now - DATABASE_VALIDITY_DURATION))) {
 			SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
-			time = prefs.getLong(PREF_LAST_DOWNLOAD_REMINDER_TIME, -1L);
-			if ((time == -1L) || (time < (now - DOWNLOAD_REMINDER_SNOOZE_DURATION))) {
+			time = prefs.getLong(PREF_LAST_AUTO_UPDATE_TIME, -1L);
+			if ((time == -1L) || (time < (now - AUTO_UPDATE_SNOOZE_DURATION))) {
 				prefs.edit()
-						.putLong(PREF_LAST_DOWNLOAD_REMINDER_TIME, now)
+						.putLong(PREF_LAST_AUTO_UPDATE_TIME, now)
 						.apply();
 
-				FragmentManager fm = getSupportFragmentManager();
-				if (fm.findFragmentByTag("download_reminder") == null) {
-					new DownloadScheduleReminderDialogFragment().show(fm, "download_reminder");
-				}
+				// Try to update immediately. If it fails, the user gets a message and a retry button.
+				FosdemApi.downloadSchedule(this);
 			}
 		}
 	}
