@@ -18,8 +18,8 @@
     <!-- Track types -->
     <color name="track_type_keynote">@color/color_primary</color>
     <color name="track_type_keynote_dark">@color/color_primary_dark</color>
-    <color name="track_type_main">#d32f2f</color>
-    <color name="track_type_main_dark">#9a0007</color>
+    <color name="track_type_main">#b71c1c</color>
+    <color name="track_type_main_dark">#7f0000</color>
     <color name="track_type_developer_room">#303f9f</color>
     <color name="track_type_developer_room_dark">#001970</color>
     <color name="track_type_lightning_talk">#388e3c</color>
@@ -31,7 +31,7 @@
 
     <!-- Room statuses -->
     <color name="room_status_open">#388e3c</color>
-    <color name="room_status_full">#d32f2f</color>
-    <color name="room_status_emergency_evacuation">#d32f2f</color>
+    <color name="room_status_full">#b71c1c</color>
+    <color name="room_status_emergency_evacuation">#b71c1c</color>
 
 </resources>
