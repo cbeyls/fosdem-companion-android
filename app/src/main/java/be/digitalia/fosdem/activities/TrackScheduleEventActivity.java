@@ -31,6 +31,7 @@ import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.NfcUtils;
 import be.digitalia.fosdem.utils.NfcUtils.CreateNfcAppDataCallback;
+import be.digitalia.fosdem.utils.RecyclerViewUtils;
 import be.digitalia.fosdem.utils.ThemeUtils;
 import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel;
 import be.digitalia.fosdem.viewmodels.TrackScheduleEventViewModel;
@@ -70,6 +71,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 
 		progress = findViewById(R.id.progress);
 		pager = findViewById(R.id.pager);
+		RecyclerViewUtils.enforceSingleScrollDirection(RecyclerViewUtils.getRecyclerView(pager));
 		adapter = new TrackScheduleEventAdapter(this);
 
 		if (savedInstanceState == null) {

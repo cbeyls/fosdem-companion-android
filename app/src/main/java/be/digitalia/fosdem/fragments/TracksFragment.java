@@ -23,6 +23,7 @@ import java.util.List;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.db.AppDatabase;
 import be.digitalia.fosdem.model.Day;
+import be.digitalia.fosdem.utils.RecyclerViewUtils;
 
 public class TracksFragment extends Fragment implements RecycledViewPoolProvider, Observer<List<Day>> {
 
@@ -59,6 +60,7 @@ public class TracksFragment extends Fragment implements RecycledViewPoolProvider
 		holder.emptyView = view.findViewById(android.R.id.empty);
 		holder.pager = view.findViewById(R.id.pager);
 		holder.pager.setOffscreenPageLimit(1);
+		RecyclerViewUtils.enforceSingleScrollDirection(RecyclerViewUtils.getRecyclerView(holder.pager));
 		holder.tabs = view.findViewById(R.id.tabs);
 		holder.daysAdapter = new DaysAdapter(this);
 		holder.recycledViewPool = new RecyclerView.RecycledViewPool();
