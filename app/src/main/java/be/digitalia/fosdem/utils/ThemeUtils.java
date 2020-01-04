@@ -21,6 +21,7 @@ import be.digitalia.fosdem.R;
 
 public class ThemeUtils {
 
+	@SuppressWarnings("deprecation")
 	public static void setActivityColors(@NonNull Activity activity, @ColorInt int color, @ColorInt int darkColor) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			activity.getWindow().setStatusBarColor(darkColor);
