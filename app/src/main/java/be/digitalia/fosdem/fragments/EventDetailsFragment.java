@@ -21,18 +21,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.android.material.snackbar.Snackbar;
-
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+
+import com.google.android.material.snackbar.Snackbar;
+
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.List;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.PersonInfoActivity;
 import be.digitalia.fosdem.api.FosdemApi;
@@ -43,7 +44,7 @@ import be.digitalia.fosdem.model.Link;
 import be.digitalia.fosdem.model.Person;
 import be.digitalia.fosdem.model.RoomStatus;
 import be.digitalia.fosdem.utils.ClickableArrowKeyMovementMethod;
-import be.digitalia.fosdem.utils.CustomTabsUtils;
+import be.digitalia.fosdem.utils.CustomTabsIntentExtKt;
 import be.digitalia.fosdem.utils.DateUtils;
 import be.digitalia.fosdem.utils.StringUtils;
 import be.digitalia.fosdem.viewmodels.EventDetailsViewModel;
@@ -156,7 +157,7 @@ public class EventDetailsFragment extends Fragment {
 			textView.setVisibility(View.GONE);
 		} else {
 			textView.setText(StringUtils.parseHtml(text, getResources()));
-			textView.setMovementMethod(ClickableArrowKeyMovementMethod.getInstance());
+			textView.setMovementMethod(ClickableArrowKeyMovementMethod.INSTANCE);
 		}
 		textView = view.findViewById(R.id.description);
 		text = event.getDescription();
@@ -164,7 +165,7 @@ public class EventDetailsFragment extends Fragment {
 			textView.setVisibility(View.GONE);
 		} else {
 			textView.setText(StringUtils.parseHtml(text, getResources()));
-			textView.setMovementMethod(ClickableArrowKeyMovementMethod.getInstance());
+			textView.setMovementMethod(ClickableArrowKeyMovementMethod.INSTANCE);
 		}
 
 		holder.linksHeader = view.findViewById(R.id.links_header);
@@ -333,7 +334,7 @@ public class EventDetailsFragment extends Fragment {
 			String url = link.getUrl();
 			try {
 				final Context context = v.getContext();
-				CustomTabsUtils.configureToolbarColors(new CustomTabsIntent.Builder(), context, event.getTrack().getType().getAppBarColorResId())
+				CustomTabsIntentExtKt.configureToolbarColors(new CustomTabsIntent.Builder(), context, event.getTrack().getType().getAppBarColorResId())
 						.setShowTitle(true)
 						.setStartAnimations(context, R.anim.slide_in_right, R.anim.slide_out_left)
 						.setExitAnimations(context, R.anim.slide_in_left, R.anim.slide_out_right)

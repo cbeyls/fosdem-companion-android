@@ -60,7 +60,7 @@ public abstract class BookmarksDao {
 
 	public void addBookmark(@NonNull Event event) {
 		if (addBookmarkInternal(new Bookmark(event.getId())) != -1L) {
-			FosdemAlarmManager.getInstance().onBookmarkAdded(event);
+			FosdemAlarmManager.INSTANCE.onBookmarkAdded(event);
 		}
 	}
 
@@ -74,7 +74,7 @@ public abstract class BookmarksDao {
 
 	public void removeBookmarks(@NonNull long... eventIds) {
 		if (removeBookmarksInternal(eventIds) > 0) {
-			FosdemAlarmManager.getInstance().onBookmarksRemoved(eventIds);
+			FosdemAlarmManager.INSTANCE.onBookmarksRemoved(eventIds);
 		}
 	}
 

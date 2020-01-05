@@ -2,6 +2,7 @@ package be.digitalia.fosdem.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -41,7 +42,7 @@ public class Person implements Parcelable {
 	}
 
 	public String getUrl(int year) {
-		return FosdemUrls.getPerson(StringUtils.toSlug(name), year);
+		return FosdemUrls.INSTANCE.getPerson(StringUtils.toSlug(name), year);
 	}
 
 	@NonNull

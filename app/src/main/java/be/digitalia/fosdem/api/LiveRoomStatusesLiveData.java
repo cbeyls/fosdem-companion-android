@@ -79,7 +79,7 @@ class LiveRoomStatusesLiveData extends LiveData<Map<String, RoomStatus>> {
 
 			@Override
 			protected Map<String, RoomStatus> doInBackground(Void... voids) {
-				try (BufferedSource source = HttpUtils.get(FosdemUrls.getRooms())) {
+				try (BufferedSource source = HttpUtils.INSTANCE.get(FosdemUrls.INSTANCE.getRooms())) {
 					return new RoomStatusesParser().parse(source);
 				} catch (Throwable e) {
 					return null;

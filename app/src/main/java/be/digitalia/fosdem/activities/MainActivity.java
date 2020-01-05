@@ -21,9 +21,6 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
-
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -37,6 +34,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
+
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
+
 import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemApi;
@@ -49,7 +50,7 @@ import be.digitalia.fosdem.fragments.PersonsListFragment;
 import be.digitalia.fosdem.fragments.TracksFragment;
 import be.digitalia.fosdem.livedata.SingleEvent;
 import be.digitalia.fosdem.model.DownloadScheduleResult;
-import be.digitalia.fosdem.utils.CustomTabsUtils;
+import be.digitalia.fosdem.utils.CustomTabsIntentExtKt;
 import be.digitalia.fosdem.utils.NfcUtils;
 
 /**
@@ -448,10 +449,10 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 					break;
 				case R.id.menu_volunteer:
 					try {
-						CustomTabsUtils.configureToolbarColors(new CustomTabsIntent.Builder(), this, R.color.light_color_primary)
+						CustomTabsIntentExtKt.configureToolbarColors(new CustomTabsIntent.Builder(), this, R.color.light_color_primary)
 								.setShowTitle(true)
 								.build()
-								.launchUrl(this, Uri.parse(FosdemUrls.getVolunteer()));
+								.launchUrl(this, Uri.parse(FosdemUrls.INSTANCE.getVolunteer()));
 					} catch (ActivityNotFoundException ignore) {
 					}
 					break;

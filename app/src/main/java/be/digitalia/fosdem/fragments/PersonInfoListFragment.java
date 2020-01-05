@@ -23,7 +23,7 @@ import be.digitalia.fosdem.adapters.ConcatAdapter;
 import be.digitalia.fosdem.adapters.EventsAdapter;
 import be.digitalia.fosdem.model.Person;
 import be.digitalia.fosdem.model.StatusEvent;
-import be.digitalia.fosdem.utils.CustomTabsUtils;
+import be.digitalia.fosdem.utils.CustomTabsIntentExtKt;
 import be.digitalia.fosdem.utils.DateUtils;
 import be.digitalia.fosdem.viewmodels.PersonInfoViewModel;
 
@@ -76,7 +76,7 @@ public class PersonInfoListFragment extends RecyclerViewFragment implements Obse
 					if (url != null) {
 						try {
 							final Context context = requireContext();
-							CustomTabsUtils.configureToolbarColors(new CustomTabsIntent.Builder(), context, R.color.light_color_primary)
+							CustomTabsIntentExtKt.configureToolbarColors(new CustomTabsIntent.Builder(), context, R.color.light_color_primary)
 									.setStartAnimations(context, R.anim.slide_in_right, R.anim.slide_out_left)
 									.setExitAnimations(context, R.anim.slide_in_left, R.anim.slide_out_right)
 									.build()

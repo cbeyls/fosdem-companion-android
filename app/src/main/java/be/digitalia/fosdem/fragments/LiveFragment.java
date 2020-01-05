@@ -16,7 +16,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import be.digitalia.fosdem.R;
-import be.digitalia.fosdem.utils.RecyclerViewUtils;
+import be.digitalia.fosdem.utils.RecyclerViewExtKt;
 
 public class LiveFragment extends Fragment implements RecycledViewPoolProvider {
 
@@ -37,7 +37,7 @@ public class LiveFragment extends Fragment implements RecycledViewPoolProvider {
 		final LivePagerAdapter adapter = new LivePagerAdapter(this);
 		holder.pager.setAdapter(adapter);
 		holder.pager.setOffscreenPageLimit(1);
-		RecyclerViewUtils.enforceSingleScrollDirection(RecyclerViewUtils.getRecyclerView(holder.pager));
+		RecyclerViewExtKt.enforceSingleScrollDirection(RecyclerViewExtKt.getRecyclerView(holder.pager));
 		holder.tabs = view.findViewById(R.id.tabs);
 		new TabLayoutMediator(holder.tabs, holder.pager, false,
 				(tab, position) -> tab.setText(adapter.getPageTitle(position))).attach();

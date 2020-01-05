@@ -8,8 +8,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +17,9 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.List;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.adapters.BookmarksAdapter;
 import be.digitalia.fosdem.model.Event;
@@ -149,7 +150,7 @@ public class BookmarksListFragment extends RecyclerViewFragment
 						.apply();
 				return true;
 			case R.id.export_bookmarks:
-				Intent exportIntent = BookmarksExportProvider.getIntent(getActivity());
+				Intent exportIntent = BookmarksExportProvider.Companion.getIntent(getActivity());
 				startActivity(Intent.createChooser(exportIntent, getString(R.string.export_bookmarks)));
 				return true;
 		}

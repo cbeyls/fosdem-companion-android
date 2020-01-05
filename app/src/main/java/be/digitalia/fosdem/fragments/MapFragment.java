@@ -21,7 +21,7 @@ import java.util.Locale;
 
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemUrls;
-import be.digitalia.fosdem.utils.CustomTabsUtils;
+import be.digitalia.fosdem.utils.CustomTabsIntentExtKt;
 import be.digitalia.fosdem.utils.ThemeUtils;
 
 public class MapFragment extends Fragment {
@@ -80,10 +80,10 @@ public class MapFragment extends Fragment {
 	private void launchLocalNavigation() {
 		try {
 			final Context context = requireContext();
-			CustomTabsUtils.configureToolbarColors(new CustomTabsIntent.Builder(), context, R.color.light_color_primary)
+			CustomTabsIntentExtKt.configureToolbarColors(new CustomTabsIntent.Builder(), context, R.color.light_color_primary)
 					.setShowTitle(true)
 					.build()
-					.launchUrl(context, Uri.parse(FosdemUrls.getLocalNavigation()));
+					.launchUrl(context, Uri.parse(FosdemUrls.INSTANCE.getLocalNavigation()));
 		} catch (ActivityNotFoundException ignore) {
 		}
 	}

@@ -29,17 +29,16 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.TaskStackBuilder;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
-
 import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.EventDetailsActivity;
 import be.digitalia.fosdem.activities.MainActivity;
 import be.digitalia.fosdem.activities.RoomImageDialogActivity;
 import be.digitalia.fosdem.db.AppDatabase;
-import be.digitalia.fosdem.fragments.SettingsFragment;
 import be.digitalia.fosdem.model.AlarmInfo;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.receivers.AlarmReceiver;
+import be.digitalia.fosdem.utils.PreferenceKeys;
 import be.digitalia.fosdem.utils.StringUtils;
 
 /**
@@ -165,8 +164,8 @@ public class AlarmIntentService extends JobIntentService {
 	}
 
 	private long getDelay() {
-		String delayString = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(
-				SettingsFragment.KEY_PREF_NOTIFICATIONS_DELAY, "0");
+		String delayString = PreferenceManager.getDefaultSharedPreferences(this).getString(
+				PreferenceKeys.NOTIFICATIONS_DELAY, "0");
 		// Convert from minutes to milliseconds
 		return Long.parseLong(delayString) * DateUtils.MINUTE_IN_MILLIS;
 	}
@@ -187,7 +186,7 @@ public class AlarmIntentService extends JobIntentService {
 				context.getString(R.string.notification_events_channel_name),
 				NotificationManager.IMPORTANCE_HIGH);
 		channel.setShowBadge(false);
-		channel.setLightColor(ContextCompat.getColor(context, R.color.light_color_primary));
+		channel.setLightColor(context.getColor(R.color.color_primary));
 		channel.enableVibration(true);
 		channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
 		notificationManager.createNotificationChannel(channel);
@@ -214,8 +213,8 @@ public class AlarmIntentService extends JobIntentService {
 				.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		int defaultFlags = Notification.DEFAULT_SOUND;
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		if (sharedPreferences.getBoolean(SettingsFragment.KEY_PREF_NOTIFICATIONS_VIBRATE, false)) {
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+		if (sharedPreferences.getBoolean(PreferenceKeys.NOTIFICATIONS_VIBRATE, false)) {
 			defaultFlags |= Notification.DEFAULT_VIBRATE;
 		}
 
@@ -242,7 +241,7 @@ public class AlarmIntentService extends JobIntentService {
 			bigText = spannableBigText;
 		}
 
-		int notificationColor = ContextCompat.getColor(this, R.color.light_color_primary);
+		int notificationColor = ContextCompat.getColor(this, R.color.color_primary);
 
 		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL)
 				.setSmallIcon(R.drawable.ic_stat_fosdem)
@@ -260,7 +259,7 @@ public class AlarmIntentService extends JobIntentService {
 				.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 
 		// Blink the LED with FOSDEM color if enabled in the options
-		if (sharedPreferences.getBoolean(SettingsFragment.KEY_PREF_NOTIFICATIONS_LED, false)) {
+		if (sharedPreferences.getBoolean(PreferenceKeys.NOTIFICATIONS_LED, false)) {
 			notificationBuilder.setLights(notificationColor, 1000, 5000);
 		}
 
@@ -274,9 +273,9 @@ public class AlarmIntentService extends JobIntentService {
 		if (roomImageResId != 0) {
 			// The room name is the unique Id of a RoomImageDialogActivity
 			Intent mapIntent = new Intent(this, RoomImageDialogActivity.class).setFlags(
-					Intent.FLAG_ACTIVITY_NEW_TASK).setData(Uri.parse(roomName))
-					.putExtra(RoomImageDialogActivity.EXTRA_ROOM_NAME, roomName)
-					.putExtra(RoomImageDialogActivity.EXTRA_ROOM_IMAGE_RESOURCE_ID, roomImageResId);
+					Intent.FLAG_ACTIVITY_NEW_TASK).setData(Uri.parse(roomName));
+			mapIntent.putExtra(RoomImageDialogActivity.EXTRA_ROOM_NAME, roomName);
+			mapIntent.putExtra(RoomImageDialogActivity.EXTRA_ROOM_IMAGE_RESOURCE_ID, roomImageResId);
 			PendingIntent mapPendingIntent = PendingIntent.getActivity(this, 0, mapIntent,
 					PendingIntent.FLAG_UPDATE_CURRENT);
 			CharSequence mapTitle = getString(R.string.room_map);

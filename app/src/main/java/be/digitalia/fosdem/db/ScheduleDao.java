@@ -77,7 +77,7 @@ public abstract class ScheduleDao {
 					.apply();
 			lastUpdateTime.postValue(now);
 
-			FosdemAlarmManager.getInstance().onScheduleRefreshed();
+			FosdemAlarmManager.INSTANCE.onScheduleRefreshed();
 		}
 		return totalEvents;
 	}

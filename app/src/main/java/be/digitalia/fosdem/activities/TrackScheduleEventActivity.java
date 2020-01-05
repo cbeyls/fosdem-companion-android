@@ -7,11 +7,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.bottomappbar.BottomAppBar;
-
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,6 +18,12 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
+
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.bottomappbar.BottomAppBar;
+
+import java.util.List;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.EventDetailsFragment;
 import be.digitalia.fosdem.model.Day;
@@ -30,7 +31,7 @@ import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.NfcUtils;
 import be.digitalia.fosdem.utils.NfcUtils.CreateNfcAppDataCallback;
-import be.digitalia.fosdem.utils.RecyclerViewUtils;
+import be.digitalia.fosdem.utils.RecyclerViewExtKt;
 import be.digitalia.fosdem.utils.ThemeUtils;
 import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel;
 import be.digitalia.fosdem.viewmodels.TrackScheduleEventViewModel;
@@ -70,7 +71,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 
 		progress = findViewById(R.id.progress);
 		pager = findViewById(R.id.pager);
-		RecyclerViewUtils.enforceSingleScrollDirection(RecyclerViewUtils.getRecyclerView(pager));
+		RecyclerViewExtKt.enforceSingleScrollDirection(RecyclerViewExtKt.getRecyclerView(pager));
 		adapter = new TrackScheduleEventAdapter(this);
 
 		if (savedInstanceState == null) {

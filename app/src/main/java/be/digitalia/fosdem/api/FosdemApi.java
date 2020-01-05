@@ -69,19 +69,19 @@ public class FosdemApi {
 		DownloadScheduleResult res = DownloadScheduleResult.error();
 		try {
 			ScheduleDao scheduleDao = AppDatabase.getInstance(context).getScheduleDao();
-			HttpUtils.Response httpResponse = HttpUtils.get(
-					FosdemUrls.getSchedule(),
+			HttpUtils.Response httpResponse = HttpUtils.INSTANCE.get(
+					FosdemUrls.INSTANCE.getSchedule(),
 					scheduleDao.getLastModifiedTag(),
 					progress::postValue);
-			if (httpResponse.source == null) {
+			if (httpResponse.getSource() == null) {
 				// Nothing to parse, the result is up-to-date.
 				res = DownloadScheduleResult.upToDate();
 				return;
 			}
 
-			try (BufferedSource source = httpResponse.source) {
+			try (BufferedSource source = httpResponse.getSource()) {
 				Iterable<DetailedEvent> events = new EventsParser().parse(source);
-				int count = scheduleDao.storeSchedule(events, httpResponse.lastModified);
+				int count = scheduleDao.storeSchedule(events, httpResponse.getLastModified());
 				res = DownloadScheduleResult.success(count);
 			}
 
