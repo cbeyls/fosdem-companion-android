@@ -2,6 +2,7 @@ package be.digitalia.fosdem.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+
 import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
@@ -16,21 +17,32 @@ public class Track implements Parcelable {
 	public static final String TABLE_NAME = "tracks";
 
 	public enum Type {
-		other(R.string.other, R.color.track_type_other, R.color.track_type_other_dark),
-		keynote(R.string.keynote, R.color.track_type_keynote, R.color.track_type_keynote_dark),
-		maintrack(R.string.main_track, R.color.track_type_main, R.color.track_type_main_dark),
-		devroom(R.string.developer_room, R.color.track_type_developer_room, R.color.track_type_developer_room_dark),
-		lightningtalk(R.string.lightning_talk, R.color.track_type_lightning_talk, R.color.track_type_lightning_talk_dark),
-		certification(R.string.certification_exam, R.color.track_type_certification_exam, R.color.track_type_certification_exam_dark);
+		other(R.string.other,
+				R.color.track_type_other, R.color.track_type_other_dark, R.color.track_type_other_text),
+		keynote(R.string.keynote,
+				R.color.track_type_keynote, R.color.track_type_keynote_dark, R.color.track_type_keynote_text),
+		maintrack(R.string.main_track,
+				R.color.track_type_main, R.color.track_type_main_dark, R.color.track_type_main_text),
+		devroom(R.string.developer_room,
+				R.color.track_type_developer_room, R.color.track_type_developer_room_dark, R.color.track_type_developer_room_text),
+		lightningtalk(R.string.lightning_talk,
+				R.color.track_type_lightning_talk, R.color.track_type_lightning_talk_dark, R.color.track_type_lightning_talk_text),
+		certification(R.string.certification_exam,
+				R.color.track_type_certification_exam, R.color.track_type_certification_exam_dark, R.color.track_type_certification_exam_text);
 
 		private final int nameResId;
-		private final int colorResId;
-		private final int darkColorResId;
+		private final int appBarColorResId;
+		private final int statusBarColorResId;
+		private final int textColorResId;
 
-		Type(@StringRes int nameResId, @ColorRes int colorResId, @ColorRes int darkColorResId) {
+		Type(@StringRes int nameResId,
+			 @ColorRes int appBarColorResId,
+			 @ColorRes int statusBarColorResId,
+			 @ColorRes int textColorResId) {
 			this.nameResId = nameResId;
-			this.colorResId = colorResId;
-			this.darkColorResId = darkColorResId;
+			this.appBarColorResId = appBarColorResId;
+			this.statusBarColorResId = statusBarColorResId;
+			this.textColorResId = textColorResId;
 		}
 
 		@StringRes
@@ -39,13 +51,17 @@ public class Track implements Parcelable {
 		}
 
 		@ColorRes
-		public int getColorResId() {
-			return colorResId;
+		public int getAppBarColorResId() {
+			return appBarColorResId;
 		}
 
 		@ColorRes
-		public int getDarkColorResId() {
-			return darkColorResId;
+		public int getStatusBarColorResId() {
+			return statusBarColorResId;
+		}
+
+		public int getTextColorResId() {
+			return textColorResId;
 		}
 	}
 

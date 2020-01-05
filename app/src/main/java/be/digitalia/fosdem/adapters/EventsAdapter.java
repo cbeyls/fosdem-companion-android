@@ -11,6 +11,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -30,11 +36,6 @@ import be.digitalia.fosdem.model.RoomStatus;
 import be.digitalia.fosdem.model.StatusEvent;
 import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.DateUtils;
-
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 public class EventsAdapter extends PagedListAdapter<StatusEvent, EventsAdapter.ViewHolder>
 		implements Observer<Map<String, RoomStatus>> {
@@ -168,7 +169,7 @@ public class EventsAdapter extends PagedListAdapter<StatusEvent, EventsAdapter.V
 			persons.setVisibility(TextUtils.isEmpty(personsSummary) ? View.GONE : View.VISIBLE);
 			Track track = event.getTrack();
 			trackName.setText(track.getName());
-			trackName.setTextColor(ContextCompat.getColor(context, track.getType().getColorResId()));
+			trackName.setTextColor(ContextCompat.getColorStateList(context, track.getType().getTextColorResId()));
 			trackName.setContentDescription(context.getString(R.string.track_content_description, track.getName()));
 		}
 

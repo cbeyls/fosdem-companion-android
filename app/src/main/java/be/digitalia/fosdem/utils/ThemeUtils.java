@@ -16,20 +16,19 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.graphics.drawable.DrawableCompat;
-
 import be.digitalia.fosdem.R;
 
 public class ThemeUtils {
 
 	@SuppressWarnings("deprecation")
-	public static void setActivityColors(@NonNull Activity activity, @ColorInt int color, @ColorInt int darkColor) {
+	public static void setActivityColors(@NonNull Activity activity, @ColorInt int taskColor, @ColorInt int statusBarColor) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			activity.getWindow().setStatusBarColor(darkColor);
+			activity.getWindow().setStatusBarColor(statusBarColor);
 			final ActivityManager.TaskDescription taskDescription;
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-				taskDescription = new ActivityManager.TaskDescription(null, 0, color | 0xFF000000);
+				taskDescription = new ActivityManager.TaskDescription(null, 0, taskColor | 0xFF000000);
 			} else {
-				taskDescription = new ActivityManager.TaskDescription(null, null, color | 0xFF000000);
+				taskDescription = new ActivityManager.TaskDescription(null, null, taskColor | 0xFF000000);
 			}
 			activity.setTaskDescription(taskDescription);
 		}
@@ -47,13 +46,6 @@ public class ThemeUtils {
 		final TypedValue value = new TypedValue();
 		return context.getTheme().resolveAttribute(R.attr.isLightTheme, value, true)
 				&& value.data != 0;
-	}
-
-	@ColorInt
-	public static int getColorSurface(@NonNull Context context) {
-		final TypedValue value = new TypedValue();
-		context.getTheme().resolveAttribute(R.attr.colorSurface, value, true);
-		return value.data;
 	}
 
 	public static void invertImageColors(@NonNull ImageView imageView) {

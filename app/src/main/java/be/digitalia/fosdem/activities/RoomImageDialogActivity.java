@@ -64,7 +64,7 @@ public class RoomImageDialogActivity extends AppCompatActivity {
 					case R.id.navigation:
 						String localNavigationUrl = FosdemUrls.getLocalNavigationToLocation(StringUtils.toSlug(roomName));
 						try {
-							CustomTabsUtils.configureToolbarColors(new CustomTabsIntent.Builder(), context, R.color.color_primary)
+							CustomTabsUtils.configureToolbarColors(new CustomTabsIntent.Builder(), context, R.color.light_color_primary)
 									.setShowTitle(true)
 									.build()
 									.launchUrl(context, Uri.parse(localNavigationUrl));

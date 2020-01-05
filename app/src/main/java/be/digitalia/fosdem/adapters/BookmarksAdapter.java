@@ -14,6 +14,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,12 +31,6 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.savedstate.SavedStateRegistryOwner;
-
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.EventDetailsActivity;
 import be.digitalia.fosdem.api.FosdemApi;
@@ -187,7 +186,7 @@ public class BookmarksAdapter extends ListAdapter<Event, BookmarksAdapter.ViewHo
 			persons.setVisibility(TextUtils.isEmpty(personsSummary) ? View.GONE : View.VISIBLE);
 			Track track = event.getTrack();
 			trackName.setText(track.getName());
-			trackName.setTextColor(ContextCompat.getColor(context, track.getType().getColorResId()));
+			trackName.setTextColor(ContextCompat.getColorStateList(context, track.getType().getTextColorResId()));
 			trackName.setContentDescription(context.getString(R.string.track_content_description, track.getName()));
 		}
 

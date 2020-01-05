@@ -1,5 +1,6 @@
 package be.digitalia.fosdem.utils;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 
 import androidx.annotation.ColorRes;
@@ -8,15 +9,17 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.browser.customtabs.CustomTabColorSchemeParams;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.content.ContextCompat;
+import be.digitalia.fosdem.R;
 
 public class CustomTabsUtils {
 
 	@NonNull
+	@SuppressLint("PrivateResource")
 	public static CustomTabsIntent.Builder configureToolbarColors(@NonNull CustomTabsIntent.Builder builder,
 																  @NonNull Context context,
-																  @ColorRes int lightColorResId) {
+																  @ColorRes int toolbarColorResId) {
 		final CustomTabColorSchemeParams darkColorSchemeParams = new CustomTabColorSchemeParams.Builder()
-				.setToolbarColor(ThemeUtils.getColorSurface(context))
+				.setToolbarColor(ContextCompat.getColor(context, R.color.design_dark_default_color_surface))
 				.build();
 
 		// Request the browser tab to follow the app theme setting
@@ -32,8 +35,7 @@ public class CustomTabsUtils {
 				colorScheme = CustomTabsIntent.COLOR_SCHEME_SYSTEM;
 		}
 
-		// Use the application Context so that the default (non-night) color value is used
-		return builder.setToolbarColor(ContextCompat.getColor(context.getApplicationContext(), lightColorResId))
+		return builder.setToolbarColor(ContextCompat.getColor(context, toolbarColorResId))
 				.setColorSchemeParams(CustomTabsIntent.COLOR_SCHEME_DARK, darkColorSchemeParams)
 				.setColorScheme(colorScheme);
 	}

@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.google.android.material.appbar.AppBarLayout;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,9 +18,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
-
-import com.google.android.material.appbar.AppBarLayout;
-
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.EventDetailsFragment;
 import be.digitalia.fosdem.model.Event;
@@ -115,13 +114,14 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 		toolbar.setTitle(event.getTrack().getName());
 
 		final Track.Type trackType = event.getTrack().getType();
-		final ColorStateList trackColor = ContextCompat.getColorStateList(this, trackType.getColorResId());
 		if (ThemeUtils.isLightTheme(this)) {
-			final int trackDarkColor = ContextCompat.getColor(this, trackType.getDarkColorResId());
-			ThemeUtils.setActivityColors(this, trackColor.getDefaultColor(), trackDarkColor);
-			ThemeUtils.tintBackground(appBarLayout, trackColor);
+			final ColorStateList trackAppBarColor = ContextCompat.getColorStateList(this, trackType.getAppBarColorResId());
+			final int trackStatusBarColor = ContextCompat.getColor(this, trackType.getStatusBarColorResId());
+			ThemeUtils.setActivityColors(this, trackAppBarColor.getDefaultColor(), trackStatusBarColor);
+			ThemeUtils.tintBackground(appBarLayout, trackAppBarColor);
 		} else {
-			toolbar.setTitleTextColor(trackColor);
+			final ColorStateList trackTextColor = ContextCompat.getColorStateList(this, trackType.getTextColorResId());
+			toolbar.setTitleTextColor(trackTextColor);
 		}
 
 		bookmarkStatusViewModel.setEvent(event);

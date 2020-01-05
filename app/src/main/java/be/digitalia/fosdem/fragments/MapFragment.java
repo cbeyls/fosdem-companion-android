@@ -80,7 +80,7 @@ public class MapFragment extends Fragment {
 	private void launchLocalNavigation() {
 		try {
 			final Context context = requireContext();
-			CustomTabsUtils.configureToolbarColors(new CustomTabsIntent.Builder(), context, R.color.color_primary)
+			CustomTabsUtils.configureToolbarColors(new CustomTabsIntent.Builder(), context, R.color.light_color_primary)
 					.setShowTitle(true)
 					.build()
 					.launchUrl(context, Uri.parse(FosdemUrls.getLocalNavigation()));

@@ -7,20 +7,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import java.util.List;
+
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.*;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.ListAdapter;
+import androidx.recyclerview.widget.RecyclerView;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.TrackScheduleActivity;
 import be.digitalia.fosdem.adapters.SimpleItemCallback;
 import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.viewmodels.TracksViewModel;
-
-import java.util.List;
 
 public class TracksListFragment extends RecyclerViewFragment implements Observer<List<Track>> {
 
@@ -123,7 +128,7 @@ public class TracksListFragment extends RecyclerViewFragment implements Observer
 			this.track = track;
 			name.setText(track.getName());
 			type.setText(track.getType().getNameResId());
-			type.setTextColor(ContextCompat.getColor(type.getContext(), track.getType().getColorResId()));
+			type.setTextColor(ContextCompat.getColorStateList(type.getContext(), track.getType().getTextColorResId()));
 		}
 
 		@Override

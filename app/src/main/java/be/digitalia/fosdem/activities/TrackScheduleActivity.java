@@ -15,7 +15,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
-
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.EventDetailsFragment;
 import be.digitalia.fosdem.fragments.RoomImageDialogFragment;
@@ -66,13 +65,14 @@ public class TrackScheduleActivity extends AppCompatActivity
 		bar.setSubtitle(day.toString());
 		setTitle(String.format("%1$s, %2$s", track.toString(), day.toString()));
 		final Track.Type trackType = track.getType();
-		final ColorStateList trackColor = ContextCompat.getColorStateList(this, trackType.getColorResId());
 		if (ThemeUtils.isLightTheme(this)) {
-			final int trackDarkColor = ContextCompat.getColor(this, trackType.getDarkColorResId());
-			ThemeUtils.setActivityColors(this, trackColor.getDefaultColor(), trackDarkColor);
-			ThemeUtils.tintBackground(toolbar, trackColor);
+			final ColorStateList trackAppBarColor = ContextCompat.getColorStateList(this, trackType.getAppBarColorResId());
+			final int trackStatusBarColor = ContextCompat.getColor(this, trackType.getStatusBarColorResId());
+			ThemeUtils.setActivityColors(this, trackAppBarColor.getDefaultColor(), trackStatusBarColor);
+			ThemeUtils.tintBackground(toolbar, trackAppBarColor);
 		} else {
-			toolbar.setTitleTextColor(trackColor);
+			final ColorStateList trackTextColor = ContextCompat.getColorStateList(this, trackType.getTextColorResId());
+			toolbar.setTitleTextColor(trackTextColor);
 		}
 
 		isTabletLandscape = getResources().getBoolean(R.bool.tablet_landscape);

@@ -11,11 +11,12 @@
     <color name="light_emphasis_background">#1affffff</color>
 
     <!-- Track types -->
-    <color name="track_type_main">#ef5350</color>
-    <color name="track_type_developer_room">#8c9eff</color>
-    <color name="track_type_lightning_talk">#66bb6a</color>
-    <color name="track_type_certification_exam">#be9c91</color>
-    <color name="track_type_other">#bdbdbd</color>
+    <color name="track_type_keynote_text">#de55c2</color>
+    <color name="track_type_main_text">#ef5350</color>
+    <color name="track_type_developer_room_text">#8c9eff</color>
+    <color name="track_type_lightning_talk_text">#66bb6a</color>
+    <color name="track_type_certification_exam_text">#be9c91</color>
+    <color name="track_type_other_text">#bdbdbd</color>
 
     <!-- Room statuses -->
     <color name="room_status_open">#66bb6a</color>

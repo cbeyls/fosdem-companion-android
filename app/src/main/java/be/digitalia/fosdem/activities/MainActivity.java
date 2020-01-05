@@ -448,7 +448,7 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 					break;
 				case R.id.menu_volunteer:
 					try {
-						CustomTabsUtils.configureToolbarColors(new CustomTabsIntent.Builder(), this, R.color.color_primary)
+						CustomTabsUtils.configureToolbarColors(new CustomTabsIntent.Builder(), this, R.color.light_color_primary)
 								.setShowTitle(true)
 								.build()
 								.launchUrl(this, Uri.parse(FosdemUrls.getVolunteer()));

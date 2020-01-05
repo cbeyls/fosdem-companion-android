@@ -7,6 +7,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.bottomappbar.BottomAppBar;
+
+import java.util.List;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,12 +23,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
-
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.bottomappbar.BottomAppBar;
-
-import java.util.List;
-
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.EventDetailsFragment;
 import be.digitalia.fosdem.model.Day;
@@ -85,13 +84,14 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 		toolbar.setSubtitle(day.toString());
 		setTitle(String.format("%1$s, %2$s", track.toString(), day.toString()));
 		final Track.Type trackType = track.getType();
-		final ColorStateList trackColor = ContextCompat.getColorStateList(this, trackType.getColorResId());
 		if (ThemeUtils.isLightTheme(this)) {
-			final int trackDarkColor = ContextCompat.getColor(this, trackType.getDarkColorResId());
-			ThemeUtils.setActivityColors(this, trackColor.getDefaultColor(), trackDarkColor);
-			ThemeUtils.tintBackground(appBarLayout, trackColor);
+			final ColorStateList trackAppBarColor = ContextCompat.getColorStateList(this, trackType.getAppBarColorResId());
+			final int trackStatusBarColor = ContextCompat.getColor(this, trackType.getStatusBarColorResId());
+			ThemeUtils.setActivityColors(this, trackAppBarColor.getDefaultColor(), trackStatusBarColor);
+			ThemeUtils.tintBackground(appBarLayout, trackAppBarColor);
 		} else {
-			toolbar.setTitleTextColor(trackColor);
+			final ColorStateList trackTextColor = ContextCompat.getColorStateList(this, trackType.getTextColorResId());
+			toolbar.setTitleTextColor(trackTextColor);
 		}
 
 		// Monitor the currently displayed event to update the bookmark status in FAB

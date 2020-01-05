@@ -77,7 +77,7 @@ public class PersonInfoListFragment extends RecyclerViewFragment implements Obse
 					if (url != null) {
 						try {
 							final Context context = requireContext();
-							CustomTabsUtils.configureToolbarColors(new CustomTabsIntent.Builder(), context, R.color.color_primary)
+							CustomTabsUtils.configureToolbarColors(new CustomTabsIntent.Builder(), context, R.color.light_color_primary)
 									.setStartAnimations(context, R.anim.slide_in_right, R.anim.slide_out_left)
 									.setExitAnimations(context, R.anim.slide_in_left, R.anim.slide_out_right)
 									.build()

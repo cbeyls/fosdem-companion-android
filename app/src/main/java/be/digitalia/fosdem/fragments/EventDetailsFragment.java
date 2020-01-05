@@ -21,19 +21,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.browser.customtabs.CustomTabsIntent;
-import androidx.core.app.ShareCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
-
 import com.google.android.material.snackbar.Snackbar;
 
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.core.app.ShareCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.PersonInfoActivity;
 import be.digitalia.fosdem.api.FosdemApi;
@@ -190,7 +189,7 @@ public class EventDetailsFragment extends Fragment {
 				holder.roomStatus.setText(null);
 			} else {
 				holder.roomStatus.setText(roomStatus.getNameResId());
-				holder.roomStatus.setTextColor(ContextCompat.getColor(requireContext(), roomStatus.getColorResId()));
+				holder.roomStatus.setTextColor(ContextCompat.getColorStateList(requireContext(), roomStatus.getColorResId()));
 			}
 		});
 	}
@@ -334,7 +333,7 @@ public class EventDetailsFragment extends Fragment {
 			String url = link.getUrl();
 			try {
 				final Context context = v.getContext();
-				CustomTabsUtils.configureToolbarColors(new CustomTabsIntent.Builder(), context, event.getTrack().getType().getColorResId())
+				CustomTabsUtils.configureToolbarColors(new CustomTabsIntent.Builder(), context, event.getTrack().getType().getAppBarColorResId())
 						.setShowTitle(true)
 						.setStartAnimations(context, R.anim.slide_in_right, R.anim.slide_out_left)
 						.setExitAnimations(context, R.anim.slide_in_left, R.anim.slide_out_right)

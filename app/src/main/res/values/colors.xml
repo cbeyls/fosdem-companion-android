@@ -4,8 +4,9 @@
     <!-- Constants -->
     <color name="shortcut_background">#f5f5f5</color>
     <color name="on_surface_emphasis_medium">#99ffffff</color>
+    <color name="light_color_primary">#a91991</color>
 
-    <color name="color_primary">#a91991</color>
+    <color name="color_primary">@color/light_color_primary</color>
     <color name="color_on_primary">#ffffff</color>
     <color name="color_primary_dark">#760063</color>
     <color name="color_secondary">#3479c4</color>
@@ -16,18 +17,24 @@
     <color name="light_emphasis_background">#0d000000</color>
 
     <!-- Track types -->
-    <color name="track_type_keynote">@color/color_primary</color>
-    <color name="track_type_keynote_dark">@color/color_primary_dark</color>
+    <color name="track_type_keynote">#a91991</color>
+    <color name="track_type_keynote_dark">#760063</color>
+    <color name="track_type_keynote_text">@color/track_type_keynote</color>
     <color name="track_type_main">#b71c1c</color>
     <color name="track_type_main_dark">#7f0000</color>
+    <color name="track_type_main_text">@color/track_type_main</color>
     <color name="track_type_developer_room">#303f9f</color>
     <color name="track_type_developer_room_dark">#001970</color>
+    <color name="track_type_developer_room_text">@color/track_type_developer_room</color>
     <color name="track_type_lightning_talk">#388e3c</color>
     <color name="track_type_lightning_talk_dark">#00600f</color>
+    <color name="track_type_lightning_talk_text">@color/track_type_lightning_talk</color>
     <color name="track_type_certification_exam">#795548</color>
     <color name="track_type_certification_exam_dark">#4b2c20</color>
+    <color name="track_type_certification_exam_text">@color/track_type_certification_exam</color>
     <color name="track_type_other">#757575</color>
     <color name="track_type_other_dark">#494949</color>
+    <color name="track_type_other_text">@color/track_type_other</color>
 
     <!-- Room statuses -->
     <color name="room_status_open">#388e3c</color>
