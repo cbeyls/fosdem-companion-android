@@ -22,7 +22,7 @@ class ICalendarWriter(private val sink: BufferedSink) : Closeable {
                 while (end < length) {
                     val c = value[end]
                     if (c == '\r' || c == '\n') {
-                        writeUtf8(value, start, end - start)
+                        writeUtf8(value, start, end)
                         writeUtf8(CRLF)
                         writeUtf8CodePoint(' '.toInt())
                         do {
@@ -33,7 +33,7 @@ class ICalendarWriter(private val sink: BufferedSink) : Closeable {
                         end++
                     }
                 }
-                writeUtf8(value, start, end - start)
+                writeUtf8(value, start, length)
                 writeUtf8(CRLF)
             }
         }
