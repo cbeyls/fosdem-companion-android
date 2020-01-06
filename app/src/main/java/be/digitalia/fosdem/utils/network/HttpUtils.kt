@@ -6,7 +6,7 @@ import be.digitalia.fosdem.utils.ByteCountSource.ByteCountListener
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okio.BufferedSource
-import okio.Okio
+import okio.buffer
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
@@ -67,14 +67,14 @@ object HttpUtils {
         val length = body.contentLength()
         val source = if (listener != null && length != -1L) {
             // Broadcast the progression in percents, with a precision of 1/10 of the total file size
-            Okio.buffer(ByteCountSource(body.source(),
-                    object : ByteCountListener {
-                        override fun onNewCount(byteCount: Long) {
-                            // Cap percent to 100
-                            val percent = if (byteCount >= length) 100 else (byteCount * 100L / length).toInt()
-                            listener.onProgressUpdate(percent)
-                        }
-                    }, length / 10L))
+            val byteCountListener = object : ByteCountListener {
+                override fun onNewCount(byteCount: Long) {
+                    // Cap percent to 100
+                    val percent = if (byteCount >= length) 100 else (byteCount * 100L / length).toInt()
+                    listener.onProgressUpdate(percent)
+                }
+            }
+            ByteCountSource(body.source(), byteCountListener, length / 10L).buffer()
         } else {
             body.source()
         }

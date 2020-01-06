@@ -18,7 +18,8 @@ import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.utils.DateUtils
 import be.digitalia.fosdem.utils.ICalendarWriter
 import be.digitalia.fosdem.utils.StringUtils
-import okio.Okio
+import okio.buffer
+import okio.sink
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.OutputStream
@@ -87,7 +88,7 @@ class BookmarksExportProvider : ContentProvider() {
 
         override fun run() {
             try {
-                ICalendarWriter(Okio.buffer(Okio.sink(outputStream))).use { writer ->
+                ICalendarWriter(outputStream.sink().buffer()).use { writer ->
                     val bookmarks = appDatabase.bookmarksDao.bookmarks
                     writer.write("BEGIN", "VCALENDAR")
                     writer.write("VERSION", "2.0")
