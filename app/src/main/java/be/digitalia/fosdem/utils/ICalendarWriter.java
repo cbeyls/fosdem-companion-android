@@ -1,10 +1,11 @@
 package be.digitalia.fosdem.utils;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.io.Closeable;
 import java.io.IOException;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import okio.BufferedSink;
 
 /**
@@ -32,7 +33,7 @@ public class ICalendarWriter implements Closeable {
 			while (end < length) {
 				final char c = value.charAt(end);
 				if (c == '\r' || c == '\n') {
-					sink.writeUtf8(value, start, end - start);
+					sink.writeUtf8(value, start, end);
 					sink.writeUtf8(CRLF);
 					sink.writeUtf8CodePoint(' ');
 					do {
@@ -44,7 +45,7 @@ public class ICalendarWriter implements Closeable {
 					end++;
 				}
 			}
-			sink.writeUtf8(value, start, end - start);
+			sink.writeUtf8(value, start, length);
 
 			sink.writeUtf8(CRLF);
 		}
