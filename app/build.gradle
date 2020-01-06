@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 29
@@ -55,7 +56,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
     implementation 'androidx.paging:paging-runtime-ktx:2.1.1'
     implementation "androidx.room:room-ktx:$room_version"
-    annotationProcessor "androidx.room:room-compiler:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
     implementation 'com.squareup.okhttp3:okhttp:3.12.8'
     implementation 'com.squareup.okio:okio:1.17.5'
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
