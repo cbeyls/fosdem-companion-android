@@ -46,7 +46,7 @@ import be.digitalia.fosdem.model.RoomStatus;
 import be.digitalia.fosdem.utils.ClickableArrowKeyMovementMethod;
 import be.digitalia.fosdem.utils.CustomTabsIntentExtKt;
 import be.digitalia.fosdem.utils.DateUtils;
-import be.digitalia.fosdem.utils.StringUtils;
+import be.digitalia.fosdem.utils.StringUtilsKt;
 import be.digitalia.fosdem.viewmodels.EventDetailsViewModel;
 
 public class EventDetailsFragment extends Fragment {
@@ -128,7 +128,7 @@ public class EventDetailsFragment extends Fragment {
 		textView = view.findViewById(R.id.room);
 		final String roomName = event.getRoomName();
 		Spannable roomText = new SpannableString(String.format("%1$s (Building %2$s)", roomName, Building.fromRoomName(roomName)));
-		final int roomImageResId = getResources().getIdentifier(StringUtils.roomNameToResourceName(roomName), "drawable", requireActivity().getPackageName());
+		final int roomImageResId = getResources().getIdentifier(StringUtilsKt.roomNameToResourceName(roomName), "drawable", requireActivity().getPackageName());
 		// If the room image exists, make the room text clickable to display it
 		if (roomImageResId != 0) {
 			roomText.setSpan(new ClickableSpan() {
@@ -156,7 +156,7 @@ public class EventDetailsFragment extends Fragment {
 		if (TextUtils.isEmpty(text)) {
 			textView.setVisibility(View.GONE);
 		} else {
-			textView.setText(StringUtils.parseHtml(text, getResources()));
+			textView.setText(StringUtilsKt.parseHtml(text, getResources()));
 			textView.setMovementMethod(ClickableArrowKeyMovementMethod.INSTANCE);
 		}
 		textView = view.findViewById(R.id.description);
@@ -164,7 +164,7 @@ public class EventDetailsFragment extends Fragment {
 		if (TextUtils.isEmpty(text)) {
 			textView.setVisibility(View.GONE);
 		} else {
-			textView.setText(StringUtils.parseHtml(text, getResources()));
+			textView.setText(StringUtilsKt.parseHtml(text, getResources()));
 			textView.setMovementMethod(ClickableArrowKeyMovementMethod.INSTANCE);
 		}
 
@@ -235,7 +235,7 @@ public class EventDetailsFragment extends Fragment {
 		if (TextUtils.isEmpty(description)) {
 			description = event.getDescription();
 		}
-		description = StringUtils.stripHtml(description);
+		description = StringUtilsKt.stripHtml(description);
 		// Add speaker info if available
 		EventDetails details = viewModel.getEventDetails().getValue();
 		final int personsCount = (details == null) ? 0 : details.getPersons().size();

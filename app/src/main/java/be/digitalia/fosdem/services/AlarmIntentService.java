@@ -29,6 +29,7 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.TaskStackBuilder;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
+
 import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.EventDetailsActivity;
@@ -39,7 +40,7 @@ import be.digitalia.fosdem.model.AlarmInfo;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.receivers.AlarmReceiver;
 import be.digitalia.fosdem.utils.PreferenceKeys;
-import be.digitalia.fosdem.utils.StringUtils;
+import be.digitalia.fosdem.utils.StringUtilsKt;
 
 /**
  * A service to schedule or unschedule alarms in the background, keeping the app responsive.
@@ -268,7 +269,7 @@ public class AlarmIntentService extends JobIntentService {
 
 		// Add an optional action button to show the room map image
 		String roomName = event.getRoomName();
-		int roomImageResId = getResources().getIdentifier(StringUtils.roomNameToResourceName(roomName),
+		int roomImageResId = getResources().getIdentifier(StringUtilsKt.roomNameToResourceName(roomName),
 				"drawable", getPackageName());
 		if (roomImageResId != 0) {
 			// The room name is the unique Id of a RoomImageDialogActivity

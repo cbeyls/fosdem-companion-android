@@ -17,7 +17,8 @@ import be.digitalia.fosdem.db.AppDatabase
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.utils.DateUtils
 import be.digitalia.fosdem.utils.ICalendarWriter
-import be.digitalia.fosdem.utils.StringUtils
+import be.digitalia.fosdem.utils.stripHtml
+import be.digitalia.fosdem.utils.toSlug
 import okio.buffer
 import okio.sink
 import java.io.FileNotFoundException
@@ -117,7 +118,7 @@ class BookmarksExportProvider : ContentProvider() {
                     description = event.description
                 }
                 if (!description.isNullOrEmpty()) {
-                    write("DESCRIPTION", StringUtils.stripHtml(description))
+                    write("DESCRIPTION", description.stripHtml())
                     write("X-ALT-DESC", description)
                 }
                 write("CLASS", "PUBLIC")
@@ -126,7 +127,7 @@ class BookmarksExportProvider : ContentProvider() {
                 write("LOCATION", event.roomName)
                 for (name in event.personsSummary.split(", ")) {
                     val key = "ATTENDEE;ROLE=REQ-PARTICIPANT;CUTYPE=INDIVIDUAL;CN=\"$name\""
-                    val url = getPerson(StringUtils.toSlug(name), year)
+                    val url = getPerson(name.toSlug(), year)
                     write(key, url)
                 }
                 write("END", "VEVENT")

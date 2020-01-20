@@ -22,7 +22,7 @@ import be.digitalia.fosdem.api.FosdemApi;
 import be.digitalia.fosdem.api.FosdemUrls;
 import be.digitalia.fosdem.model.RoomStatus;
 import be.digitalia.fosdem.utils.CustomTabsIntentExtKt;
-import be.digitalia.fosdem.utils.StringUtils;
+import be.digitalia.fosdem.utils.StringUtilsKt;
 import be.digitalia.fosdem.utils.ThemeUtilsKt;
 
 /**
@@ -62,7 +62,7 @@ public class RoomImageDialogActivity extends AppCompatActivity {
 			toolbar.setOnMenuItemClickListener(item -> {
 				switch (item.getItemId()) {
 					case R.id.navigation:
-						String localNavigationUrl = FosdemUrls.INSTANCE.getLocalNavigationToLocation(StringUtils.toSlug(roomName));
+						String localNavigationUrl = FosdemUrls.INSTANCE.getLocalNavigationToLocation(StringUtilsKt.toSlug(roomName));
 						try {
 							CustomTabsIntentExtKt.configureToolbarColors(new CustomTabsIntent.Builder(), context, R.color.light_color_primary)
 									.setShowTitle(true)

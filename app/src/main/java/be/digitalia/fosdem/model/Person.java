@@ -8,8 +8,9 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Fts3;
 import androidx.room.PrimaryKey;
+
 import be.digitalia.fosdem.api.FosdemUrls;
-import be.digitalia.fosdem.utils.StringUtils;
+import be.digitalia.fosdem.utils.StringUtilsKt;
 
 @Fts3
 @Entity(tableName = Person.TABLE_NAME)
@@ -42,7 +43,7 @@ public class Person implements Parcelable {
 	}
 
 	public String getUrl(int year) {
-		return FosdemUrls.INSTANCE.getPerson(StringUtils.toSlug(name), year);
+		return FosdemUrls.INSTANCE.getPerson(StringUtilsKt.toSlug(name), year);
 	}
 
 	@NonNull
