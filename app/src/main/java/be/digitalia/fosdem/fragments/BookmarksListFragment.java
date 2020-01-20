@@ -171,6 +171,6 @@ public class BookmarksListFragment extends RecyclerViewFragment
 		if (context == null || bookmarks == null || bookmarks.size() == 0) {
 			return null;
 		}
-		return NfcUtils.createBookmarksAppData(context, bookmarks);
+		return NfcUtils.INSTANCE.createBookmarksAppData(context, bookmarks);
 	}
 }

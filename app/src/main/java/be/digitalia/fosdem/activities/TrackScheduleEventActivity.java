@@ -32,10 +32,10 @@ import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.NfcUtils;
 import be.digitalia.fosdem.utils.NfcUtils.CreateNfcAppDataCallback;
 import be.digitalia.fosdem.utils.RecyclerViewExtKt;
-import be.digitalia.fosdem.utils.ThemeUtils;
+import be.digitalia.fosdem.utils.ThemeUtilsKt;
 import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel;
 import be.digitalia.fosdem.viewmodels.TrackScheduleEventViewModel;
-import be.digitalia.fosdem.widgets.BookmarkStatusAdapter;
+import be.digitalia.fosdem.widgets.BookmarkStatusAdapterKt;
 import be.digitalia.fosdem.widgets.ContentLoadingProgressBar;
 
 /**
@@ -85,11 +85,11 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 		toolbar.setSubtitle(day.toString());
 		setTitle(String.format("%1$s, %2$s", track.toString(), day.toString()));
 		final Track.Type trackType = track.getType();
-		if (ThemeUtils.isLightTheme(this)) {
+		if (ThemeUtilsKt.isLightTheme(this)) {
+			ThemeUtilsKt.setStatusBarColorCompat(getWindow(), ContextCompat.getColor(this, trackType.getStatusBarColorResId()));
 			final ColorStateList trackAppBarColor = ContextCompat.getColorStateList(this, trackType.getAppBarColorResId());
-			final int trackStatusBarColor = ContextCompat.getColor(this, trackType.getStatusBarColorResId());
-			ThemeUtils.setActivityColors(this, trackAppBarColor.getDefaultColor(), trackStatusBarColor);
-			ThemeUtils.tintBackground(appBarLayout, trackAppBarColor);
+			ThemeUtilsKt.setTaskColorPrimary(this, trackAppBarColor.getDefaultColor());
+			ThemeUtilsKt.tintBackground(appBarLayout, trackAppBarColor);
 		} else {
 			final ColorStateList trackTextColor = ContextCompat.getColorStateList(this, trackType.getTextColorResId());
 			toolbar.setTitleTextColor(trackTextColor);
@@ -100,7 +100,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 		// Monitor the currently displayed event to update the bookmark status in FAB
 		ImageButton floatingActionButton = findViewById(R.id.fab);
 		bookmarkStatusViewModel = viewModelProvider.get(BookmarkStatusViewModel.class);
-		BookmarkStatusAdapter.setupWithImageButton(bookmarkStatusViewModel, this, floatingActionButton);
+		BookmarkStatusAdapterKt.setupBookmarkStatus(floatingActionButton, bookmarkStatusViewModel, this);
 		pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
 			@Override
 			public void onPageSelected(int position) {
@@ -114,7 +114,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 		viewModel.getScheduleSnapshot().observe(this, this);
 
 		// Enable Android Beam
-		NfcUtils.setAppDataPushMessageCallbackIfAvailable(this, this);
+		NfcUtils.INSTANCE.setAppDataPushMessageCallbackIfAvailable(this, this);
 	}
 
 	private void setCustomProgressVisibility(boolean isVisible) {
@@ -145,7 +145,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 		if (event == null) {
 			return null;
 		}
-		return NfcUtils.createEventAppData(this, event);
+		return NfcUtils.INSTANCE.createEventAppData(this, event);
 	}
 
 	@Override

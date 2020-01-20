@@ -22,7 +22,7 @@ import java.util.Locale;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.api.FosdemUrls;
 import be.digitalia.fosdem.utils.CustomTabsIntentExtKt;
-import be.digitalia.fosdem.utils.ThemeUtils;
+import be.digitalia.fosdem.utils.ThemeUtilsKt;
 
 public class MapFragment extends Fragment {
 
@@ -39,8 +39,8 @@ public class MapFragment extends Fragment {
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		final View view = inflater.inflate(R.layout.fragment_map, container, false);
 		final ImageView imageView = view.findViewById(R.id.map);
-		if (!ThemeUtils.isLightTheme(imageView.getContext())) {
-			ThemeUtils.invertImageColors(imageView);
+		if (!ThemeUtilsKt.isLightTheme(imageView.getContext())) {
+			ThemeUtilsKt.invertImageColors(imageView);
 		}
 		return view;
 	}

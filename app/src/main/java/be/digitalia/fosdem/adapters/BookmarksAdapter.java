@@ -69,7 +69,7 @@ public class BookmarksAdapter extends ListAdapter<Event, BookmarksAdapter.ViewHo
 							@NonNull MultiChoiceHelper.MultiChoiceModeListener multiChoiceModeListener) {
 		super(DIFF_CALLBACK);
 		setHasStableIds(true);
-		timeDateFormat = DateUtils.getTimeDateFormat(activity);
+		timeDateFormat = DateUtils.INSTANCE.getTimeDateFormat(activity);
 		TypedArray a = activity.getTheme().obtainStyledAttributes(R.styleable.ErrorColors);
 		errorColor = a.getColor(R.styleable.ErrorColors_colorError, 0);
 		a.recycle();

@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.EventDetailsFragment;
 import be.digitalia.fosdem.fragments.RoomImageDialogFragment;
@@ -24,9 +25,9 @@ import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.NfcUtils;
 import be.digitalia.fosdem.utils.NfcUtils.CreateNfcAppDataCallback;
-import be.digitalia.fosdem.utils.ThemeUtils;
+import be.digitalia.fosdem.utils.ThemeUtilsKt;
 import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel;
-import be.digitalia.fosdem.widgets.BookmarkStatusAdapter;
+import be.digitalia.fosdem.widgets.BookmarkStatusAdapterKt;
 
 /**
  * Track Schedule container, works in both single pane and dual pane modes.
@@ -65,11 +66,11 @@ public class TrackScheduleActivity extends AppCompatActivity
 		bar.setSubtitle(day.toString());
 		setTitle(String.format("%1$s, %2$s", track.toString(), day.toString()));
 		final Track.Type trackType = track.getType();
-		if (ThemeUtils.isLightTheme(this)) {
+		if (ThemeUtilsKt.isLightTheme(this)) {
+			ThemeUtilsKt.setStatusBarColorCompat(getWindow(), ContextCompat.getColor(this, trackType.getStatusBarColorResId()));
 			final ColorStateList trackAppBarColor = ContextCompat.getColorStateList(this, trackType.getAppBarColorResId());
-			final int trackStatusBarColor = ContextCompat.getColor(this, trackType.getStatusBarColorResId());
-			ThemeUtils.setActivityColors(this, trackAppBarColor.getDefaultColor(), trackStatusBarColor);
-			ThemeUtils.tintBackground(toolbar, trackAppBarColor);
+			ThemeUtilsKt.setTaskColorPrimary(this, trackAppBarColor.getDefaultColor());
+			ThemeUtilsKt.tintBackground(toolbar, trackAppBarColor);
 		} else {
 			final ColorStateList trackTextColor = ContextCompat.getColorStateList(this, trackType.getTextColorResId());
 			toolbar.setTitleTextColor(trackTextColor);
@@ -116,11 +117,11 @@ public class TrackScheduleActivity extends AppCompatActivity
 			ImageButton floatingActionButton = findViewById(R.id.fab);
 			if (floatingActionButton != null) {
 				bookmarkStatusViewModel = new ViewModelProvider(this).get(BookmarkStatusViewModel.class);
-				BookmarkStatusAdapter.setupWithImageButton(bookmarkStatusViewModel, this, floatingActionButton);
+				BookmarkStatusAdapterKt.setupBookmarkStatus(floatingActionButton, bookmarkStatusViewModel, this);
 			}
 
 			// Enable Android Beam
-			NfcUtils.setAppDataPushMessageCallbackIfAvailable(this, this);
+			NfcUtils.INSTANCE.setAppDataPushMessageCallbackIfAvailable(this, this);
 		}
 	}
 
@@ -177,6 +178,6 @@ public class TrackScheduleActivity extends AppCompatActivity
 		if (lastSelectedEvent == null) {
 			return null;
 		}
-		return NfcUtils.createEventAppData(this, lastSelectedEvent);
+		return NfcUtils.INSTANCE.createEventAppData(this, lastSelectedEvent);
 	}
 }

@@ -79,7 +79,7 @@ class BookmarksExportProvider : ContentProvider() {
     }
 
     private class DownloadThread(private val outputStream: OutputStream, private val appDatabase: AppDatabase) : Thread() {
-        private val calendar = Calendar.getInstance(DateUtils.getBelgiumTimeZone(), Locale.US)
+        private val calendar = Calendar.getInstance(DateUtils.belgiumTimeZone, Locale.US)
         // Format all times in GMT
         private val dateFormat = SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'", Locale.US).apply {
             timeZone = TimeZone.getTimeZone("GMT+0")

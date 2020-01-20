@@ -25,10 +25,10 @@ import be.digitalia.fosdem.utils.DateUtils;
  */
 public class EventsParser extends IterableAbstractPullParser<DetailedEvent> {
 
-	private final DateFormat DATE_FORMAT = DateUtils.withBelgiumTimeZone(new SimpleDateFormat("yyyy-MM-dd", Locale.US));
+	private final DateFormat DATE_FORMAT = DateUtils.INSTANCE.withBelgiumTimeZone(new SimpleDateFormat("yyyy-MM-dd", Locale.US));
 
 	// Calendar used to compute the events time, according to Belgium timezone
-	private final Calendar calendar = Calendar.getInstance(DateUtils.getBelgiumTimeZone(), Locale.US);
+	private final Calendar calendar = Calendar.getInstance(DateUtils.INSTANCE.getBelgiumTimeZone(), Locale.US);
 
 	private Day currentDay;
 	private String currentRoom;

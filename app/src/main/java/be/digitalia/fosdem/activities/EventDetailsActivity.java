@@ -7,8 +7,6 @@ import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.google.android.material.appbar.AppBarLayout;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,16 +16,19 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+
+import com.google.android.material.appbar.AppBarLayout;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.EventDetailsFragment;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.NfcUtils;
 import be.digitalia.fosdem.utils.NfcUtils.CreateNfcAppDataCallback;
-import be.digitalia.fosdem.utils.ThemeUtils;
+import be.digitalia.fosdem.utils.ThemeUtilsKt;
 import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel;
 import be.digitalia.fosdem.viewmodels.EventViewModel;
-import be.digitalia.fosdem.widgets.BookmarkStatusAdapter;
+import be.digitalia.fosdem.widgets.BookmarkStatusAdapterKt;
 
 /**
  * Displays a single event passed either as a complete Parcelable object in extras or as an id in data.
@@ -55,7 +56,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 		ImageButton floatingActionButton = findViewById(R.id.fab);
 		final ViewModelProvider viewModelProvider = new ViewModelProvider(this);
 		bookmarkStatusViewModel = viewModelProvider.get(BookmarkStatusViewModel.class);
-		BookmarkStatusAdapter.setupWithImageButton(bookmarkStatusViewModel, this, floatingActionButton);
+		BookmarkStatusAdapterKt.setupBookmarkStatus(floatingActionButton, bookmarkStatusViewModel, this);
 
 		Event event = getIntent().getParcelableExtra(EXTRA_EVENT);
 
@@ -72,9 +73,9 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 			if (!viewModel.hasEventId()) {
 				Intent intent = getIntent();
 				String eventIdString;
-				if (NfcUtils.hasAppData(intent)) {
+				if (NfcUtils.INSTANCE.hasAppData(intent)) {
 					// NFC intent
-					eventIdString = NfcUtils.toEventIdString((NfcUtils.extractAppData(intent)));
+					eventIdString = NfcUtils.INSTANCE.toEventIdString((NfcUtils.INSTANCE.extractAppData(intent)));
 				} else {
 					// Normal in-app intent
 					eventIdString = intent.getDataString();
@@ -115,11 +116,11 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 		toolbar.setTitle(event.getTrack().getName());
 
 		final Track.Type trackType = event.getTrack().getType();
-		if (ThemeUtils.isLightTheme(this)) {
+		if (ThemeUtilsKt.isLightTheme(this)) {
+			ThemeUtilsKt.setStatusBarColorCompat(getWindow(), ContextCompat.getColor(this, trackType.getStatusBarColorResId()));
 			final ColorStateList trackAppBarColor = ContextCompat.getColorStateList(this, trackType.getAppBarColorResId());
-			final int trackStatusBarColor = ContextCompat.getColor(this, trackType.getStatusBarColorResId());
-			ThemeUtils.setActivityColors(this, trackAppBarColor.getDefaultColor(), trackStatusBarColor);
-			ThemeUtils.tintBackground(appBarLayout, trackAppBarColor);
+			ThemeUtilsKt.setTaskColorPrimary(this, trackAppBarColor.getDefaultColor());
+			ThemeUtilsKt.tintBackground(appBarLayout, trackAppBarColor);
 		} else {
 			final ColorStateList trackTextColor = ContextCompat.getColorStateList(this, trackType.getTextColorResId());
 			toolbar.setTitleTextColor(trackTextColor);
@@ -128,7 +129,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 		bookmarkStatusViewModel.setEvent(event);
 
 		// Enable Android Beam
-		NfcUtils.setAppDataPushMessageCallbackIfAvailable(this, this);
+		NfcUtils.INSTANCE.setAppDataPushMessageCallbackIfAvailable(this, this);
 	}
 
 	@Nullable
@@ -155,6 +156,6 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 
 	@Override
 	public NdefRecord createNfcAppData() {
-		return NfcUtils.createEventAppData(this, event);
+		return NfcUtils.INSTANCE.createEventAppData(this, event);
 	}
 }

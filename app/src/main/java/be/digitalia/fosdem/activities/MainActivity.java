@@ -292,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 					.commit();
 		}
 
-		NfcUtils.setAppDataPushMessageCallbackIfAvailable(this, this);
+		NfcUtils.INSTANCE.setAppDataPushMessageCallbackIfAvailable(this, this);
 	}
 
 	@SuppressLint("PrivateResource")

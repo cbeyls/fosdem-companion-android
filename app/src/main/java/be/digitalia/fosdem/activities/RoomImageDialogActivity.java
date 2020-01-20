@@ -23,7 +23,7 @@ import be.digitalia.fosdem.api.FosdemUrls;
 import be.digitalia.fosdem.model.RoomStatus;
 import be.digitalia.fosdem.utils.CustomTabsIntentExtKt;
 import be.digitalia.fosdem.utils.StringUtils;
-import be.digitalia.fosdem.utils.ThemeUtils;
+import be.digitalia.fosdem.utils.ThemeUtilsKt;
 
 /**
  * A special Activity which is displayed like a dialog and shows a room image.
@@ -45,8 +45,8 @@ public class RoomImageDialogActivity extends AppCompatActivity {
 
 		setContentView(R.layout.dialog_room_image);
 		final ImageView imageView = findViewById(R.id.room_image);
-		if (!ThemeUtils.isLightTheme(imageView.getContext())) {
-			ThemeUtils.invertImageColors(imageView);
+		if (!ThemeUtilsKt.isLightTheme(imageView.getContext())) {
+			ThemeUtilsKt.invertImageColors(imageView);
 		}
 		imageView.setImageResource(intent.getIntExtra(EXTRA_ROOM_IMAGE_RESOURCE_ID, 0));
 		configureToolbar(this, findViewById(R.id.toolbar), roomName);

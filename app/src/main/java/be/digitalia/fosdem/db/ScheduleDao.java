@@ -3,21 +3,38 @@ package be.digitalia.fosdem.db;
 import android.app.SearchManager;
 import android.database.Cursor;
 import android.provider.BaseColumns;
+
 import androidx.annotation.MainThread;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.paging.DataSource;
-import androidx.room.*;
+import androidx.room.Dao;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
+import androidx.room.Query;
+import androidx.room.Transaction;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import be.digitalia.fosdem.alarms.FosdemAlarmManager;
 import be.digitalia.fosdem.db.entities.EventEntity;
 import be.digitalia.fosdem.db.entities.EventTitles;
 import be.digitalia.fosdem.db.entities.EventToPerson;
-import be.digitalia.fosdem.model.*;
+import be.digitalia.fosdem.model.Day;
+import be.digitalia.fosdem.model.DetailedEvent;
+import be.digitalia.fosdem.model.Event;
+import be.digitalia.fosdem.model.EventDetails;
+import be.digitalia.fosdem.model.Link;
+import be.digitalia.fosdem.model.Person;
+import be.digitalia.fosdem.model.StatusEvent;
+import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.utils.DateUtils;
-
-import java.util.*;
 
 @Dao
 public abstract class ScheduleDao {
@@ -242,7 +259,7 @@ public abstract class ScheduleDao {
 			date = System.currentTimeMillis();
 		}
 
-		return DateUtils.getYear(date);
+		return DateUtils.INSTANCE.getYear(date);
 	}
 
 	@Query("SELECT date FROM days ORDER BY `index` ASC LIMIT 1")

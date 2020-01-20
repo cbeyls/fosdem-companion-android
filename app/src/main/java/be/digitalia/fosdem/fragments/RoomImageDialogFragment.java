@@ -18,7 +18,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.RoomImageDialogActivity;
-import be.digitalia.fosdem.utils.ThemeUtils;
+import be.digitalia.fosdem.utils.ThemeUtilsKt;
 
 public class RoomImageDialogFragment extends DialogFragment {
 
@@ -46,8 +46,8 @@ public class RoomImageDialogFragment extends DialogFragment {
 
 		View contentView = LayoutInflater.from(dialogBuilder.getContext()).inflate(R.layout.dialog_room_image, null);
 		final ImageView imageView = contentView.findViewById(R.id.room_image);
-		if (!ThemeUtils.isLightTheme(imageView.getContext())) {
-			ThemeUtils.invertImageColors(imageView);
+		if (!ThemeUtilsKt.isLightTheme(imageView.getContext())) {
+			ThemeUtilsKt.invertImageColors(imageView);
 		}
 		imageView.setImageResource(args.getInt(ARG_ROOM_IMAGE_RESOURCE_ID));
 		RoomImageDialogActivity.configureToolbar(this, contentView.findViewById(R.id.toolbar), args.getString(ARG_ROOM_NAME));

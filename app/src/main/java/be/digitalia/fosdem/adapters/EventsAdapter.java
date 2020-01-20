@@ -12,11 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -28,6 +23,12 @@ import androidx.lifecycle.Observer;
 import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.EventDetailsActivity;
 import be.digitalia.fosdem.api.FosdemApi;
@@ -67,7 +68,7 @@ public class EventsAdapter extends PagedListAdapter<StatusEvent, EventsAdapter.V
 
 	public EventsAdapter(Context context, LifecycleOwner owner, boolean showDay) {
 		super(DIFF_CALLBACK);
-		timeDateFormat = DateUtils.getTimeDateFormat(context);
+		timeDateFormat = DateUtils.INSTANCE.getTimeDateFormat(context);
 		this.showDay = showDay;
 
 		FosdemApi.getRoomStatuses(context).observe(owner, this);

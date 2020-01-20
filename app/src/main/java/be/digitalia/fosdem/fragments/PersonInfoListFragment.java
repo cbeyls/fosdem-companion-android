@@ -71,7 +71,7 @@ public class PersonInfoListFragment extends RecyclerViewFragment implements Obse
 					}
 				}
 				if (statusEvent != null) {
-					final int year = DateUtils.getYear(statusEvent.getEvent().getDay().getDate().getTime());
+					final int year = DateUtils.INSTANCE.getYear(statusEvent.getEvent().getDay().getDate().getTime());
 					String url = person.getUrl(year);
 					if (url != null) {
 						try {

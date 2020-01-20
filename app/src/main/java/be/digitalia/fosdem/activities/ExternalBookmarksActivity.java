@@ -22,8 +22,8 @@ public class ExternalBookmarksActivity extends SimpleToolbarActivity {
 		if (savedInstanceState == null) {
 			Intent intent = getIntent();
 			long[] bookmarkIds = null;
-			if (NfcUtils.hasAppData(intent)) {
-				bookmarkIds = NfcUtils.toBookmarks(NfcUtils.extractAppData(intent));
+			if (NfcUtils.INSTANCE.hasAppData(intent)) {
+				bookmarkIds = NfcUtils.INSTANCE.toBookmarks(NfcUtils.INSTANCE.extractAppData(intent));
 			}
 			if (bookmarkIds == null) {
 				// Invalid data format, exit

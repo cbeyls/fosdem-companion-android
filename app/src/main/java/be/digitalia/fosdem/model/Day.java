@@ -2,24 +2,26 @@ package be.digitalia.fosdem.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
-import be.digitalia.fosdem.db.converters.NonNullDateTypeConverters;
-import be.digitalia.fosdem.utils.DateUtils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import be.digitalia.fosdem.db.converters.NonNullDateTypeConverters;
+import be.digitalia.fosdem.utils.DateUtils;
+
 @Entity(tableName = Day.TABLE_NAME)
 public class Day implements Comparable<Day>, Parcelable {
 
 	public static final String TABLE_NAME = "days";
 
-	private static final DateFormat DAY_DATE_FORMAT = DateUtils.withBelgiumTimeZone(new SimpleDateFormat("EEEE", Locale.US));
+	private static final DateFormat DAY_DATE_FORMAT = DateUtils.INSTANCE.withBelgiumTimeZone(new SimpleDateFormat("EEEE", Locale.US));
 
 	@PrimaryKey
 	private int index;
