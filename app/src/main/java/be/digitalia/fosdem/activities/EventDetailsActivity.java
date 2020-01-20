@@ -23,8 +23,8 @@ import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.EventDetailsFragment;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Track;
-import be.digitalia.fosdem.utils.NfcUtils;
-import be.digitalia.fosdem.utils.NfcUtils.CreateNfcAppDataCallback;
+import be.digitalia.fosdem.utils.CreateNfcAppDataCallback;
+import be.digitalia.fosdem.utils.NfcUtilsKt;
 import be.digitalia.fosdem.utils.ThemeUtilsKt;
 import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel;
 import be.digitalia.fosdem.viewmodels.EventViewModel;
@@ -73,9 +73,9 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 			if (!viewModel.hasEventId()) {
 				Intent intent = getIntent();
 				String eventIdString;
-				if (NfcUtils.INSTANCE.hasAppData(intent)) {
+				if (NfcUtilsKt.hasNfcAppData(intent)) {
 					// NFC intent
-					eventIdString = NfcUtils.INSTANCE.toEventIdString((NfcUtils.INSTANCE.extractAppData(intent)));
+					eventIdString = NfcUtilsKt.toEventIdString((NfcUtilsKt.extractNfcAppData(intent)));
 				} else {
 					// Normal in-app intent
 					eventIdString = intent.getDataString();
@@ -129,7 +129,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 		bookmarkStatusViewModel.setEvent(event);
 
 		// Enable Android Beam
-		NfcUtils.INSTANCE.setAppDataPushMessageCallbackIfAvailable(this, this);
+		NfcUtilsKt.setNfcAppDataPushMessageCallbackIfAvailable(this, this);
 	}
 
 	@Nullable
@@ -156,6 +156,6 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 
 	@Override
 	public NdefRecord createNfcAppData() {
-		return NfcUtils.INSTANCE.createEventAppData(this, event);
+		return NfcUtilsKt.toNfcAppData(event, this);
 	}
 }

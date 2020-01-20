@@ -50,15 +50,16 @@ import be.digitalia.fosdem.fragments.PersonsListFragment;
 import be.digitalia.fosdem.fragments.TracksFragment;
 import be.digitalia.fosdem.livedata.SingleEvent;
 import be.digitalia.fosdem.model.DownloadScheduleResult;
+import be.digitalia.fosdem.utils.CreateNfcAppDataCallback;
 import be.digitalia.fosdem.utils.CustomTabsIntentExtKt;
-import be.digitalia.fosdem.utils.NfcUtils;
+import be.digitalia.fosdem.utils.NfcUtilsKt;
 
 /**
  * Main entry point of the application. Allows to switch between section fragments and update the database.
  *
  * @author Christophe Beyls
  */
-public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNfcAppDataCallback {
+public class MainActivity extends AppCompatActivity implements CreateNfcAppDataCallback {
 
 	public static final String ACTION_SHORTCUT_BOOKMARKS = BuildConfig.APPLICATION_ID + ".intent.action.SHORTCUT_BOOKMARKS";
 	public static final String ACTION_SHORTCUT_LIVE = BuildConfig.APPLICATION_ID + ".intent.action.SHORTCUT_LIVE";
@@ -292,7 +293,7 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 					.commit();
 		}
 
-		NfcUtils.INSTANCE.setAppDataPushMessageCallbackIfAvailable(this, this);
+		NfcUtilsKt.setNfcAppDataPushMessageCallbackIfAvailable(this, this);
 	}
 
 	@SuppressLint("PrivateResource")
@@ -490,8 +491,8 @@ public class MainActivity extends AppCompatActivity implements NfcUtils.CreateNf
 	public NdefRecord createNfcAppData() {
 		// Delegate to the currently displayed fragment if it provides NFC data
 		Fragment f = getSupportFragmentManager().findFragmentById(R.id.content);
-		if (f instanceof NfcUtils.CreateNfcAppDataCallback) {
-			return ((NfcUtils.CreateNfcAppDataCallback) f).createNfcAppData();
+		if (f instanceof CreateNfcAppDataCallback) {
+			return ((CreateNfcAppDataCallback) f).createNfcAppData();
 		}
 		return null;
 	}

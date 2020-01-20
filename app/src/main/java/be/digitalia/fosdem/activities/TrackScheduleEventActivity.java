@@ -29,8 +29,8 @@ import be.digitalia.fosdem.fragments.EventDetailsFragment;
 import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.Track;
-import be.digitalia.fosdem.utils.NfcUtils;
-import be.digitalia.fosdem.utils.NfcUtils.CreateNfcAppDataCallback;
+import be.digitalia.fosdem.utils.CreateNfcAppDataCallback;
+import be.digitalia.fosdem.utils.NfcUtilsKt;
 import be.digitalia.fosdem.utils.RecyclerViewExtKt;
 import be.digitalia.fosdem.utils.ThemeUtilsKt;
 import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel;
@@ -114,7 +114,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 		viewModel.getScheduleSnapshot().observe(this, this);
 
 		// Enable Android Beam
-		NfcUtils.INSTANCE.setAppDataPushMessageCallbackIfAvailable(this, this);
+		NfcUtilsKt.setNfcAppDataPushMessageCallbackIfAvailable(this, this);
 	}
 
 	private void setCustomProgressVisibility(boolean isVisible) {
@@ -145,7 +145,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 		if (event == null) {
 			return null;
 		}
-		return NfcUtils.INSTANCE.createEventAppData(this, event);
+		return NfcUtilsKt.toNfcAppData(event, this);
 	}
 
 	@Override

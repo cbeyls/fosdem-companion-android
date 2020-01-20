@@ -24,7 +24,8 @@ import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.adapters.BookmarksAdapter;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.providers.BookmarksExportProvider;
-import be.digitalia.fosdem.utils.NfcUtils;
+import be.digitalia.fosdem.utils.CreateNfcAppDataCallback;
+import be.digitalia.fosdem.utils.NfcUtilsKt;
 import be.digitalia.fosdem.viewmodels.BookmarksViewModel;
 import be.digitalia.fosdem.widgets.MultiChoiceHelper;
 
@@ -34,7 +35,7 @@ import be.digitalia.fosdem.widgets.MultiChoiceHelper;
  * @author Christophe Beyls
  */
 public class BookmarksListFragment extends RecyclerViewFragment
-		implements Observer<List<Event>>, NfcUtils.CreateNfcAppDataCallback {
+		implements Observer<List<Event>>, CreateNfcAppDataCallback {
 
 	private static final String PREF_UPCOMING_ONLY = "bookmarks_upcoming_only";
 
@@ -171,6 +172,6 @@ public class BookmarksListFragment extends RecyclerViewFragment
 		if (context == null || bookmarks == null || bookmarks.size() == 0) {
 			return null;
 		}
-		return NfcUtils.INSTANCE.createBookmarksAppData(context, bookmarks);
+		return NfcUtilsKt.toBookmarksNfcAppData(bookmarks, context);
 	}
 }

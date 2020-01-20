@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment;
 
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.ExternalBookmarksListFragment;
-import be.digitalia.fosdem.utils.NfcUtils;
+import be.digitalia.fosdem.utils.NfcUtilsKt;
 
 public class ExternalBookmarksActivity extends SimpleToolbarActivity {
 
@@ -22,8 +22,8 @@ public class ExternalBookmarksActivity extends SimpleToolbarActivity {
 		if (savedInstanceState == null) {
 			Intent intent = getIntent();
 			long[] bookmarkIds = null;
-			if (NfcUtils.INSTANCE.hasAppData(intent)) {
-				bookmarkIds = NfcUtils.INSTANCE.toBookmarks(NfcUtils.INSTANCE.extractAppData(intent));
+			if (NfcUtilsKt.hasNfcAppData(intent)) {
+				bookmarkIds = NfcUtilsKt.toBookmarks(NfcUtilsKt.extractNfcAppData(intent));
 			}
 			if (bookmarkIds == null) {
 				// Invalid data format, exit
