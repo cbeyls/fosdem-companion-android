@@ -142,6 +142,29 @@ private class ListsTagHandler(res: Resources) : TagHandler {
         bulletGapWidth = (density * BULLET_GAP_WIDTH_DIPS + 0.5f).toInt()
     }
 
+    /**
+     * @return final output length
+     */
+    private fun ensureParagraphBoundary(output: Editable): Int {
+        var length = output.length
+        if (length != 0 && output[length - 1] != '\n') {
+            output.insert(length, "\n")
+            length++
+        }
+        return length
+    }
+
+    private fun trimStart(output: Editable, start: Int) {
+        var end = start
+        val length = output.length
+        while (end < length && output[end].isWhitespace()) {
+            end++
+        }
+        if (start < end) {
+            output.delete(start, end)
+        }
+    }
+
     override fun handleTag(opening: Boolean, tag: String, output: Editable, xmlReader: XMLReader) {
         when (tag) {
             "pre", "PRE" -> ensureParagraphBoundary(output)
@@ -162,28 +185,5 @@ private class ListsTagHandler(res: Resources) : TagHandler {
     companion object {
         private const val LEADING_MARGIN_DIPS = 2f
         private const val BULLET_GAP_WIDTH_DIPS = 8f
-
-        /**
-         * @return final output length
-         */
-        private fun ensureParagraphBoundary(output: Editable): Int {
-            var length = output.length
-            if (length != 0 && output[length - 1] != '\n') {
-                output.insert(length, "\n")
-                length++
-            }
-            return length
-        }
-
-        private fun trimStart(output: Editable, start: Int) {
-            var end = start
-            val length = output.length
-            while (end < length && output[end].isWhitespace()) {
-                end++
-            }
-            if (start < end) {
-                output.delete(start, end)
-            }
-        }
     }
 }
