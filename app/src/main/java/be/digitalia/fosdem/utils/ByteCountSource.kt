@@ -29,6 +29,7 @@ class ByteCountSource(input: Source,
     @Throws(IOException::class)
     override fun read(sink: Buffer, byteCount: Long): Long {
         val count = super.read(sink, byteCount)
+
         if (count != -1L) {
             currentBytes += count
             if (currentBytes < nextStepBytes) {
@@ -37,6 +38,7 @@ class ByteCountSource(input: Source,
             nextStepBytes = currentBytes + interval
         }
         listener.onNewCount(currentBytes)
+
         return count
     }
 }

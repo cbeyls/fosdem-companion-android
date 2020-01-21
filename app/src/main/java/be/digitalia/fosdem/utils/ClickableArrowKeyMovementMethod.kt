@@ -16,16 +16,19 @@ object ClickableArrowKeyMovementMethod : ArrowKeyMovementMethod() {
     private val touchedLineBounds = RectF()
 
     override fun onTouchEvent(widget: TextView, buffer: Spannable, event: MotionEvent): Boolean { // If action has finished
-        if (event.action == MotionEvent.ACTION_UP) { // Locate the area that was pressed
+        if (event.action == MotionEvent.ACTION_UP) {
+            // Locate the area that was pressed
             var x = event.x.toInt()
             var y = event.y.toInt()
             x -= widget.totalPaddingLeft
             y -= widget.totalPaddingTop
             x += widget.scrollX
             y += widget.scrollY
+
             // Locate the text line
             val layout = widget.layout
             val line = layout.getLineForVertical(y)
+
             // Check that the touch actually happened within the line bounds
             with(touchedLineBounds) {
                 left = layout.getLineLeft(line)
@@ -33,6 +36,7 @@ object ClickableArrowKeyMovementMethod : ArrowKeyMovementMethod() {
                 right = layout.getLineWidth(line) + left
                 bottom = layout.getLineBottom(line).toFloat()
             }
+
             if (touchedLineBounds.contains(x.toFloat(), y.toFloat())) {
                 val offset = layout.getOffsetForHorizontal(line, x.toFloat())
                 // Find a clickable span at that text offset, if any
@@ -43,6 +47,7 @@ object ClickableArrowKeyMovementMethod : ArrowKeyMovementMethod() {
                 }
             }
         }
+
         return super.onTouchEvent(widget, buffer, event)
     }
 }

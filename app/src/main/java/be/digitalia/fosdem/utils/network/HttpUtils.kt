@@ -59,9 +59,11 @@ object HttpUtils {
         if (lastModified != null) {
             requestBuilder.header("If-Modified-Since", lastModified)
         }
+
         val request = requestBuilder
                 .url(url)
                 .build()
+
         val okhttpResponse = client.newCall(request).execute()
         val body = okhttpResponse.body()
         if (!okhttpResponse.isSuccessful || body == null) {
@@ -69,10 +71,13 @@ object HttpUtils {
                 // Cached result is still valid; return an empty response
                 return Response.NotModified
             }
+
             body?.close()
             throw IOException("Server returned response code: " + okhttpResponse.code())
         }
+
         val responseLastModified = okhttpResponse.header("Last-Modified")
+
         val length = body.contentLength()
         val source = if (progressListener != null && length != -1L) {
             // Broadcast the progression in percents, with a precision of 1/10 of the total file size
@@ -87,6 +92,7 @@ object HttpUtils {
         } else {
             body.source()
         }
+
         return Response.Success(source, responseLastModified)
     }
 
@@ -96,10 +102,14 @@ object HttpUtils {
                 val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
                 trustManagerFactory.init(null as KeyStore?)
                 val trustManagers = trustManagerFactory.trustManagers
-                check(!(trustManagers.size != 1 || trustManagers[0] !is X509TrustManager)) { "Unexpected default trust managers: " + Arrays.toString(trustManagers) }
+                check(!(trustManagers.size != 1 || trustManagers[0] !is X509TrustManager)) {
+                    "Unexpected default trust managers: " + Arrays.toString(trustManagers)
+                }
                 val trustManager = trustManagers[0] as X509TrustManager
+
                 val sslContext = SSLContext.getInstance("TLS")
                 sslContext.init(null, arrayOf<TrustManager>(trustManager), null)
+
                 sslSocketFactory(Tls12SocketFactory(sslContext.socketFactory), trustManager)
             } catch (e: Exception) {
                 e.printStackTrace()

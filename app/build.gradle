@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 android {
@@ -40,6 +41,10 @@ android {
         exclude 'META-INF/*.kotlin_module'
         exclude 'META-INF/*.version'
         exclude 'META-INF/com.android.tools/**'
+    }
+
+    androidExtensions {
+        features = ["parcelize"]
     }
 }
 

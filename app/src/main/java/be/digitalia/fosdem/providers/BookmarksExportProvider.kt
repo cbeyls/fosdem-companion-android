@@ -61,6 +61,7 @@ class BookmarksExportProvider : ContentProvider() {
                 }
             }
         }
+
         val cursor = MatrixCursor(cols.copyOfRange(0, columnCount), 1)
         cursor.addRow(values.copyOfRange(0, columnCount))
         return cursor
@@ -94,9 +95,11 @@ class BookmarksExportProvider : ContentProvider() {
                     writer.write("BEGIN", "VCALENDAR")
                     writer.write("VERSION", "2.0")
                     writer.write("PRODID", "-//${BuildConfig.APPLICATION_ID}//NONSGML ${BuildConfig.VERSION_NAME}//EN")
+
                     for (event in bookmarks) {
                         writeEvent(writer, event)
                     }
+
                     writer.write("END", "VCALENDAR")
                 }
             } catch (ignore: Exception) {
@@ -107,6 +110,7 @@ class BookmarksExportProvider : ContentProvider() {
         private fun writeEvent(writer: ICalendarWriter, event: Event) {
             with(writer) {
                 write("BEGIN", "VEVENT")
+
                 val year = DateUtils.getYear(event.day.date.time, calendar)
                 write("UID", "${event.id}@${year}@${BuildConfig.APPLICATION_ID}")
                 write("DTSTAMP", dtStamp)
@@ -125,11 +129,13 @@ class BookmarksExportProvider : ContentProvider() {
                 write("CATEGORIES", event.track.name)
                 write("URL", event.url)
                 write("LOCATION", event.roomName)
+
                 for (name in event.personsSummary.split(", ")) {
                     val key = "ATTENDEE;ROLE=REQ-PARTICIPANT;CUTYPE=INDIVIDUAL;CN=\"$name\""
                     val url = getPerson(name.toSlug(), year)
                     write(key, url)
                 }
+
                 write("END", "VEVENT")
             }
         }

@@ -41,8 +41,10 @@ class SearchSuggestionProvider : ContentProvider() {
         if (query.length < MIN_QUERY_LENGTH || query == "search_suggest_query") {
             return null
         }
+
         val limitParam = uri.getQueryParameter("limit")
         val limit = if (limitParam.isNullOrEmpty()) DEFAULT_MAX_RESULTS else limitParam.toInt()
+
         return AppDatabase.getInstance(context!!).scheduleDao.getSearchSuggestionResults(query, limit)
     }
 

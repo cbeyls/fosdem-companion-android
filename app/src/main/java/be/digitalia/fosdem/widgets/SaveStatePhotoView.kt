@@ -36,7 +36,9 @@ class SaveStatePhotoView : PhotoView {
             super.onRestoreInstanceState(state)
             return
         }
+
         super.onRestoreInstanceState(state.superState)
+
         doOnLayout {
             setScale(state.scale.coerceIn(minimumScale, maximumScale),
                     width * state.pivotX,

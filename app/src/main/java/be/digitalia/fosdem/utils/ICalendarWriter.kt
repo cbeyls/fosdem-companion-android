@@ -15,6 +15,7 @@ class ICalendarWriter(private val sink: BufferedSink) : Closeable {
             with(sink) {
                 writeUtf8(key)
                 writeUtf8CodePoint(':'.toInt())
+
                 // Escape line break sequences
                 val length = value.length
                 var start = 0
@@ -34,6 +35,7 @@ class ICalendarWriter(private val sink: BufferedSink) : Closeable {
                     }
                 }
                 writeUtf8(value, start, length)
+
                 writeUtf8(CRLF)
             }
         }

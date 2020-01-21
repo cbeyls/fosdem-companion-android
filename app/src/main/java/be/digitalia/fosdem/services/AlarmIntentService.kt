@@ -140,11 +140,13 @@ class AlarmIntentService : JobIntentService() {
                                 .setData(event.id.toString().toUri())
                 )
                 .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+
         var defaultFlags = Notification.DEFAULT_SOUND
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         if (sharedPreferences.getBoolean(PreferenceKeys.NOTIFICATIONS_VIBRATE, false)) {
             defaultFlags = defaultFlags or Notification.DEFAULT_VIBRATE
         }
+
         val personsSummary = event.personsSummary
         val trackName = event.track.name
         val contentText: String
@@ -164,7 +166,9 @@ class AlarmIntentService : JobIntentService() {
             spannableBigText[spannableBigText.length - personsSummary.length, spannableBigText.length] = StyleSpan(Typeface.ITALIC)
             bigText = spannableBigText
         }
+
         val notificationColor = ContextCompat.getColor(this, R.color.light_color_primary)
+
         val notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL)
                 .setSmallIcon(R.drawable.ic_stat_fosdem)
                 .setColor(notificationColor)
@@ -179,12 +183,15 @@ class AlarmIntentService : JobIntentService() {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_EVENT)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+
         // Blink the LED with FOSDEM color if enabled in the options
         if (sharedPreferences.getBoolean(PreferenceKeys.NOTIFICATIONS_LED, false)) {
             notificationBuilder.setLights(notificationColor, 1000, 5000)
         }
+
         // Android Wear extensions
         val wearableExtender = NotificationCompat.WearableExtender()
+
         // Add an optional action button to show the room map image
         val roomName = event.roomName
         val roomImageResId = resources.getIdentifier(roomNameToResourceName(roomName), "drawable", packageName)
@@ -200,6 +207,7 @@ class AlarmIntentService : JobIntentService() {
             // Use bigger action icon for wearable notification
             wearableExtender.addAction(NotificationCompat.Action(R.drawable.ic_place_white_wear, mapTitle, mapPendingIntent))
         }
+
         notificationBuilder.extend(wearableExtender)
         return notificationBuilder.build()
     }

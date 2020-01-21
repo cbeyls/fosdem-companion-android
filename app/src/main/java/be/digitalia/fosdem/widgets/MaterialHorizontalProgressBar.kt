@@ -33,6 +33,7 @@ class MaterialHorizontalProgressBar @JvmOverloads constructor(context: Context, 
             val colorControlActivated = a.getColor(1, Color.TRANSPARENT)
             val disabledAlpha = (a.getFloat(2, 0f) * 255f).roundToInt().coerceIn(0, 255)
             a.recycle()
+
             with(findDrawableByLayerId(android.R.id.background)) {
                 mutate()
                 alpha = disabledAlpha

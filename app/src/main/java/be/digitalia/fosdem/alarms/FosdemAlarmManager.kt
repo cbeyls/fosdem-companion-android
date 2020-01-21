@@ -38,6 +38,7 @@ object FosdemAlarmManager {
         sharedPreferences.registerOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener)
     }
 
+    // TODO remove volatile after using coroutines to always read this variable from the main thread
     @Volatile
     var isEnabled: Boolean = false
         private set

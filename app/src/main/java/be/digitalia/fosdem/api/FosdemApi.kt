@@ -61,15 +61,17 @@ object FosdemApi {
                 progress.postValue(percent)
             }
             when (httpResponse) {
-                is HttpUtils.Response.NotModified ->
+                is HttpUtils.Response.NotModified -> {
                     // Nothing to parse, the result is up-to-date
                     DownloadScheduleResult.UpToDate
-                is HttpUtils.Response.Success ->
+                }
+                is HttpUtils.Response.Success -> {
                     httpResponse.source.use { source ->
                         val events = EventsParser().parse(source)
                         val count = scheduleDao.storeSchedule(events, httpResponse.lastModified)
                         DownloadScheduleResult.Success(count)
                     }
+                }
             }
         } catch (e: Exception) {
             e.printStackTrace()
