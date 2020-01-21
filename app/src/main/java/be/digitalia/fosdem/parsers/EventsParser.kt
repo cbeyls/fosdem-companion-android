@@ -35,7 +35,7 @@ class EventsParser : Parser<Sequence<DetailedEvent>> {
                             when (parser.name) {
                                 "day" -> {
                                     currentDay = Day(
-                                            index = parser.getAttributeValue(null, "index").toInt(),
+                                            index = parser.getAttributeValue(null, "index")!!.toInt(),
                                             date = dateFormat.parse(parser.getAttributeValue(null, "date"))!!
                                     )
                                 }
@@ -52,7 +52,7 @@ class EventsParser : Parser<Sequence<DetailedEvent>> {
     }
 
     private fun parseEvent(parser: XmlPullParser, day: Day, roomName: String?): DetailedEvent {
-        val id = parser.getAttributeValue(null, "id").toLong()
+        val id = parser.getAttributeValue(null, "id")!!.toLong()
         var startTime: Date? = null
         var duration: String? = null
         var slug: String? = null
@@ -93,18 +93,20 @@ class EventsParser : Parser<Sequence<DetailedEvent>> {
                     "description" -> description = parser.nextText()
                     "persons" -> while (!parser.isNextEndTag("persons")) {
                         if (parser.isStartTag("person")) {
-                            val person = Person()
-                            person.id = parser.getAttributeValue(null, "id").toLong()
-                            person.name = parser.nextText()
+                            val person = Person(
+                                    id = parser.getAttributeValue(null, "id")!!.toLong(),
+                                    name = parser.nextText()!!
+                            )
                             persons.add(person)
                         }
                     }
                     "links" -> while (!parser.isNextEndTag("links")) {
                         if (parser.isStartTag("link")) {
-                            val link = Link()
-                            link.eventId = id
-                            link.url = parser.getAttributeValue(null, "href")
-                            link.description = parser.nextText()
+                            val link = Link(
+                                    eventId = id,
+                                    url = parser.getAttributeValue(null, "href")!!,
+                                    description = parser.nextText()
+                            )
                             links.add(link)
                         }
                     }

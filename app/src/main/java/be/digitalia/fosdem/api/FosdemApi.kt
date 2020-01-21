@@ -8,7 +8,6 @@ import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.switchMap
-import be.digitalia.fosdem.api.FosdemUrls.schedule
 import be.digitalia.fosdem.db.AppDatabase
 import be.digitalia.fosdem.livedata.LiveDataFactory.scheduler
 import be.digitalia.fosdem.livedata.SingleEvent
@@ -57,7 +56,7 @@ object FosdemApi {
         progress.postValue(-1)
         val res = try {
             val scheduleDao = AppDatabase.getInstance(context).scheduleDao
-            val httpResponse = HttpUtils.get(schedule, scheduleDao.lastModifiedTag) { percent ->
+            val httpResponse = HttpUtils.get(FosdemUrls.schedule, scheduleDao.lastModifiedTag) { percent ->
                 progress.postValue(percent)
             }
             when (httpResponse) {

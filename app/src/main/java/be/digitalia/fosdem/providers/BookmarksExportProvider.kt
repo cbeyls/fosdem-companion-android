@@ -12,7 +12,7 @@ import android.provider.OpenableColumns
 import androidx.core.app.ShareCompat
 import be.digitalia.fosdem.BuildConfig
 import be.digitalia.fosdem.R
-import be.digitalia.fosdem.api.FosdemUrls.getPerson
+import be.digitalia.fosdem.api.FosdemUrls
 import be.digitalia.fosdem.db.AppDatabase
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.utils.DateUtils
@@ -132,7 +132,7 @@ class BookmarksExportProvider : ContentProvider() {
 
                 for (name in event.personsSummary.split(", ")) {
                     val key = "ATTENDEE;ROLE=REQ-PARTICIPANT;CUTYPE=INDIVIDUAL;CN=\"$name\""
-                    val url = getPerson(name.toSlug(), year)
+                    val url = FosdemUrls.getPerson(name.toSlug(), year)
                     write(key, url)
                 }
 
