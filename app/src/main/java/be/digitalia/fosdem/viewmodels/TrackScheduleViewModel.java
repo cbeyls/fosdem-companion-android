@@ -32,12 +32,12 @@ public class TrackScheduleViewModel extends AndroidViewModel {
 	// Auto refresh during the day passed as argument
 	private final LiveData<Boolean> scheduler = Transformations.switchMap(dayTrack, dayTrack -> {
 		final long dayStart = dayTrack.first.getDate().getTime();
-		return LiveDataFactory.scheduler(dayStart, dayStart + android.text.format.DateUtils.DAY_IN_MILLIS);
+		return LiveDataFactory.INSTANCE.scheduler(dayStart, dayStart + android.text.format.DateUtils.DAY_IN_MILLIS);
 	});
 	private final LiveData<Long> currentTime = Transformations.switchMap(scheduler, isOn -> {
 		if (isOn) {
 			return Transformations.map(
-					LiveDataFactory.interval(REFRESH_TIME_INTERVAL, TimeUnit.MILLISECONDS),
+					LiveDataFactory.INSTANCE.interval(REFRESH_TIME_INTERVAL, TimeUnit.MILLISECONDS),
 					count -> System.currentTimeMillis()
 			);
 		}

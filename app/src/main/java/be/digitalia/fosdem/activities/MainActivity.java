@@ -159,13 +159,13 @@ public class MainActivity extends AppCompatActivity implements CreateNfcAppDataC
 			return;
 		}
 		final Snackbar snackbar;
-		if (result.isError()) {
+		if (result instanceof DownloadScheduleResult.Error) {
 			snackbar = Snackbar.make(contentView, R.string.schedule_loading_error, ERROR_MESSAGE_DISPLAY_DURATION)
-					.setAction(R.string.schedule_loading_retry_action, v -> FosdemApi.downloadSchedule(this));
-		} else if (result.isUpToDate()) {
+					.setAction(R.string.schedule_loading_retry_action, v -> FosdemApi.INSTANCE.downloadSchedule(this));
+		} else if (result instanceof DownloadScheduleResult.UpToDate) {
 			snackbar = Snackbar.make(contentView, R.string.events_download_up_to_date, Snackbar.LENGTH_LONG);
 		} else {
-			final int eventsCount = result.getEventsCount();
+			final int eventsCount = ((DownloadScheduleResult.Success) result).getEventsCount();
 			final String message;
 			if (eventsCount == 0) {
 				message = getString(R.string.events_download_empty);
@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements CreateNfcAppDataC
 
 		// Progress bar setup
 		final ProgressBar progressBar = findViewById(R.id.progress);
-		FosdemApi.getDownloadScheduleProgress().observe(this, progressInteger -> {
+		FosdemApi.INSTANCE.getDownloadScheduleProgress().observe(this, progressInteger -> {
 			int progress = progressInteger;
 			if (progress != 100) {
 				// Visible
@@ -222,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements CreateNfcAppDataC
 		});
 
 		// Monitor the schedule download result
-		FosdemApi.getDownloadScheduleResult().observe(this, scheduleDownloadResultObserver);
+		FosdemApi.INSTANCE.getDownloadScheduleResult().observe(this, scheduleDownloadResultObserver);
 
 		// Setup drawer layout
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -373,7 +373,7 @@ public class MainActivity extends AppCompatActivity implements CreateNfcAppDataC
 						.apply();
 
 				// Try to update immediately. If it fails, the user gets a message and a retry button.
-				FosdemApi.downloadSchedule(this);
+				FosdemApi.INSTANCE.downloadSchedule(this);
 			}
 		}
 	}
@@ -429,7 +429,7 @@ public class MainActivity extends AppCompatActivity implements CreateNfcAppDataC
 					item.setIcon(icon);
 					((Animatable) icon).start();
 				}
-				FosdemApi.downloadSchedule(this);
+				FosdemApi.INSTANCE.downloadSchedule(this);
 				return true;
 		}
 		return false;

@@ -26,7 +26,7 @@ public class BookmarksViewModel extends AndroidViewModel {
 			upcomingOnly -> {
 				if (upcomingOnly == Boolean.TRUE) {
 					// Refresh upcoming bookmarks every 2 minutes
-					final LiveData<Long> heartbeat = LiveDataFactory.interval(2L, TimeUnit.MINUTES);
+					final LiveData<Long> heartbeat = LiveDataFactory.INSTANCE.interval(2L, TimeUnit.MINUTES);
 					return Transformations.switchMap(heartbeat,
 							version -> appDatabase.getBookmarksDao().getBookmarks(System.currentTimeMillis() - TIME_OFFSET));
 				}

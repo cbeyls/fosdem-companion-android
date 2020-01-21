@@ -184,7 +184,7 @@ public class EventDetailsFragment extends Fragment {
 		});
 
 		// Live room status
-		FosdemApi.getRoomStatuses(requireContext()).observe(getViewLifecycleOwner(), roomStatuses -> {
+		FosdemApi.INSTANCE.getRoomStatuses(requireContext()).observe(getViewLifecycleOwner(), roomStatuses -> {
 			RoomStatus roomStatus = roomStatuses.get(event.getRoomName());
 			if (roomStatus == null) {
 				holder.roomStatus.setText(null);

@@ -19,7 +19,7 @@ public class LiveViewModel extends AndroidViewModel {
 	static final long NEXT_EVENTS_INTERVAL = 30L * DateUtils.MINUTE_IN_MILLIS;
 
 	private final AppDatabase appDatabase = AppDatabase.getInstance(getApplication());
-	private final LiveData<Long> heartbeat = LiveDataFactory.interval(1L, TimeUnit.MINUTES);
+	private final LiveData<Long> heartbeat = LiveDataFactory.INSTANCE.interval(1L, TimeUnit.MINUTES);
 	private final LiveData<PagedList<StatusEvent>> nextEvents = Transformations.switchMap(heartbeat,
 			version -> {
 				final long now = System.currentTimeMillis();

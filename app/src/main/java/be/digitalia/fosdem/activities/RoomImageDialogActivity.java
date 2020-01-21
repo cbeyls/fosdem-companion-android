@@ -76,7 +76,7 @@ public class RoomImageDialogActivity extends AppCompatActivity {
 			});
 
 			// Display the room status as subtitle
-			FosdemApi.getRoomStatuses(toolbar.getContext()).observe(owner, roomStatuses -> {
+			FosdemApi.INSTANCE.getRoomStatuses(toolbar.getContext()).observe(owner, roomStatuses -> {
 				RoomStatus roomStatus = roomStatuses.get(roomName);
 				if (roomStatus != null) {
 					SpannableString roomNameSpannable = new SpannableString(context.getString(roomStatus.getNameResId()));

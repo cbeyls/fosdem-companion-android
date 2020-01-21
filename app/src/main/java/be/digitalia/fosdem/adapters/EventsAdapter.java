@@ -71,7 +71,7 @@ public class EventsAdapter extends PagedListAdapter<StatusEvent, EventsAdapter.V
 		timeDateFormat = DateUtils.INSTANCE.getTimeDateFormat(context);
 		this.showDay = showDay;
 
-		FosdemApi.getRoomStatuses(context).observe(owner, this);
+		FosdemApi.INSTANCE.getRoomStatuses(context).observe(owner, this);
 	}
 
 	@Override

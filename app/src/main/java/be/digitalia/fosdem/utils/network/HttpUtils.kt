@@ -36,16 +36,25 @@ object HttpUtils {
 
     @Throws(IOException::class)
     fun get(path: String): BufferedSource? {
-        return get(URL(path), null, null).source
+        return when (val response = get(URL(path), null, null)) {
+            is Response.NotModified -> null
+            is Response.Success -> response.source
+        }
     }
 
+    /**
+     * @param progressListener optional listener for the download progress in percents (0..100)
+     */
     @Throws(IOException::class)
-    fun get(path: String, lastModified: String?, listener: ProgressUpdateListener?): Response {
-        return get(URL(path), lastModified, listener)
+    fun get(path: String, lastModified: String? = null, progressListener: ((Int) -> Unit)? = null): Response {
+        return get(URL(path), lastModified, progressListener)
     }
 
+    /**
+     * @param progressListener optional listener for the download progress in percents (0..100)
+     */
     @Throws(IOException::class)
-    fun get(url: URL, lastModified: String?, listener: ProgressUpdateListener?): Response {
+    fun get(url: URL, lastModified: String? = null, progressListener: ((Int) -> Unit)? = null): Response {
         val requestBuilder = Request.Builder()
         if (lastModified != null) {
             requestBuilder.header("If-Modified-Since", lastModified)
@@ -58,27 +67,27 @@ object HttpUtils {
         if (!okhttpResponse.isSuccessful || body == null) {
             if (okhttpResponse.code() == HttpURLConnection.HTTP_NOT_MODIFIED && lastModified != null) {
                 // Cached result is still valid; return an empty response
-                return Response()
+                return Response.NotModified
             }
             body?.close()
             throw IOException("Server returned response code: " + okhttpResponse.code())
         }
         val responseLastModified = okhttpResponse.header("Last-Modified")
         val length = body.contentLength()
-        val source = if (listener != null && length != -1L) {
+        val source = if (progressListener != null && length != -1L) {
             // Broadcast the progression in percents, with a precision of 1/10 of the total file size
             val byteCountListener = object : ByteCountListener {
                 override fun onNewCount(byteCount: Long) {
                     // Cap percent to 100
                     val percent = if (byteCount >= length) 100 else (byteCount * 100L / length).toInt()
-                    listener.onProgressUpdate(percent)
+                    progressListener(percent)
                 }
             }
             ByteCountSource(body.source(), byteCountListener, length / 10L).buffer()
         } else {
             body.source()
         }
-        return Response(source, responseLastModified)
+        return Response.Success(source, responseLastModified)
     }
 
     private fun OkHttpClient.Builder.enableTls12(): OkHttpClient.Builder {
@@ -99,11 +108,8 @@ object HttpUtils {
         return this
     }
 
-    // TODO transform to sealed class
-    // source will be null when the local content is up-to-date
-    class Response(val source: BufferedSource? = null, val lastModified: String? = null)
-
-    interface ProgressUpdateListener {
-        fun onProgressUpdate(percent: Int)
+    sealed class Response {
+        object NotModified : Response()
+        class Success(val source: BufferedSource, val lastModified: String? = null) : Response()
     }
 }

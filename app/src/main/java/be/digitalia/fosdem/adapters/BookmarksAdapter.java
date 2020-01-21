@@ -77,7 +77,7 @@ public class BookmarksAdapter extends ListAdapter<Event, BookmarksAdapter.ViewHo
 		multiChoiceHelper = new MultiChoiceHelper(activity, owner, this);
 		multiChoiceHelper.setMultiChoiceModeListener(multiChoiceModeListener);
 
-		FosdemApi.getRoomStatuses(activity).observe(owner, this);
+		FosdemApi.INSTANCE.getRoomStatuses(activity).observe(owner, this);
 	}
 
 	@NonNull
