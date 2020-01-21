@@ -29,7 +29,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private fun setupNotificationsChannel() {
         findPreference<Preference>(PreferenceKeys.NOTIFICATIONS_CHANNEL)?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            AlarmIntentService.startChannelNotificationSettingsActivity(context)
+            AlarmIntentService.startChannelNotificationSettingsActivity(requireContext())
             true
         }
     }

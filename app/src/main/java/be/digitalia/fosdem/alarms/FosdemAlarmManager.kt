@@ -33,7 +33,7 @@ object FosdemAlarmManager {
 
     fun init(context: Context) {
         this.context = context.applicationContext
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(FosdemAlarmManager.context)
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.context)
         isEnabled = sharedPreferences.getBoolean(PreferenceKeys.NOTIFICATIONS_ENABLED, false)
         sharedPreferences.registerOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener)
     }
