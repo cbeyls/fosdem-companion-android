@@ -34,10 +34,10 @@ class EventsParser : Parser<Sequence<DetailedEvent>> {
                         if (parser.isStartTag) {
                             when (parser.name) {
                                 "day" -> {
-                                    currentDay = Day().apply {
-                                        index = parser.getAttributeValue(null, "index").toInt()
-                                        date = dateFormat.parse(parser.getAttributeValue(null, "date"))!!
-                                    }
+                                    currentDay = Day(
+                                            index = parser.getAttributeValue(null, "index").toInt(),
+                                            date = dateFormat.parse(parser.getAttributeValue(null, "date"))!!
+                                    )
                                 }
                                 "room" -> currentRoomName = parser.getAttributeValue(null, "name")
                                 "event" -> yield(parseEvent(parser, currentDay!!, currentRoomName))
@@ -121,7 +121,7 @@ class EventsParser : Parser<Sequence<DetailedEvent>> {
             }
         } else null
 
-        val event = DetailedEvent()
+        val event = Event()
         event.id = id
         event.day = day
         event.roomName = roomName
@@ -133,9 +133,11 @@ class EventsParser : Parser<Sequence<DetailedEvent>> {
         event.track = Track(trackName, trackType)
         event.abstractText = abstractText
         event.description = description
-        event.persons = persons
-        event.links = links
-        return event
+        val details = EventDetails(
+                persons = persons,
+                links = links
+        )
+        return DetailedEvent(event, details)
     }
 
     /**

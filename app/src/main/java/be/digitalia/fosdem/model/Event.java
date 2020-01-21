@@ -193,14 +193,14 @@ public class Event implements Parcelable {
 	@Override
 	public void writeToParcel(Parcel out, int flags) {
 		out.writeLong(id);
-		day.writeToParcel(out, flags);
+		out.writeParcelable(day, flags);
 		out.writeLong((startTime == null) ? 0L : startTime.getTime());
 		out.writeLong((endTime == null) ? 0L : endTime.getTime());
 		out.writeString(roomName);
 		out.writeString(slug);
 		out.writeString(title);
 		out.writeString(subTitle);
-		track.writeToParcel(out, flags);
+		out.writeParcelable(track, flags);
 		out.writeString(abstractText);
 		out.writeString(description);
 		out.writeString(personsSummary);
@@ -218,7 +218,7 @@ public class Event implements Parcelable {
 
 	Event(Parcel in) {
 		id = in.readLong();
-		day = Day.CREATOR.createFromParcel(in);
+		day = in.readParcelable(Day.class.getClassLoader());
 		long time = in.readLong();
 		if (time != 0L) {
 			startTime = new Date(time);
@@ -231,7 +231,7 @@ public class Event implements Parcelable {
 		slug = in.readString();
 		title = in.readString();
 		subTitle = in.readString();
-		track = Track.CREATOR.createFromParcel(in);
+		track = in.readParcelable(Track.class.getClassLoader());
 		abstractText = in.readString();
 		description = in.readString();
 		personsSummary = in.readString();

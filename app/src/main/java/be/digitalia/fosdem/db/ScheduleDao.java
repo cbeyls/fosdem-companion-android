@@ -111,7 +111,9 @@ public abstract class ScheduleDao {
 		long minEventId = Long.MAX_VALUE;
 		final Set<Day> days = new HashSet<>(2);
 
-		for (DetailedEvent event : events) {
+		for (DetailedEvent detailedEvent : events) {
+			final Event event = detailedEvent.getEvent();
+			final EventDetails details = detailedEvent.getDetails();
 			// Retrieve or insert Track
 			final Track track = event.getTrack();
 			Long trackId = tracks.get(track);
@@ -119,17 +121,31 @@ public abstract class ScheduleDao {
 				// New track
 				nextTrackId++;
 				trackId = nextTrackId;
-				track.setId(nextTrackId);
-				insertTrack(track);
-				tracks.put(track, trackId);
-			} else {
-				track.setId(trackId);
+				final Track newTrack = new Track(nextTrackId, track.getName(), track.getType());
+				insertTrack(newTrack);
+				tracks.put(newTrack, trackId);
 			}
 
 			final long eventId = event.getId();
 			try {
 				// Insert main event and fulltext fields
-				insertEvent(new EventEntity(event), new EventTitles(event));
+				final EventEntity eventEntity = new EventEntity(
+						eventId,
+						event.getDay().getIndex(),
+						event.getStartTime(),
+						event.getEndTime(),
+						event.getRoomName(),
+						event.getSlug(),
+						trackId,
+						event.getAbstractText(),
+						event.getDescription()
+				);
+				final EventTitles eventTitles = new EventTitles(
+						eventId,
+						event.getTitle(),
+						event.getSubTitle()
+				);
+				insertEvent(eventEntity, eventTitles);
 			} catch (Exception e) {
 				// Duplicate event: skip
 				continue;
@@ -140,7 +156,7 @@ public abstract class ScheduleDao {
 				minEventId = eventId;
 			}
 
-			final List<Person> persons = event.getPersons();
+			final List<Person> persons = details.getPersons();
 			insertPersons(persons);
 			final int personsCount = persons.size();
 			final EventToPerson[] eventsToPersons = new EventToPerson[personsCount];
@@ -149,7 +165,7 @@ public abstract class ScheduleDao {
 			}
 			insertEventsToPersons(eventsToPersons);
 
-			insertLinks(event.getLinks());
+			insertLinks(details.getLinks());
 
 			totalEvents++;
 		}
