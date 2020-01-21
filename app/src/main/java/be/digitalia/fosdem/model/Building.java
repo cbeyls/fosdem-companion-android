@@ -8,14 +8,16 @@ public enum Building {
 	public static Building fromRoomName(String roomName) {
 		if (!TextUtils.isEmpty(roomName)) {
 			switch (Character.toUpperCase(roomName.charAt(0))) {
-			case 'K':
-				return K;
-			case 'H':
-				return H;
-			case 'U':
-				return U;
+				case 'J':
+					return J;
+				case 'K':
+					return K;
+				case 'H':
+					return H;
+				case 'U':
+					return U;
 			}
-			if (roomName.regionMatches(true, 0, "AW", 0, 1)) {
+			if (roomName.regionMatches(true, 0, "AW", 0, 2)) {
 				return AW;
 			}
 			if ("Janson".equalsIgnoreCase(roomName)) {
