@@ -1,6 +1,10 @@
 package be.digitalia.fosdem.services;
 
-import android.app.*;
+import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -15,12 +19,17 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.core.app.*;
+import androidx.core.app.AlarmManagerCompat;
+import androidx.core.app.JobIntentService;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.TaskStackBuilder;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
+
 import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.EventDetailsActivity;
@@ -178,7 +187,7 @@ public class AlarmIntentService extends JobIntentService {
 				context.getString(R.string.notification_events_channel_name),
 				NotificationManager.IMPORTANCE_HIGH);
 		channel.setShowBadge(false);
-		channel.setLightColor(context.getColor(R.color.color_primary));
+		channel.setLightColor(ContextCompat.getColor(context, R.color.light_color_primary));
 		channel.enableVibration(true);
 		channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
 		notificationManager.createNotificationChannel(channel);
@@ -233,7 +242,7 @@ public class AlarmIntentService extends JobIntentService {
 			bigText = spannableBigText;
 		}
 
-		int notificationColor = ContextCompat.getColor(this, R.color.color_primary);
+		int notificationColor = ContextCompat.getColor(this, R.color.light_color_primary);
 
 		NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL)
 				.setSmallIcon(R.drawable.ic_stat_fosdem)
@@ -265,9 +274,9 @@ public class AlarmIntentService extends JobIntentService {
 		if (roomImageResId != 0) {
 			// The room name is the unique Id of a RoomImageDialogActivity
 			Intent mapIntent = new Intent(this, RoomImageDialogActivity.class).setFlags(
-					Intent.FLAG_ACTIVITY_NEW_TASK).setData(Uri.parse(roomName));
-			mapIntent.putExtra(RoomImageDialogActivity.EXTRA_ROOM_NAME, roomName);
-			mapIntent.putExtra(RoomImageDialogActivity.EXTRA_ROOM_IMAGE_RESOURCE_ID, roomImageResId);
+					Intent.FLAG_ACTIVITY_NEW_TASK).setData(Uri.parse(roomName))
+					.putExtra(RoomImageDialogActivity.EXTRA_ROOM_NAME, roomName)
+					.putExtra(RoomImageDialogActivity.EXTRA_ROOM_IMAGE_RESOURCE_ID, roomImageResId);
 			PendingIntent mapPendingIntent = PendingIntent.getActivity(this, 0, mapIntent,
 					PendingIntent.FLAG_UPDATE_CURRENT);
 			CharSequence mapTitle = getString(R.string.room_map);
