@@ -165,7 +165,7 @@ public class AlarmIntentService extends JobIntentService {
 	}
 
 	private long getDelay() {
-		String delayString = PreferenceManager.getDefaultSharedPreferences(this).getString(
+		String delayString = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(
 				SettingsFragment.KEY_PREF_NOTIFICATIONS_DELAY, "0");
 		// Convert from minutes to milliseconds
 		return Long.parseLong(delayString) * DateUtils.MINUTE_IN_MILLIS;
@@ -214,7 +214,7 @@ public class AlarmIntentService extends JobIntentService {
 				.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		int defaultFlags = Notification.DEFAULT_SOUND;
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		if (sharedPreferences.getBoolean(SettingsFragment.KEY_PREF_NOTIFICATIONS_VIBRATE, false)) {
 			defaultFlags |= Notification.DEFAULT_VIBRATE;
 		}

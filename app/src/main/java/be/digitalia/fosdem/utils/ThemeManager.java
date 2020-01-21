@@ -14,7 +14,7 @@ public class ThemeManager implements SharedPreferences.OnSharedPreferenceChangeL
 	private static ThemeManager instance;
 
 	private ThemeManager(@NonNull Context context) {
-		final SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		final SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
 		updateTheme(defaultSharedPreferences);
 		defaultSharedPreferences.registerOnSharedPreferenceChangeListener(this);
 	}

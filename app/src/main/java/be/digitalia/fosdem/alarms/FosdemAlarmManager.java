@@ -34,8 +34,8 @@ public class FosdemAlarmManager implements OnSharedPreferenceChangeListener {
 	}
 
 	private FosdemAlarmManager(Context context) {
-		this.context = context;
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		this.context = context.getApplicationContext();
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.context);
 		isEnabled = sharedPreferences.getBoolean(SettingsFragment.KEY_PREF_NOTIFICATIONS_ENABLED, false);
 		sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 	}
