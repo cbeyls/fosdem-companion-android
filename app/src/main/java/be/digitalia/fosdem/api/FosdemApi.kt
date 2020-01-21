@@ -68,7 +68,7 @@ object FosdemApi {
                 is HttpUtils.Response.Success -> {
                     httpResponse.source.use { source ->
                         val events = EventsParser().parse(source)
-                        val count = scheduleDao.storeSchedule(events, httpResponse.lastModified)
+                        val count = scheduleDao.storeSchedule(events.asIterable(), httpResponse.lastModified)
                         DownloadScheduleResult.Success(count)
                     }
                 }

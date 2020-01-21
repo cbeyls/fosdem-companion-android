@@ -7,7 +7,7 @@ import androidx.lifecycle.LiveData
 import be.digitalia.fosdem.api.FosdemUrls.rooms
 import be.digitalia.fosdem.model.RoomStatus
 import be.digitalia.fosdem.parsers.RoomStatusesParser
-import be.digitalia.fosdem.utils.network.HttpUtils.get
+import be.digitalia.fosdem.utils.network.HttpUtils
 import kotlin.math.pow
 
 /**
@@ -65,7 +65,9 @@ internal class LiveRoomStatusesLiveData : LiveData<Map<String, RoomStatus>>() {
 
             override fun doInBackground(vararg params: Unit): Map<String, RoomStatus>? {
                 return try {
-                    get(rooms).use { source -> RoomStatusesParser().parse(source) }
+                    HttpUtils.get(rooms)?.use { source ->
+                        RoomStatusesParser().parse(source)
+                    }
                 } catch (e: Throwable) {
                     null
                 }
