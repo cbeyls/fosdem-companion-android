@@ -86,7 +86,8 @@ class EventsParser : Parser<Sequence<DetailedEvent>> {
                     "track" -> trackName = parser.nextText()
                     "type" -> try {
                         trackType = enumValueOf(parser.nextText())
-                    } catch (e: Exception) { // trackType will be "other"
+                    } catch (e: Exception) {
+                        // trackType will be "other"
                     }
                     "abstract" -> abstractText = parser.nextText()
                     "description" -> description = parser.nextText()
