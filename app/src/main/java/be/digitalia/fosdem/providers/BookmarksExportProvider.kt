@@ -52,7 +52,7 @@ class BookmarksExportProvider : ContentProvider() {
             when (col) {
                 OpenableColumns.DISPLAY_NAME -> {
                     cols[columnCount] = OpenableColumns.DISPLAY_NAME
-                    values[columnCount++] = ctx.getString(R.string.export_bookmarks_file_name, AppDatabase.getInstance(ctx).scheduleDao.year)
+                    values[columnCount++] = ctx.getString(R.string.export_bookmarks_file_name, AppDatabase.getInstance(ctx).scheduleDao.getYear())
                 }
                 OpenableColumns.SIZE -> {
                     cols[columnCount] = OpenableColumns.SIZE
@@ -91,7 +91,7 @@ class BookmarksExportProvider : ContentProvider() {
         override fun run() {
             try {
                 ICalendarWriter(outputStream.sink().buffer()).use { writer ->
-                    val bookmarks = appDatabase.bookmarksDao.bookmarks
+                    val bookmarks = appDatabase.bookmarksDao.getBookmarks()
                     writer.write("BEGIN", "VCALENDAR")
                     writer.write("VERSION", "2.0")
                     writer.write("PRODID", "-//${BuildConfig.APPLICATION_ID}//NONSGML ${BuildConfig.VERSION_NAME}//EN")

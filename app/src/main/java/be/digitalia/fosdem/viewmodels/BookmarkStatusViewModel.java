@@ -33,9 +33,6 @@ public class BookmarkStatusViewModel extends AndroidViewModel {
 							Transformations.distinctUntilChanged(
 									appDatabase.getBookmarksDao().getBookmarkStatus(event)
 							), isBookmarked -> {
-								if (isBookmarked == null) {
-									return null;
-								}
 								final boolean isUpdate = firstResultReceived;
 								firstResultReceived = true;
 								return new BookmarkStatus(isBookmarked, isUpdate);
