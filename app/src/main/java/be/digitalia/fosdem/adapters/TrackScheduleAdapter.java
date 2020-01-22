@@ -191,8 +191,9 @@ public class TrackScheduleAdapter extends ListAdapter<StatusEvent, TrackSchedule
 					? AppCompatResources.getDrawable(context, R.drawable.ic_bookmark_24dp)
 					: null;
 			TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(title, null, null, bookmarkDrawable, null);
+			final String eventTitle = event.getTitle();
 			title.setContentDescription(isBookmarked
-					? context.getString(R.string.in_bookmarks_content_description, event.getTitle())
+					? context.getString(R.string.in_bookmarks_content_description, eventTitle != null ? eventTitle : "")
 					: null
 			);
 			String personsSummary = event.getPersonsSummary();

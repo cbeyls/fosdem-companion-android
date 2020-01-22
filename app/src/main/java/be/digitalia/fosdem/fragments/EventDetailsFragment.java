@@ -208,10 +208,12 @@ public class EventDetailsFragment extends Fragment {
 	}
 
 	private Intent getShareChooserIntent() {
+		final String url = event.getUrl();
+		final String title = event.getTitle();
 		return ShareCompat.IntentBuilder.from(requireActivity())
-				.setSubject(String.format("%1$s (FOSDEM)", event.getTitle()))
+				.setSubject(String.format("%1$s (FOSDEM)", title != null ? title : ""))
 				.setType("text/plain")
-				.setText(String.format("%1$s %2$s #FOSDEM", event.getTitle(), event.getUrl()))
+				.setText(String.format("%1$s %2$s #FOSDEM", title != null ? title : "", url != null ? url : ""))
 				.setChooserTitle(R.string.share)
 				.createChooserIntent();
 	}
@@ -229,7 +231,10 @@ public class EventDetailsFragment extends Fragment {
 	private void addToAgenda() {
 		Intent intent = new Intent(Intent.ACTION_EDIT);
 		intent.setType("vnd.android.cursor.item/event");
-		intent.putExtra(CalendarContract.Events.TITLE, event.getTitle());
+		final String title = event.getTitle();
+		if (title != null) {
+			intent.putExtra(CalendarContract.Events.TITLE, title);
+		}
 		intent.putExtra(CalendarContract.Events.EVENT_LOCATION, "ULB - " + event.getRoomName());
 		String description = event.getAbstractText();
 		if (TextUtils.isEmpty(description)) {

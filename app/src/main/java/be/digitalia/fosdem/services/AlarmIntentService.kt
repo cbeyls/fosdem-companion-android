@@ -150,7 +150,7 @@ class AlarmIntentService : JobIntentService() {
         val personsSummary = event.personsSummary
         val trackName = event.track.name
         val contentText: String
-        val bigText: CharSequence
+        val bigText: CharSequence?
         if (personsSummary.isEmpty()) {
             contentText = trackName
             bigText = event.subTitle
@@ -172,7 +172,7 @@ class AlarmIntentService : JobIntentService() {
         val notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL)
                 .setSmallIcon(R.drawable.ic_stat_fosdem)
                 .setColor(notificationColor)
-                .setWhen(event.startTime.time)
+                .setWhen(event.startTime?.time ?: System.currentTimeMillis())
                 .setContentTitle(event.title)
                 .setContentText(contentText)
                 .setStyle(NotificationCompat.BigTextStyle().bigText(bigText).setSummaryText(trackName))
@@ -194,7 +194,8 @@ class AlarmIntentService : JobIntentService() {
 
         // Add an optional action button to show the room map image
         val roomName = event.roomName
-        val roomImageResId = resources.getIdentifier(roomNameToResourceName(roomName), "drawable", packageName)
+        val roomImageResId = roomName?.let { resources.getIdentifier(roomNameToResourceName(it), "drawable", packageName) }
+                ?: 0
         if (roomImageResId != 0) { // The room name is the unique Id of a RoomImageDialogActivity
             val mapIntent = Intent(this, RoomImageDialogActivity::class.java)
                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

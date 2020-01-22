@@ -123,18 +123,20 @@ class EventsParser : Parser<Sequence<DetailedEvent>> {
             }
         } else null
 
-        val event = Event()
-        event.id = id
-        event.day = day
-        event.roomName = roomName
-        event.startTime = startTime
-        event.endTime = endTime
-        event.slug = slug
-        event.title = title
-        event.subTitle = subTitle
-        event.track = Track(trackName, trackType)
-        event.abstractText = abstractText
-        event.description = description
+        val event = Event(
+                id = id,
+                day = day,
+                roomName = roomName,
+                startTime = startTime,
+                endTime = endTime,
+                slug = slug,
+                title = title,
+                subTitle = subTitle,
+                track = Track(trackName, trackType),
+                abstractText = abstractText,
+                description = description,
+                personsSummary = ""
+        )
         val details = EventDetails(
                 persons = persons,
                 links = links
