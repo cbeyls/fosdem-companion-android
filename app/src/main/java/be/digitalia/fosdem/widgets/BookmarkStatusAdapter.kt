@@ -18,11 +18,12 @@ fun ImageButton.setupBookmarkStatus(viewModel: BookmarkStatusViewModel, owner: L
             isEnabled = false
             isSelected = false
         } else {
+            val wasEnabled = isEnabled
             isEnabled = true
             contentDescription = context.getString(if (bookmarkStatus.isBookmarked) R.string.remove_bookmark else R.string.add_bookmark)
             isSelected = bookmarkStatus.isBookmarked
             // Only animate updates, when the button was already enabled
-            if (!bookmarkStatus.isUpdate || !isEnabled) {
+            if (!(bookmarkStatus.isUpdate && wasEnabled)) {
                 jumpDrawablesToCurrentState()
             }
         }
