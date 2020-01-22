@@ -16,7 +16,7 @@ import be.digitalia.fosdem.model.Event;
 
 public class BookmarkStatusViewModel extends AndroidViewModel {
 
-	private final AppDatabase appDatabase = AppDatabase.getInstance(getApplication());
+	private final AppDatabase appDatabase = AppDatabase.Companion.getInstance(getApplication());
 	private final MutableLiveData<Event> event = new MutableLiveData<>();
 	private final LiveData<BookmarkStatus> bookmarkStatus = Transformations.switchMap(event,
 			new Function<Event, LiveData<BookmarkStatus>>() {

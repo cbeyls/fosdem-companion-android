@@ -14,7 +14,7 @@ import be.digitalia.fosdem.model.StatusEvent;
 
 public class PersonInfoViewModel extends AndroidViewModel {
 
-	private final AppDatabase appDatabase = AppDatabase.getInstance(getApplication());
+	private final AppDatabase appDatabase = AppDatabase.Companion.getInstance(getApplication());
 	private final MutableLiveData<Person> person = new MutableLiveData<>();
 	private final LiveData<PagedList<StatusEvent>> events = Transformations.switchMap(person,
 			person -> new LivePagedListBuilder<>(appDatabase.getScheduleDao().getEvents(person), 20)

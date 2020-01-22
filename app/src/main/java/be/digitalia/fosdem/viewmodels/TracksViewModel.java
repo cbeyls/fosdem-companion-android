@@ -14,7 +14,7 @@ import java.util.List;
 
 public class TracksViewModel extends AndroidViewModel {
 
-	private final AppDatabase appDatabase = AppDatabase.getInstance(getApplication());
+	private final AppDatabase appDatabase = AppDatabase.Companion.getInstance(getApplication());
 	private final MutableLiveData<Day> day = new MutableLiveData<>();
 	private final LiveData<List<Track>> tracks = Transformations.switchMap(day,
 			day -> appDatabase.getScheduleDao().getTracks(day));

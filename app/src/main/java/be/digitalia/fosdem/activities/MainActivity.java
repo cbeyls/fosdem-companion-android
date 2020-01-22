@@ -269,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements CreateNfcAppDataC
 
 		// Last update date, below the list
 		lastUpdateTextView = navigationView.findViewById(R.id.last_update);
-		AppDatabase.getInstance(this).getScheduleDao().getLastUpdateTime()
+		AppDatabase.Companion.getInstance(this).getScheduleDao().getLastUpdateTime()
 				.observe(this, lastUpdateTimeObserver);
 
 		if (savedInstanceState == null) {
@@ -362,7 +362,7 @@ public class MainActivity extends AppCompatActivity implements CreateNfcAppDataC
 
 		// Scheduled database update
 		final long now = System.currentTimeMillis();
-		final Long timeValue = AppDatabase.getInstance(this).getScheduleDao().getLastUpdateTime().getValue();
+		final Long timeValue = AppDatabase.Companion.getInstance(this).getScheduleDao().getLastUpdateTime().getValue();
 		long time = (timeValue == null) ? -1L : timeValue;
 		if ((time == -1L) || (time < (now - DATABASE_VALIDITY_DURATION))) {
 			SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);

@@ -23,7 +23,7 @@ public class TrackScheduleViewModel extends AndroidViewModel {
 
 	private static final long REFRESH_TIME_INTERVAL = DateUtils.MINUTE_IN_MILLIS;
 
-	private final AppDatabase appDatabase = AppDatabase.getInstance(getApplication());
+	private final AppDatabase appDatabase = AppDatabase.Companion.getInstance(getApplication());
 	private final MutableLiveData<Pair<Day, Track>> dayTrack = new MutableLiveData<>();
 
 	private final LiveData<List<StatusEvent>> schedule = Transformations.switchMap(dayTrack,

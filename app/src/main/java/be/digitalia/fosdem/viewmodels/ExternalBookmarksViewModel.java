@@ -15,7 +15,7 @@ import java.util.Arrays;
 
 public class ExternalBookmarksViewModel extends AndroidViewModel {
 
-	private final AppDatabase appDatabase = AppDatabase.getInstance(getApplication());
+	private final AppDatabase appDatabase = AppDatabase.Companion.getInstance(getApplication());
 	private final MutableLiveData<long[]> bookmarkIds = new MutableLiveData<>();
 	private final LiveData<PagedList<StatusEvent>> bookmarks = Transformations.switchMap(bookmarkIds,
 			bookmarkIds -> new LivePagedListBuilder<>(appDatabase.getScheduleDao().getEvents(bookmarkIds), 20)

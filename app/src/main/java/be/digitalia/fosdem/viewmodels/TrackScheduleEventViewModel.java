@@ -16,7 +16,7 @@ import java.util.List;
 
 public class TrackScheduleEventViewModel extends AndroidViewModel {
 
-	private final AppDatabase appDatabase = AppDatabase.getInstance(getApplication());
+	private final AppDatabase appDatabase = AppDatabase.Companion.getInstance(getApplication());
 	private final MutableLiveData<Pair<Day, Track>> dayTrack = new MutableLiveData<>();
 	private final LiveData<List<Event>> scheduleSnapshot = Transformations.switchMap(dayTrack,
 			dayTrack -> {

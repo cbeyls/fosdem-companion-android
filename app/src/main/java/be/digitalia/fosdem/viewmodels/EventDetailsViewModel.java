@@ -12,7 +12,7 @@ import be.digitalia.fosdem.model.EventDetails;
 
 public class EventDetailsViewModel extends AndroidViewModel {
 
-	private final AppDatabase appDatabase = AppDatabase.getInstance(getApplication());
+	private final AppDatabase appDatabase = AppDatabase.Companion.getInstance(getApplication());
 	private final MutableLiveData<Event> event = new MutableLiveData<>();
 	private final LiveData<EventDetails> eventDetails = Transformations.switchMap(event,
 			event -> appDatabase.getScheduleDao().getEventDetails(event));

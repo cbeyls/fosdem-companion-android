@@ -12,7 +12,7 @@ import be.digitalia.fosdem.model.Person;
 
 public class PersonsViewModel extends AndroidViewModel {
 
-	private final AppDatabase appDatabase = AppDatabase.getInstance(getApplication());
+	private final AppDatabase appDatabase = AppDatabase.Companion.getInstance(getApplication());
 	private final LiveData<PagedList<Person>> persons
 			= new LivePagedListBuilder<>(appDatabase.getScheduleDao().getPersons(), 100)
 			.build();
