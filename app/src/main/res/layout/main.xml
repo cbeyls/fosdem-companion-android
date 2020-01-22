@@ -64,9 +64,7 @@
             android:ellipsize="start"
             android:gravity="center"
             android:paddingStart="4dp"
-            android:paddingLeft="4dp"
             android:paddingEnd="4dp"
-            android:paddingRight="4dp"
             android:singleLine="true"
             android:textAppearance="?textAppearanceCaption"
             tools:text="DB last updated: 1 jan. 2015 13:37:00" />

@@ -25,10 +25,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginStart="@dimen/detail_card_view_margin_start"
-        android:layout_marginLeft="@dimen/detail_card_view_margin_start"
         android:layout_marginTop="@dimen/detail_card_view_margin_top"
         android:layout_marginEnd="@dimen/detail_card_view_margin_end"
-        android:layout_marginRight="@dimen/detail_card_view_margin_end"
         android:layout_marginBottom="@dimen/detail_card_view_margin_bottom"
         app:cardElevation="@dimen/detail_card_view_elevation"
         app:cardPreventCornerOverlap="false" />
@@ -39,7 +37,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/detail_fab_margin_end"
-        android:layout_marginRight="@dimen/detail_fab_margin_end"
         app:layout_anchor="@+id/toolbar"
         app:layout_anchorGravity="bottom|end" />
 

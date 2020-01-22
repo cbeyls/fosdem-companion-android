@@ -7,11 +7,9 @@
     android:focusable="true"
     android:gravity="start|center_vertical"
     android:minHeight="?attr/listPreferredItemHeightSmall"
-    android:paddingStart="?attr/listPreferredItemPaddingLeft"
-    android:paddingLeft="?attr/listPreferredItemPaddingLeft"
+    android:paddingStart="?attr/listPreferredItemPaddingStart"
     android:paddingTop="@dimen/list_item_padding"
-    android:paddingEnd="?attr/listPreferredItemPaddingRight"
-    android:paddingRight="?attr/listPreferredItemPaddingRight"
+    android:paddingEnd="?attr/listPreferredItemPaddingEnd"
     android:paddingBottom="@dimen/list_item_padding"
     android:textAlignment="viewStart"
     android:textAppearance="?attr/textAppearanceListItem" />

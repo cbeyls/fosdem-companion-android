@@ -28,7 +28,7 @@
                 android:textAlignment="viewStart"
                 android:textAppearance="?textAppearanceHeadline5"
                 android:textIsSelectable="true"
-                tools:text="Welcome to FOSDEM"/>
+                tools:text="Welcome to FOSDEM" />
 
             <TextView
                 android:id="@+id/subtitle"
@@ -38,7 +38,7 @@
                 android:textAlignment="viewStart"
                 android:textAppearance="?textAppearanceSubtitle1"
                 android:textIsSelectable="true"
-                tools:text="An introduction to your favourite Free Software meeting"/>
+                tools:text="An introduction to your favourite Free Software meeting" />
 
             <TextView
                 android:id="@+id/persons"
@@ -49,11 +49,11 @@
                 android:saveEnabled="false"
                 android:textAlignment="viewStart"
                 android:textAppearance="?textAppearanceSubtitle2"
-                tools:text="FOSDEM Staff"/>
+                tools:text="FOSDEM Staff" />
 
             <View
                 style="@style/SeparatorLine"
-                android:layout_marginTop="8dp"/>
+                android:layout_marginTop="8dp" />
 
             <TextView
                 android:id="@+id/time"
@@ -61,7 +61,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                app:drawableLeftCompat="@drawable/ic_access_time_white_18dp"
                 app:drawableStartCompat="@drawable/ic_access_time_white_18dp"
                 app:drawableTint="?colorControlNormal"
                 tools:text="Day 1 (Saturday), 09:30 - 09:55" />
@@ -72,7 +71,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:saveEnabled="false"
-                app:drawableLeftCompat="@drawable/ic_place_white_18dp"
                 app:drawableStartCompat="@drawable/ic_place_white_18dp"
                 app:drawableTint="?colorControlNormal"
                 tools:text="Janson (Building J)" />
@@ -83,13 +81,11 @@
                 android:layout_height="wrap_content"
                 android:gravity="start"
                 android:paddingStart="26dp"
-                android:paddingLeft="26dp"
                 android:paddingEnd="0dp"
-                android:paddingRight="0dp"
                 android:saveEnabled="false"
                 android:textAlignment="viewStart"
                 android:textAppearance="?textAppearanceButton"
-                tools:text="Open"/>
+                tools:text="Open" />
 
         </LinearLayout>
 
@@ -112,18 +108,16 @@
             android:saveEnabled="false"
             android:textAppearance="?textAppearanceBody2"
             android:textIsSelectable="true"
-            tools:text="Welcome to FOSDEM 2015!"/>
+            tools:text="Welcome to FOSDEM 2015!" />
 
         <TextView
             android:id="@+id/links_header"
             style="@style/Header"
-            android:layout_marginEnd="@dimen/content_margin"
-            android:layout_marginLeft="@dimen/content_margin"
-            android:layout_marginRight="@dimen/content_margin"
             android:layout_marginStart="@dimen/content_margin"
             android:layout_marginTop="8dp"
+            android:layout_marginEnd="@dimen/content_margin"
             android:text="@string/related_links_header"
-            android:visibility="gone"/>
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/links_container"
@@ -132,12 +126,10 @@
             android:divider="?android:listDivider"
             android:orientation="vertical"
             android:paddingStart="@dimen/content_margin"
-            android:paddingLeft="@dimen/content_margin"
             android:paddingEnd="@dimen/content_margin"
-            android:paddingRight="@dimen/content_margin"
             android:paddingBottom="@dimen/content_margin"
             android:showDividers="middle"
-            android:visibility="gone"/>
+            android:visibility="gone" />
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>
