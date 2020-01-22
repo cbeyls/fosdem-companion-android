@@ -1,8 +1,10 @@
 package be.digitalia.fosdem.widgets;
 
 import android.widget.ImageButton;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel;
 
@@ -23,11 +25,12 @@ public class BookmarkStatusAdapter {
 				imageButton.setEnabled(false);
 				imageButton.setSelected(false);
 			} else {
+				final boolean wasEnabled = imageButton.isEnabled();
 				imageButton.setEnabled(true);
 				imageButton.setContentDescription(imageButton.getContext().getString(bookmarkStatus.isBookmarked() ? R.string.remove_bookmark : R.string.add_bookmark));
 				imageButton.setSelected(bookmarkStatus.isBookmarked());
 				// Only animate updates, when the button was already enabled
-				if (!bookmarkStatus.isUpdate() || !imageButton.isEnabled()) {
+				if (!(bookmarkStatus.isUpdate() && wasEnabled)) {
 					imageButton.jumpDrawablesToCurrentState();
 				}
 			}
