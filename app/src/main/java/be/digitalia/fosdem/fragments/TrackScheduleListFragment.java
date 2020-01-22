@@ -3,16 +3,15 @@ package be.digitalia.fosdem.fragments;
 import android.content.Context;
 import android.os.Bundle;
 
+import java.util.List;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.util.List;
-
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.adapters.TrackScheduleAdapter;
 import be.digitalia.fosdem.model.Day;
@@ -74,7 +73,7 @@ public class TrackScheduleListFragment extends RecyclerViewFragment
 		final Bundle args = requireArguments();
 		final Day day = args.getParcelable(ARG_DAY);
 		final Track track = args.getParcelable(ARG_TRACK);
-		viewModel = ViewModelProviders.of(this).get(TrackScheduleViewModel.class);
+		viewModel = new ViewModelProvider(this).get(TrackScheduleViewModel.class);
 		viewModel.setTrack(day, track);
 		viewModel.getCurrentTime().observe(this, now -> adapter.setCurrentTime(now));
 

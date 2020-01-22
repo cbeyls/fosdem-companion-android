@@ -17,7 +17,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.EventDetailsFragment;
 import be.digitalia.fosdem.model.Event;
@@ -53,7 +53,8 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 		setSupportActionBar(findViewById(R.id.bottom_appbar));
 
 		ImageButton floatingActionButton = findViewById(R.id.fab);
-		bookmarkStatusViewModel = ViewModelProviders.of(this).get(BookmarkStatusViewModel.class);
+		final ViewModelProvider viewModelProvider = new ViewModelProvider(this);
+		bookmarkStatusViewModel = viewModelProvider.get(BookmarkStatusViewModel.class);
 		BookmarkStatusAdapter.setupWithImageButton(bookmarkStatusViewModel, this, floatingActionButton);
 
 		Event event = getIntent().getParcelableExtra(EXTRA_EVENT);
@@ -67,7 +68,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 			}
 		} else {
 			// Load the event from the DB using its id
-			EventViewModel viewModel = ViewModelProviders.of(this).get(EventViewModel.class);
+			EventViewModel viewModel = viewModelProvider.get(EventViewModel.class);
 			if (!viewModel.hasEventId()) {
 				Intent intent = getIntent();
 				String eventIdString;

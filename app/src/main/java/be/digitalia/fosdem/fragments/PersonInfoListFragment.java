@@ -14,11 +14,10 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.adapters.ConcatAdapter;
 import be.digitalia.fosdem.adapters.EventsAdapter;
@@ -109,7 +108,7 @@ public class PersonInfoListFragment extends RecyclerViewFragment implements Obse
 		setEmptyText(getString(R.string.no_data));
 		setProgressBarVisible(true);
 
-		final PersonInfoViewModel viewModel = ViewModelProviders.of(this).get(PersonInfoViewModel.class);
+		final PersonInfoViewModel viewModel = new ViewModelProvider(this).get(PersonInfoViewModel.class);
 		viewModel.setPerson(person);
 		viewModel.getEvents().observe(getViewLifecycleOwner(), this);
 	}

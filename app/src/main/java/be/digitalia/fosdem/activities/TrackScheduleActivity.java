@@ -14,7 +14,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.EventDetailsFragment;
 import be.digitalia.fosdem.fragments.RoomImageDialogFragment;
@@ -115,7 +115,7 @@ public class TrackScheduleActivity extends AppCompatActivity
 		if (isTabletLandscape) {
 			ImageButton floatingActionButton = findViewById(R.id.fab);
 			if (floatingActionButton != null) {
-				bookmarkStatusViewModel = ViewModelProviders.of(this).get(BookmarkStatusViewModel.class);
+				bookmarkStatusViewModel = new ViewModelProvider(this).get(BookmarkStatusViewModel.class);
 				BookmarkStatusAdapter.setupWithImageButton(bookmarkStatusViewModel, this, floatingActionButton);
 			}
 

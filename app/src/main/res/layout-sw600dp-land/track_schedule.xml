@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".activities.TrackScheduleActivity">
 
-    <FrameLayout
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/schedule"
         android:layout_width="@dimen/schedule_column_width"
         android:layout_height="match_parent"

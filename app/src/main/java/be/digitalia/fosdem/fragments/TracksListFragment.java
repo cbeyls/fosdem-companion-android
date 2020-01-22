@@ -14,7 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -68,7 +68,7 @@ public class TracksListFragment extends RecyclerViewFragment implements Observer
 		setEmptyText(getString(R.string.no_data));
 		setProgressBarVisible(true);
 
-		final TracksViewModel viewModel = ViewModelProviders.of(this).get(TracksViewModel.class);
+		final TracksViewModel viewModel = new ViewModelProvider(this).get(TracksViewModel.class);
 		viewModel.setDay(day);
 		viewModel.getTracks().observe(getViewLifecycleOwner(), this);
 	}

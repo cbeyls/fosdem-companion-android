@@ -6,13 +6,12 @@ import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
 import android.widget.TextView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.DialogFragment;
 import androidx.preference.PreferenceFragmentCompat;
-
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
 import be.digitalia.fosdem.BuildConfig;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.services.AlarmIntentService;
@@ -52,7 +51,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
 	private void setupAboutDialog() {
 		findPreference(KEY_PREF_ABOUT).setOnPreferenceClickListener(preference -> {
-			new AboutDialogFragment().show(requireFragmentManager(), "about");
+			new AboutDialogFragment().show(getParentFragmentManager(), "about");
 			return true;
 		});
 	}

@@ -8,12 +8,11 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.SearchView;
-import androidx.lifecycle.ViewModelProviders;
-
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.SearchView;
+import androidx.lifecycle.ViewModelProvider;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.SearchResultListFragment;
 import be.digitalia.fosdem.viewmodels.SearchViewModel;
@@ -33,7 +32,7 @@ public class SearchResultActivity extends SimpleToolbarActivity {
 
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-		viewModel = ViewModelProviders.of(this).get(SearchViewModel.class);
+		viewModel = new ViewModelProvider(this).get(SearchViewModel.class);
 
 		if (savedInstanceState == null) {
 			SearchResultListFragment f = SearchResultListFragment.newInstance();

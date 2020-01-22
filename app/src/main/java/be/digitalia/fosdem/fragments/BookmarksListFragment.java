@@ -15,7 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ActionMode;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -47,7 +47,7 @@ public class BookmarksListFragment extends RecyclerViewFragment
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		viewModel = ViewModelProviders.of(this).get(BookmarksViewModel.class);
+		viewModel = new ViewModelProvider(this).get(BookmarksViewModel.class);
 		final MultiChoiceHelper.MultiChoiceModeListener multiChoiceModeListener = new MultiChoiceHelper.MultiChoiceModeListener() {
 
 			@Override

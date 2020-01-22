@@ -32,7 +32,7 @@ import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.PersonInfoActivity;
 import be.digitalia.fosdem.api.FosdemApi;
@@ -76,7 +76,7 @@ public class EventDetailsFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		event = requireArguments().getParcelable(ARG_EVENT);
-		viewModel = ViewModelProviders.of(this).get(EventDetailsViewModel.class);
+		viewModel = new ViewModelProvider(this).get(EventDetailsViewModel.class);
 		viewModel.setEvent(event);
 		setHasOptionsMenu(true);
 	}
@@ -133,7 +133,7 @@ public class EventDetailsFragment extends Fragment {
 			roomText.setSpan(new ClickableSpan() {
 				@Override
 				public void onClick(@NonNull View view) {
-					RoomImageDialogFragment.newInstance(roomName, roomImageResId).show(getFragmentManager());
+					RoomImageDialogFragment.newInstance(roomName, roomImageResId).show(getParentFragmentManager());
 				}
 
 				@Override

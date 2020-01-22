@@ -20,7 +20,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 import be.digitalia.fosdem.R;
@@ -94,9 +94,11 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 			toolbar.setTitleTextColor(trackTextColor);
 		}
 
+		final ViewModelProvider viewModelProvider = new ViewModelProvider(this);
+
 		// Monitor the currently displayed event to update the bookmark status in FAB
 		ImageButton floatingActionButton = findViewById(R.id.fab);
-		bookmarkStatusViewModel = ViewModelProviders.of(this).get(BookmarkStatusViewModel.class);
+		bookmarkStatusViewModel = viewModelProvider.get(BookmarkStatusViewModel.class);
 		BookmarkStatusAdapter.setupWithImageButton(bookmarkStatusViewModel, this, floatingActionButton);
 		pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
 			@Override
@@ -106,7 +108,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 		});
 
 		setCustomProgressVisibility(true);
-		final TrackScheduleEventViewModel viewModel = ViewModelProviders.of(this).get(TrackScheduleEventViewModel.class);
+		final TrackScheduleEventViewModel viewModel = viewModelProvider.get(TrackScheduleEventViewModel.class);
 		viewModel.setTrack(day, track);
 		viewModel.getScheduleSnapshot().observe(this, this);
 

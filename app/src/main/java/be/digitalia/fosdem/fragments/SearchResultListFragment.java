@@ -3,12 +3,11 @@ package be.digitalia.fosdem.fragments;
 import android.os.Bundle;
 
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.adapters.EventsAdapter;
 import be.digitalia.fosdem.model.StatusEvent;
@@ -42,7 +41,7 @@ public class SearchResultListFragment extends RecyclerViewFragment implements Ob
 		setEmptyText(getString(R.string.no_search_result));
 		setProgressBarVisible(true);
 
-		final SearchViewModel viewModel = ViewModelProviders.of(requireActivity()).get(SearchViewModel.class);
+		final SearchViewModel viewModel = new ViewModelProvider(requireActivity()).get(SearchViewModel.class);
 		viewModel.getResults().observe(getViewLifecycleOwner(), this);
 	}
 

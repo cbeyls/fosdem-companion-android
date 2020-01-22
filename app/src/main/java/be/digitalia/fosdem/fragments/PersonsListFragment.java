@@ -7,11 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.paging.PagedList;
 import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.DiffUtil;
@@ -54,7 +55,7 @@ public class PersonsListFragment extends RecyclerViewFragment implements Observe
 		setEmptyText(getString(R.string.no_data));
 		setProgressBarVisible(true);
 
-		final PersonsViewModel viewModel = ViewModelProviders.of(this).get(PersonsViewModel.class);
+		final PersonsViewModel viewModel = new ViewModelProvider(this).get(PersonsViewModel.class);
 		viewModel.getPersons().observe(getViewLifecycleOwner(), this);
 	}
 
