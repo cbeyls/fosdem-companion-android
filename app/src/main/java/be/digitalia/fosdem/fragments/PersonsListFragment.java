@@ -19,9 +19,9 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.PersonInfoActivity;
-import be.digitalia.fosdem.adapters.SimpleItemCallback;
 import be.digitalia.fosdem.model.Person;
 import be.digitalia.fosdem.viewmodels.PersonsViewModel;
 
@@ -67,7 +67,13 @@ public class PersonsListFragment extends RecyclerViewFragment implements Observe
 
 	private static class PersonsAdapter extends PagedListAdapter<Person, PersonViewHolder> {
 
-		private static final DiffUtil.ItemCallback<Person> DIFF_CALLBACK = new SimpleItemCallback<Person>() {
+		private static final DiffUtil.ItemCallback<Person> DIFF_CALLBACK = new DiffUtil.ItemCallback<Person>() {
+
+			@Override
+			public boolean areItemsTheSame(@NonNull Person oldItem, @NonNull Person newItem) {
+				return oldItem.getId() == newItem.getId();
+			}
+
 			@Override
 			public boolean areContentsTheSame(@NonNull Person oldItem, @NonNull Person newItem) {
 				return ObjectsCompat.equals(oldItem.getName(), newItem.getName());

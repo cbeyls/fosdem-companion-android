@@ -44,7 +44,13 @@ import be.digitalia.fosdem.widgets.MultiChoiceHelper;
 public class BookmarksAdapter extends ListAdapter<Event, BookmarksAdapter.ViewHolder>
 		implements Observer<Map<String, RoomStatus>> {
 
-	private static final DiffUtil.ItemCallback<Event> DIFF_CALLBACK = new SimpleItemCallback<Event>() {
+	private static final DiffUtil.ItemCallback<Event> DIFF_CALLBACK = new DiffUtil.ItemCallback<Event>() {
+
+		@Override
+		public boolean areItemsTheSame(@NonNull Event oldItem, @NonNull Event newItem) {
+			return oldItem.getId() == newItem.getId();
+		}
+
 		@Override
 		public boolean areContentsTheSame(@NonNull Event oldEvent, @NonNull Event newEvent) {
 			return ObjectsCompat.equals(oldEvent.getTitle(), newEvent.getTitle())

@@ -36,7 +36,13 @@ public class TrackScheduleAdapter extends ListAdapter<StatusEvent, TrackSchedule
 		void onEventClick(int position, Event event);
 	}
 
-	private static final DiffUtil.ItemCallback<StatusEvent> DIFF_CALLBACK = new SimpleItemCallback<StatusEvent>() {
+	private static final DiffUtil.ItemCallback<StatusEvent> DIFF_CALLBACK = new DiffUtil.ItemCallback<StatusEvent>() {
+
+		@Override
+		public boolean areItemsTheSame(@NonNull StatusEvent oldItem, @NonNull StatusEvent newItem) {
+			return oldItem.getEvent().getId() == newItem.getEvent().getId();
+		}
+
 		@Override
 		public boolean areContentsTheSame(@NonNull StatusEvent oldItem, @NonNull StatusEvent newItem) {
 			final Event oldEvent = oldItem.getEvent();

@@ -8,8 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -20,9 +18,11 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.List;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.TrackScheduleActivity;
-import be.digitalia.fosdem.adapters.SimpleItemCallback;
 import be.digitalia.fosdem.model.Day;
 import be.digitalia.fosdem.model.Track;
 import be.digitalia.fosdem.viewmodels.TracksViewModel;
@@ -81,11 +81,17 @@ public class TracksListFragment extends RecyclerViewFragment implements Observer
 
 	private static class TracksAdapter extends ListAdapter<Track, TrackViewHolder> {
 
-		private static final DiffUtil.ItemCallback<Track> DIFF_CALLBACK = new SimpleItemCallback<Track>() {
+		private static final DiffUtil.ItemCallback<Track> DIFF_CALLBACK = new DiffUtil.ItemCallback<Track>() {
+
+			@Override
+			public boolean areItemsTheSame(@NonNull Track oldItem, @NonNull Track newItem) {
+				return oldItem.equals(newItem);
+			}
+
 			@Override
 			public boolean areContentsTheSame(@NonNull Track oldItem, @NonNull Track newItem) {
-				return oldItem.getName().equals(newItem.getName())
-						&& oldItem.getType().equals(newItem.getType());
+				// Tracks are identified by their name and type only
+				return true;
 			}
 		};
 
