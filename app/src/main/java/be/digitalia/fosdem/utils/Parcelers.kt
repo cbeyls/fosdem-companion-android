@@ -2,6 +2,8 @@ package be.digitalia.fosdem.utils
 
 import android.os.Parcel
 import android.util.LongSparseArray
+import androidx.core.util.forEach
+import androidx.core.util.size
 import kotlinx.android.parcel.Parceler
 import java.util.*
 
@@ -34,11 +36,10 @@ object IntLongSparseArrayParceler : Parceler<LongSparseArray<Int>?> {
         if (this == null) {
             parcel.writeInt(-1)
         } else {
-            val size = size()
             parcel.writeInt(size)
-            for (i in 0 until size) {
-                parcel.writeLong(keyAt(i))
-                parcel.writeInt(valueAt(i))
+            forEach { key, value ->
+                parcel.writeLong(key)
+                parcel.writeInt(value)
             }
         }
     }

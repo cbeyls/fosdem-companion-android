@@ -8,6 +8,8 @@ import android.view.View
 import android.widget.Checkable
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
+import androidx.core.util.set
+import androidx.core.util.size
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
@@ -166,14 +168,14 @@ class MultiChoiceHelper(private val activity: AppCompatActivity,
         }
 
         val oldValue = checkedItemPositions[position]
-        checkedItemPositions.put(position, value)
+        checkedItemPositions[position] = value
 
         if (oldValue != value) {
             val id = adapter.getItemId(position)
 
             if (checkedIdStates != null) {
                 if (value) {
-                    checkedIdStates.put(id, position)
+                    checkedIdStates[id] = position
                 } else {
                     checkedIdStates.remove(id)
                 }
@@ -234,9 +236,9 @@ class MultiChoiceHelper(private val activity: AppCompatActivity,
             checkedItemPositions.clear()
 
             var checkedIndex = 0
-            while (checkedIndex < checkedIdStates.size()) {
+            while (checkedIndex < checkedIdStates.size) {
                 val id = checkedIdStates.keyAt(checkedIndex)
-                val lastPos: Int = checkedIdStates.valueAt(checkedIndex)
+                val lastPos = checkedIdStates.valueAt(checkedIndex)
 
                 if (lastPos >= itemCount || id != adapter.getItemId(lastPos)) {
                     // Look around to see if the ID is nearby. If not, uncheck it.
@@ -247,7 +249,7 @@ class MultiChoiceHelper(private val activity: AppCompatActivity,
                         val searchId = adapter.getItemId(searchPos)
                         if (id == searchId) {
                             found = true
-                            checkedItemPositions.put(searchPos, true)
+                            checkedItemPositions[searchPos] = true
                             checkedIdStates.setValueAt(checkedIndex, searchPos)
                             break
                         }
@@ -264,13 +266,13 @@ class MultiChoiceHelper(private val activity: AppCompatActivity,
                         }
                     }
                 } else {
-                    checkedItemPositions.put(lastPos, true)
+                    checkedItemPositions[lastPos] = true
                 }
                 checkedIndex++
             }
         } else {
             // If the total number of items decreased, remove all out-of-range check indexes.
-            for (i in checkedItemPositions.size() - 1 downTo 0) {
+            for (i in checkedItemPositions.size - 1 downTo 0) {
                 val position = checkedItemPositions.keyAt(i)
                 if (position < itemCount) {
                     break
