@@ -35,9 +35,10 @@ object HttpUtils {
             .build()
 
     @Throws(IOException::class)
-    fun get(path: String): BufferedSource? {
-        return when (val response = get(URL(path), null, null)) {
-            is Response.NotModified -> null
+    fun get(path: String): BufferedSource {
+        return when (val response = get(URL(path))) {
+            // Can only receive NotModified if lastModified argument is non-null
+            is Response.NotModified -> throw IllegalStateException()
             is Response.Success -> response.source
         }
     }

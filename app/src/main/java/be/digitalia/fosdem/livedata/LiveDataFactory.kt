@@ -54,7 +54,7 @@ object LiveDataFactory {
         }
     }
 
-    private class SchedulerLiveData internal constructor(private val startEndTimestamps: LongArray) : LiveData<Boolean>(), Runnable {
+    private class SchedulerLiveData(private val startEndTimestamps: LongArray) : LiveData<Boolean>(), Runnable {
 
         private var nowPosition = -1
 

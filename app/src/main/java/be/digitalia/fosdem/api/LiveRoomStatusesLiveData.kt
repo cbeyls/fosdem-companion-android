@@ -12,7 +12,7 @@ import kotlin.math.pow
 /**
  * Loads and maintain the Room statuses live during the event.
  */
-internal class LiveRoomStatusesLiveData : LiveData<Map<String, RoomStatus>>() {
+class LiveRoomStatusesLiveData : LiveData<Map<String, RoomStatus>>() {
 
     private val handler = Handler(Looper.getMainLooper(), Handler.Callback { msg: Message ->
         when (msg.what) {
@@ -64,7 +64,7 @@ internal class LiveRoomStatusesLiveData : LiveData<Map<String, RoomStatus>>() {
 
             override fun doInBackground(vararg params: Unit): Map<String, RoomStatus>? {
                 return try {
-                    HttpUtils.get(FosdemUrls.rooms)?.use { source ->
+                    HttpUtils.get(FosdemUrls.rooms).use { source ->
                         RoomStatusesParser().parse(source)
                     }
                 } catch (e: Throwable) {
