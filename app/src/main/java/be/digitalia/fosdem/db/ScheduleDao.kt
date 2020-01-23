@@ -49,7 +49,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
      * @return The number of events processed.
      */
     @WorkerThread
-    fun storeSchedule(events: Iterable<DetailedEvent>, lastModifiedTag: String?): Int {
+    fun storeSchedule(events: Sequence<DetailedEvent>, lastModifiedTag: String?): Int {
         val totalEvents = try {
             storeScheduleInternal(events, lastModifiedTag)
         } catch (ese: EmptyScheduleException) {
@@ -69,7 +69,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     }
 
     @Transaction
-    protected open fun storeScheduleInternal(events: Iterable<DetailedEvent>, lastModifiedTag: String?): Int {
+    protected open fun storeScheduleInternal(events: Sequence<DetailedEvent>, lastModifiedTag: String?): Int {
         // 1: Delete the previous schedule
         clearSchedule()
 
