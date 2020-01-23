@@ -2,11 +2,13 @@ package be.digitalia.fosdem.api
 
 import android.content.Context
 import android.os.AsyncTask
+import android.os.SystemClock
 import android.text.format.DateUtils
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import be.digitalia.fosdem.db.AppDatabase
 import be.digitalia.fosdem.livedata.LiveDataFactory.scheduler
@@ -15,8 +17,14 @@ import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.DownloadScheduleResult
 import be.digitalia.fosdem.model.RoomStatus
 import be.digitalia.fosdem.parsers.EventsParser
+import be.digitalia.fosdem.parsers.RoomStatusesParser
 import be.digitalia.fosdem.utils.network.HttpUtils
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.math.pow
 
 /**
  * Main API entry point.
@@ -28,6 +36,10 @@ object FosdemApi {
     private const val DAY_START_TIME = 8 * DateUtils.HOUR_IN_MILLIS + 30 * DateUtils.MINUTE_IN_MILLIS
     // 19:00 (local time)
     private const val DAY_END_TIME = 19 * DateUtils.HOUR_IN_MILLIS
+    private const val ROOM_STATUS_REFRESH_DELAY = 90L * DateUtils.SECOND_IN_MILLIS
+    private const val ROOM_STATUS_FIRST_RETRY_DELAY = 30L * DateUtils.SECOND_IN_MILLIS
+    private const val ROOM_STATUS_EXPIRATION_DELAY = 6L * DateUtils.MINUTE_IN_MILLIS
+
     private val isLoading = AtomicBoolean()
     private val progress = MutableLiveData<Int>()
     private val result = MutableLiveData<SingleEvent<DownloadScheduleResult>>()
@@ -110,7 +122,7 @@ object FosdemApi {
                 }
                 scheduler(*startEndTimestamps)
             }
-            val liveRoomStatuses = LiveRoomStatusesLiveData()
+            val liveRoomStatuses = buildLiveRoomStatusesLiveData()
             val offlineRoomStatuses = MutableLiveData(emptyMap<String, RoomStatus>())
             statuses = scheduler.switchMap { isLive: Boolean -> if (isLive) liveRoomStatuses else offlineRoomStatuses }
             // Implementors: replace the above code with the next line to disable room status support
@@ -118,5 +130,60 @@ object FosdemApi {
             roomStatuses = statuses
         }
         return statuses
+    }
+
+    /**
+     * Builds a LiveData instance which loads and refreshes the Room statuses during the event.
+     */
+    private fun buildLiveRoomStatusesLiveData(): LiveData<Map<String, RoomStatus>> {
+        var nextRefreshTime = 0L
+        var expirationTime = Long.MAX_VALUE
+        var retryAttempt = 0
+
+        return liveData {
+            var now = SystemClock.elapsedRealtime()
+            var nextRefreshDelay = nextRefreshTime - now
+
+            if (now > expirationTime && latestValue?.isEmpty() == false) {
+                // When the data expires, replace it with an empty value
+                emit(emptyMap())
+            }
+
+            while (true) {
+                if (nextRefreshDelay > 0) {
+                    delay(nextRefreshDelay)
+                }
+
+                nextRefreshDelay = try {
+                    val result = withContext(Dispatchers.IO) {
+                        HttpUtils.get(FosdemUrls.rooms).use { source ->
+                            RoomStatusesParser().parse(source)
+                        }
+                    }
+                    now = SystemClock.elapsedRealtime()
+
+                    retryAttempt = 0
+                    expirationTime = now + ROOM_STATUS_EXPIRATION_DELAY
+                    emit(result)
+                    ROOM_STATUS_REFRESH_DELAY
+                } catch (e: Exception) {
+                    if (e is CancellationException) {
+                        throw e
+                    }
+                    now = SystemClock.elapsedRealtime()
+
+                    if (now > expirationTime && latestValue?.isEmpty() == false) {
+                        emit(emptyMap())
+                    }
+
+                    // Use exponential backoff for retries
+                    val multiplier = 2.0.pow(retryAttempt).toLong()
+                    retryAttempt++
+                    (ROOM_STATUS_FIRST_RETRY_DELAY * multiplier).coerceAtMost(ROOM_STATUS_REFRESH_DELAY)
+                }
+
+                nextRefreshTime = now + nextRefreshDelay
+            }
+        }
     }
 }
