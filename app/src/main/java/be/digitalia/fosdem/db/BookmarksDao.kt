@@ -2,11 +2,17 @@ package be.digitalia.fosdem.db
 
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import be.digitalia.fosdem.alarms.FosdemAlarmManager
 import be.digitalia.fosdem.db.entities.Bookmark
 import be.digitalia.fosdem.model.AlarmInfo
 import be.digitalia.fosdem.model.Event
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 @Dao
 abstract class BookmarksDao {
@@ -55,26 +61,29 @@ abstract class BookmarksDao {
     @Query("SELECT COUNT(*) FROM bookmarks WHERE event_id = :event")
     abstract fun getBookmarkStatus(event: Event): LiveData<Boolean>
 
-    fun addBookmark(event: Event) {
-        if (addBookmarkInternal(Bookmark(event.id)) != -1L) {
-            FosdemAlarmManager.onBookmarkAdded(event)
+    fun addBookmarkAsync(event: Event) {
+        GlobalScope.launch(Dispatchers.Main.immediate) {
+            if (addBookmarkInternal(Bookmark(event.id)) != -1L) {
+                FosdemAlarmManager.onBookmarkAdded(event)
+            }
         }
     }
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    protected abstract fun addBookmarkInternal(bookmark: Bookmark): Long
+    protected abstract suspend fun addBookmarkInternal(bookmark: Bookmark): Long
 
-    @Delete
-    fun removeBookmark(event: Event) {
-        removeBookmarks(event.id)
+    fun removeBookmarkAsync(event: Event) {
+        removeBookmarksAsync(event.id)
     }
 
-    fun removeBookmarks(vararg eventIds: Long) {
-        if (removeBookmarksInternal(eventIds) > 0) {
-            FosdemAlarmManager.onBookmarksRemoved(eventIds)
+    fun removeBookmarksAsync(vararg eventIds: Long) {
+        GlobalScope.launch(Dispatchers.Main.immediate) {
+            if (removeBookmarksInternal(eventIds) > 0) {
+                FosdemAlarmManager.onBookmarksRemoved(eventIds)
+            }
         }
     }
 
     @Query("DELETE FROM bookmarks WHERE event_id IN (:eventIds)")
-    protected abstract fun removeBookmarksInternal(eventIds: LongArray): Int
+    protected abstract suspend fun removeBookmarksInternal(eventIds: LongArray): Int
 }

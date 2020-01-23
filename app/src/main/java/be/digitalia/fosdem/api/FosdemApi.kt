@@ -56,7 +56,7 @@ object FosdemApi {
         val appContext = context.applicationContext
         GlobalScope.launch(Dispatchers.IO) {
             downloadScheduleInternal(appContext)
-            withContext(Dispatchers.Main) {
+            withContext(Dispatchers.Main.immediate) {
                 isLoading = false
             }
         }

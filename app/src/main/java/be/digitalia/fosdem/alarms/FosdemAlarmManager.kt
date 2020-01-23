@@ -3,6 +3,7 @@ package be.digitalia.fosdem.alarms
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
+import androidx.annotation.MainThread
 import androidx.preference.PreferenceManager
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.services.AlarmIntentService
@@ -49,6 +50,7 @@ object FosdemAlarmManager {
         }
     }
 
+    @MainThread
     fun onBookmarkAdded(event: Event) {
         if (isEnabled) {
             val serviceIntent = Intent(AlarmIntentService.ACTION_ADD_BOOKMARK).apply {
@@ -61,6 +63,7 @@ object FosdemAlarmManager {
         }
     }
 
+    @MainThread
     fun onBookmarksRemoved(eventIds: LongArray?) {
         if (isEnabled) {
             val serviceIntent = Intent(AlarmIntentService.ACTION_REMOVE_BOOKMARKS)
