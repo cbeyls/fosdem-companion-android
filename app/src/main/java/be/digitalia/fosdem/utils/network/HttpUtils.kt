@@ -47,7 +47,7 @@ object HttpUtils {
      * @param progressListener optional listener for the download progress in percents (0..100)
      */
     @Throws(IOException::class)
-    fun get(path: String, lastModified: String? = null, progressListener: ((Int) -> Unit)? = null): Response {
+    fun get(path: String, lastModified: String? = null, progressListener: ((percent: Int) -> Unit)? = null): Response {
         return get(URL(path), lastModified, progressListener)
     }
 
@@ -55,7 +55,7 @@ object HttpUtils {
      * @param progressListener optional listener for the download progress in percents (0..100)
      */
     @Throws(IOException::class)
-    fun get(url: URL, lastModified: String? = null, progressListener: ((Int) -> Unit)? = null): Response {
+    fun get(url: URL, lastModified: String? = null, progressListener: ((percent: Int) -> Unit)? = null): Response {
         val requestBuilder = Request.Builder()
         if (lastModified != null) {
             requestBuilder.header("If-Modified-Since", lastModified)
