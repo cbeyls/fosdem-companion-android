@@ -76,7 +76,8 @@ class EventsAdapter @JvmOverloads constructor(context: Context, owner: Lifecycle
         }
     }
 
-    class ViewHolder(itemView: View, private val timeDateFormat: DateFormat) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+    class ViewHolder(itemView: View, private val timeDateFormat: DateFormat)
+        : RecyclerView.ViewHolder(itemView), View.OnClickListener {
         private val title: TextView = itemView.findViewById(R.id.title)
         private val persons: TextView = itemView.findViewById(R.id.persons)
         private val trackName: TextView = itemView.findViewById(R.id.track_name)
@@ -99,6 +100,7 @@ class EventsAdapter @JvmOverloads constructor(context: Context, owner: Lifecycle
         fun bind(event: Event, isBookmarked: Boolean) {
             val context = itemView.context
             this.event = event
+
             title.text = event.title
             val bookmarkDrawable = if (isBookmarked) AppCompatResources.getDrawable(context, R.drawable.ic_bookmark_white_24dp) else null
             TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(title, null, null, bookmarkDrawable, null)
@@ -149,7 +151,7 @@ class EventsAdapter @JvmOverloads constructor(context: Context, owner: Lifecycle
     }
 
     companion object {
-        private val DIFF_CALLBACK = createSimpleItemCallback<StatusEvent> { oldItem, newItem ->
+        val DIFF_CALLBACK = createSimpleItemCallback<StatusEvent> { oldItem, newItem ->
             oldItem.event.id == newItem.event.id
         }
         private val DETAILS_PAYLOAD = Any()

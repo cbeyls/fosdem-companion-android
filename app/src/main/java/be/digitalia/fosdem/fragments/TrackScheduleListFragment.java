@@ -81,7 +81,7 @@ public class TrackScheduleListFragment extends RecyclerViewFragment
 			isListAlreadyShown = savedInstanceState.getBoolean(STATE_IS_LIST_ALREADY_SHOWN);
 		}
 		if (savedInstanceState == null) {
-			setSelectedId(args.getLong(ARG_FROM_EVENT_ID, -1L));
+			setSelectedId(args.getLong(ARG_FROM_EVENT_ID, RecyclerView.NO_ID));
 		} else {
 			setSelectedId(savedInstanceState.getLong(STATE_SELECTED_ID));
 		}
