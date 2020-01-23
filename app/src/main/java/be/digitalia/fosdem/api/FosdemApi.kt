@@ -1,7 +1,6 @@
 package be.digitalia.fosdem.api
 
 import android.content.Context
-import android.os.AsyncTask
 import android.os.SystemClock
 import android.text.format.DateUtils
 import androidx.annotation.MainThread
@@ -19,11 +18,7 @@ import be.digitalia.fosdem.model.RoomStatus
 import be.digitalia.fosdem.parsers.EventsParser
 import be.digitalia.fosdem.parsers.RoomStatusesParser
 import be.digitalia.fosdem.utils.network.HttpUtils
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
-import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.*
 import kotlin.math.pow
 
 /**
@@ -40,7 +35,7 @@ object FosdemApi {
     private const val ROOM_STATUS_FIRST_RETRY_DELAY = 30L * DateUtils.SECOND_IN_MILLIS
     private const val ROOM_STATUS_EXPIRATION_DELAY = 6L * DateUtils.MINUTE_IN_MILLIS
 
-    private val isLoading = AtomicBoolean()
+    private var isLoading = false
     private val progress = MutableLiveData<Int>()
     private val result = MutableLiveData<SingleEvent<DownloadScheduleResult>>()
     private var roomStatuses: LiveData<Map<String, RoomStatus>>? = null
@@ -52,14 +47,18 @@ object FosdemApi {
      */
     @MainThread
     fun downloadSchedule(context: Context) {
-        // TODO use coroutines to remove the need for an AtomicBoolean
-        if (!isLoading.compareAndSet(false, true)) { // If a download is already in progress, return immediately
+        if (isLoading) {
+            // If a download is already in progress, return immediately
             return
         }
+        isLoading = true
+
         val appContext = context.applicationContext
-        AsyncTask.THREAD_POOL_EXECUTOR.execute {
+        GlobalScope.launch(Dispatchers.IO) {
             downloadScheduleInternal(appContext)
-            isLoading.set(false)
+            withContext(Dispatchers.Main) {
+                isLoading = false
+            }
         }
     }
 
