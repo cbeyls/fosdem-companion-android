@@ -9,13 +9,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import java.text.DateFormat;
+import java.util.List;
+
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.ObjectsCompat;
-import androidx.core.view.ViewCompat;
 import androidx.core.widget.TextViewCompat;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
@@ -24,9 +27,6 @@ import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.model.Event;
 import be.digitalia.fosdem.model.StatusEvent;
 import be.digitalia.fosdem.utils.DateUtils;
-
-import java.text.DateFormat;
-import java.util.List;
 
 public class TrackScheduleAdapter extends ListAdapter<StatusEvent, TrackScheduleAdapter.ViewHolder> {
 
@@ -171,11 +171,10 @@ public class TrackScheduleAdapter extends ListAdapter<StatusEvent, TrackSchedule
 					newBackground = activatedBackground;
 				} else {
 					// Clear the existing background drawable callback so it can be assigned to the LayerDrawable
-					ViewCompat.setBackground(itemView, null);
-					itemView.setBackgroundResource(0);
+					itemView.setBackground(null);
 					newBackground = new LayerDrawable(new Drawable[]{existingBackground, activatedBackground});
 				}
-				ViewCompat.setBackground(itemView, newBackground);
+				itemView.setBackground(newBackground);
 			}
 		}
 
