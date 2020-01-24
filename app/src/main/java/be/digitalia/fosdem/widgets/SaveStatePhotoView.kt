@@ -74,6 +74,7 @@ class SaveStatePhotoView : PhotoView {
 
         companion object {
             @JvmField
+            @Suppress("UNUSED")
             val CREATOR = object : Parcelable.ClassLoaderCreator<SavedState> {
                 override fun createFromParcel(source: Parcel, loader: ClassLoader?) = SavedState(source, loader)
 

@@ -36,7 +36,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private fun setupAboutDialog() {
         findPreference<Preference>(PreferenceKeys.ABOUT)?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            AboutDialogFragment().show(requireFragmentManager(), "about")
+            AboutDialogFragment().show(parentFragmentManager, "about")
             true
         }
     }

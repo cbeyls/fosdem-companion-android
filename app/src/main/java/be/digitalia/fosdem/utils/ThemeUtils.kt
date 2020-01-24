@@ -17,10 +17,11 @@ import androidx.core.graphics.drawable.DrawableCompat
 import be.digitalia.fosdem.R
 
 var Window.statusBarColorCompat: Int
+    @ColorInt
     get() {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) statusBarColor else Color.BLACK
     }
-    set(@ColorInt color: Int) {
+    set(@ColorInt color) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             statusBarColor = color
         }

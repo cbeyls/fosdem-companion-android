@@ -1,7 +1,6 @@
 package be.digitalia.fosdem.activities
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.ExternalBookmarksListFragment

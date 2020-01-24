@@ -32,7 +32,6 @@ private const val ROOM_DRAWABLE_PREFIX = "room_"
 /**
  * Returns string without diacritics - 7 bit approximation.
  *
- * @param source string to convert
  * @return corresponding string without diacritics
  */
 fun String.removeDiacritics(): String {

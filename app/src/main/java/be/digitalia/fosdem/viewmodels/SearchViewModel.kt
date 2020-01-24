@@ -6,7 +6,6 @@ import androidx.paging.PagedList
 import androidx.paging.toLiveData
 import be.digitalia.fosdem.db.AppDatabase
 import be.digitalia.fosdem.model.StatusEvent
-import kotlin.contracts.ExperimentalContracts
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -18,7 +17,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         class Success(val list: PagedList<StatusEvent>) : Result()
     }
 
-    @ExperimentalContracts
     val results: LiveData<Result> = queryLiveData.switchMap<String?, Result> { query ->
         if (query == null || query.length < SEARCH_QUERY_MIN_LENGTH) {
             MutableLiveData(Result.QueryTooShort)
