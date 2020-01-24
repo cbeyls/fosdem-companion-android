@@ -5,6 +5,7 @@ import android.database.Cursor
 import android.provider.BaseColumns
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
+import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
@@ -60,10 +61,10 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         }
         if (totalEvents > 0) { // Set last update time and server's last modified tag
             val now = System.currentTimeMillis()
-            appDatabase.sharedPreferences.edit()
-                    .putLong(LAST_UPDATE_TIME_PREF, now)
-                    .putString(LAST_MODIFIED_TAG_PREF, lastModifiedTag)
-                    .apply()
+            appDatabase.sharedPreferences.edit {
+                putLong(LAST_UPDATE_TIME_PREF, now)
+                putString(LAST_MODIFIED_TAG_PREF, lastModifiedTag)
+            }
             lastUpdateTime.postValue(now)
 
             FosdemAlarmManager.onScheduleRefreshed()

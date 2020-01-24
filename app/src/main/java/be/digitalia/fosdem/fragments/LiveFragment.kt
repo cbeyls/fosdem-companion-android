@@ -20,6 +20,7 @@ class LiveFragment : Fragment(), RecycledViewPoolProvider {
     private class ViewHolder(view: View) {
         val pager: ViewPager2 = view.findViewById(R.id.pager)
         val tabs: TabLayout = view.findViewById(R.id.tabs)
+
         val recycledViewPool = RecycledViewPool()
     }
 
