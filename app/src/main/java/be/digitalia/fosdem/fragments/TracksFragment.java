@@ -162,7 +162,7 @@ public class TracksFragment extends Fragment implements RecycledViewPoolProvider
 		@NonNull
 		@Override
 		public Fragment createFragment(int position) {
-			return TracksListFragment.newInstance(days.get(position));
+			return TracksListFragment.Companion.newInstance(days.get(position));
 		}
 
 		CharSequence getPageTitle(int position) {

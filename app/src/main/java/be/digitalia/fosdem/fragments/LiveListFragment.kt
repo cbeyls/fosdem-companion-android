@@ -9,12 +9,13 @@ import androidx.paging.PagedList
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import be.digitalia.fosdem.R
 import be.digitalia.fosdem.adapters.EventsAdapter
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.viewmodels.LiveViewModel
 
-class LiveListFragment(@StringRes private val emptyTextResId: Int,
-                       private val dataSourceProvider: (LiveViewModel) -> LiveData<PagedList<StatusEvent>>)
+sealed class LiveListFragment(@StringRes private val emptyTextResId: Int,
+                              private val dataSourceProvider: (LiveViewModel) -> LiveData<PagedList<StatusEvent>>)
     : RecyclerViewFragment() {
 
     private val viewModel: LiveViewModel by viewModels({ requireParentFragment() })
@@ -38,8 +39,8 @@ class LiveListFragment(@StringRes private val emptyTextResId: Int,
                 setRecycledViewPool(parent.recycledViewPool)
             }
 
-            layoutManager = LinearLayoutManager(recyclerView.context)
-            addItemDecoration(DividerItemDecoration(recyclerView.context, DividerItemDecoration.VERTICAL))
+            layoutManager = LinearLayoutManager(context)
+            addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         }
     }
 
@@ -56,3 +57,6 @@ class LiveListFragment(@StringRes private val emptyTextResId: Int,
         }
     }
 }
+
+class NextLiveListFragment() : LiveListFragment(R.string.next_empty, LiveViewModel::nextEvents)
+class NowLiveListFragment() : LiveListFragment(R.string.now_empty, LiveViewModel::eventsInProgress)

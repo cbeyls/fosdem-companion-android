@@ -133,7 +133,7 @@ public class EventDetailsFragment extends Fragment {
 			roomText.setSpan(new ClickableSpan() {
 				@Override
 				public void onClick(@NonNull View view) {
-					RoomImageDialogFragment.newInstance(roomName, roomImageResId).show(getParentFragmentManager());
+					RoomImageDialogFragment.Companion.newInstance(roomName, roomImageResId).show(getParentFragmentManager());
 				}
 
 				@Override

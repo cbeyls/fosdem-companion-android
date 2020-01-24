@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Typeface
-import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.text.SpannableString
@@ -196,10 +195,11 @@ class AlarmIntentService : JobIntentService() {
         val roomName = event.roomName
         val roomImageResId = roomName?.let { resources.getIdentifier(roomNameToResourceName(it), "drawable", packageName) }
                 ?: 0
-        if (roomImageResId != 0) { // The room name is the unique Id of a RoomImageDialogActivity
+        if (roomName != null && roomImageResId != 0) {
+            // The room name is the unique Id of a RoomImageDialogActivity
             val mapIntent = Intent(this, RoomImageDialogActivity::class.java)
                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    .setData(Uri.parse(roomName))
+                    .setData(roomName.toUri())
                     .putExtra(RoomImageDialogActivity.EXTRA_ROOM_NAME, roomName)
                     .putExtra(RoomImageDialogActivity.EXTRA_ROOM_IMAGE_RESOURCE_ID, roomImageResId)
             val mapPendingIntent = PendingIntent.getActivity(this, 0, mapIntent, PendingIntent.FLAG_UPDATE_CURRENT)
