@@ -7,6 +7,7 @@ import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.liveData
 import androidx.paging.DataSource
 import androidx.room.*
 import be.digitalia.fosdem.alarms.FosdemAlarmManager
@@ -15,6 +16,8 @@ import be.digitalia.fosdem.db.entities.EventTitles
 import be.digitalia.fosdem.db.entities.EventToPerson
 import be.digitalia.fosdem.model.*
 import be.digitalia.fosdem.utils.DateUtils
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import java.util.*
 
 @Dao
@@ -439,21 +442,24 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     abstract fun getPersons(): DataSource.Factory<Int, Person>
 
     fun getEventDetails(event: Event): LiveData<EventDetails> {
-        val result = MutableLiveData<EventDetails>()
-        appDatabase.queryExecutor.execute {
-            result.postValue(EventDetails(getPersons(event), getLinks(event)))
+        return liveData {
+            // Load persons and links in parallel as soon as the LiveData becomes active
+            coroutineScope {
+                val persons = async { getPersons(event) }
+                val links = async { getLinks(event) }
+                emit(EventDetails(persons.await(), links.await()))
+            }
         }
-        return result
     }
 
     @Query("""SELECT p.`rowid`, p.name
         FROM persons p
         JOIN events_persons ep ON p.`rowid` = ep.person_id
         WHERE ep.event_id = :event""")
-    protected abstract fun getPersons(event: Event): List<Person>
+    protected abstract suspend fun getPersons(event: Event): List<Person>
 
     @Query("SELECT * FROM links WHERE event_id = :event ORDER BY id ASC")
-    protected abstract fun getLinks(event: Event?): List<Link>
+    protected abstract suspend fun getLinks(event: Event?): List<Link>
 
     companion object {
         private const val LAST_UPDATE_TIME_PREF = "last_update_time"
