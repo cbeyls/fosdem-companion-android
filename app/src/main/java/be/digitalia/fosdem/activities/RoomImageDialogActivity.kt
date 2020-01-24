@@ -62,7 +62,8 @@ fun configureRoomImageDialogToolbar(owner: LifecycleOwner, toolbar: Toolbar, roo
                 R.id.navigation -> {
                     val localNavigationUrl = FosdemUrls.getLocalNavigationToLocation(roomName.toSlug())
                     try {
-                        CustomTabsIntent.Builder().configureToolbarColors(context, R.color.light_color_primary)
+                        CustomTabsIntent.Builder()
+                                .configureToolbarColors(context, R.color.light_color_primary)
                                 .setShowTitle(true)
                                 .build()
                                 .launchUrl(context, Uri.parse(localNavigationUrl))

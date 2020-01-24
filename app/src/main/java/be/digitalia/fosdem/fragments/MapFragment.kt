@@ -34,18 +34,16 @@ class MapFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) = inflater.inflate(R.menu.map, menu)
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.directions -> {
-                launchDirections()
-                true
-            }
-            R.id.navigation -> {
-                launchLocalNavigation()
-                true
-            }
-            else -> false
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.directions -> {
+            launchDirections()
+            true
         }
+        R.id.navigation -> {
+            launchLocalNavigation()
+            true
+        }
+        else -> false
     }
 
     private fun launchDirections() {
@@ -62,7 +60,8 @@ class MapFragment : Fragment() {
     private fun launchLocalNavigation() {
         try {
             val context = requireContext()
-            CustomTabsIntent.Builder().configureToolbarColors(context, R.color.light_color_primary)
+            CustomTabsIntent.Builder()
+                    .configureToolbarColors(context, R.color.light_color_primary)
                     .setShowTitle(true)
                     .build()
                     .launchUrl(context, Uri.parse(localNavigation))

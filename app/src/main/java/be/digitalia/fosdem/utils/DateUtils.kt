@@ -16,8 +16,6 @@ object DateUtils {
         return android.text.format.DateFormat.getTimeFormat(context).withBelgiumTimeZone()
     }
 
-    // TODO Remove JvmOverloads
-    @JvmOverloads
     fun getYear(timestamp: Long, calendar: Calendar? = null): Int {
         val cal = calendar ?: Calendar.getInstance(belgiumTimeZone, Locale.US)
         cal.timeInMillis = timestamp

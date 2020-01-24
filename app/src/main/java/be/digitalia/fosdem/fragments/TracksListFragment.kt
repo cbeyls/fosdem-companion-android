@@ -19,10 +19,10 @@ import be.digitalia.fosdem.viewmodels.TracksViewModel
 class TracksListFragment : RecyclerViewFragment() {
 
     private val viewModel: TracksViewModel by viewModels()
-    private val day by lazy<Day> {
+    private val day by lazy<Day>(LazyThreadSafetyMode.NONE) {
         requireArguments().getParcelable(ARG_DAY)!!
     }
-    private val adapter by lazy {
+    private val adapter by lazy(LazyThreadSafetyMode.NONE) {
         TracksAdapter(day)
     }
 

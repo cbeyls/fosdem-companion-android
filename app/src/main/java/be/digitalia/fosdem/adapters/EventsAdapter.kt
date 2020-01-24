@@ -26,8 +26,7 @@ import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.utils.DateUtils
 import java.text.DateFormat
 
-// TODO remove JvmOverloads after converting the fragments to Kotlin
-class EventsAdapter @JvmOverloads constructor(context: Context, owner: LifecycleOwner, private val showDay: Boolean = true)
+class EventsAdapter constructor(context: Context, owner: LifecycleOwner, private val showDay: Boolean = true)
     : PagedListAdapter<StatusEvent, EventsAdapter.ViewHolder>(DIFF_CALLBACK) {
 
     private val timeDateFormat = DateUtils.getTimeDateFormat(context)

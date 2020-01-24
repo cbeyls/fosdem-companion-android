@@ -1,13 +1,12 @@
 package be.digitalia.fosdem.model
 
 import android.os.Parcelable
-import android.text.format.DateUtils
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.TypeConverters
 import be.digitalia.fosdem.api.FosdemUrls
 import be.digitalia.fosdem.db.converters.NullableDateTypeConverters
-import be.digitalia.fosdem.utils.DateUtils.getYear
+import be.digitalia.fosdem.utils.DateUtils
 import kotlinx.android.parcel.Parcelize
 import java.util.*
 
@@ -47,12 +46,12 @@ data class Event(
     val duration: Int
         get() = if (startTime == null || endTime == null) {
             0
-        } else ((endTime.time - startTime.time) / DateUtils.MINUTE_IN_MILLIS).toInt()
+        } else ((endTime.time - startTime.time) / android.text.format.DateUtils.MINUTE_IN_MILLIS).toInt()
 
     val url: String?
         get() {
             val s = slug ?: return null
-            return FosdemUrls.getEvent(s, getYear(day.date.time))
+            return FosdemUrls.getEvent(s, DateUtils.getYear(day.date.time))
         }
 
     override fun toString(): String = title ?: ""

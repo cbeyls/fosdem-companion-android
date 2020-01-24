@@ -190,7 +190,7 @@ class BookmarksAdapter(activity: AppCompatActivity, owner: SavedStateRegistryOwn
      * An observer dispatching updates to the source observer while additionally notifying changes
      * of the immediately previous and next items in order to properly update their overlapping status display.
      */
-    internal class BookmarksDataObserverWrapper(private val observer: AdapterDataObserver, private val adapter: RecyclerView.Adapter<*>)
+    private class BookmarksDataObserverWrapper(private val observer: AdapterDataObserver, private val adapter: RecyclerView.Adapter<*>)
         : AdapterDataObserver() {
 
         private fun updatePrevious(position: Int) {
