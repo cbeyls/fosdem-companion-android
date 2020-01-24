@@ -3,7 +3,7 @@ package be.digitalia.fosdem.utils
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 
-val xmlPullParserFactory by lazy {
+val xmlPullParserFactory: XmlPullParserFactory by lazy {
     XmlPullParserFactory.newInstance()
 }
 
@@ -22,11 +22,13 @@ inline val XmlPullParser.isStartTag
 /*
  * Checks if the current event is a start tag with the specified local name
  */
+@Suppress("NOTHING_TO_INLINE")
 inline fun XmlPullParser.isStartTag(name: String) = eventType == XmlPullParser.START_TAG && name == this.name
 
 /*
  * Go to the next event and check if the current event is an end tag with the specified local name
  */
+@Suppress("NOTHING_TO_INLINE")
 inline fun XmlPullParser.isNextEndTag(name: String) = next() == XmlPullParser.END_TAG && name == this.name
 
 /*

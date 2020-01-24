@@ -16,7 +16,7 @@ class BookmarksViewModel(application: Application) : AndroidViewModel(applicatio
     private val appDatabase = AppDatabase.getInstance(application)
     private val upcomingOnlyLiveData = MutableLiveData<Boolean>()
 
-    val bookmarks: LiveData<List<Event>> = upcomingOnlyLiveData.switchMap { upcomingOnly ->
+    val bookmarks: LiveData<List<Event>> = upcomingOnlyLiveData.switchMap { upcomingOnly: Boolean ->
         if (upcomingOnly) {
             // Refresh upcoming bookmarks every 2 minutes
             LiveDataFactory.interval(2L, TimeUnit.MINUTES)

@@ -74,7 +74,7 @@ public class TrackScheduleListFragment extends RecyclerViewFragment
 		final Day day = args.getParcelable(ARG_DAY);
 		final Track track = args.getParcelable(ARG_TRACK);
 		viewModel = new ViewModelProvider(this).get(TrackScheduleViewModel.class);
-		viewModel.setTrack(day, track);
+		viewModel.setDayAndTrack(day, track);
 		viewModel.getCurrentTime().observe(this, now -> adapter.setCurrentTime(now));
 
 		if (savedInstanceState != null) {

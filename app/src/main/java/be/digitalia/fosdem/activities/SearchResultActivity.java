@@ -8,16 +8,19 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.android.material.snackbar.Snackbar;
-
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 import androidx.lifecycle.ViewModelProvider;
+
+import com.google.android.material.snackbar.Snackbar;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.fragments.SearchResultListFragment;
 import be.digitalia.fosdem.viewmodels.SearchViewModel;
 
 public class SearchResultActivity extends SimpleToolbarActivity {
 
+	private static final String STATE_CURRENT_QUERY = "current_query";
 	// Search Intent sent by Google Now
 	private static final String GMS_ACTION_SEARCH = "com.google.android.gms.actions.SEARCH_ACTION";
 
@@ -37,7 +40,29 @@ public class SearchResultActivity extends SimpleToolbarActivity {
 			getSupportFragmentManager().beginTransaction().replace(R.id.content, f).commit();
 
 			handleIntent(getIntent(), false);
+		} else {
+			viewModel.setQuery(savedInstanceState.getString(STATE_CURRENT_QUERY, ""));
 		}
+
+		viewModel.getResults().observe(this, result -> {
+			if (result instanceof SearchViewModel.Result.QueryTooShort) {
+				TypedArray a = getTheme().obtainStyledAttributes(R.styleable.ErrorColors);
+				int textColor = a.getColor(R.styleable.ErrorColors_colorOnError, 0);
+				int backgroundColor = a.getColor(R.styleable.ErrorColors_colorError, 0);
+				a.recycle();
+
+				Snackbar.make(findViewById(R.id.content), R.string.search_length_error, Snackbar.LENGTH_LONG)
+						.setTextColor(textColor)
+						.setBackgroundTint(backgroundColor)
+						.show();
+			}
+		});
+	}
+
+	@Override
+	protected void onSaveInstanceState(@NonNull Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putString(STATE_CURRENT_QUERY, viewModel.getQuery());
 	}
 
 	@Override
@@ -61,18 +86,6 @@ public class SearchResultActivity extends SimpleToolbarActivity {
 			}
 
 			viewModel.setQuery(query);
-
-			if (SearchViewModel.isQueryTooShort(query)) {
-				TypedArray a = getTheme().obtainStyledAttributes(R.styleable.ErrorColors);
-				int textColor = a.getColor(R.styleable.ErrorColors_colorOnError, 0);
-				int backgroundColor = a.getColor(R.styleable.ErrorColors_colorError, 0);
-				a.recycle();
-
-				Snackbar.make(findViewById(R.id.content), R.string.search_length_error, Snackbar.LENGTH_LONG)
-						.setTextColor(textColor)
-						.setBackgroundTint(backgroundColor)
-						.show();
-			}
 
 		} else if (Intent.ACTION_VIEW.equals(intentAction)) {
 			// Search suggestion, dispatch to EventDetailsActivity

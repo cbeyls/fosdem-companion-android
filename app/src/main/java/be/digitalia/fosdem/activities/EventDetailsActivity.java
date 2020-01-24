@@ -69,7 +69,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Observer<
 		} else {
 			// Load the event from the DB using its id
 			EventViewModel viewModel = viewModelProvider.get(EventViewModel.class);
-			if (!viewModel.hasEventId()) {
+			if (!viewModel.isEventIdSet()) {
 				Intent intent = getIntent();
 				String eventIdString;
 				if (NfcUtilsKt.hasNfcAppData(intent)) {

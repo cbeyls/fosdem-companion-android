@@ -109,7 +109,7 @@ public class TrackScheduleEventActivity extends AppCompatActivity implements Obs
 
 		setCustomProgressVisibility(true);
 		final TrackScheduleEventViewModel viewModel = viewModelProvider.get(TrackScheduleEventViewModel.class);
-		viewModel.setTrack(day, track);
+		viewModel.setDayAndTrack(day, track);
 		viewModel.getScheduleSnapshot().observe(this, this);
 
 		// Enable Android Beam

@@ -4,16 +4,15 @@ import android.os.Bundle;
 
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.paging.PagedList;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.adapters.EventsAdapter;
-import be.digitalia.fosdem.model.StatusEvent;
 import be.digitalia.fosdem.viewmodels.SearchViewModel;
 
-public class SearchResultListFragment extends RecyclerViewFragment implements Observer<PagedList<StatusEvent>> {
+public class SearchResultListFragment extends RecyclerViewFragment implements Observer<SearchViewModel.Result> {
 
 	private EventsAdapter adapter;
 
@@ -24,7 +23,7 @@ public class SearchResultListFragment extends RecyclerViewFragment implements Ob
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		adapter = new EventsAdapter(getContext(), this);
+		adapter = new EventsAdapter(requireContext(), this);
 	}
 
 	@Override
@@ -46,8 +45,12 @@ public class SearchResultListFragment extends RecyclerViewFragment implements Ob
 	}
 
 	@Override
-	public void onChanged(PagedList<StatusEvent> results) {
-		adapter.submitList(results);
+	public void onChanged(SearchViewModel.Result result) {
+		if (result instanceof SearchViewModel.Result.Success) {
+			adapter.submitList(((SearchViewModel.Result.Success) result).getList());
+		} else {
+			adapter.submitList(null);
+		}
 		setProgressBarVisible(false);
 	}
 }
