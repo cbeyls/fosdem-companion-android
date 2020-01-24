@@ -36,7 +36,7 @@ public class SearchResultActivity extends SimpleToolbarActivity {
 		viewModel = new ViewModelProvider(this).get(SearchViewModel.class);
 
 		if (savedInstanceState == null) {
-			SearchResultListFragment f = SearchResultListFragment.newInstance();
+			SearchResultListFragment f = SearchResultListFragment.Companion.newInstance();
 			getSupportFragmentManager().beginTransaction().replace(R.id.content, f).commit();
 
 			handleIntent(getIntent(), false);

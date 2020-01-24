@@ -6,17 +6,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
-
-import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.tabs.TabLayoutMediator;
-
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.utils.RecyclerViewExtKt;
+import be.digitalia.fosdem.viewmodels.LiveViewModel;
 
 public class LiveFragment extends Fragment implements RecycledViewPoolProvider {
 
@@ -76,9 +76,9 @@ public class LiveFragment extends Fragment implements RecycledViewPoolProvider {
 		public Fragment createFragment(int position) {
 			switch (position) {
 				case 0:
-					return new NextLiveListFragment();
+					return new LiveListFragment(R.string.next_empty, LiveViewModel::getNextEvents);
 				case 1:
-					return new NowLiveListFragment();
+					return new LiveListFragment(R.string.now_empty, LiveViewModel::getEventsInProgress);
 			}
 			throw new IllegalStateException();
 		}
