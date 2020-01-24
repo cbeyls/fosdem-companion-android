@@ -244,6 +244,7 @@ public class EventDetailsFragment extends Fragment {
 		EventDetails details = viewModel.getEventDetails().getValue();
 		final int personsCount = (details == null) ? 0 : details.getPersons().size();
 		if (personsCount > 0) {
+			// TODO check if personsSummary is null
 			description = String.format("%1$s: %2$s\n\n%3$s", getResources().getQuantityString(R.plurals.speakers, personsCount), event.getPersonsSummary(), description);
 		}
 		intent.putExtra(CalendarContract.Events.DESCRIPTION, description);

@@ -34,7 +34,7 @@ data class Event(
         val abstractText: String?,
         val description: String?,
         @ColumnInfo(name = "persons")
-        val personsSummary: String
+        val personsSummary: String?
 ) : Parcelable {
 
     fun isRunningAtTime(time: Long): Boolean {

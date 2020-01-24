@@ -11,7 +11,7 @@ import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.text.set
-import androidx.core.view.isVisible
+import androidx.core.view.isGone
 import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.observe
@@ -109,7 +109,7 @@ class EventsAdapter @JvmOverloads constructor(context: Context, owner: Lifecycle
             } else null
             val personsSummary = event.personsSummary
             persons.text = personsSummary
-            persons.isVisible = personsSummary.isNotEmpty()
+            persons.isGone = personsSummary.isNullOrEmpty()
             val track = event.track
             trackName.text = track.name
             trackName.setTextColor(ContextCompat.getColorStateList(context, track.type.textColorResId))

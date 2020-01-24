@@ -135,7 +135,7 @@ class EventsParser : Parser<Sequence<DetailedEvent>> {
                 track = Track(trackName, trackType),
                 abstractText = abstractText,
                 description = description,
-                personsSummary = ""
+                personsSummary = null
         )
         val details = EventDetails(
                 persons = persons,

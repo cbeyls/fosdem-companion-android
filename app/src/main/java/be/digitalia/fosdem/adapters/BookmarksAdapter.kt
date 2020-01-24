@@ -14,7 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.collection.SimpleArrayMap
 import androidx.core.content.ContextCompat
 import androidx.core.text.set
-import androidx.core.view.isVisible
+import androidx.core.view.isGone
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -127,7 +127,7 @@ class BookmarksAdapter(activity: AppCompatActivity, owner: SavedStateRegistryOwn
             title.text = event.title
             val personsSummary = event.personsSummary
             persons.text = personsSummary
-            persons.isVisible = personsSummary.isNotEmpty()
+            persons.isGone = personsSummary.isNullOrEmpty()
             val track = event.track
             trackName.text = track.name
             trackName.setTextColor(ContextCompat.getColorStateList(context, track.type.textColorResId))

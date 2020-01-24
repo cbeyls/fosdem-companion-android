@@ -150,7 +150,7 @@ class AlarmIntentService : JobIntentService() {
         val trackName = event.track.name
         val contentText: String
         val bigText: CharSequence?
-        if (personsSummary.isEmpty()) {
+        if (personsSummary.isNullOrEmpty()) {
             contentText = trackName
             bigText = event.subTitle
         } else {

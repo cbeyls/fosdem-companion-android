@@ -10,7 +10,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
+import androidx.core.view.isGone
 import androidx.core.widget.TextViewCompat
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -150,7 +150,7 @@ class TrackScheduleAdapter(context: Context, private val listener: EventClickLis
             } else null
             val personsSummary = event.personsSummary
             persons.text = personsSummary
-            persons.isVisible = personsSummary.isNotEmpty()
+            persons.isGone = personsSummary.isNullOrEmpty()
             room.text = event.roomName
             room.contentDescription = context.getString(R.string.room_content_description, event.roomName
                     ?: "")
