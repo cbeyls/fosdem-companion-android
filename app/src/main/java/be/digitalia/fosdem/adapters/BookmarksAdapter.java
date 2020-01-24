@@ -14,11 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,6 +26,12 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.savedstate.SavedStateRegistryOwner;
+
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import be.digitalia.fosdem.R;
 import be.digitalia.fosdem.activities.EventDetailsActivity;
 import be.digitalia.fosdem.api.FosdemApi;
@@ -206,7 +207,6 @@ public class BookmarksAdapter extends ListAdapter<Event, BookmarksAdapter.ViewHo
 				int endPosition = detailsText.indexOf(" | ");
 				detailsSpannable.setSpan(new ForegroundColorSpan(errorColor), 0, endPosition, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 				detailsSpannable.setSpan(new StyleSpan(Typeface.BOLD), 0, endPosition, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-				details.setText(detailsSpannable);
 				detailsDescription = context.getString(R.string.bookmark_conflict_content_description, detailsDescription);
 			}
 			if (roomStatus != null) {
