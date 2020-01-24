@@ -2,7 +2,7 @@
 <animated-selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/selected"
-        android:drawable="@drawable/ic_bookmark_white_24dp"
+        android:drawable="@drawable/ic_bookmark_24dp"
         android:state_selected="true" />
     <item
         android:id="@+id/unselected"

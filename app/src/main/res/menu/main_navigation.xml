@@ -9,7 +9,7 @@
             android:title="@string/menu_tracks" />
         <item
             android:id="@+id/menu_bookmarks"
-            android:icon="@drawable/ic_bookmark_white_24dp"
+            android:icon="@drawable/ic_bookmark_24dp"
             android:title="@string/menu_bookmarks" />
         <item
             android:id="@+id/menu_live"

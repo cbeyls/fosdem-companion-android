@@ -61,8 +61,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                app:drawableStartCompat="@drawable/ic_access_time_white_18dp"
-                app:drawableTint="?colorControlNormal"
+                app:drawableStartCompat="@drawable/ic_access_time_18dp"
                 tools:text="Day 1 (Saturday), 09:30 - 09:55" />
 
             <TextView
@@ -71,8 +70,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:saveEnabled="false"
-                app:drawableStartCompat="@drawable/ic_place_white_18dp"
-                app:drawableTint="?colorControlNormal"
+                app:drawableStartCompat="@drawable/ic_place_18dp"
                 tools:text="Janson (Building J)" />
 
             <TextView

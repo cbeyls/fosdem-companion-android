@@ -32,7 +32,6 @@
         android:textAlignment="viewStart"
         android:textAppearance="?textAppearanceHeadline6"
         android:textSize="18sp"
-        app:drawableTint="?colorControlNormal"
         tools:text="Welcome to FOSDEM 2015" />
 
     <TextView

@@ -83,9 +83,8 @@
     <style name="Metadata">
         <item name="android:textAppearance">?textAppearanceSubtitle1</item>
         <item name="android:textColor">?android:textColorSecondary</item>
-        <item name="drawableTint">?android:textColorSecondary</item>
         <item name="android:gravity">start|center_vertical</item>
-        <item name="android:textAlignment" tools:targetApi="jelly_bean_mr1">viewStart</item>
+        <item name="android:textAlignment">viewStart</item>
         <item name="android:drawablePadding">8dp</item>
     </style>
 
@@ -96,7 +95,7 @@
         <item name="android:textSize">20sp</item>
         <item name="android:textColor">?colorPrimary</item>
         <item name="android:gravity">start</item>
-        <item name="android:textAlignment" tools:targetApi="jelly_bean_mr1">viewStart</item>
+        <item name="android:textAlignment">viewStart</item>
     </style>
 
     <style name="RoomImageDialogAnimations">
