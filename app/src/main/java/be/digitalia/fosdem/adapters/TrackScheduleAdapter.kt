@@ -143,7 +143,7 @@ class TrackScheduleAdapter(context: Context, private val listener: EventClickLis
 
             time.text = event.startTime?.let { timeDateFormat.format(it) }
             title.text = event.title
-            val bookmarkDrawable = if (isBookmarked) AppCompatResources.getDrawable(context, R.drawable.ic_bookmark_white_24dp) else null
+            val bookmarkDrawable = if (isBookmarked) AppCompatResources.getDrawable(context, R.drawable.ic_bookmark_24dp) else null
             TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(title, null, null, bookmarkDrawable, null)
             title.contentDescription = if (isBookmarked) {
                 context.getString(R.string.in_bookmarks_content_description, event.title ?: "")
