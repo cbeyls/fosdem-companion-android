@@ -37,11 +37,8 @@ import be.digitalia.fosdem.utils.roomNameToResourceName
  */
 class AlarmIntentService : JobIntentService() {
 
-    private lateinit var alarmManager: AlarmManager
-
-    override fun onCreate() {
-        super.onCreate()
-        alarmManager = getSystemService()!!
+    private val alarmManager by lazy<AlarmManager> {
+        getSystemService()!!
     }
 
     private fun getAlarmPendingIntent(eventId: Long): PendingIntent {
