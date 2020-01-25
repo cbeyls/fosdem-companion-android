@@ -28,7 +28,7 @@ import be.digitalia.fosdem.widgets.setupBookmarkStatus
 class EventDetailsActivity : AppCompatActivity(), CreateNfcAppDataCallback {
 
     private val bookmarkStatusViewModel: BookmarkStatusViewModel by viewModels()
-    private val eventViewModel: EventViewModel by viewModels()
+    private val viewModel: EventViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,7 +47,7 @@ class EventDetailsActivity : AppCompatActivity(), CreateNfcAppDataCallback {
             }
         } else {
             // Load the event from the DB using its id
-            if (!eventViewModel.isEventIdSet) {
+            if (!viewModel.isEventIdSet) {
                 val intent = intent
                 val eventIdString = if (intent.hasNfcAppData()) {
                     // NFC intent
@@ -56,10 +56,10 @@ class EventDetailsActivity : AppCompatActivity(), CreateNfcAppDataCallback {
                     // Normal in-app intent
                     intent.dataString!!
                 }
-                eventViewModel.setEventId(eventIdString.toLong())
+                viewModel.setEventId(eventIdString.toLong())
             }
 
-            eventViewModel.event.observe(this) { event ->
+            viewModel.event.observe(this) { event ->
                 if (event == null) {
                     // Event not found, quit
                     Toast.makeText(this, getString(R.string.event_not_found_error), Toast.LENGTH_LONG).show()

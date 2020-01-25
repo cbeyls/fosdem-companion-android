@@ -51,7 +51,7 @@ class TrackScheduleActivity : AppCompatActivity(), TrackScheduleListFragment.Cal
         }
         title = "$track, $day"
         val trackType = track.type
-        if (this.isLightTheme) {
+        if (isLightTheme) {
             window.statusBarColorCompat = ContextCompat.getColor(this, trackType.statusBarColorResId)
             val trackAppBarColor = ContextCompat.getColorStateList(this, trackType.appBarColorResId)!!
             setTaskColorPrimary(trackAppBarColor.defaultColor)

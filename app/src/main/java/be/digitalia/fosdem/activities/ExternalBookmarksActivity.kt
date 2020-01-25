@@ -9,6 +9,7 @@ import be.digitalia.fosdem.utils.hasNfcAppData
 import be.digitalia.fosdem.utils.toBookmarks
 
 class ExternalBookmarksActivity : SimpleToolbarActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
