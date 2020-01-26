@@ -10,7 +10,6 @@ import android.view.MenuItem;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 import androidx.lifecycle.ViewModelProvider;
 import be.digitalia.fosdem.R;
@@ -19,7 +18,6 @@ import be.digitalia.fosdem.viewmodels.SearchViewModel;
 
 public class SearchResultActivity extends SimpleToolbarActivity {
 
-	private static final String STATE_CURRENT_QUERY = "current_query";
 	// Search Intent sent by Google Now
 	private static final String GMS_ACTION_SEARCH = "com.google.android.gms.actions.SEARCH_ACTION";
 
@@ -39,15 +37,7 @@ public class SearchResultActivity extends SimpleToolbarActivity {
 			getSupportFragmentManager().beginTransaction().replace(R.id.content, f).commit();
 
 			handleIntent(getIntent(), false);
-		} else {
-			viewModel.setQuery(savedInstanceState.getString(STATE_CURRENT_QUERY, ""));
 		}
-	}
-
-	@Override
-	protected void onSaveInstanceState(@NonNull Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putString(STATE_CURRENT_QUERY, viewModel.getQuery());
 	}
 
 	@Override
