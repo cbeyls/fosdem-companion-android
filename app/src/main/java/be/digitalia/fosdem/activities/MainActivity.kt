@@ -31,6 +31,7 @@ import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import be.digitalia.fosdem.BuildConfig
 import be.digitalia.fosdem.R
@@ -40,10 +41,12 @@ import be.digitalia.fosdem.db.AppDatabase
 import be.digitalia.fosdem.fragments.*
 import be.digitalia.fosdem.model.DownloadScheduleResult
 import be.digitalia.fosdem.utils.CreateNfcAppDataCallback
+import be.digitalia.fosdem.utils.awaitCloseDrawer
 import be.digitalia.fosdem.utils.configureToolbarColors
 import be.digitalia.fosdem.utils.setNfcAppDataPushMessageCallbackIfAvailable
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.CancellationException
 
 /**
  * Main entry point of the application. Allows to switch between section fragments and update the database.
@@ -87,7 +90,6 @@ class MainActivity : AppCompatActivity(), CreateNfcAppDataCallback {
     private var searchMenuItem: MenuItem? = null
 
     private lateinit var currentSection: Section
-    private var pendingNavigationMenuItem: MenuItem? = null
 
     @SuppressLint("WrongConstant")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -164,25 +166,10 @@ class MainActivity : AppCompatActivity(), CreateNfcAppDataCallback {
         // We handle the drawer closing on back press ourselves.
         drawerLayout.isFocusable = false
         drawerToggle = object : ActionBarDrawerToggle(this, drawerLayout, R.string.main_menu, R.string.close_menu) {
-            override fun onDrawerStateChanged(newState: Int) {
-                super.onDrawerStateChanged(newState)
-                if (newState == DrawerLayout.STATE_DRAGGING) {
-                    pendingNavigationMenuItem = null
-                }
-            }
-
             override fun onDrawerOpened(drawerView: View) {
                 super.onDrawerOpened(drawerView)
                 // Make keypad navigation easier
                 holder.navigationView.requestFocus()
-            }
-
-            override fun onDrawerClosed(drawerView: View) {
-                super.onDrawerClosed(drawerView)
-                pendingNavigationMenuItem?.let {
-                    handleNavigationMenuItem(it)
-                    pendingNavigationMenuItem = null
-                }
             }
         }.apply {
             isDrawerIndicatorEnabled = true
@@ -192,8 +179,15 @@ class MainActivity : AppCompatActivity(), CreateNfcAppDataCallback {
         // Setup Main menu
         val navigationView: NavigationView = findViewById(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener { menuItem: MenuItem ->
-            pendingNavigationMenuItem = menuItem
-            drawerLayout.closeDrawer(navigationView)
+            lifecycleScope.launchWhenStarted {
+                try {
+                    drawerLayout.awaitCloseDrawer(navigationView)
+                    handleNavigationMenuItem(menuItem)
+                } catch (e: CancellationException) {
+                    // reset the menu to the current selection
+                    navigationView.setCheckedItem(currentSection.menuItemId)
+                }
+            }
             true
         }
 
@@ -251,16 +245,6 @@ class MainActivity : AppCompatActivity(), CreateNfcAppDataCallback {
         } else {
             super.onBackPressed()
         }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        // TODO use coroutines to await for drawer menu close
-        // Ensure no fragment transaction attempt will occur after onSaveInstanceState()
-        if (pendingNavigationMenuItem != null) {
-            pendingNavigationMenuItem = null
-            holder.navigationView.setCheckedItem(currentSection.menuItemId)
-        }
-        super.onSaveInstanceState(outState)
     }
 
     override fun onStart() {
