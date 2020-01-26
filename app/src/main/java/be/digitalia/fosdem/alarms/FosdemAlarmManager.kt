@@ -32,6 +32,7 @@ object FosdemAlarmManager {
         }
     }
 
+    @MainThread
     fun init(context: Context) {
         this.context = context.applicationContext
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.context)
@@ -39,11 +40,10 @@ object FosdemAlarmManager {
         sharedPreferences.registerOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener)
     }
 
-    // TODO remove volatile after using coroutines to always read this variable from the main thread
-    @Volatile
     var isEnabled: Boolean = false
         private set
 
+    @MainThread
     fun onScheduleRefreshed() {
         if (isEnabled) {
             startUpdateAlarms()

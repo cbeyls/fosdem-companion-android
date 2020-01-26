@@ -11,7 +11,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.paging.DataSource
 import androidx.room.*
-import be.digitalia.fosdem.alarms.FosdemAlarmManager
 import be.digitalia.fosdem.db.entities.EventEntity
 import be.digitalia.fosdem.db.entities.EventTitles
 import be.digitalia.fosdem.db.entities.EventToPerson
@@ -67,8 +66,6 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
                 putString(LAST_MODIFIED_TAG_PREF, lastModifiedTag)
             }
             _latestUpdateTime.postValue(now)
-
-            FosdemAlarmManager.onScheduleRefreshed()
         }
         return totalEvents
     }

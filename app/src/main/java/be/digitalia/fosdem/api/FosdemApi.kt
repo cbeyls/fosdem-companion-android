@@ -4,11 +4,11 @@ import android.content.Context
 import android.os.SystemClock
 import android.text.format.DateUtils
 import androidx.annotation.MainThread
-import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
+import be.digitalia.fosdem.alarms.FosdemAlarmManager
 import be.digitalia.fosdem.db.AppDatabase
 import be.digitalia.fosdem.livedata.LiveDataFactory.scheduler
 import be.digitalia.fosdem.livedata.SingleEvent
@@ -54,42 +54,45 @@ object FosdemApi {
         isLoading = true
 
         val appContext = context.applicationContext
-        GlobalScope.launch(Dispatchers.IO) {
+        GlobalScope.launch(Dispatchers.Main.immediate) {
             downloadScheduleInternal(appContext)
-            withContext(Dispatchers.Main.immediate) {
-                isLoading = false
-            }
+            isLoading = false
         }
     }
 
-    @WorkerThread
-    private fun downloadScheduleInternal(context: Context) {
-        progress.postValue(-1)
-        val res = try {
-            val scheduleDao = AppDatabase.getInstance(context).scheduleDao
-            val httpResponse = HttpUtils.get(FosdemUrls.schedule, scheduleDao.lastModifiedTag) { percent ->
-                progress.postValue(percent)
-            }
-            when (httpResponse) {
-                is HttpUtils.Response.NotModified -> {
-                    // Nothing to parse, the result is up-to-date
-                    DownloadScheduleResult.UpToDate
+    @MainThread
+    private suspend fun downloadScheduleInternal(context: Context) {
+        progress.value = -1
+        val res = withContext(Dispatchers.IO) {
+            try {
+                val scheduleDao = AppDatabase.getInstance(context).scheduleDao
+                val httpResponse = HttpUtils.get(FosdemUrls.schedule, scheduleDao.lastModifiedTag) { percent ->
+                    progress.postValue(percent)
                 }
-                is HttpUtils.Response.Success -> {
-                    httpResponse.source.use { source ->
-                        val events = EventsParser().parse(source)
-                        val count = scheduleDao.storeSchedule(events, httpResponse.lastModified)
-                        DownloadScheduleResult.Success(count)
+                when (httpResponse) {
+                    is HttpUtils.Response.NotModified -> {
+                        // Nothing to parse, the result is up-to-date
+                        DownloadScheduleResult.UpToDate
+                    }
+                    is HttpUtils.Response.Success -> {
+                        httpResponse.source.use { source ->
+                            val events = EventsParser().parse(source)
+                            val count = scheduleDao.storeSchedule(events, httpResponse.lastModified)
+                            DownloadScheduleResult.Success(count)
+                        }
                     }
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                DownloadScheduleResult.Error
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            DownloadScheduleResult.Error
-        } finally {
-            progress.postValue(100)
         }
-        result.postValue(SingleEvent(res))
+        progress.value = 100
+
+        if (res is DownloadScheduleResult.Success) {
+            FosdemAlarmManager.onScheduleRefreshed()
+        }
+        result.value = SingleEvent(res)
     }
 
     /**

@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import be.digitalia.fosdem.BuildConfig
-import be.digitalia.fosdem.alarms.FosdemAlarmManager.isEnabled
+import be.digitalia.fosdem.alarms.FosdemAlarmManager
 import be.digitalia.fosdem.services.AlarmIntentService
 
 /**
@@ -22,7 +22,8 @@ class AlarmReceiver : BroadcastReceiver() {
                 AlarmIntentService.enqueueWork(context, serviceIntent)
             }
             Intent.ACTION_BOOT_COMPLETED -> {
-                val serviceAction = if (isEnabled) AlarmIntentService.ACTION_UPDATE_ALARMS else AlarmIntentService.ACTION_DISABLE_ALARMS
+                val serviceAction = if (FosdemAlarmManager.isEnabled) AlarmIntentService.ACTION_UPDATE_ALARMS
+                else AlarmIntentService.ACTION_DISABLE_ALARMS
                 val serviceIntent = Intent(serviceAction)
                 AlarmIntentService.enqueueWork(context, serviceIntent)
             }
