@@ -16,6 +16,12 @@ android {
         // Supported languages
         resConfigs "en"
         vectorDrawables.useSupportLibrary = true
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.incremental": "true"]
+            }
+        }
     }
 
     buildTypes {
