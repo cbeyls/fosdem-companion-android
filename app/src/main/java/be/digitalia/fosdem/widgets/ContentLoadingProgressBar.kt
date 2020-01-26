@@ -3,7 +3,6 @@ package be.digitalia.fosdem.widgets
 import android.content.Context
 import android.os.SystemClock
 import android.util.AttributeSet
-import android.view.View
 import android.widget.ProgressBar
 import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
@@ -28,12 +27,12 @@ class ContentLoadingProgressBar : ProgressBar {
     private var shouldBeVisible: Boolean = isVisible
     private var startTime = -1L
     private val delayedHide = Runnable {
-        visibility = View.GONE
+        isVisible = false
         startTime = -1L
     }
     private val delayedShow = Runnable {
         startTime = SystemClock.uptimeMillis()
-        visibility = View.VISIBLE
+        isVisible = true
     }
 
     override fun onAttachedToWindow() {
@@ -48,7 +47,7 @@ class ContentLoadingProgressBar : ProgressBar {
         removeCallbacks(delayedHide)
         removeCallbacks(delayedShow)
         if (!shouldBeVisible && startTime != -1L) {
-            visibility = View.GONE
+            isVisible = false
         }
         startTime = -1L
     }
@@ -69,7 +68,7 @@ class ContentLoadingProgressBar : ProgressBar {
                 // The progress spinner has been shown long enough
                 // OR was not shown yet. If it wasn't shown yet,
                 // it will just never be shown.
-                visibility = View.GONE
+                isVisible = false
                 startTime = -1L
             } else {
                 // The progress spinner is shown, but not long enough,
