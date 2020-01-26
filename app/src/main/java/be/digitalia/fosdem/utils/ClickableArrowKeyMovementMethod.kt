@@ -15,7 +15,8 @@ object ClickableArrowKeyMovementMethod : ArrowKeyMovementMethod() {
 
     private val touchedLineBounds = RectF()
 
-    override fun onTouchEvent(widget: TextView, buffer: Spannable, event: MotionEvent): Boolean { // If action has finished
+    override fun onTouchEvent(widget: TextView, buffer: Spannable, event: MotionEvent): Boolean {
+        // If action has finished
         if (event.action == MotionEvent.ACTION_UP) {
             // Locate the area that was pressed
             var x = event.x.toInt()
