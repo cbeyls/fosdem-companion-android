@@ -1,12 +1,12 @@
 package be.digitalia.fosdem.activities
 
 import android.app.SearchManager
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.getSystemService
 import androidx.fragment.app.commit
 import androidx.lifecycle.observe
 import be.digitalia.fosdem.R
@@ -73,11 +73,11 @@ class SearchResultActivity : SimpleToolbarActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.search, menu)
 
-        val searchMenuItem = menu.findItem(R.id.search)
+        val searchMenuItem = menu.findItem(R.id.search)!!
         // Associate searchable configuration with the SearchView
-        val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        val searchManager: SearchManager? = getSystemService()
         searchView = (searchMenuItem.actionView as SearchView).apply {
-            setSearchableInfo(searchManager.getSearchableInfo(componentName))
+            setSearchableInfo(searchManager?.getSearchableInfo(componentName))
             setIconifiedByDefault(false) // Always show the search view
             setQueryWithoutFocus(viewModel.query)
         }

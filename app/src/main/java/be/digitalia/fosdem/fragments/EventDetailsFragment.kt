@@ -172,7 +172,7 @@ class EventDetailsFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.event, menu)
-        menu.findItem(R.id.share).intent = createShareChooserIntent()
+        menu.findItem(R.id.share)!!.intent = createShareChooserIntent()
     }
 
     private fun createShareChooserIntent(): Intent {
@@ -290,7 +290,8 @@ class EventDetailsFragment : Fragment() {
         override fun onClick(v: View) {
             try {
                 val context = v.context
-                CustomTabsIntent.Builder().configureToolbarColors(context, event.track.type.appBarColorResId)
+                CustomTabsIntent.Builder()
+                        .configureToolbarColors(context, event.track.type.appBarColorResId)
                         .setShowTitle(true)
                         .setStartAnimations(context, R.anim.slide_in_right, R.anim.slide_out_left)
                         .setExitAnimations(context, R.anim.slide_in_left, R.anim.slide_out_right)

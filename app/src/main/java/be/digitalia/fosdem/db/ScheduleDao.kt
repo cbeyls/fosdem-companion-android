@@ -24,19 +24,20 @@ import java.util.*
 @Dao
 abstract class ScheduleDao(private val appDatabase: AppDatabase) {
 
-    private val lastUpdateTime = MutableLiveData<Long?>()
+    private val _latestUpdateTime = MutableLiveData<Long>()
 
     /**
      * @return The last update time in milliseconds since EPOCH, or -1 if not available.
      * This LiveData is pre-initialized with the up-to-date value.
      */
-    @MainThread
-    fun getLastUpdateTime(): LiveData<Long?> {
-        if (lastUpdateTime.value == null) {
-            lastUpdateTime.value = appDatabase.sharedPreferences.getLong(LAST_UPDATE_TIME_PREF, -1L)
+    val latestUpdateTime: LiveData<Long>
+        @MainThread
+        get() {
+            if (_latestUpdateTime.value == null) {
+                _latestUpdateTime.value = appDatabase.sharedPreferences.getLong(LAST_UPDATE_TIME_PREF, -1L)
+            }
+            return _latestUpdateTime
         }
-        return lastUpdateTime
-    }
 
     /**
      * @return The time identifier of the current version of the database.
@@ -65,7 +66,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
                 putLong(LAST_UPDATE_TIME_PREF, now)
                 putString(LAST_MODIFIED_TAG_PREF, lastModifiedTag)
             }
-            lastUpdateTime.postValue(now)
+            _latestUpdateTime.postValue(now)
 
             FosdemAlarmManager.onScheduleRefreshed()
         }

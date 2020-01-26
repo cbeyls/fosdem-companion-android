@@ -234,7 +234,7 @@ class AlarmIntentService : JobIntentService() {
 
         @RequiresApi(api = Build.VERSION_CODES.O)
         private fun createNotificationChannel(context: Context) {
-            val notificationManager: NotificationManager = context.getSystemService()!!
+            val notificationManager: NotificationManager? = context.getSystemService()
             val channel = NotificationChannel(NOTIFICATION_CHANNEL,
                     context.getString(R.string.notification_events_channel_name),
                     NotificationManager.IMPORTANCE_HIGH).apply {
@@ -243,7 +243,7 @@ class AlarmIntentService : JobIntentService() {
                 enableVibration(true)
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             }
-            notificationManager.createNotificationChannel(channel)
+            notificationManager?.createNotificationChannel(channel)
         }
 
         @RequiresApi(api = Build.VERSION_CODES.O)

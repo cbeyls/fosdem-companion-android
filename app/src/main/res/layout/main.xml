@@ -56,7 +56,7 @@
         app:menu="@menu/main_navigation">
 
         <TextView
-            android:id="@+id/last_update"
+            android:id="@+id/latest_update"
             android:layout_width="match_parent"
             android:layout_height="@dimen/main_menu_footer_height"
             android:layout_gravity="bottom"
