@@ -56,5 +56,5 @@ sealed class LiveListFragment(@StringRes private val emptyTextResId: Int,
     }
 }
 
-class NextLiveListFragment() : LiveListFragment(R.string.next_empty, LiveViewModel::nextEvents)
-class NowLiveListFragment() : LiveListFragment(R.string.now_empty, LiveViewModel::eventsInProgress)
+class NextLiveListFragment : LiveListFragment(R.string.next_empty, LiveViewModel::nextEvents)
+class NowLiveListFragment : LiveListFragment(R.string.now_empty, LiveViewModel::eventsInProgress)

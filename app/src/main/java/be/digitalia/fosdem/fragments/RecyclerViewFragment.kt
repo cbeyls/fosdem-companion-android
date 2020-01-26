@@ -1,6 +1,5 @@
 package be.digitalia.fosdem.fragments
 
-import android.R
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -73,20 +72,20 @@ open class RecyclerViewFragment : Fragment() {
         }
 
         val recyclerView = onCreateRecyclerView(inflater, subContainer, savedInstanceState).apply {
-            id = R.id.list
+            id = android.R.id.list
             descendantFocusability = ViewGroup.FOCUS_AFTER_DESCENDANTS
             setHasFixedSize(true)
             subContainer.addView(this, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
         }
 
         val emptyView = onCreateEmptyView(inflater, subContainer, savedInstanceState).apply {
-            id = R.id.empty
+            id = android.R.id.empty
             isVisible = false
             subContainer.addView(this, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
         }
 
-        val progress = ContentLoadingProgressBar(context, null, R.attr.progressBarStyleLarge).apply {
-            id = R.id.progress
+        val progress = ContentLoadingProgressBar(context, null, android.R.attr.progressBarStyleLarge).apply {
+            id = android.R.id.progress
             hide()
             subContainer.addView(this, FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER))
         }
