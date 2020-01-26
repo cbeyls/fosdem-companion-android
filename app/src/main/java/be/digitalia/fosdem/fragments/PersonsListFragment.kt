@@ -27,11 +27,9 @@ class PersonsListFragment : RecyclerViewFragment() {
         return inflater.inflate(R.layout.recyclerview_fastscroll, container, false) as RecyclerView
     }
 
-    override fun onRecyclerViewCreated(recyclerView: RecyclerView, savedInstanceState: Bundle?) {
-        with(recyclerView) {
-            layoutManager = LinearLayoutManager(context)
-            addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
-        }
+    override fun onRecyclerViewCreated(recyclerView: RecyclerView, savedInstanceState: Bundle?) = with(recyclerView) {
+        layoutManager = LinearLayoutManager(context)
+        addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {

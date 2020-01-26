@@ -107,39 +107,37 @@ class BookmarksExportProvider : ContentProvider() {
         }
 
         @Throws(IOException::class)
-        private fun writeEvent(writer: ICalendarWriter, event: Event) {
-            with(writer) {
-                write("BEGIN", "VEVENT")
+        private fun writeEvent(writer: ICalendarWriter, event: Event) = with(writer) {
+            write("BEGIN", "VEVENT")
 
-                val year = DateUtils.getYear(event.day.date.time, calendar)
-                write("UID", "${event.id}@${year}@${BuildConfig.APPLICATION_ID}")
-                write("DTSTAMP", dtStamp)
-                event.startTime?.let { write("DTSTART", dateFormat.format(it)) }
-                event.endTime?.let { write("DTEND", dateFormat.format(it)) }
-                write("SUMMARY", event.title)
-                var description = event.abstractText
-                if (description.isNullOrEmpty()) {
-                    description = event.description
-                }
-                if (!description.isNullOrEmpty()) {
-                    write("DESCRIPTION", description.stripHtml())
-                    write("X-ALT-DESC", description)
-                }
-                write("CLASS", "PUBLIC")
-                write("CATEGORIES", event.track.name)
-                write("URL", event.url)
-                write("LOCATION", event.roomName)
-
-                if (event.personsSummary != null) {
-                    for (name in event.personsSummary.split(", ")) {
-                        val key = "ATTENDEE;ROLE=REQ-PARTICIPANT;CUTYPE=INDIVIDUAL;CN=\"$name\""
-                        val url = FosdemUrls.getPerson(name.toSlug(), year)
-                        write(key, url)
-                    }
-                }
-
-                write("END", "VEVENT")
+            val year = DateUtils.getYear(event.day.date.time, calendar)
+            write("UID", "${event.id}@${year}@${BuildConfig.APPLICATION_ID}")
+            write("DTSTAMP", dtStamp)
+            event.startTime?.let { write("DTSTART", dateFormat.format(it)) }
+            event.endTime?.let { write("DTEND", dateFormat.format(it)) }
+            write("SUMMARY", event.title)
+            var description = event.abstractText
+            if (description.isNullOrEmpty()) {
+                description = event.description
             }
+            if (!description.isNullOrEmpty()) {
+                write("DESCRIPTION", description.stripHtml())
+                write("X-ALT-DESC", description)
+            }
+            write("CLASS", "PUBLIC")
+            write("CATEGORIES", event.track.name)
+            write("URL", event.url)
+            write("LOCATION", event.roomName)
+
+            if (event.personsSummary != null) {
+                for (name in event.personsSummary.split(", ")) {
+                    val key = "ATTENDEE;ROLE=REQ-PARTICIPANT;CUTYPE=INDIVIDUAL;CN=\"$name\""
+                    val url = FosdemUrls.getPerson(name.toSlug(), year)
+                    write(key, url)
+                }
+            }
+
+            write("END", "VEVENT")
         }
     }
 

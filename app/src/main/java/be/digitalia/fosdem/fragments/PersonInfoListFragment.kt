@@ -61,14 +61,12 @@ class PersonInfoListFragment : RecyclerViewFragment() {
         else -> false
     }
 
-    override fun onRecyclerViewCreated(recyclerView: RecyclerView, savedInstanceState: Bundle?) {
-        with(recyclerView) {
-            val contentMargin = resources.getDimensionPixelSize(R.dimen.content_margin)
-            setPadding(contentMargin, contentMargin, contentMargin, contentMargin)
-            clipToPadding = false
-            scrollBarStyle = View.SCROLLBARS_OUTSIDE_OVERLAY
-            layoutManager = LinearLayoutManager(context)
-        }
+    override fun onRecyclerViewCreated(recyclerView: RecyclerView, savedInstanceState: Bundle?) = with(recyclerView) {
+        val contentMargin = resources.getDimensionPixelSize(R.dimen.content_margin)
+        setPadding(contentMargin, contentMargin, contentMargin, contentMargin)
+        clipToPadding = false
+        scrollBarStyle = View.SCROLLBARS_OUTSIDE_OVERLAY
+        layoutManager = LinearLayoutManager(context)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {

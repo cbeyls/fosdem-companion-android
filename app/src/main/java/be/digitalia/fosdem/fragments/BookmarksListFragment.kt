@@ -80,11 +80,9 @@ class BookmarksListFragment : RecyclerViewFragment(), CreateNfcAppDataCallback {
         setHasOptionsMenu(true)
     }
 
-    override fun onRecyclerViewCreated(recyclerView: RecyclerView, savedInstanceState: Bundle?) {
-        with(recyclerView) {
-            layoutManager = LinearLayoutManager(recyclerView.context)
-            addItemDecoration(DividerItemDecoration(recyclerView.context, DividerItemDecoration.VERTICAL))
-        }
+    override fun onRecyclerViewCreated(recyclerView: RecyclerView, savedInstanceState: Bundle?) = with(recyclerView) {
+        layoutManager = LinearLayoutManager(recyclerView.context)
+        addItemDecoration(DividerItemDecoration(recyclerView.context, DividerItemDecoration.VERTICAL))
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {

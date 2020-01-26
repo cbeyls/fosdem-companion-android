@@ -83,6 +83,7 @@ class TrackScheduleEventActivity : AppCompatActivity(), CreateNfcAppDataCallback
         })
 
         progress.show()
+
         with(viewModel) {
             setDayAndTrack(day, track)
             scheduleSnapshot.observe(this@TrackScheduleEventActivity) { events ->

@@ -26,16 +26,14 @@ class TracksListFragment : RecyclerViewFragment() {
         TracksAdapter(day)
     }
 
-    override fun onRecyclerViewCreated(recyclerView: RecyclerView, savedInstanceState: Bundle?) {
-        with(recyclerView) {
-            val parent = parentFragment
-            if (parent is RecycledViewPoolProvider) {
-                setRecycledViewPool(parent.recycledViewPool)
-            }
-
-            layoutManager = LinearLayoutManager(context)
-            addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+    override fun onRecyclerViewCreated(recyclerView: RecyclerView, savedInstanceState: Bundle?) = with(recyclerView) {
+        val parent = parentFragment
+        if (parent is RecycledViewPoolProvider) {
+            setRecycledViewPool(parent.recycledViewPool)
         }
+
+        layoutManager = LinearLayoutManager(context)
+        addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
