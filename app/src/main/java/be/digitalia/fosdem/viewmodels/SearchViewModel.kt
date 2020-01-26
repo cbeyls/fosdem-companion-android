@@ -7,10 +7,10 @@ import androidx.paging.toLiveData
 import be.digitalia.fosdem.db.AppDatabase
 import be.digitalia.fosdem.model.StatusEvent
 
-class SearchViewModel(application: Application) : AndroidViewModel(application) {
+class SearchViewModel(application: Application, private val state: SavedStateHandle) : AndroidViewModel(application) {
 
     private val appDatabase = AppDatabase.getInstance(application)
-    private val queryLiveData = MutableLiveData<String>()
+    private val queryLiveData: LiveData<String?> = state.getLiveData(STATE_QUERY)
 
     sealed class Result {
         object QueryTooShort : Result()
@@ -31,11 +31,12 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         get() = queryLiveData.value
         set(value) {
             if (value != queryLiveData.value) {
-                queryLiveData.value = value
+                state[STATE_QUERY] = value
             }
         }
 
     companion object {
         private const val SEARCH_QUERY_MIN_LENGTH = 3
+        private const val STATE_QUERY = "query"
     }
 }

@@ -28,8 +28,6 @@ class SearchResultActivity : SimpleToolbarActivity() {
         if (savedInstanceState == null) {
             supportFragmentManager.commit { add(R.id.content, SearchResultListFragment.newInstance()) }
             handleIntent(intent, false)
-        } else {
-            viewModel.query = savedInstanceState.getString(STATE_CURRENT_QUERY, null)
         }
 
         viewModel.results.observe(this) { result ->
@@ -46,11 +44,6 @@ class SearchResultActivity : SimpleToolbarActivity() {
                 }
             }
         }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString(STATE_CURRENT_QUERY, viewModel.query)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -106,7 +99,6 @@ class SearchResultActivity : SimpleToolbarActivity() {
     }
 
     companion object {
-        private const val STATE_CURRENT_QUERY = "current_query"
         // Search Intent sent by Google Now
         private const val GMS_ACTION_SEARCH = "com.google.android.gms.actions.SEARCH_ACTION"
     }
