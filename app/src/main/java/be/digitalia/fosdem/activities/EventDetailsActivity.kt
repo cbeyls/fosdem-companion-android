@@ -84,7 +84,7 @@ class EventDetailsActivity : AppCompatActivity(), CreateNfcAppDataCallback {
         val toolbar = findViewById<Toolbar>(R.id.toolbar).apply {
             setNavigationIcon(R.drawable.abc_ic_ab_back_material)
             setNavigationContentDescription(R.string.abc_action_bar_up_description)
-            setNavigationOnClickListener { v: View? -> onSupportNavigateUp() }
+            setNavigationOnClickListener { onSupportNavigateUp() }
             title = event.track.name
         }
 
