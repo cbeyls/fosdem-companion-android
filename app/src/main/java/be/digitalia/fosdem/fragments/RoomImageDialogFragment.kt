@@ -10,7 +10,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import be.digitalia.fosdem.R
-import be.digitalia.fosdem.activities.configureRoomImageDialogToolbar
+import be.digitalia.fosdem.activities.RoomImageDialogActivity
 import be.digitalia.fosdem.utils.invertImageColors
 import be.digitalia.fosdem.utils.isLightTheme
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -30,7 +30,7 @@ class RoomImageDialogFragment : DialogFragment() {
             }
             setImageResource(args.getInt(ARG_ROOM_IMAGE_RESOURCE_ID))
         }
-        configureRoomImageDialogToolbar(this, contentView.findViewById(R.id.toolbar), args.getString(ARG_ROOM_NAME)!!)
+        RoomImageDialogActivity.configureToolbar(this, contentView.findViewById(R.id.toolbar), args.getString(ARG_ROOM_NAME)!!)
 
         return dialogBuilder
                 .setView(contentView)

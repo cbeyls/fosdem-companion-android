@@ -42,47 +42,47 @@ class RoomImageDialogActivity : AppCompatActivity() {
             }
             setImageResource(intent.getIntExtra(EXTRA_ROOM_IMAGE_RESOURCE_ID, 0))
         }
-        configureRoomImageDialogToolbar(this, findViewById(R.id.toolbar), roomName)
+        configureToolbar(this, findViewById(R.id.toolbar), roomName)
     }
 
     companion object {
         const val EXTRA_ROOM_NAME = "roomName"
         const val EXTRA_ROOM_IMAGE_RESOURCE_ID = "imageResId"
-    }
-}
 
-fun configureRoomImageDialogToolbar(owner: LifecycleOwner, toolbar: Toolbar, roomName: String) {
-    toolbar.title = roomName
-    if (roomName.isNotEmpty()) {
-        val context = toolbar.context
+        fun configureToolbar(owner: LifecycleOwner, toolbar: Toolbar, roomName: String) {
+            toolbar.title = roomName
+            if (roomName.isNotEmpty()) {
+                val context = toolbar.context
 
-        toolbar.inflateMenu(R.menu.room_image_dialog)
-        toolbar.setOnMenuItemClickListener { item ->
-            when (item.itemId) {
-                R.id.navigation -> {
-                    val localNavigationUrl = FosdemUrls.getLocalNavigationToLocation(roomName.toSlug())
-                    try {
-                        CustomTabsIntent.Builder()
-                                .configureToolbarColors(context, R.color.light_color_primary)
-                                .setShowTitle(true)
-                                .build()
-                                .launchUrl(context, Uri.parse(localNavigationUrl))
-                    } catch (ignore: ActivityNotFoundException) {
+                toolbar.inflateMenu(R.menu.room_image_dialog)
+                toolbar.setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        R.id.navigation -> {
+                            val localNavigationUrl = FosdemUrls.getLocalNavigationToLocation(roomName.toSlug())
+                            try {
+                                CustomTabsIntent.Builder()
+                                        .configureToolbarColors(context, R.color.light_color_primary)
+                                        .setShowTitle(true)
+                                        .build()
+                                        .launchUrl(context, Uri.parse(localNavigationUrl))
+                            } catch (ignore: ActivityNotFoundException) {
+                            }
+                            true
+                        }
+                        else -> false
                     }
-                    true
                 }
-                else -> false
-            }
-        }
 
-        // Display the room status as subtitle
-        FosdemApi.getRoomStatuses(toolbar.context).observe(owner) { roomStatuses ->
-            val roomStatus = roomStatuses[roomName]
-            toolbar.subtitle = if (roomStatus != null) {
-                SpannableString(context.getString(roomStatus.nameResId)).apply {
-                    this[0, length] = ForegroundColorSpan(ContextCompat.getColor(context, roomStatus.colorResId))
+                // Display the room status as subtitle
+                FosdemApi.getRoomStatuses(toolbar.context).observe(owner) { roomStatuses ->
+                    val roomStatus = roomStatuses[roomName]
+                    toolbar.subtitle = if (roomStatus != null) {
+                        SpannableString(context.getString(roomStatus.nameResId)).apply {
+                            this[0, length] = ForegroundColorSpan(ContextCompat.getColor(context, roomStatus.colorResId))
+                        }
+                    } else null
                 }
-            } else null
+            }
         }
     }
 }
