@@ -62,7 +62,7 @@ public class LiveFragment extends Fragment implements RecycledViewPoolProvider {
 		private final Resources resources;
 
 		LivePagerAdapter(Fragment fragment) {
-			super(fragment);
+			super(fragment.getChildFragmentManager(), fragment.getViewLifecycleOwner().getLifecycle());
 			this.resources = fragment.getResources();
 		}
 

@@ -128,7 +128,7 @@ public class TracksFragment extends Fragment implements RecycledViewPoolProvider
 		private List<Day> days;
 
 		DaysAdapter(Fragment fragment) {
-			super(fragment);
+			super(fragment.getChildFragmentManager(), fragment.getViewLifecycleOwner().getLifecycle());
 		}
 
 		void setDays(List<Day> days) {
