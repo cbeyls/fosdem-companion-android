@@ -100,8 +100,8 @@ class BookmarksListFragment : RecyclerViewFragment(), CreateNfcAppDataCallback {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.bookmarks, menu)
-        filterMenuItem = menu.findItem(R.id.filter)!!
-        upcomingOnlyMenuItem = menu.findItem(R.id.upcoming_only)!!
+        filterMenuItem = menu.findItem(R.id.filter)
+        upcomingOnlyMenuItem = menu.findItem(R.id.upcoming_only)
         updateMenuItems()
     }
 

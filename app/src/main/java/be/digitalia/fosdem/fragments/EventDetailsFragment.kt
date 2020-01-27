@@ -172,7 +172,7 @@ class EventDetailsFragment : Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.event, menu)
-        menu.findItem(R.id.share)!!.intent = createShareChooserIntent()
+        menu.findItem(R.id.share)?.intent = createShareChooserIntent()
     }
 
     private fun createShareChooserIntent(): Intent {

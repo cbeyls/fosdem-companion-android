@@ -73,13 +73,14 @@ class SearchResultActivity : SimpleToolbarActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.search, menu)
 
-        val searchMenuItem = menu.findItem(R.id.search)!!
-        // Associate searchable configuration with the SearchView
-        val searchManager: SearchManager? = getSystemService()
-        searchView = (searchMenuItem.actionView as SearchView).apply {
-            setSearchableInfo(searchManager?.getSearchableInfo(componentName))
-            setIconifiedByDefault(false) // Always show the search view
-            setQueryWithoutFocus(viewModel.query)
+        menu.findItem(R.id.search)?.apply {
+            // Associate searchable configuration with the SearchView
+            val searchManager: SearchManager? = getSystemService()
+            searchView = (actionView as SearchView).apply {
+                setSearchableInfo(searchManager?.getSearchableInfo(componentName))
+                setIconifiedByDefault(false) // Always show the search view
+                setQueryWithoutFocus(viewModel.query)
+            }
         }
 
         return true

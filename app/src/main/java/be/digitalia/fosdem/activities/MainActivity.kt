@@ -285,7 +285,7 @@ class MainActivity : AppCompatActivity(), CreateNfcAppDataCallback {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
 
-        this.searchMenuItem = menu.findItem(R.id.search)!!.apply {
+        this.searchMenuItem = menu.findItem(R.id.search)?.apply {
             setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
                 override fun onMenuItemActionExpand(item: MenuItem): Boolean {
                     return true
