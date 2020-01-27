@@ -107,7 +107,8 @@ class TracksFragment : Fragment(), RecycledViewPoolProvider {
     override val recycledViewPool: RecycledViewPool?
         get() = holder?.recycledViewPool
 
-    private class DaysAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
+    private class DaysAdapter(fragment: Fragment)
+        : FragmentStateAdapter(fragment.childFragmentManager, fragment.viewLifecycleOwner.lifecycle) {
 
         var days: List<Day>? = null
             set(value) {

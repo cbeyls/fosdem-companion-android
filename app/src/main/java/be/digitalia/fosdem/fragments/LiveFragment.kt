@@ -53,7 +53,8 @@ class LiveFragment : Fragment(), RecycledViewPoolProvider {
     override val recycledViewPool: RecycledViewPool?
         get() = holder?.recycledViewPool
 
-    private class LivePagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
+    private class LivePagerAdapter(fragment: Fragment)
+        : FragmentStateAdapter(fragment.childFragmentManager, fragment.viewLifecycleOwner.lifecycle) {
 
         private val resources = fragment.resources
 
