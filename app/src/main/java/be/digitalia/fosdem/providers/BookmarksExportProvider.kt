@@ -111,7 +111,7 @@ class BookmarksExportProvider : ContentProvider() {
             write("BEGIN", "VEVENT")
 
             val year = DateUtils.getYear(event.day.date.time, calendar)
-            write("UID", "${event.id}@${year}@${BuildConfig.APPLICATION_ID}")
+            write("UID", "${event.id}@$year@${BuildConfig.APPLICATION_ID}")
             write("DTSTAMP", dtStamp)
             event.startTime?.let { write("DTSTART", dateFormat.format(it)) }
             event.endTime?.let { write("DTEND", dateFormat.format(it)) }

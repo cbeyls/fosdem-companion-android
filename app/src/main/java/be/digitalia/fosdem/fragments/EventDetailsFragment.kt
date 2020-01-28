@@ -93,7 +93,8 @@ class EventDetailsFragment : Fragment() {
                 if (roomName.isNullOrEmpty()) {
                     isVisible = false
                 } else {
-                    val roomText: Spannable = SpannableString("$roomName (Building ${Building.fromRoomName(roomName)})")
+                    val building = Building.fromRoomName(roomName)
+                    val roomText: Spannable = SpannableString("$roomName (Building $building)")
                     val roomImageResId = resources.getIdentifier(roomNameToResourceName(roomName), "drawable", requireActivity().packageName)
                     // If the room image exists, make the room text clickable to display it
                     if (roomImageResId != 0) {
