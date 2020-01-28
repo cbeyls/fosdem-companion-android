@@ -12,7 +12,6 @@ import be.digitalia.fosdem.alarms.FosdemAlarmManager
 import be.digitalia.fosdem.db.AppDatabase
 import be.digitalia.fosdem.livedata.LiveDataFactory.scheduler
 import be.digitalia.fosdem.livedata.SingleEvent
-import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.DownloadScheduleResult
 import be.digitalia.fosdem.model.RoomStatus
 import be.digitalia.fosdem.parsers.EventsParser
@@ -36,8 +35,8 @@ object FosdemApi {
     private const val ROOM_STATUS_EXPIRATION_DELAY = 6L * DateUtils.MINUTE_IN_MILLIS
 
     private var isLoading = false
-    private val progress = MutableLiveData<Int>()
-    private val result = MutableLiveData<SingleEvent<DownloadScheduleResult>>()
+    private val _downloadScheduleProgress = MutableLiveData<Int>()
+    private val _downloadScheduleResult = MutableLiveData<SingleEvent<DownloadScheduleResult>>()
     private var roomStatuses: LiveData<Map<String, RoomStatus>>? = null
 
     /**
@@ -62,12 +61,12 @@ object FosdemApi {
 
     @MainThread
     private suspend fun downloadScheduleInternal(context: Context) {
-        progress.value = -1
+        _downloadScheduleProgress.value = -1
         val res = withContext(Dispatchers.IO) {
             try {
                 val scheduleDao = AppDatabase.getInstance(context).scheduleDao
                 val httpResponse = HttpUtils.get(FosdemUrls.schedule, scheduleDao.lastModifiedTag) { percent ->
-                    progress.postValue(percent)
+                    _downloadScheduleProgress.postValue(percent)
                 }
                 when (httpResponse) {
                     is HttpUtils.Response.NotModified -> {
@@ -87,12 +86,12 @@ object FosdemApi {
                 DownloadScheduleResult.Error
             }
         }
-        progress.value = 100
+        _downloadScheduleProgress.value = 100
 
         if (res is DownloadScheduleResult.Success) {
             FosdemAlarmManager.onScheduleRefreshed()
         }
-        result.value = SingleEvent(res)
+        _downloadScheduleResult.value = SingleEvent(res)
     }
 
     /**
@@ -102,19 +101,17 @@ object FosdemApi {
      * 100  : download complete or inactive
      */
     val downloadScheduleProgress: LiveData<Int>
-        get() = progress
+        get() = _downloadScheduleProgress
 
     val downloadScheduleResult: LiveData<SingleEvent<DownloadScheduleResult>>
-        get() = result
+        get() = _downloadScheduleResult
 
     @MainThread
     fun getRoomStatuses(context: Context): LiveData<Map<String, RoomStatus>> {
-        var statuses = roomStatuses
-        if (statuses == null) {
+        return roomStatuses ?: run {
             // The room statuses will only be loaded when the event is live.
             // Use the days from the database to determine it.
-            val daysLiveData = AppDatabase.getInstance(context).scheduleDao.days
-            val scheduler = daysLiveData.switchMap { days: List<Day> ->
+            val scheduler = AppDatabase.getInstance(context).scheduleDao.days.switchMap { days ->
                 val startEndTimestamps = LongArray(days.size * 2)
                 var index = 0
                 for (day in days) {
@@ -126,12 +123,11 @@ object FosdemApi {
             }
             val liveRoomStatuses = buildLiveRoomStatusesLiveData()
             val offlineRoomStatuses = MutableLiveData(emptyMap<String, RoomStatus>())
-            statuses = scheduler.switchMap { isLive: Boolean -> if (isLive) liveRoomStatuses else offlineRoomStatuses }
+            scheduler.switchMap { isLive -> if (isLive) liveRoomStatuses else offlineRoomStatuses }
+                    .also { roomStatuses = it }
             // Implementors: replace the above code with the next line to disable room status support
-            // statuses = MutableLiveData()
-            roomStatuses = statuses
+            // MutableLiveData().also { roomStatuses = it }
         }
-        return statuses
     }
 
     /**
