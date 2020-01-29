@@ -11,14 +11,12 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 data class Link(
         @PrimaryKey(autoGenerate = true)
-        val id: Long,
+        val id: Long = 0L,
         @ColumnInfo(name = "event_id")
         val eventId: Long,
         val url: String,
         val description: String?
 ) : Parcelable {
-
-    constructor(eventId: Long, url: String, description: String?) : this(0L, eventId, url, description)
 
     companion object {
         const val TABLE_NAME = "links"
