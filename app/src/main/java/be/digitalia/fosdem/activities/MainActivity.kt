@@ -204,15 +204,14 @@ class MainActivity : AppCompatActivity(), CreateNfcAppDataCallback {
 
         if (savedInstanceState == null) {
             // Select initial section
-            val section = when (intent.action) {
+            currentSection = when (intent.action) {
                 ACTION_SHORTCUT_BOOKMARKS -> Section.BOOKMARKS
                 ACTION_SHORTCUT_LIVE -> Section.LIVE
                 else -> Section.TRACKS
+            }.also { section ->
+                navigationView.setCheckedItem(section.menuItemId)
+                supportFragmentManager.commit { add(R.id.content, section.createFragment(), section.name) }
             }
-            currentSection = section
-            navigationView.setCheckedItem(section.menuItemId)
-
-            supportFragmentManager.commit { add(R.id.content, section.createFragment(), section.name) }
         }
 
         setNfcAppDataPushMessageCallbackIfAvailable(this)
@@ -230,20 +229,21 @@ class MainActivity : AppCompatActivity(), CreateNfcAppDataCallback {
         drawerToggle.syncState()
 
         // Restore current section from NavigationView
-        if (savedInstanceState != null) {
-            holder.navigationView.checkedItem?.let { menuItem ->
-                val section = Section.fromMenuItemId(menuItem.itemId)!!
-                currentSection = section
-                updateActionBar(section, menuItem)
+        holder.navigationView.checkedItem?.let { menuItem ->
+            if (savedInstanceState != null) {
+                currentSection = Section.fromMenuItemId(menuItem.itemId)!!
             }
+            updateActionBar(currentSection, menuItem)
         }
     }
 
     override fun onBackPressed() {
-        if (holder.drawerLayout.isDrawerOpen(holder.navigationView)) {
-            holder.drawerLayout.closeDrawer(holder.navigationView)
-        } else {
-            super.onBackPressed()
+        with(holder) {
+            if (drawerLayout.isDrawerOpen(navigationView)) {
+                drawerLayout.closeDrawer(navigationView)
+            } else {
+                super.onBackPressed()
+            }
         }
     }
 
@@ -258,8 +258,7 @@ class MainActivity : AppCompatActivity(), CreateNfcAppDataCallback {
         // Scheduled database update
         val now = System.currentTimeMillis()
         val latestUpdateTime = AppDatabase.getInstance(this).scheduleDao.latestUpdateTime.value
-                ?: -1L
-        if (latestUpdateTime == -1L || latestUpdateTime < now - DATABASE_VALIDITY_DURATION) {
+        if (latestUpdateTime == null || latestUpdateTime < now - DATABASE_VALIDITY_DURATION) {
             val prefs = getPreferences(Context.MODE_PRIVATE)
             val latestAttemptTime = prefs.getLong(PREF_LATEST_AUTO_UPDATE_ATTEMPT_TIME, -1L)
             if (latestAttemptTime == -1L || latestAttemptTime < now - AUTO_UPDATE_SNOOZE_DURATION) {
