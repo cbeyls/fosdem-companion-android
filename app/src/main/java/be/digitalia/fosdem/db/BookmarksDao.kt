@@ -10,8 +10,7 @@ import be.digitalia.fosdem.alarms.FosdemAlarmManager
 import be.digitalia.fosdem.db.entities.Bookmark
 import be.digitalia.fosdem.model.AlarmInfo
 import be.digitalia.fosdem.model.Event
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import be.digitalia.fosdem.utils.BackgroundWorkScope
 import kotlinx.coroutines.launch
 
 @Dao
@@ -62,7 +61,7 @@ abstract class BookmarksDao {
     abstract fun getBookmarkStatus(event: Event): LiveData<Boolean>
 
     fun addBookmarkAsync(event: Event) {
-        GlobalScope.launch(Dispatchers.Main.immediate) {
+        BackgroundWorkScope.launch {
             if (addBookmarkInternal(Bookmark(event.id)) != -1L) {
                 FosdemAlarmManager.onBookmarkAdded(event)
             }
@@ -77,7 +76,7 @@ abstract class BookmarksDao {
     }
 
     fun removeBookmarksAsync(vararg eventIds: Long) {
-        GlobalScope.launch(Dispatchers.Main.immediate) {
+        BackgroundWorkScope.launch {
             if (removeBookmarksInternal(eventIds) > 0) {
                 FosdemAlarmManager.onBookmarksRemoved(eventIds)
             }

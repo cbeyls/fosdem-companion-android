@@ -16,6 +16,7 @@ import be.digitalia.fosdem.model.DownloadScheduleResult
 import be.digitalia.fosdem.model.RoomStatus
 import be.digitalia.fosdem.parsers.EventsParser
 import be.digitalia.fosdem.parsers.RoomStatusesParser
+import be.digitalia.fosdem.utils.BackgroundWorkScope
 import be.digitalia.fosdem.utils.network.HttpUtils
 import kotlinx.coroutines.*
 import kotlin.math.pow
@@ -34,28 +35,27 @@ object FosdemApi {
     private const val ROOM_STATUS_FIRST_RETRY_DELAY = 30L * DateUtils.SECOND_IN_MILLIS
     private const val ROOM_STATUS_EXPIRATION_DELAY = 6L * DateUtils.MINUTE_IN_MILLIS
 
-    private var isLoading = false
+    private var downloadJob: Job? = null
     private val _downloadScheduleProgress = MutableLiveData<Int>()
     private val _downloadScheduleResult = MutableLiveData<SingleEvent<DownloadScheduleResult>>()
     private var roomStatuses: LiveData<Map<String, RoomStatus>>? = null
 
     /**
      * Download & store the schedule to the database.
-     * Only one thread at a time will perform the actual action, the other ones will return immediately.
-     * The result will be sent back in the consumable Result LiveData.
+     * Only a single Job will be active at a time.
+     * The result will be sent back through downloadScheduleResult LiveData.
      */
     @MainThread
-    fun downloadSchedule(context: Context) {
-        if (isLoading) {
-            // If a download is already in progress, return immediately
-            return
-        }
-        isLoading = true
-
-        val appContext = context.applicationContext
-        GlobalScope.launch(Dispatchers.Main.immediate) {
-            downloadScheduleInternal(appContext)
-            isLoading = false
+    fun downloadSchedule(context: Context): Job {
+        // Returns the download job in progress, if any
+        return downloadJob ?: run {
+            val appContext = context.applicationContext
+            BackgroundWorkScope.launch {
+                downloadScheduleInternal(appContext)
+                downloadJob = null
+            }.also {
+                downloadJob = it
+            }
         }
     }
 
