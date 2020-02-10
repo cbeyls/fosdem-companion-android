@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 29
-    buildToolsVersion "29.0.2"
+    buildToolsVersion "29.0.3"
 
     defaultConfig {
         applicationId "be.digitalia.fosdem"
@@ -33,10 +33,10 @@ dependencies {
     def lifecycle_version = "2.2.0"
     def room_version = "2.2.3"
 
-    implementation 'androidx.core:core:1.2.0-rc01'
-    implementation 'androidx.fragment:fragment:1.2.0'
+    implementation 'androidx.core:core:1.2.0'
+    implementation 'androidx.fragment:fragment:1.2.1'
     implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'com.google.android.material:material:1.1.0-rc02'
+    implementation 'com.google.android.material:material:1.1.0'
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.1.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.viewpager2:viewpager2:1.0.0'
