@@ -29,6 +29,14 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles 'proguard-defaults.txt', 'proguard-rules.pro'
+
+            kotlinOptions {
+                freeCompilerArgs = [
+                        '-Xno-param-assertions',
+                        '-Xno-call-assertions',
+                        '-Xno-receiver-assertions'
+                ]
+            }
         }
     }
 
@@ -47,6 +55,10 @@ android {
         exclude 'META-INF/*.kotlin_module'
         exclude 'META-INF/*.version'
         exclude 'META-INF/com.android.tools/**'
+    }
+
+    viewBinding {
+        enabled = true
     }
 
     androidExtensions {
