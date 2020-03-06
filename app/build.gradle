@@ -57,10 +57,6 @@ android {
         exclude 'META-INF/com.android.tools/**'
     }
 
-    viewBinding {
-        enabled = true
-    }
-
     androidExtensions {
         features = ["parcelize"]
     }
