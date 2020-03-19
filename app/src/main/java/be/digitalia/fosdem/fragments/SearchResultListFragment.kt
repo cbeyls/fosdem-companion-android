@@ -1,6 +1,7 @@
 package be.digitalia.fosdem.fragments
 
 import android.os.Bundle
+import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -22,8 +23,9 @@ class SearchResultListFragment : RecyclerViewFragment() {
         addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         setAdapter(adapter)
         emptyText = getString(R.string.no_search_result)
         isProgressBarVisible = true

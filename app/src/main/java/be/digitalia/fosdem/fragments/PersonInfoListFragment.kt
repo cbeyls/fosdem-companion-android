@@ -69,8 +69,8 @@ class PersonInfoListFragment : RecyclerViewFragment() {
         layoutManager = LinearLayoutManager(context)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         setAdapter(ConcatAdapter(HeaderAdapter(), adapter))
         emptyText = getString(R.string.no_data)
