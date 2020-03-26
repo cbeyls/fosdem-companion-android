@@ -1,9 +1,7 @@
 package be.digitalia.fosdem.fragments
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView.RecycledViewPool
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -15,22 +13,18 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.tabs.TabLayoutMediator.TabConfigurationStrategy
 
-class LiveFragment : Fragment(), RecycledViewPoolProvider {
+class LiveFragment : Fragment(R.layout.fragment_live), RecycledViewPoolProvider {
 
     private class ViewHolder(view: View) {
         val pager: ViewPager2 = view.findViewById(R.id.pager)
         val tabs: TabLayout = view.findViewById(R.id.tabs)
-
-        val recycledViewPool = RecycledViewPool()
     }
 
-    private var holder: ViewHolder? = null
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_live, container, false)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         val pagerAdapter = LivePagerAdapter(this)
-        holder = ViewHolder(view).apply {
+        ViewHolder(view).apply {
             pager.apply {
                 adapter = pagerAdapter
                 offscreenPageLimit = 1
@@ -41,17 +35,10 @@ class LiveFragment : Fragment(), RecycledViewPoolProvider {
                     TabConfigurationStrategy { tab, position -> tab.text = pagerAdapter.getPageTitle(position) }
             ).attach()
         }
-
-        return view
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        holder = null
-    }
-
-    override val recycledViewPool: RecycledViewPool?
-        get() = holder?.recycledViewPool
+    override var recycledViewPool: RecycledViewPool? = null
+        private set
 
     private class LivePagerAdapter(fragment: Fragment)
         : FragmentStateAdapter(fragment.childFragmentManager, fragment.viewLifecycleOwner.lifecycle) {

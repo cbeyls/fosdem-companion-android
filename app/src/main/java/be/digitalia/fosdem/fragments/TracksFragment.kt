@@ -2,12 +2,12 @@ package be.digitalia.fosdem.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.content.edit
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.RecyclerView.RecycledViewPool
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -21,53 +21,34 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.tabs.TabLayoutMediator.TabConfigurationStrategy
 
-class TracksFragment : Fragment(), RecycledViewPoolProvider {
+class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvider {
 
-    private class ViewHolder(view: View, fragment: Fragment) {
+    private class ViewHolder(view: View) {
         val contentView: View = view.findViewById(R.id.content)
         val emptyView: View = view.findViewById(android.R.id.empty)
         val pager: ViewPager2 = view.findViewById(R.id.pager)
         val tabs: TabLayout = view.findViewById(R.id.tabs)
-
-        val daysAdapter = DaysAdapter(fragment)
-        val recycledViewPool = RecycledViewPool()
-    }
-
-    private var holder: ViewHolder? = null
-    private var savedCurrentPage = -1
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        if (savedInstanceState == null) {
-            // Restore the current page from preferences
-            savedCurrentPage = requireActivity().getPreferences(Context.MODE_PRIVATE).getInt(PREF_CURRENT_PAGE, -1)
-        }
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_tracks, container, false)
-
-        holder = ViewHolder(view, this).apply {
-            pager.apply {
-                offscreenPageLimit = 1
-                recyclerView.enforceSingleScrollDirection()
-            }
-        }
-
-        return view
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        holder = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val holder = ViewHolder(view).apply {
+            pager.apply {
+                offscreenPageLimit = 1
+                recyclerView.enforceSingleScrollDirection()
+            }
+        }
+        val daysAdapter = DaysAdapter(this)
+        recycledViewPool = RecycledViewPool()
+
+        var savedCurrentPage = if (savedInstanceState == null) {
+            // Restore the current page from preferences
+            requireActivity().getPreferences(Context.MODE_PRIVATE).getInt(PREF_CURRENT_PAGE, -1)
+        } else -1
+
         AppDatabase.getInstance(requireContext()).scheduleDao.days.observe(viewLifecycleOwner) { days ->
-            holder?.run {
+            holder.run {
                 daysAdapter.days = days
 
                 val totalPages = daysAdapter.itemCount
@@ -90,22 +71,27 @@ class TracksFragment : Fragment(), RecycledViewPoolProvider {
                 }
             }
         }
-    }
 
-    override fun onStop() {
-        super.onStop()
-        // Save the current page to preferences if it has changed
-        val page = holder?.pager?.currentItem ?: -1
-        val prefs = requireActivity().getPreferences(Context.MODE_PRIVATE)
-        if (prefs.getInt(PREF_CURRENT_PAGE, -1) != page) {
-            prefs.edit {
-                putInt(PREF_CURRENT_PAGE, page)
+        viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onStop(owner: LifecycleOwner) {
+                // Save the current page to preferences if it has changed
+                val page = holder.pager.currentItem
+                val prefs = requireActivity().getPreferences(Context.MODE_PRIVATE)
+                if (prefs.getInt(PREF_CURRENT_PAGE, -1) != page) {
+                    prefs.edit {
+                        putInt(PREF_CURRENT_PAGE, page)
+                    }
+                }
             }
-        }
+
+            override fun onDestroy(owner: LifecycleOwner) {
+                recycledViewPool = null
+            }
+        })
     }
 
-    override val recycledViewPool: RecycledViewPool?
-        get() = holder?.recycledViewPool
+    override var recycledViewPool: RecycledViewPool? = null
+        private set
 
     private class DaysAdapter(fragment: Fragment)
         : FragmentStateAdapter(fragment.childFragmentManager, fragment.viewLifecycleOwner.lifecycle) {

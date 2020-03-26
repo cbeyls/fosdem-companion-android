@@ -35,7 +35,6 @@ class TrackScheduleEventActivity : AppCompatActivity(), CreateNfcAppDataCallback
 
     private val bookmarkStatusViewModel: BookmarkStatusViewModel by viewModels()
     private val viewModel: TrackScheduleEventViewModel by viewModels()
-    private var initialPosition = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,9 +50,9 @@ class TrackScheduleEventActivity : AppCompatActivity(), CreateNfcAppDataCallback
         pager.recyclerView.enforceSingleScrollDirection()
         val adapter = TrackScheduleEventAdapter(this)
 
-        if (savedInstanceState == null) {
-            initialPosition = intent.getIntExtra(EXTRA_POSITION, -1)
-        }
+        var initialPosition = if (savedInstanceState == null) {
+            intent.getIntExtra(EXTRA_POSITION, -1)
+        } else -1
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar).apply {
             setNavigationIcon(R.drawable.abc_ic_ab_back_material)

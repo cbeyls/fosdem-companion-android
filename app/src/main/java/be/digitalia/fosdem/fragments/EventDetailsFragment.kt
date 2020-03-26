@@ -31,7 +31,7 @@ import be.digitalia.fosdem.utils.*
 import be.digitalia.fosdem.viewmodels.EventDetailsViewModel
 import com.google.android.material.snackbar.Snackbar
 
-class EventDetailsFragment : Fragment() {
+class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
 
     private class ViewHolder(view: View) {
         val personsTextView: TextView = view.findViewById(R.id.persons)
@@ -41,7 +41,6 @@ class EventDetailsFragment : Fragment() {
     }
 
     private val viewModel: EventDetailsViewModel by viewModels()
-    private var holder: ViewHolder? = null
 
     val event by lazy<Event>(LazyThreadSafetyMode.NONE) {
         requireArguments().getParcelable(ARG_EVENT)!!
@@ -53,10 +52,10 @@ class EventDetailsFragment : Fragment() {
     }
 
     @SuppressLint("SetTextI18n")
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_event_details, container, false)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        holder = ViewHolder(view).apply {
+        val holder = ViewHolder(view).apply {
             view.findViewById<TextView>(R.id.title).text = event.title
             view.findViewById<TextView>(R.id.subtitle).apply {
                 val subTitle = event.subTitle
@@ -136,23 +135,17 @@ class EventDetailsFragment : Fragment() {
             }
         }
 
-        return view
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
         with(viewModel) {
             setEvent(event)
             eventDetails.observe(viewLifecycleOwner) { eventDetails ->
-                showEventDetails(eventDetails)
+                showEventDetails(holder, eventDetails)
             }
         }
 
         // Live room status
         val roomName = event.roomName
         if (!roomName.isNullOrEmpty()) {
-            holder?.roomStatusTextView?.run {
+            holder.roomStatusTextView.run {
                 FosdemApi.getRoomStatuses(requireContext()).observe(viewLifecycleOwner) { roomStatuses ->
                     val roomStatus = roomStatuses[roomName]
                     if (roomStatus == null) {
@@ -164,11 +157,6 @@ class EventDetailsFragment : Fragment() {
                 }
             }
         }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        holder = null
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -227,8 +215,8 @@ class EventDetailsFragment : Fragment() {
         }
     }
 
-    private fun showEventDetails(eventDetails: EventDetails) {
-        holder?.run {
+    private fun showEventDetails(holder: ViewHolder, eventDetails: EventDetails) {
+        holder.run {
             val (persons, links) = eventDetails
 
             // 1. Persons
