@@ -11,6 +11,7 @@ import androidx.appcompat.view.ActionMode
 import androidx.core.util.set
 import androidx.core.util.size
 import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
@@ -21,13 +22,11 @@ import kotlinx.android.parcel.WriteWith
 
 /**
  * Helper class to reproduce ListView's modal MultiChoice mode with a RecyclerView.
- * Declare and use this class from inside your Adapter.
+ * Call setAdapter(adapter, adapterLifecycleOwner) on it as soon as the adapter data is populated.
  *
  * @author Christophe Beyls
  */
-class MultiChoiceHelper(private val activity: AppCompatActivity,
-                        owner: SavedStateRegistryOwner,
-                        private val adapter: RecyclerView.Adapter<*>) {
+class MultiChoiceHelper(private val activity: AppCompatActivity, owner: SavedStateRegistryOwner, listener: MultiChoiceModeListener) {
     /**
      * A handy ViewHolder base class which works with the MultiChoiceHelper
      * and reproduces the default behavior of a ListView.
@@ -84,7 +83,7 @@ class MultiChoiceHelper(private val activity: AppCompatActivity,
         /**
          * Called when an item is checked or unchecked during selection mode.
          *
-         * @param mode     The [ActionMode] providing the selection startSupportActionModemode
+         * @param mode     The [ActionMode] providing the selection mode
          * @param position Adapter position of the item that was checked or unchecked
          * @param id       Adapter ID of the item that was checked or unchecked
          * @param checked  `true` if the item is now checked, `false`
@@ -93,11 +92,14 @@ class MultiChoiceHelper(private val activity: AppCompatActivity,
         fun onItemCheckedStateChanged(mode: ActionMode, position: Int, id: Long, checked: Boolean)
     }
 
+    private val multiChoiceModeCallback: MultiChoiceModeListener = MultiChoiceModeWrapper(listener)
     val checkedItemPositions: SparseBooleanArray
-    private val checkedIdStates: LongSparseArray<Int>?
+    private val checkedIdStates: LongSparseArray<Int>
     var checkedItemCount: Int
         private set
-    private var multiChoiceModeCallback: MultiChoiceModeWrapper? = null
+    var adapter: RecyclerView.Adapter<*>? = null
+        private set
+    private var adapterLifecycle: Lifecycle? = null
     private var choiceActionMode: ActionMode? = null
 
     /**
@@ -105,36 +107,66 @@ class MultiChoiceHelper(private val activity: AppCompatActivity,
      * so this class will be notified before the RecyclerView in case of data set changes.
      */
     init {
-        adapter.registerAdapterDataObserver(AdapterDataSetObserver())
         val restoreBundle = owner.savedStateRegistry.consumeRestoredStateForKey(STATE_KEY)
         if (restoreBundle == null) {
             checkedItemCount = 0
             checkedItemPositions = SparseBooleanArray(0)
-            checkedIdStates = if (adapter.hasStableIds()) LongSparseArray(0) else null
+            checkedIdStates = LongSparseArray(0)
         } else {
             val savedState: SavedState = restoreBundle.getParcelable(PARCELABLE_KEY)!!
             checkedItemCount = savedState.checkedItemCount
             checkedItemPositions = savedState.checkedItemPositions
             checkedIdStates = savedState.checkedIdStates
-            // Try early restoration, otherwise do it when items are inserted
-            if (adapter.itemCount > 0) {
-                onAdapterPopulated()
-            }
         }
         owner.savedStateRegistry.registerSavedStateProvider(STATE_KEY) {
             Bundle(1).apply {
-                putParcelable(PARCELABLE_KEY, SavedState(checkedItemCount, checkedItemPositions.clone(), checkedIdStates?.clone()))
+                putParcelable(PARCELABLE_KEY, SavedState(checkedItemCount, checkedItemPositions.clone(), checkedIdStates.clone()))
             }
         }
-        owner.lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onDestroy(owner: LifecycleOwner) {
-                clearChoices()
-            }
-        })
     }
 
-    fun setMultiChoiceModeListener(listener: MultiChoiceModeListener?) {
-        multiChoiceModeCallback = if (listener == null) null else MultiChoiceModeWrapper(listener)
+    private val adapterDataSetObserver = object : AdapterDataObserver() {
+        override fun onChanged() {
+            confirmCheckedPositions()
+        }
+
+        override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+            confirmCheckedPositions()
+        }
+
+        override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) {
+            confirmCheckedPositions()
+        }
+
+        override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
+            confirmCheckedPositions()
+        }
+    }
+
+    private val adapterLifecycleObserver = object : DefaultLifecycleObserver {
+        override fun onDestroy(owner: LifecycleOwner) {
+            adapter = null
+            adapterLifecycle = null
+            choiceActionMode?.finish()
+        }
+    }
+
+    fun setAdapter(adapter: RecyclerView.Adapter<*>, adapterLifecycleOwner: LifecycleOwner) {
+        if (this.adapter !== adapter) {
+            this.adapter?.unregisterAdapterDataObserver(adapterDataSetObserver)
+            this.adapterLifecycle?.removeObserver(adapterLifecycleObserver)
+            this.adapter = adapter
+            this.adapterLifecycle = adapterLifecycleOwner.lifecycle
+            adapter.registerAdapterDataObserver(adapterDataSetObserver)
+            adapterLifecycleOwner.lifecycle.addObserver(adapterLifecycleObserver)
+            if (!adapter.hasStableIds()) {
+                checkedIdStates.clear()
+            }
+            confirmCheckedPositions()
+            if (checkedItemCount > 0) {
+                startSupportActionModeIfNeeded()
+            }
+        }
     }
 
     fun isItemChecked(position: Int): Boolean {
@@ -143,7 +175,7 @@ class MultiChoiceHelper(private val activity: AppCompatActivity,
 
     val checkedItemIds: LongArray
         get() {
-            val idStates = checkedIdStates ?: return LongArray(0)
+            val idStates = checkedIdStates
             return LongArray(idStates.size()) { idStates.keyAt(it) }
         }
 
@@ -152,10 +184,10 @@ class MultiChoiceHelper(private val activity: AppCompatActivity,
             val start = checkedItemPositions.keyAt(0)
             val end = checkedItemPositions.keyAt(checkedItemPositions.size() - 1)
             checkedItemPositions.clear()
-            checkedIdStates?.clear()
+            checkedIdStates.clear()
             checkedItemCount = 0
 
-            adapter.notifyItemRangeChanged(start, end - start + 1, SELECTION_PAYLOAD)
+            adapter?.notifyItemRangeChanged(start, end - start + 1, SELECTION_PAYLOAD)
 
             choiceActionMode?.finish()
         }
@@ -171,9 +203,9 @@ class MultiChoiceHelper(private val activity: AppCompatActivity,
         checkedItemPositions[position] = value
 
         if (oldValue != value) {
-            val id = adapter.getItemId(position)
+            val id = adapter?.getItemId(position) ?: RecyclerView.NO_ID
 
-            if (checkedIdStates != null) {
+            if (adapter?.hasStableIds() == true) {
                 if (value) {
                     checkedIdStates[id] = position
                 } else {
@@ -187,13 +219,12 @@ class MultiChoiceHelper(private val activity: AppCompatActivity,
                 checkedItemCount--
             }
 
-            adapter.notifyItemChanged(position, SELECTION_PAYLOAD)
+            adapter?.notifyItemChanged(position, SELECTION_PAYLOAD)
 
-            val actionMode = choiceActionMode
-            if (actionMode != null) {
-                multiChoiceModeCallback?.onItemCheckedStateChanged(actionMode, position, id, value)
+            choiceActionMode?.let {
+                multiChoiceModeCallback.onItemCheckedStateChanged(it, position, id, value)
                 if (checkedItemCount == 0) {
-                    actionMode.finish()
+                    it.finish()
                 }
             }
         }
@@ -203,21 +234,14 @@ class MultiChoiceHelper(private val activity: AppCompatActivity,
         setItemChecked(position, !isItemChecked(position))
     }
 
-    private fun onAdapterPopulated() {
-        confirmCheckedPositions()
-        if (checkedItemCount > 0) {
-            startSupportActionModeIfNeeded()
-        }
-    }
-
     private fun startSupportActionModeIfNeeded() {
         if (choiceActionMode == null) {
-            val callback = checkNotNull(multiChoiceModeCallback) { "No callback set" }
-            choiceActionMode = activity.startSupportActionMode(callback)
+            choiceActionMode = activity.startSupportActionMode(multiChoiceModeCallback)
         }
     }
 
     fun confirmCheckedPositions() {
+        val adapter = this.adapter ?: return
         if (checkedItemCount == 0) {
             return
         }
@@ -228,10 +252,10 @@ class MultiChoiceHelper(private val activity: AppCompatActivity,
         if (itemCount == 0) {
             // Optimized path for empty adapter: remove all items.
             checkedItemPositions.clear()
-            checkedIdStates?.clear()
+            checkedIdStates.clear()
             checkedItemCount = 0
             checkedCountChanged = true
-        } else if (checkedIdStates != null) {
+        } else if (adapter.hasStableIds()) {
             // Clear out the positional check states, we'll rebuild it below from IDs.
             checkedItemPositions.clear()
 
@@ -260,10 +284,7 @@ class MultiChoiceHelper(private val activity: AppCompatActivity,
                         checkedIndex--
                         checkedItemCount--
                         checkedCountChanged = true
-                        val actionMode = choiceActionMode
-                        if (actionMode != null) {
-                            multiChoiceModeCallback?.onItemCheckedStateChanged(actionMode, lastPos, id, false)
-                        }
+                        choiceActionMode?.let { multiChoiceModeCallback.onItemCheckedStateChanged(it, lastPos, id, false) }
                     }
                 } else {
                     checkedItemPositions[lastPos] = true
@@ -285,12 +306,11 @@ class MultiChoiceHelper(private val activity: AppCompatActivity,
             }
         }
 
-        val actionMode = choiceActionMode
-        if (checkedCountChanged && actionMode != null) {
+        if (checkedCountChanged) {
             if (checkedItemCount == 0) {
-                actionMode.finish()
+                choiceActionMode?.finish()
             } else {
-                actionMode.invalidate()
+                choiceActionMode?.invalidate()
             }
         }
     }
@@ -298,27 +318,7 @@ class MultiChoiceHelper(private val activity: AppCompatActivity,
     @Parcelize
     class SavedState(val checkedItemCount: Int,
                      val checkedItemPositions: SparseBooleanArray,
-                     val checkedIdStates: @WriteWith<IntLongSparseArrayParceler> LongSparseArray<Int>?) : Parcelable
-
-    private inner class AdapterDataSetObserver : AdapterDataObserver() {
-        override fun onChanged() {
-            confirmCheckedPositions()
-        }
-
-        override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-            if (itemCount > 0) {
-                onAdapterPopulated()
-            }
-        }
-
-        override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) {
-            confirmCheckedPositions()
-        }
-
-        override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
-            confirmCheckedPositions()
-        }
-    }
+                     val checkedIdStates: @WriteWith<IntLongSparseArrayParceler> LongSparseArray<Int>) : Parcelable
 
     private inner class MultiChoiceModeWrapper(private val wrapped: MultiChoiceModeListener) : MultiChoiceModeListener by wrapped {
 

@@ -1,5 +1,6 @@
 package be.digitalia.fosdem.adapters
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Typeface
 import android.text.SpannableString
@@ -10,16 +11,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.ColorInt
-import androidx.appcompat.app.AppCompatActivity
 import androidx.collection.SimpleArrayMap
 import androidx.core.content.ContextCompat
 import androidx.core.text.set
 import androidx.core.view.isGone
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
-import androidx.savedstate.SavedStateRegistryOwner
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.EventDetailsActivity
 import be.digitalia.fosdem.api.FosdemApi
@@ -29,11 +29,12 @@ import be.digitalia.fosdem.utils.DateUtils
 import be.digitalia.fosdem.widgets.MultiChoiceHelper
 import java.text.DateFormat
 
-class BookmarksAdapter(activity: AppCompatActivity, owner: SavedStateRegistryOwner,
-                       multiChoiceModeListener: MultiChoiceHelper.MultiChoiceModeListener? = null)
+class BookmarksAdapter(context: Context, owner: LifecycleOwner,
+                       private val multiChoiceHelper: MultiChoiceHelper)
     : ListAdapter<Event, BookmarksAdapter.ViewHolder>(DIFF_CALLBACK) {
 
-    private val timeDateFormat = DateUtils.getTimeDateFormat(activity)
+    private val timeDateFormat = DateUtils.getTimeDateFormat(context)
+
     @ColorInt
     private val errorColor: Int
     private val observers = SimpleArrayMap<AdapterDataObserver, BookmarksDataObserverWrapper>()
@@ -41,18 +42,14 @@ class BookmarksAdapter(activity: AppCompatActivity, owner: SavedStateRegistryOwn
 
     init {
         setHasStableIds(true)
-        with(activity.theme.obtainStyledAttributes(R.styleable.ErrorColors)) {
+        with(context.theme.obtainStyledAttributes(R.styleable.ErrorColors)) {
             errorColor = getColor(R.styleable.ErrorColors_colorError, 0)
             recycle()
         }
-        FosdemApi.getRoomStatuses(activity).observe(owner) { statuses ->
+        FosdemApi.getRoomStatuses(context).observe(owner) { statuses ->
             roomStatuses = statuses
             notifyItemRangeChanged(0, itemCount, DETAILS_PAYLOAD)
         }
-    }
-
-    val multiChoiceHelper = MultiChoiceHelper(activity, owner, this).apply {
-        setMultiChoiceModeListener(multiChoiceModeListener)
     }
 
     override fun getItemId(position: Int) = getItem(position).id

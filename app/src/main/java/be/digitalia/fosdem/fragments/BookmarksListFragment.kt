@@ -32,8 +32,8 @@ import be.digitalia.fosdem.widgets.MultiChoiceHelper
 class BookmarksListFragment : RecyclerViewFragment(), CreateNfcAppDataCallback {
 
     private val viewModel: BookmarksViewModel by viewModels()
-    private val adapter: BookmarksAdapter by lazy(LazyThreadSafetyMode.NONE) {
-        val multiChoiceModeListener = object : MultiChoiceHelper.MultiChoiceModeListener {
+    private val multiChoiceHelper: MultiChoiceHelper by lazy(LazyThreadSafetyMode.NONE) {
+        MultiChoiceHelper(requireActivity() as AppCompatActivity, this, object : MultiChoiceHelper.MultiChoiceModeListener {
 
             override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
                 mode.menuInflater.inflate(R.menu.action_mode_bookmarks, menu)
@@ -41,7 +41,7 @@ class BookmarksListFragment : RecyclerViewFragment(), CreateNfcAppDataCallback {
             }
 
             private fun updateSelectedCountDisplay(mode: ActionMode) {
-                val count = adapter.multiChoiceHelper.checkedItemCount
+                val count = multiChoiceHelper.checkedItemCount
                 mode.title = resources.getQuantityString(R.plurals.selected, count, count)
             }
 
@@ -53,7 +53,7 @@ class BookmarksListFragment : RecyclerViewFragment(), CreateNfcAppDataCallback {
             override fun onActionItemClicked(mode: ActionMode, item: MenuItem) = when (item.itemId) {
                 R.id.delete -> {
                     // Remove multiple bookmarks at once
-                    viewModel.removeBookmarks(adapter.multiChoiceHelper.checkedItemIds)
+                    viewModel.removeBookmarks(multiChoiceHelper.checkedItemIds)
                     mode.finish()
                     true
                 }
@@ -65,9 +65,10 @@ class BookmarksListFragment : RecyclerViewFragment(), CreateNfcAppDataCallback {
             }
 
             override fun onDestroyActionMode(mode: ActionMode) {}
-        }
-
-        BookmarksAdapter((requireActivity() as AppCompatActivity), this, multiChoiceModeListener)
+        })
+    }
+    private val adapter by lazy(LazyThreadSafetyMode.NONE) {
+        BookmarksAdapter(requireContext(), this, multiChoiceHelper)
     }
     private var filterMenuItem: MenuItem? = null
     private var upcomingOnlyMenuItem: MenuItem? = null
@@ -95,6 +96,7 @@ class BookmarksListFragment : RecyclerViewFragment(), CreateNfcAppDataCallback {
 
         viewModel.bookmarks.observe(viewLifecycleOwner) { bookmarks ->
             adapter.submitList(bookmarks)
+            multiChoiceHelper.setAdapter(adapter, this)
             isProgressBarVisible = false
         }
     }
