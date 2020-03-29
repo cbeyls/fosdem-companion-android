@@ -3,7 +3,7 @@ package be.digitalia.fosdem.livedata
 /**
  * Encapsulates data that can only be consumed once.
  */
-class SingleEvent<T>(content: T) {
+class SingleEvent<T :Any>(content: T) {
 
     private var content: T? = content
 
