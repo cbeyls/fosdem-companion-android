@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.paging.PagedListAdapter
@@ -18,30 +19,27 @@ import be.digitalia.fosdem.adapters.createSimpleItemCallback
 import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.viewmodels.PersonsViewModel
 
-class PersonsListFragment : RecyclerViewFragment() {
+class PersonsListFragment : Fragment(R.layout.recyclerview_fastscroll) {
 
-    private val adapter = PersonsAdapter()
     private val viewModel: PersonsViewModel by viewModels()
-
-    override fun onCreateRecyclerView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle?): RecyclerView {
-        return inflater.inflate(R.layout.recyclerview_fastscroll, container, false) as RecyclerView
-    }
-
-    override fun onRecyclerViewCreated(recyclerView: RecyclerView, savedInstanceState: Bundle?) = with(recyclerView) {
-        layoutManager = LinearLayoutManager(context)
-        addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setAdapter(adapter)
-        emptyText = getString(R.string.no_data)
-        isProgressBarVisible = true
+        val adapter = PersonsAdapter()
+        val holder = RecyclerViewViewHolder(view).apply {
+            recyclerView.apply {
+                layoutManager = LinearLayoutManager(context)
+                addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+            }
+            setAdapter(adapter)
+            emptyText = getString(R.string.no_data)
+            isProgressBarVisible = true
+        }
 
         viewModel.persons.observe(viewLifecycleOwner) { persons ->
             adapter.submitList(persons)
-            isProgressBarVisible = false
+            holder.isProgressBarVisible = false
         }
     }
 

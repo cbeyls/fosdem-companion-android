@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.*
@@ -16,38 +17,37 @@ import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.viewmodels.TracksViewModel
 
-class TracksListFragment : RecyclerViewFragment() {
+class TracksListFragment : Fragment(R.layout.recyclerview) {
 
     private val viewModel: TracksViewModel by viewModels()
     private val day by lazy<Day>(LazyThreadSafetyMode.NONE) {
         requireArguments().getParcelable(ARG_DAY)!!
     }
-    private val adapter by lazy(LazyThreadSafetyMode.NONE) {
-        TracksAdapter(day)
-    }
-
-    override fun onRecyclerViewCreated(recyclerView: RecyclerView, savedInstanceState: Bundle?) = with(recyclerView) {
-        val parent = parentFragment
-        if (parent is RecycledViewPoolProvider) {
-            setRecycledViewPool(parent.recycledViewPool)
-        }
-
-        layoutManager = LinearLayoutManager(context)
-        addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setAdapter(adapter)
-        emptyText = getString(R.string.no_data)
-        isProgressBarVisible = true
+        val adapter = TracksAdapter(day)
+        val holder = RecyclerViewViewHolder(view).apply {
+            recyclerView.apply {
+                val parent = parentFragment
+                if (parent is RecycledViewPoolProvider) {
+                    setRecycledViewPool(parent.recycledViewPool)
+                }
+
+                layoutManager = LinearLayoutManager(context)
+                addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+            }
+            setAdapter(adapter)
+            emptyText = getString(R.string.no_data)
+            isProgressBarVisible = true
+        }
 
         with(viewModel) {
             setDay(day)
             tracks.observe(viewLifecycleOwner) { tracks ->
                 adapter.submitList(tracks)
-                isProgressBarVisible = false
+                holder.isProgressBarVisible = false
             }
         }
     }

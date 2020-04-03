@@ -50,9 +50,9 @@ class TrackScheduleEventActivity : AppCompatActivity(), CreateNfcAppDataCallback
         pager.recyclerView.enforceSingleScrollDirection()
         val adapter = TrackScheduleEventAdapter(this)
 
-        var initialPosition = if (savedInstanceState == null) {
-            intent.getIntExtra(EXTRA_POSITION, -1)
-        } else -1
+        val initialEventId = if (savedInstanceState == null) {
+            intent.getLongExtra(EXTRA_EVENT_ID, -1L)
+        } else -1L
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar).apply {
             setNavigationIcon(R.drawable.abc_ic_ab_back_material)
@@ -77,7 +77,7 @@ class TrackScheduleEventActivity : AppCompatActivity(), CreateNfcAppDataCallback
         findViewById<ImageButton>(R.id.fab).setupBookmarkStatus(bookmarkStatusViewModel, this)
         pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                bookmarkStatusViewModel.event = adapter.getEvent(position)
+                bookmarkStatusViewModel.event = adapter.events?.getOrNull(position)
             }
         })
 
@@ -96,12 +96,14 @@ class TrackScheduleEventActivity : AppCompatActivity(), CreateNfcAppDataCallback
                 if (pager.adapter == null) {
                     pager.adapter = adapter
 
-                    if (initialPosition != -1) {
-                        pager.setCurrentItem(initialPosition, false)
-                        initialPosition = -1
+                    if (initialEventId != -1L) {
+                        val position = events.indexOfFirst { it.id == initialEventId }
+                        if (position != -1) {
+                            pager.setCurrentItem(position, false)
+                        }
                     }
 
-                    bookmarkStatusViewModel.event = adapter.getEvent(pager.currentItem)
+                    bookmarkStatusViewModel.event = adapter.events?.getOrNull(pager.currentItem)
                 }
             }
         }
@@ -145,17 +147,11 @@ class TrackScheduleEventActivity : AppCompatActivity(), CreateNfcAppDataCallback
                 setMenuVisibility(false)
             }
         }
-
-        fun getEvent(position: Int): Event? {
-            return if (position !in 0 until itemCount) {
-                null
-            } else events!![position]
-        }
     }
 
     companion object {
         const val EXTRA_DAY = "day"
         const val EXTRA_TRACK = "track"
-        const val EXTRA_POSITION = "position"
+        const val EXTRA_EVENT_ID = "event_id"
     }
 }

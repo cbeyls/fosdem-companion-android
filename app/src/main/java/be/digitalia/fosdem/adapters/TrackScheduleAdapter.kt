@@ -23,7 +23,7 @@ class TrackScheduleAdapter(context: Context, private val listener: EventClickLis
     : ListAdapter<StatusEvent, TrackScheduleAdapter.ViewHolder>(EventsAdapter.DIFF_CALLBACK) {
 
     interface EventClickListener {
-        fun onEventClick(position: Int, event: Event)
+        fun onEventClick(event: Event)
     }
 
     private val timeDateFormat = DateUtils.getTimeDateFormat(context)
@@ -44,20 +44,6 @@ class TrackScheduleAdapter(context: Context, private val listener: EventClickLis
             timeRunningForegroundColor = getColor(R.styleable.PrimaryTextColors_android_textColorPrimaryInverse, 0)
             recycle()
         }
-    }
-
-    /**
-     * @return The position of the item id in the current data set, or -1 if not found.
-     */
-    fun getPositionForId(id: Long): Int {
-        if (id != RecyclerView.NO_ID) {
-            for (i in 0 until itemCount) {
-                if (getItemId(i) == id) {
-                    return i
-                }
-            }
-        }
-        return RecyclerView.NO_POSITION
     }
 
     var currentTime: Long = -1L
@@ -176,7 +162,7 @@ class TrackScheduleAdapter(context: Context, private val listener: EventClickLis
         }
 
         override fun onClick(v: View) {
-            event?.let { listener?.onEventClick(adapterPosition, it) }
+            event?.let { listener?.onEventClick(it) }
         }
     }
 

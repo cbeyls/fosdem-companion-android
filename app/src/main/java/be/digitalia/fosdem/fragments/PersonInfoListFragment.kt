@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,14 +18,11 @@ import be.digitalia.fosdem.utils.DateUtils
 import be.digitalia.fosdem.utils.configureToolbarColors
 import be.digitalia.fosdem.viewmodels.PersonInfoViewModel
 
-class PersonInfoListFragment : RecyclerViewFragment() {
+class PersonInfoListFragment : Fragment(R.layout.recyclerview) {
 
     private val viewModel: PersonInfoViewModel by viewModels()
     private val person by lazy<Person>(LazyThreadSafetyMode.NONE) {
         requireArguments().getParcelable(ARG_PERSON)!!
-    }
-    private val adapter by lazy(LazyThreadSafetyMode.NONE) {
-        EventsAdapter(requireContext(), this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,7 +37,7 @@ class PersonInfoListFragment : RecyclerViewFragment() {
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.more_info -> {
             // Look for the first non-placeholder event in the paged list
-            val statusEvent = adapter.currentList?.firstOrNull { it != null }
+            val statusEvent = viewModel.events.value?.firstOrNull { it != null }
             if (statusEvent != null) {
                 val year = DateUtils.getYear(statusEvent.event.day.date.time)
                 val url = person.getUrl(year)
@@ -61,26 +59,28 @@ class PersonInfoListFragment : RecyclerViewFragment() {
         else -> false
     }
 
-    override fun onRecyclerViewCreated(recyclerView: RecyclerView, savedInstanceState: Bundle?) = with(recyclerView) {
-        val contentMargin = resources.getDimensionPixelSize(R.dimen.content_margin)
-        setPadding(contentMargin, contentMargin, contentMargin, contentMargin)
-        clipToPadding = false
-        scrollBarStyle = View.SCROLLBARS_OUTSIDE_OVERLAY
-        layoutManager = LinearLayoutManager(context)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setAdapter(ConcatAdapter(HeaderAdapter(), adapter))
-        emptyText = getString(R.string.no_data)
-        isProgressBarVisible = true
+        val adapter = EventsAdapter(view.context, viewLifecycleOwner)
+        val holder = RecyclerViewViewHolder(view).apply {
+            recyclerView.apply {
+                val contentMargin = resources.getDimensionPixelSize(R.dimen.content_margin)
+                setPadding(contentMargin, contentMargin, contentMargin, contentMargin)
+                clipToPadding = false
+                scrollBarStyle = View.SCROLLBARS_OUTSIDE_OVERLAY
+                layoutManager = LinearLayoutManager(context)
+            }
+            setAdapter(ConcatAdapter(HeaderAdapter(), adapter))
+            emptyText = getString(R.string.no_data)
+            isProgressBarVisible = true
+        }
 
         with(viewModel) {
             setPerson(person)
             events.observe(viewLifecycleOwner) { events ->
                 adapter.submitList(events)
-                isProgressBarVisible = false
+                holder.isProgressBarVisible = false
             }
         }
     }

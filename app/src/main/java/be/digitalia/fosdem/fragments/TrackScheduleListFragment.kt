@@ -1,51 +1,40 @@
 package be.digitalia.fosdem.fragments
 
-import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.digitalia.fosdem.R
+import be.digitalia.fosdem.activities.TrackScheduleEventActivity
 import be.digitalia.fosdem.adapters.TrackScheduleAdapter
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.Track
+import be.digitalia.fosdem.viewmodels.TrackScheduleListViewModel
 import be.digitalia.fosdem.viewmodels.TrackScheduleViewModel
 
-class TrackScheduleListFragment : RecyclerViewFragment(), TrackScheduleAdapter.EventClickListener {
+class TrackScheduleListFragment : Fragment(R.layout.recyclerview), TrackScheduleAdapter.EventClickListener {
 
-    /**
-     * Interface implemented by container activities
-     */
-    interface Callbacks {
-        fun onEventSelected(position: Int, event: Event?)
+    private val viewModel: TrackScheduleListViewModel by viewModels()
+    private val activityViewModel: TrackScheduleViewModel by activityViewModels()
+    private val selectionEnabled: Boolean by lazy {
+        resources.getBoolean(R.bool.tablet_landscape)
     }
-
-    private val viewModel: TrackScheduleViewModel by viewModels()
-    private val adapter by lazy(LazyThreadSafetyMode.NONE) {
-        TrackScheduleAdapter(requireActivity(), this)
-    }
-    private var listener: Callbacks? = null
-    private var selectionEnabled = false
     private var isListAlreadyShown = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        selectionEnabled = resources.getBoolean(R.bool.tablet_landscape)
 
         val args = requireArguments()
         val day: Day = args.getParcelable(ARG_DAY)!!
         val track: Track = args.getParcelable(ARG_TRACK)!!
-
-        with(viewModel) {
-            setDayAndTrack(day, track)
-            currentTime.observe(this@TrackScheduleListFragment) { now ->
-                adapter.currentTime = now
-            }
-        }
+        viewModel.setDayAndTrack(day, track)
 
         if (savedInstanceState != null) {
             isListAlreadyShown = savedInstanceState.getBoolean(STATE_IS_LIST_ALREADY_SHOWN)
@@ -55,12 +44,6 @@ class TrackScheduleListFragment : RecyclerViewFragment(), TrackScheduleAdapter.E
     }
 
     private var selectedId: Long = RecyclerView.NO_ID
-        set(value) {
-            field = value
-            if (selectionEnabled) {
-                adapter.selectedId = value
-            }
-        }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
@@ -68,68 +51,68 @@ class TrackScheduleListFragment : RecyclerViewFragment(), TrackScheduleAdapter.E
         outState.putLong(STATE_SELECTED_ID, selectedId)
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is Callbacks) {
-            listener = context
-        }
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        listener = null
-    }
-
-    private fun notifyEventSelected(position: Int, event: Event?) {
-        listener?.onEventSelected(position, event)
-    }
-
-    override fun onRecyclerViewCreated(recyclerView: RecyclerView, savedInstanceState: Bundle?) = with(recyclerView) {
-        layoutManager = LinearLayoutManager(context)
-        addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setAdapter(adapter)
-        emptyText = getString(R.string.no_data)
-        isProgressBarVisible = true
-
-        viewModel.schedule.observe(viewLifecycleOwner) { schedule ->
-            adapter.submitList(schedule)
-
-            if (selectionEnabled) {
-                var selectedPosition = adapter.getPositionForId(selectedId)
-                if (selectedPosition == RecyclerView.NO_POSITION && adapter.itemCount > 0) {
-                    // There is no current valid selection, reset to use the first item
-                    selectedId = adapter.getItemId(0)
-                    selectedPosition = 0
-                }
-
-                // Ensure the current selection is visible
-                if (selectedPosition != RecyclerView.NO_POSITION) {
-                    recyclerView?.scrollToPosition(selectedPosition)
-                }
-                // Notify the parent of the current selection to synchronize its state
-                notifyEventSelected(selectedPosition,
-                        if (selectedPosition == RecyclerView.NO_POSITION) null else schedule[selectedPosition].event)
-
-            } else if (!isListAlreadyShown) {
-                val position = adapter.getPositionForId(selectedId)
-                if (position != RecyclerView.NO_POSITION) {
-                    recyclerView?.scrollToPosition(position)
-                }
+        val adapter = TrackScheduleAdapter(view.context, this)
+        val holder = RecyclerViewViewHolder(view).apply {
+            recyclerView.apply {
+                layoutManager = LinearLayoutManager(context)
+                addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
             }
-            isListAlreadyShown = true
+            setAdapter(adapter)
+            emptyText = getString(R.string.no_data)
+            isProgressBarVisible = true
+        }
 
-            isProgressBarVisible = false
+        with(viewModel) {
+            currentTime.observe(viewLifecycleOwner) { now ->
+                adapter.currentTime = now
+            }
+            schedule.observe(viewLifecycleOwner) { schedule ->
+                adapter.submitList(schedule)
+
+                var selectedPosition = if (selectedId == -1L) -1 else schedule.indexOfFirst { it.event.id == selectedId }
+                if (selectedPosition == -1) {
+                    // There is no current valid selection, reset to use the first item (if any)
+                    if (schedule.isNotEmpty()) {
+                        selectedPosition = 0
+                        selectedId = schedule[0].event.id
+                    } else {
+                        selectedId = -1L
+                    }
+                }
+
+                activityViewModel.setSelectEvent(if (selectedPosition == -1) null else schedule[selectedPosition].event)
+
+                // Ensure the selection is visible
+                if ((selectionEnabled || !isListAlreadyShown) && selectedPosition != -1) {
+                    holder.recyclerView.scrollToPosition(selectedPosition)
+                }
+                isListAlreadyShown = true
+
+                holder.isProgressBarVisible = false
+            }
+        }
+        if (selectionEnabled) {
+            activityViewModel.selectedEvent.observe(viewLifecycleOwner) { event ->
+                adapter.selectedId = event?.id ?: RecyclerView.NO_ID
+            }
         }
     }
 
-    override fun onEventClick(position: Int, event: Event) {
+    override fun onEventClick(event: Event) {
         selectedId = event.id
-        notifyEventSelected(position, event)
+        activityViewModel.setSelectEvent(event)
+
+        if (!selectionEnabled) {
+            // Classic mode: Show event details in a new activity
+            val intent = Intent(requireContext(), TrackScheduleEventActivity::class.java)
+                    .putExtra(TrackScheduleEventActivity.EXTRA_DAY, event.day)
+                    .putExtra(TrackScheduleEventActivity.EXTRA_TRACK, event.track)
+                    .putExtra(TrackScheduleEventActivity.EXTRA_EVENT_ID, event.id)
+            startActivity(intent)
+        }
     }
 
     companion object {

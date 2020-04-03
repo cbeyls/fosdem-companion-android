@@ -80,7 +80,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
             }
 
             view.findViewById<TextView>(R.id.time).apply {
-                val timeDateFormat = DateUtils.getTimeDateFormat(requireContext())
+                val timeDateFormat = DateUtils.getTimeDateFormat(context)
                 val startTime = event.startTime?.let { timeDateFormat.format(it) } ?: "?"
                 val endTime = event.endTime?.let { timeDateFormat.format(it) } ?: "?"
                 text = "${event.day}, $startTime ― $endTime"
@@ -146,13 +146,13 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
         val roomName = event.roomName
         if (!roomName.isNullOrEmpty()) {
             holder.roomStatusTextView.run {
-                FosdemApi.getRoomStatuses(requireContext()).observe(viewLifecycleOwner) { roomStatuses ->
+                FosdemApi.getRoomStatuses(context).observe(viewLifecycleOwner) { roomStatuses ->
                     val roomStatus = roomStatuses[roomName]
                     if (roomStatus == null) {
                         text = null
                     } else {
                         setText(roomStatus.nameResId)
-                        setTextColor(ContextCompat.getColorStateList(requireContext(), roomStatus.colorResId))
+                        setTextColor(ContextCompat.getColorStateList(context, roomStatus.colorResId))
                     }
                 }
             }

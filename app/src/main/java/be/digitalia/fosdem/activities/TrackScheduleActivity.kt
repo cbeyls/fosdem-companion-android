@@ -10,6 +10,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commit
+import androidx.lifecycle.observe
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.EventDetailsFragment
 import be.digitalia.fosdem.fragments.RoomImageDialogFragment
@@ -19,6 +20,7 @@ import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.*
 import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel
+import be.digitalia.fosdem.viewmodels.TrackScheduleViewModel
 import be.digitalia.fosdem.widgets.setupBookmarkStatus
 
 /**
@@ -26,23 +28,19 @@ import be.digitalia.fosdem.widgets.setupBookmarkStatus
  *
  * @author Christophe Beyls
  */
-class TrackScheduleActivity : AppCompatActivity(), TrackScheduleListFragment.Callbacks, CreateNfcAppDataCallback {
+class TrackScheduleActivity : AppCompatActivity(), CreateNfcAppDataCallback {
 
+    private val viewModel: TrackScheduleViewModel by viewModels()
     private val bookmarkStatusViewModel: BookmarkStatusViewModel by viewModels()
-    private val day by lazy<Day>(LazyThreadSafetyMode.NONE) {
-        intent.getParcelableExtra(EXTRA_DAY)!!
-    }
-    private val track by lazy<Track>(LazyThreadSafetyMode.NONE) {
-        intent.getParcelableExtra(EXTRA_TRACK)!!
-    }
-    private var isTabletLandscape = false
-    private var lastSelectedEvent: Event? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.track_schedule)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
+
+        val day: Day = intent.getParcelableExtra(EXTRA_DAY)!!
+        val track: Track = intent.getParcelableExtra(EXTRA_TRACK)!!
 
         supportActionBar?.run {
             setDisplayHomeAsUpEnabled(true)
@@ -61,7 +59,7 @@ class TrackScheduleActivity : AppCompatActivity(), TrackScheduleListFragment.Cal
             toolbar.setTitleTextColor(trackTextColor)
         }
 
-        isTabletLandscape = resources.getBoolean(R.bool.tablet_landscape)
+        val isTabletLandscape = resources.getBoolean(R.bool.tablet_landscape)
 
         val fm = supportFragmentManager
         if (savedInstanceState == null) {
@@ -92,6 +90,28 @@ class TrackScheduleActivity : AppCompatActivity(), TrackScheduleListFragment.Cal
         }
 
         if (isTabletLandscape) {
+            // Tablet mode: Show event details in the right pane fragment
+            viewModel.selectedEvent.observe(this) { event: Event? ->
+                val currentFragment = fm.findFragmentById(R.id.event) as EventDetailsFragment?
+                if (event != null) {
+                    // Only replace the fragment if the event is different
+                    if (currentFragment?.event != event) {
+                        // Allow state loss since the event fragment will be synchronized with the list selection after activity re-creation
+                        fm.commit {
+                            setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                            replace(R.id.event, EventDetailsFragment.newInstance(event))
+                        }
+                    }
+                } else {
+                    // Nothing is selected because the list is empty
+                    if (currentFragment != null) {
+                        fm.commit { remove(currentFragment) }
+                    }
+                }
+
+                bookmarkStatusViewModel.event = event
+            }
+
             findViewById<ImageButton?>(R.id.fab)?.setupBookmarkStatus(bookmarkStatusViewModel, this)
 
             // Enable Android Beam
@@ -106,46 +126,10 @@ class TrackScheduleActivity : AppCompatActivity(), TrackScheduleListFragment.Cal
         }
     }
 
-    // TrackScheduleListFragment.Callbacks
-
-    override fun onEventSelected(position: Int, event: Event?) {
-        if (isTabletLandscape) {
-            // Tablet mode: Show event details in the right pane fragment
-            lastSelectedEvent = event
-
-            val fm = supportFragmentManager
-            val currentFragment = fm.findFragmentById(R.id.event) as EventDetailsFragment?
-            if (event != null) {
-                // Only replace the fragment if the event is different
-                if (currentFragment?.event != event) {
-                    // Allow state loss since the event fragment will be synchronized with the list selection after activity re-creation
-                    fm.commit(allowStateLoss = true) {
-                        setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                        replace(R.id.event, EventDetailsFragment.newInstance(event))
-                    }
-                }
-            } else {
-                // Nothing is selected because the list is empty
-                if (currentFragment != null) {
-                    fm.commit(allowStateLoss = true) { remove(currentFragment) }
-                }
-            }
-
-            bookmarkStatusViewModel.event = event
-        } else {
-            // Classic mode: Show event details in a new activity
-            val intent = Intent(this, TrackScheduleEventActivity::class.java)
-                    .putExtra(TrackScheduleEventActivity.EXTRA_DAY, day)
-                    .putExtra(TrackScheduleEventActivity.EXTRA_TRACK, track)
-                    .putExtra(TrackScheduleEventActivity.EXTRA_POSITION, position)
-            startActivity(intent)
-        }
-    }
-
     // CreateNfcAppDataCallback
 
     override fun createNfcAppData(): NdefRecord? {
-        return lastSelectedEvent?.toNfcAppData(this)
+        return viewModel.selectedEvent.value?.toNfcAppData(this)
     }
 
     companion object {

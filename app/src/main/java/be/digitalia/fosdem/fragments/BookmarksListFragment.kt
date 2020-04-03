@@ -11,11 +11,11 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.content.edit
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.adapters.BookmarksAdapter
 import be.digitalia.fosdem.providers.BookmarksExportProvider
@@ -29,7 +29,7 @@ import be.digitalia.fosdem.widgets.MultiChoiceHelper
  *
  * @author Christophe Beyls
  */
-class BookmarksListFragment : RecyclerViewFragment(), CreateNfcAppDataCallback {
+class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataCallback {
 
     private val viewModel: BookmarksViewModel by viewModels()
     private val multiChoiceHelper: MultiChoiceHelper by lazy(LazyThreadSafetyMode.NONE) {
@@ -67,9 +67,6 @@ class BookmarksListFragment : RecyclerViewFragment(), CreateNfcAppDataCallback {
             override fun onDestroyActionMode(mode: ActionMode) {}
         })
     }
-    private val adapter by lazy(LazyThreadSafetyMode.NONE) {
-        BookmarksAdapter(requireContext(), this, multiChoiceHelper)
-    }
     private var filterMenuItem: MenuItem? = null
     private var upcomingOnlyMenuItem: MenuItem? = null
 
@@ -82,22 +79,24 @@ class BookmarksListFragment : RecyclerViewFragment(), CreateNfcAppDataCallback {
         setHasOptionsMenu(true)
     }
 
-    override fun onRecyclerViewCreated(recyclerView: RecyclerView, savedInstanceState: Bundle?) = with(recyclerView) {
-        layoutManager = LinearLayoutManager(recyclerView.context)
-        addItemDecoration(DividerItemDecoration(recyclerView.context, DividerItemDecoration.VERTICAL))
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setAdapter(adapter)
-        emptyText = getString(R.string.no_bookmark)
-        isProgressBarVisible = true
+        val adapter = BookmarksAdapter(view.context, viewLifecycleOwner, multiChoiceHelper)
+        val holder = RecyclerViewViewHolder(view).apply {
+            recyclerView.apply {
+                layoutManager = LinearLayoutManager(recyclerView.context)
+                addItemDecoration(DividerItemDecoration(recyclerView.context, DividerItemDecoration.VERTICAL))
+            }
+            setAdapter(adapter)
+            emptyText = getString(R.string.no_bookmark)
+            isProgressBarVisible = true
+        }
 
         viewModel.bookmarks.observe(viewLifecycleOwner) { bookmarks ->
             adapter.submitList(bookmarks)
             multiChoiceHelper.setAdapter(adapter, this)
-            isProgressBarVisible = false
+            holder.isProgressBarVisible = false
         }
     }
 
