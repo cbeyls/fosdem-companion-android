@@ -10,15 +10,15 @@ import be.digitalia.fosdem.model.StatusEvent
 class SearchViewModel(application: Application, private val state: SavedStateHandle) : AndroidViewModel(application) {
 
     private val appDatabase = AppDatabase.getInstance(application)
-    private val queryLiveData: LiveData<String?> = state.getLiveData(STATE_QUERY)
+    private val queryLiveData: LiveData<String> = state.getLiveData(STATE_QUERY)
 
     sealed class Result {
         object QueryTooShort : Result()
         class Success(val list: PagedList<StatusEvent>) : Result()
     }
 
-    val results: LiveData<Result> = queryLiveData.switchMap<String?, Result> { query ->
-        if (query == null || query.length < SEARCH_QUERY_MIN_LENGTH) {
+    val results: LiveData<Result> = queryLiveData.switchMap<String, Result> { query ->
+        if (query.length < SEARCH_QUERY_MIN_LENGTH) {
             MutableLiveData(Result.QueryTooShort)
         } else {
             appDatabase.scheduleDao.getSearchResults(query)
@@ -27,8 +27,8 @@ class SearchViewModel(application: Application, private val state: SavedStateHan
         }
     }
 
-    var query: String?
-        get() = queryLiveData.value
+    var query: String
+        get() = queryLiveData.value ?: ""
         set(value) {
             if (value != queryLiveData.value) {
                 state[STATE_QUERY] = value
