@@ -54,7 +54,6 @@ android {
         exclude '**/*.kotlin_metadata'
         exclude 'META-INF/*.kotlin_module'
         exclude 'META-INF/*.version'
-        exclude 'META-INF/com.android.tools/**'
     }
 
     androidExtensions {
@@ -76,7 +75,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.viewpager2:viewpager2:1.0.0'
     implementation 'androidx.drawerlayout:drawerlayout:1.1.0-beta01'
-    implementation 'androidx.preference:preference-ktx:1.1.0'
+    implementation 'androidx.preference:preference-ktx:1.1.1'
     implementation 'androidx.browser:browser:1.2.0'
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
