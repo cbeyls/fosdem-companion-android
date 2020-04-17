@@ -27,7 +27,7 @@ import be.digitalia.fosdem.utils.toSlug
  *
  * @author Christophe Beyls
  */
-class RoomImageDialogActivity : AppCompatActivity() {
+class RoomImageDialogActivity : AppCompatActivity(R.layout.dialog_room_image) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +35,6 @@ class RoomImageDialogActivity : AppCompatActivity() {
         val roomName = intent.getStringExtra(EXTRA_ROOM_NAME)!!
         title = roomName
 
-        setContentView(R.layout.dialog_room_image)
         findViewById<ImageView>(R.id.room_image).apply {
             if (!context.isLightTheme) {
                 invertImageColors()

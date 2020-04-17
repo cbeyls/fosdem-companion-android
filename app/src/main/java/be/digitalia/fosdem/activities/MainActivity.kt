@@ -53,7 +53,7 @@ import kotlinx.coroutines.CancellationException
  *
  * @author Christophe Beyls
  */
-class MainActivity : AppCompatActivity(), CreateNfcAppDataCallback {
+class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback {
 
     private enum class Section(@IdRes @get:IdRes val menuItemId: Int, val extendsAppBar: Boolean, val keep: Boolean) {
         TRACKS(R.id.menu_tracks, true, true) {
@@ -94,8 +94,6 @@ class MainActivity : AppCompatActivity(), CreateNfcAppDataCallback {
     @SuppressLint("WrongConstant")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.main)
-
         setSupportActionBar(findViewById(R.id.toolbar))
         val contentView: View = findViewById(R.id.content)
 

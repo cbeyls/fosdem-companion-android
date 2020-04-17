@@ -25,14 +25,13 @@ import be.digitalia.fosdem.widgets.setupBookmarkStatus
  *
  * @author Christophe Beyls
  */
-class EventDetailsActivity : AppCompatActivity(), CreateNfcAppDataCallback {
+class EventDetailsActivity : AppCompatActivity(R.layout.single_event), CreateNfcAppDataCallback {
 
     private val bookmarkStatusViewModel: BookmarkStatusViewModel by viewModels()
     private val viewModel: EventViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.single_event)
         setSupportActionBar(findViewById(R.id.bottom_appbar))
 
         findViewById<ImageButton>(R.id.fab).setupBookmarkStatus(bookmarkStatusViewModel, this)

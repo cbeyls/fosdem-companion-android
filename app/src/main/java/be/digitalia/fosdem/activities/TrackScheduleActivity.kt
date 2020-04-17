@@ -28,14 +28,13 @@ import be.digitalia.fosdem.widgets.setupBookmarkStatus
  *
  * @author Christophe Beyls
  */
-class TrackScheduleActivity : AppCompatActivity(), CreateNfcAppDataCallback {
+class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule), CreateNfcAppDataCallback {
 
     private val viewModel: TrackScheduleViewModel by viewModels()
     private val bookmarkStatusViewModel: BookmarkStatusViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.track_schedule)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 

@@ -7,11 +7,10 @@ import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.PersonInfoListFragment
 import be.digitalia.fosdem.model.Person
 
-class PersonInfoActivity : AppCompatActivity() {
+class PersonInfoActivity : AppCompatActivity(R.layout.content_extended_title) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.content_extended_title)
         setSupportActionBar(findViewById(R.id.toolbar))
 
         val person: Person = intent.getParcelableExtra(EXTRA_PERSON)!!
