@@ -6,8 +6,8 @@ import android.view.View
 import androidx.core.content.edit
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.RecyclerView.RecycledViewPool
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -72,8 +72,8 @@ class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvi
             }
         }
 
-        viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onStop(owner: LifecycleOwner) {
+        viewLifecycleOwner.lifecycle.addObserver(LifecycleEventObserver { source, event ->
+            if (event == Lifecycle.Event.ON_STOP) {
                 // Save the current page to preferences if it has changed
                 val page = holder.pager.currentItem
                 val prefs = requireActivity().getPreferences(Context.MODE_PRIVATE)
@@ -83,11 +83,12 @@ class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvi
                     }
                 }
             }
-
-            override fun onDestroy(owner: LifecycleOwner) {
-                recycledViewPool = null
-            }
         })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        recycledViewPool = null
     }
 
     override var recycledViewPool: RecycledViewPool? = null
