@@ -40,10 +40,7 @@ import be.digitalia.fosdem.api.FosdemUrls
 import be.digitalia.fosdem.db.AppDatabase
 import be.digitalia.fosdem.fragments.*
 import be.digitalia.fosdem.model.DownloadScheduleResult
-import be.digitalia.fosdem.utils.CreateNfcAppDataCallback
-import be.digitalia.fosdem.utils.awaitCloseDrawer
-import be.digitalia.fosdem.utils.configureToolbarColors
-import be.digitalia.fosdem.utils.setNfcAppDataPushMessageCallbackIfAvailable
+import be.digitalia.fosdem.utils.*
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CancellationException
@@ -283,18 +280,7 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
         menuInflater.inflate(R.menu.main, menu)
 
         this.searchMenuItem = menu.findItem(R.id.search)?.apply {
-            setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
-                override fun onMenuItemActionExpand(item: MenuItem): Boolean {
-                    return true
-                }
-
-                override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
-                    // Workaround for disappearing menu items bug
-                    invalidateOptionsMenu()
-                    return true
-                }
-            })
-
+            fixCollapsibleActionView()
             // Associate searchable configuration with the SearchView
             val searchManager: SearchManager? = getSystemService()
             (actionView as SearchView).setSearchableInfo(searchManager?.getSearchableInfo(componentName))
