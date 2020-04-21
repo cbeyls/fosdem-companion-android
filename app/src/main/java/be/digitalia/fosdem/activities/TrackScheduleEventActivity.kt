@@ -23,7 +23,7 @@ import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.*
 import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel
 import be.digitalia.fosdem.viewmodels.TrackScheduleEventViewModel
-import be.digitalia.fosdem.widgets.ContentLoadingProgressBar
+import be.digitalia.fosdem.widgets.ContentLoadingViewMediator
 import be.digitalia.fosdem.widgets.setupBookmarkStatus
 
 /**
@@ -44,7 +44,7 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
         val day: Day = intent.getParcelableExtra(EXTRA_DAY)!!
         val track: Track = intent.getParcelableExtra(EXTRA_TRACK)!!
 
-        val progress: ContentLoadingProgressBar = findViewById(R.id.progress)
+        val progress = ContentLoadingViewMediator(findViewById(R.id.progress))
         val pager: ViewPager2 = findViewById(R.id.pager)
         pager.recyclerView.enforceSingleScrollDirection()
         val adapter = TrackScheduleEventAdapter(this)
@@ -80,12 +80,12 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
             }
         })
 
-        progress.show()
+        progress.isVisible = true
 
         with(viewModel) {
             setDayAndTrack(day, track)
             scheduleSnapshot.observe(this@TrackScheduleEventActivity) { events ->
-                progress.hide()
+                progress.isVisible = false
 
                 pager.isVisible = true
                 adapter.events = events

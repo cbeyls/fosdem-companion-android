@@ -4,12 +4,12 @@ import android.view.View
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
-import be.digitalia.fosdem.widgets.ContentLoadingProgressBar
+import be.digitalia.fosdem.widgets.ContentLoadingViewMediator
 
 class RecyclerViewViewHolder(view: View) {
     val recyclerView: RecyclerView = view.findViewById(android.R.id.list)
     private val emptyView: View = view.findViewById(android.R.id.empty)
-    private val progress: ContentLoadingProgressBar = view.findViewById(android.R.id.progress)
+    private val progress = ContentLoadingViewMediator(view.findViewById(android.R.id.progress))
 
     private val emptyObserver: RecyclerView.AdapterDataObserver = object : RecyclerView.AdapterDataObserver() {
         override fun onChanged() {
@@ -27,7 +27,7 @@ class RecyclerViewViewHolder(view: View) {
 
     init {
         recyclerView.setHasFixedSize(true)
-        progress.hide()
+        progress.isVisible = false
     }
 
     /**
@@ -58,9 +58,7 @@ class RecyclerViewViewHolder(view: View) {
         }
 
     private fun updateEmptyViewVisibility() {
-        if (!isProgressBarVisible) {
-            emptyView.isVisible = recyclerView.adapter?.itemCount == 0
-        }
+        emptyView.isVisible = !isProgressBarVisible && recyclerView.adapter?.itemCount == 0
     }
 
     /**
@@ -71,15 +69,9 @@ class RecyclerViewViewHolder(view: View) {
         set(visible) {
             if (field != visible) {
                 field = visible
-                if (visible) {
-                    recyclerView.isVisible = false
-                    emptyView.isVisible = false
-                    progress.show()
-                } else {
-                    recyclerView.isVisible = true
-                    updateEmptyViewVisibility()
-                    progress.hide()
-                }
+                recyclerView.isVisible = !visible
+                progress.isVisible = visible
+                updateEmptyViewVisibility()
             }
         }
 }
