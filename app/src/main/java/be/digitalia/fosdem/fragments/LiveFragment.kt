@@ -3,12 +3,13 @@ package be.digitalia.fosdem.fragments
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.RecyclerView.RecycledViewPool
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.utils.enforceSingleScrollDirection
 import be.digitalia.fosdem.utils.recyclerView
+import be.digitalia.fosdem.utils.viewLifecycleLazy
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.tabs.TabLayoutMediator.TabConfigurationStrategy
@@ -37,8 +38,9 @@ class LiveFragment : Fragment(R.layout.fragment_live), RecycledViewPoolProvider 
         }
     }
 
-    override var recycledViewPool: RecycledViewPool? = null
-        private set
+    override val recycledViewPool by viewLifecycleLazy {
+        RecyclerView.RecycledViewPool()
+    }
 
     private class LivePagerAdapter(fragment: Fragment)
         : FragmentStateAdapter(fragment.childFragmentManager, fragment.viewLifecycleOwner.lifecycle) {

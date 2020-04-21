@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.observe
-import androidx.recyclerview.widget.RecyclerView.RecycledViewPool
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import be.digitalia.fosdem.R
@@ -17,6 +17,7 @@ import be.digitalia.fosdem.db.AppDatabase
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.utils.enforceSingleScrollDirection
 import be.digitalia.fosdem.utils.recyclerView
+import be.digitalia.fosdem.utils.viewLifecycleLazy
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.tabs.TabLayoutMediator.TabConfigurationStrategy
@@ -40,7 +41,6 @@ class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvi
             }
         }
         val daysAdapter = DaysAdapter(this)
-        recycledViewPool = RecycledViewPool()
 
         var savedCurrentPage = if (savedInstanceState == null) {
             // Restore the current page from preferences
@@ -86,13 +86,9 @@ class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvi
         })
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        recycledViewPool = null
+    override val recycledViewPool by viewLifecycleLazy {
+        RecyclerView.RecycledViewPool()
     }
-
-    override var recycledViewPool: RecycledViewPool? = null
-        private set
 
     private class DaysAdapter(fragment: Fragment)
         : FragmentStateAdapter(fragment.childFragmentManager, fragment.viewLifecycleOwner.lifecycle) {
