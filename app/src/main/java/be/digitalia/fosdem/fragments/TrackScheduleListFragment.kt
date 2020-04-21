@@ -23,7 +23,7 @@ class TrackScheduleListFragment : Fragment(R.layout.recyclerview), TrackSchedule
 
     private val viewModel: TrackScheduleListViewModel by viewModels()
     private val activityViewModel: TrackScheduleViewModel by activityViewModels()
-    private val selectionEnabled: Boolean by lazy {
+    private val selectionEnabled: Boolean by lazy(LazyThreadSafetyMode.NONE) {
         resources.getBoolean(R.bool.tablet_landscape)
     }
     private var isListAlreadyShown = false
