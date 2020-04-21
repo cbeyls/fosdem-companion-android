@@ -1,7 +1,5 @@
 package be.digitalia.fosdem.activities
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.app.SearchManager
 import android.content.ActivityNotFoundException
@@ -27,7 +25,6 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.edit
 import androidx.core.content.getSystemService
 import androidx.core.view.ViewCompat
-import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
@@ -41,6 +38,7 @@ import be.digitalia.fosdem.db.AppDatabase
 import be.digitalia.fosdem.fragments.*
 import be.digitalia.fosdem.model.DownloadScheduleResult
 import be.digitalia.fosdem.utils.*
+import be.digitalia.fosdem.widgets.FadeOutViewMediator
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CancellationException
@@ -96,36 +94,25 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
 
         // Progress bar setup
         val progressBar: ProgressBar = findViewById(R.id.progress)
+        val progressBarMediator = FadeOutViewMediator(progressBar)
         FosdemApi.downloadScheduleProgress.observe(this) { progressValue ->
-            progressBar.apply {
-                if (progressValue != 100) {
-                    // Visible
-                    if (!isVisible) {
-                        clearAnimation()
-                        isVisible = true
-                    }
+            if (progressValue != 100) {
+                // Visible
+                progressBarMediator.isVisible = true
+                with(progressBar) {
                     if (progressValue == -1) {
                         isIndeterminate = true
                     } else {
                         isIndeterminate = false
                         progress = progressValue
                     }
-                } else {
-                    // Invisible
-                    if (isVisible) {
-                        // Hide the progress bar with a fill and fade out animation
-                        isIndeterminate = false
-                        progress = 100
-                        animate()
-                                .alpha(0f)
-                                .withLayer()
-                                .setListener(object : AnimatorListenerAdapter() {
-                                    override fun onAnimationEnd(animation: Animator) {
-                                        isVisible = false
-                                        alpha = 1f
-                                    }
-                                })
-                    }
+                }
+            } else {
+                // Invisible
+                progressBarMediator.isVisible = false
+                with(progressBar) {
+                    isIndeterminate = false
+                    progress = 100
                 }
             }
         }
@@ -279,7 +266,7 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
 
-        this.searchMenuItem = menu.findItem(R.id.search)?.apply {
+        searchMenuItem = menu.findItem(R.id.search)?.apply {
             fixCollapsibleActionView()
             // Associate searchable configuration with the SearchView
             val searchManager: SearchManager? = getSystemService()
