@@ -1,15 +1,10 @@
 package be.digitalia.fosdem.utils.network
 
 import android.os.Build
-import be.digitalia.fosdem.utils.ByteCountSource
-import be.digitalia.fosdem.utils.ByteCountSource.ByteCountListener
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okio.BufferedSource
-import okio.buffer
+import kotlinx.coroutines.suspendCancellableCoroutine
+import okhttp3.*
 import java.io.IOException
 import java.net.HttpURLConnection
-import java.net.URL
 import java.security.KeyStore
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -17,6 +12,8 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.TrustManagerFactory
 import javax.net.ssl.X509TrustManager
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 /**
  * Utility class to perform HTTP requests.
@@ -34,70 +31,62 @@ object HttpUtils {
             .readTimeout(DEFAULT_READ_TIMEOUT, TimeUnit.SECONDS)
             .build()
 
-    @Throws(IOException::class)
-    fun get(path: String): BufferedSource {
-        return when (val response = get(URL(path))) {
+    suspend fun <T> get(url: String, bodyParser: (body: ResponseBody, rawResponse: okhttp3.Response) -> T): Response.Success<T> {
+        return when (val response = get(url, null, bodyParser)) {
             // Can only receive NotModified if lastModified argument is non-null
             is Response.NotModified -> throw IllegalStateException()
-            is Response.Success -> response.source
+            is Response.Success -> response
         }
     }
 
     /**
-     * @param progressListener optional listener for the download progress in percents (0..100)
+     * @param lastModified header value matching a previous "Last-Modified" response header.
      */
-    @Throws(IOException::class)
-    fun get(path: String, lastModified: String? = null, progressListener: ((percent: Int) -> Unit)? = null): Response {
-        return get(URL(path), lastModified, progressListener)
-    }
-
-    /**
-     * @param progressListener optional listener for the download progress in percents (0..100)
-     */
-    @Throws(IOException::class)
-    fun get(url: URL, lastModified: String? = null, progressListener: ((percent: Int) -> Unit)? = null): Response {
+    suspend fun <T> get(url: String, lastModified: String?, bodyParser: (body: ResponseBody, rawResponse: okhttp3.Response) -> T): Response<T> {
         val requestBuilder = Request.Builder()
         if (lastModified != null) {
             requestBuilder.header("If-Modified-Since", lastModified)
         }
-
         val request = requestBuilder
                 .url(url)
                 .build()
 
-        val okhttpResponse = client.newCall(request).execute()
-        val body = okhttpResponse.body()
-        if (!okhttpResponse.isSuccessful || body == null) {
-            if (okhttpResponse.code() == HttpURLConnection.HTTP_NOT_MODIFIED && lastModified != null) {
-                // Cached result is still valid; return an empty response
-                return Response.NotModified
-            }
-
-            body?.close()
-            throw IOException("Server returned response code: " + okhttpResponse.code())
-        }
-
-        val responseLastModified = okhttpResponse.header("Last-Modified")
-
-        val length = body.contentLength()
-        val source = if (progressListener != null && length != -1L) {
-            // Broadcast the progression in percents, with a precision of 1/10 of the total file size
-            val byteCountListener = object : ByteCountListener {
-                override fun onNewCount(byteCount: Long) {
-                    // Cap percent to 100
-                    val percent = if (byteCount >= length) 100 else (byteCount * 100L / length).toInt()
-                    progressListener(percent)
+        return suspendCancellableCoroutine { continuation ->
+            val call = client.newCall(request)
+            call.enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    continuation.resumeWithException(e)
                 }
-            }
-            ByteCountSource(body.source(), byteCountListener, length / 10L).buffer()
-        } else {
-            body.source()
-        }
 
-        return Response.Success(source, responseLastModified)
+                override fun onResponse(call: Call, response: okhttp3.Response) {
+                    // This block is invoked on OkHttp's network thread
+                    val body = response.body()
+                    if (!response.isSuccessful || body == null) {
+                        body?.close()
+                        if (lastModified != null && response.code() == HttpURLConnection.HTTP_NOT_MODIFIED) {
+                            // Cached result is still valid; return an empty response
+                            continuation.resume(Response.NotModified)
+                        } else {
+                            continuation.resumeWithException(IOException("Server returned response code: " + response.code()))
+                        }
+                    } else {
+                        try {
+                            val parsedBody = body.use { bodyParser(it, response) }
+                            continuation.resume(Response.Success(parsedBody, response))
+                        } catch (e: Exception) {
+                            continuation.resumeWithException(e)
+                        }
+                    }
+                }
+            })
+            continuation.invokeOnCancellation { call.cancel() }
+        }
     }
 
-    private fun OkHttpClient.Builder.enableTls12(): OkHttpClient.Builder {
+    val okhttp3.Response.lastModified: String?
+        get() = header("Last-Modified")
+
+    fun OkHttpClient.Builder.enableTls12(): OkHttpClient.Builder {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1) {
             try {
                 val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
@@ -119,8 +108,8 @@ object HttpUtils {
         return this
     }
 
-    sealed class Response {
-        object NotModified : Response()
-        class Success(val source: BufferedSource, val lastModified: String? = null) : Response()
+    sealed class Response<out T> {
+        object NotModified : Response<Nothing>()
+        class Success<T>(val body: T, val raw: okhttp3.Response) : Response<T>()
     }
 }

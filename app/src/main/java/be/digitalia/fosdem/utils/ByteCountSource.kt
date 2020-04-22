@@ -11,19 +11,15 @@ import java.io.IOException
  * @author Christophe Beyls
  */
 class ByteCountSource(input: Source,
-                      private val listener: ByteCountListener,
-                      private val interval: Long) : ForwardingSource(input) {
-
-    interface ByteCountListener {
-        fun onNewCount(byteCount: Long)
-    }
+                      private val interval: Long,
+                      private val listener: (byteCount: Long) -> Unit) : ForwardingSource(input) {
 
     private var currentBytes: Long = 0
     private var nextStepBytes: Long = interval
 
     init {
         require(interval > 0L) { "interval must be at least 1 byte" }
-        listener.onNewCount(0L)
+        listener(0L)
     }
 
     @Throws(IOException::class)
@@ -37,7 +33,7 @@ class ByteCountSource(input: Source,
             }
             nextStepBytes = currentBytes + interval
         }
-        listener.onNewCount(currentBytes)
+        listener(currentBytes)
 
         return count
     }

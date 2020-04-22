@@ -17,8 +17,14 @@ import be.digitalia.fosdem.model.RoomStatus
 import be.digitalia.fosdem.parsers.EventsParser
 import be.digitalia.fosdem.parsers.RoomStatusesParser
 import be.digitalia.fosdem.utils.BackgroundWorkScope
+import be.digitalia.fosdem.utils.ByteCountSource
 import be.digitalia.fosdem.utils.network.HttpUtils
-import kotlinx.coroutines.*
+import be.digitalia.fosdem.utils.network.HttpUtils.lastModified
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import okio.buffer
 import kotlin.math.pow
 
 /**
@@ -62,29 +68,30 @@ object FosdemApi {
     @MainThread
     private suspend fun downloadScheduleInternal(context: Context) {
         _downloadScheduleProgress.value = -1
-        val res = withContext(Dispatchers.IO) {
-            try {
-                val scheduleDao = AppDatabase.getInstance(context).scheduleDao
-                val httpResponse = HttpUtils.get(FosdemUrls.schedule, scheduleDao.lastModifiedTag) { percent ->
-                    _downloadScheduleProgress.postValue(percent)
+        val res = try {
+            val scheduleDao = AppDatabase.getInstance(context).scheduleDao
+            val response = HttpUtils.get(FosdemUrls.schedule, scheduleDao.lastModifiedTag) { body, rawResponse ->
+                val length = body.contentLength()
+                val source = if (length > 0L) {
+                    // Broadcast the progression in percents, with a precision of 1/10 of the total file size
+                    ByteCountSource(body.source(), length / 10L) { byteCount ->
+                        // Cap percent to 100
+                        val percent = (byteCount * 100L / length).toInt().coerceAtMost(100)
+                        _downloadScheduleProgress.postValue(percent)
+                    }.buffer()
+                } else {
+                    body.source()
                 }
-                when (httpResponse) {
-                    is HttpUtils.Response.NotModified -> {
-                        // Nothing to parse, the result is up-to-date
-                        DownloadScheduleResult.UpToDate
-                    }
-                    is HttpUtils.Response.Success -> {
-                        httpResponse.source.use { source ->
-                            val events = EventsParser().parse(source)
-                            val count = scheduleDao.storeSchedule(events, httpResponse.lastModified)
-                            DownloadScheduleResult.Success(count)
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                DownloadScheduleResult.Error
+
+                val events = EventsParser().parse(source)
+                scheduleDao.storeSchedule(events, rawResponse.lastModified)
             }
+            when (response) {
+                is HttpUtils.Response.NotModified -> DownloadScheduleResult.UpToDate    // Nothing to parse, the result is up-to-date
+                is HttpUtils.Response.Success -> DownloadScheduleResult.Success(response.body)
+            }
+        } catch (e: Exception) {
+            DownloadScheduleResult.Error
         }
         _downloadScheduleProgress.value = 100
 
@@ -138,7 +145,7 @@ object FosdemApi {
         var expirationTime = Long.MAX_VALUE
         var retryAttempt = 0
 
-        return liveData {
+        return liveData<Map<String, RoomStatus>> {
             var now = SystemClock.elapsedRealtime()
             var nextRefreshDelay = nextRefreshTime - now
 
@@ -153,16 +160,14 @@ object FosdemApi {
                 }
 
                 nextRefreshDelay = try {
-                    val result = withContext(Dispatchers.IO) {
-                        HttpUtils.get(FosdemUrls.rooms).use { source ->
-                            RoomStatusesParser().parse(source)
-                        }
+                    val response = HttpUtils.get(FosdemUrls.rooms) { body, _ ->
+                        RoomStatusesParser().parse(body.source())
                     }
                     now = SystemClock.elapsedRealtime()
 
                     retryAttempt = 0
                     expirationTime = now + ROOM_STATUS_EXPIRATION_DELAY
-                    emit(result)
+                    emit(response.body)
                     ROOM_STATUS_REFRESH_DELAY
                 } catch (e: Exception) {
                     if (e is CancellationException) {
