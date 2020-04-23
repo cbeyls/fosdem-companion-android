@@ -16,9 +16,8 @@ object DateUtils {
         return android.text.format.DateFormat.getTimeFormat(context).withBelgiumTimeZone()
     }
 
-    fun getYear(timestamp: Long, calendar: Calendar? = null): Int {
-        val cal = calendar ?: Calendar.getInstance(belgiumTimeZone, Locale.US)
-        cal.timeInMillis = timestamp
-        return cal.get(Calendar.YEAR)
+    fun getYear(timestamp: Long, calendar: Calendar = Calendar.getInstance(belgiumTimeZone, Locale.US)): Int {
+        calendar.timeInMillis = timestamp
+        return calendar.get(Calendar.YEAR)
     }
 }
