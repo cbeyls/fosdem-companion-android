@@ -95,7 +95,7 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
 
         viewModel.bookmarks.observe(viewLifecycleOwner) { bookmarks ->
             adapter.submitList(bookmarks)
-            multiChoiceHelper.setAdapter(adapter, this)
+            multiChoiceHelper.setAdapter(adapter, viewLifecycleOwner)
             holder.isProgressBarVisible = false
         }
     }
