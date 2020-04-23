@@ -1,6 +1,7 @@
 package be.digitalia.fosdem.widgets
 
 import android.os.Bundle
+import android.os.Parcel
 import android.os.Parcelable
 import android.util.LongSparseArray
 import android.util.SparseBooleanArray
@@ -8,6 +9,7 @@ import android.view.View
 import android.widget.Checkable
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
+import androidx.core.util.forEach
 import androidx.core.util.set
 import androidx.core.util.size
 import androidx.lifecycle.Lifecycle
@@ -16,9 +18,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import androidx.savedstate.SavedStateRegistryOwner
-import be.digitalia.fosdem.utils.IntLongSparseArrayParceler
-import kotlinx.android.parcel.Parcelize
-import kotlinx.android.parcel.WriteWith
 
 /**
  * Helper class to reproduce ListView's modal MultiChoice mode with a RecyclerView.
@@ -315,10 +314,44 @@ class MultiChoiceHelper(private val activity: AppCompatActivity, owner: SavedSta
         }
     }
 
-    @Parcelize
     class SavedState(val checkedItemCount: Int,
                      val checkedItemPositions: SparseBooleanArray,
-                     val checkedIdStates: @WriteWith<IntLongSparseArrayParceler> LongSparseArray<Int>) : Parcelable
+                     val checkedIdStates: LongSparseArray<Int>) : Parcelable {
+
+        override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
+            writeInt(checkedItemCount)
+            writeSparseBooleanArray(checkedItemPositions)
+            writeInt(checkedIdStates.size)
+            checkedIdStates.forEach { key, value ->
+                writeLong(key)
+                writeInt(value)
+            }
+        }
+
+        override fun describeContents() = 0
+
+        companion object {
+            @JvmField
+            @Suppress("UNUSED")
+            val CREATOR = object : Parcelable.Creator<SavedState> {
+                override fun createFromParcel(source: Parcel): SavedState = with(source) {
+                    val checkedItemCount = readInt()
+                    val checkedItemPositions = readSparseBooleanArray()!!
+                    val size = readInt()
+                    val checkedIdStates = LongSparseArray<Int>(size).apply {
+                        for (i in 0 until size) {
+                            val key = readLong()
+                            val value = readInt()
+                            append(key, value)
+                        }
+                    }
+                    SavedState(checkedItemCount, checkedItemPositions, checkedIdStates)
+                }
+
+                override fun newArray(size: Int) = arrayOfNulls<SavedState>(size)
+            }
+        }
+    }
 
     private inner class MultiChoiceModeWrapper(private val wrapped: MultiChoiceModeListener) : MultiChoiceModeListener by wrapped {
 
