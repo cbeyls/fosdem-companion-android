@@ -110,7 +110,7 @@ class ConcatAdapter(vararg adapters: RecyclerView.Adapter<*>) : RecyclerView.Ada
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return viewTypeAdapters[viewType]!!.onCreateViewHolder(parent, viewType)
+        return viewTypeAdapters[viewType].onCreateViewHolder(parent, viewType)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

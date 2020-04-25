@@ -68,15 +68,15 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
             setTaskColorPrimary(trackAppBarColor.defaultColor)
             findViewById<View>(R.id.appbar).tintBackground(trackAppBarColor)
         } else {
-            val trackTextColor = ContextCompat.getColorStateList(this, trackType.textColorResId)
-            toolbar.setTitleTextColor(trackTextColor!!)
+            val trackTextColor = ContextCompat.getColorStateList(this, trackType.textColorResId)!!
+            toolbar.setTitleTextColor(trackTextColor)
         }
 
         // Monitor the currently displayed event to update the bookmark status in FAB
         findViewById<ImageButton>(R.id.fab).setupBookmarkStatus(bookmarkStatusViewModel, this)
         pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                bookmarkStatusViewModel.event = adapter.events?.getOrNull(position)
+                bookmarkStatusViewModel.event = adapter.events.getOrNull(position)
             }
         })
 
@@ -102,7 +102,7 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
                         }
                     }
 
-                    bookmarkStatusViewModel.event = adapter.events?.getOrNull(pager.currentItem)
+                    bookmarkStatusViewModel.event = adapter.events.getOrNull(pager.currentItem)
                 }
             }
         }
@@ -126,22 +126,22 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
 
     class TrackScheduleEventAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fragmentActivity) {
 
-        var events: List<Event>? = null
+        var events: List<Event> = emptyList()
             set(value) {
                 field = value
                 notifyDataSetChanged()
             }
 
-        override fun getItemCount() = events?.size ?: 0
+        override fun getItemCount() = events.size
 
-        override fun getItemId(position: Int) = events!![position].id
+        override fun getItemId(position: Int) = events[position].id
 
         override fun containsItem(itemId: Long): Boolean {
-            return events?.any { it.id == itemId } ?: false
+            return events.any { it.id == itemId }
         }
 
         override fun createFragment(position: Int): Fragment {
-            return EventDetailsFragment.newInstance(events!![position]).apply {
+            return EventDetailsFragment.newInstance(events[position]).apply {
                 // Workaround for duplicate menu items bug
                 setMenuVisibility(false)
             }

@@ -93,7 +93,7 @@ class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvi
     private class DaysAdapter(fragment: Fragment)
         : FragmentStateAdapter(fragment.childFragmentManager, fragment.viewLifecycleOwner.lifecycle) {
 
-        var days: List<Day>? = null
+        var days: List<Day> = emptyList()
             set(value) {
                 if (field != value) {
                     field = value
@@ -101,17 +101,17 @@ class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvi
                 }
             }
 
-        override fun getItemCount() = days?.size ?: 0
+        override fun getItemCount() = days.size
 
-        override fun getItemId(position: Int) = days!![position].index.toLong()
+        override fun getItemId(position: Int) = days[position].index.toLong()
 
         override fun containsItem(itemId: Long): Boolean {
-            return days?.any { it.index.toLong() == itemId } ?: false
+            return days.any { it.index.toLong() == itemId }
         }
 
-        override fun createFragment(position: Int) = TracksListFragment.newInstance(days!![position])
+        override fun createFragment(position: Int) = TracksListFragment.newInstance(days[position])
 
-        fun getPageTitle(position: Int) = days!![position].toString()
+        fun getPageTitle(position: Int) = days[position].toString()
     }
 
     companion object {
