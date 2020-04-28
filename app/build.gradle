@@ -84,6 +84,6 @@ dependencies {
     implementation "androidx.room:room-ktx:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
     implementation 'com.squareup.okhttp3:okhttp:3.12.10'
-    implementation 'com.squareup.okio:okio:2.5.0'
+    implementation 'com.squareup.okio:okio:2.6.0'
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 }
