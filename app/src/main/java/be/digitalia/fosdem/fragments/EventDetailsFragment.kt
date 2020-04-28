@@ -20,6 +20,7 @@ import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
 import androidx.core.text.set
 import androidx.core.view.isVisible
+import androidx.core.view.plusAssign
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
@@ -252,7 +253,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
                         text = link.description
                     }
                     view.setOnClickListener(LinkClickListener(event, link))
-                    linksContainer.addView(view)
+                    linksContainer += view
                 }
             } else {
                 linksHeader.isVisible = false
