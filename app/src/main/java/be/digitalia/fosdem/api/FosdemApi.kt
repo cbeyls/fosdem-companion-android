@@ -13,6 +13,7 @@ import be.digitalia.fosdem.db.AppDatabase
 import be.digitalia.fosdem.livedata.LiveDataFactory.scheduler
 import be.digitalia.fosdem.livedata.SingleEvent
 import be.digitalia.fosdem.model.DownloadScheduleResult
+import be.digitalia.fosdem.model.LoadingState
 import be.digitalia.fosdem.model.RoomStatus
 import be.digitalia.fosdem.parsers.EventsParser
 import be.digitalia.fosdem.parsers.RoomStatusesParser
@@ -42,8 +43,7 @@ object FosdemApi {
     private const val ROOM_STATUS_EXPIRATION_DELAY = 6L * DateUtils.MINUTE_IN_MILLIS
 
     private var downloadJob: Job? = null
-    private val _downloadScheduleProgress = MutableLiveData<Int>()
-    private val _downloadScheduleResult = MutableLiveData<SingleEvent<DownloadScheduleResult>>()
+    private val _downloadScheduleState = MutableLiveData<LoadingState<DownloadScheduleResult>>()
     private var roomStatuses: LiveData<Map<String, RoomStatus>>? = null
 
     /**
@@ -67,7 +67,7 @@ object FosdemApi {
 
     @MainThread
     private suspend fun downloadScheduleInternal(context: Context) {
-        _downloadScheduleProgress.value = -1
+        _downloadScheduleState.value = LoadingState.Loading()
         val res = try {
             val scheduleDao = AppDatabase.getInstance(context).scheduleDao
             val response = HttpUtils.get(FosdemUrls.schedule, scheduleDao.lastModifiedTag) { body, rawResponse ->
@@ -77,7 +77,7 @@ object FosdemApi {
                     ByteCountSource(body.source(), length / 10L) { byteCount ->
                         // Cap percent to 100
                         val percent = (byteCount * 100L / length).toInt().coerceAtMost(100)
-                        _downloadScheduleProgress.postValue(percent)
+                        _downloadScheduleState.postValue(LoadingState.Loading(percent))
                     }.buffer()
                 } else {
                     body.source()
@@ -87,31 +87,20 @@ object FosdemApi {
                 scheduleDao.storeSchedule(events, rawResponse.lastModified)
             }
             when (response) {
-                is HttpUtils.Response.NotModified -> DownloadScheduleResult.UpToDate    // Nothing to parse, the result is up-to-date
-                is HttpUtils.Response.Success -> DownloadScheduleResult.Success(response.body)
+                is HttpUtils.Response.NotModified -> DownloadScheduleResult.UpToDate    // Nothing parsed, the result is up-to-date
+                is HttpUtils.Response.Success -> {
+                    FosdemAlarmManager.onScheduleRefreshed()
+                    DownloadScheduleResult.Success(response.body)
+                }
             }
         } catch (e: Exception) {
             DownloadScheduleResult.Error
         }
-        _downloadScheduleProgress.value = 100
-
-        if (res is DownloadScheduleResult.Success) {
-            FosdemAlarmManager.onScheduleRefreshed()
-        }
-        _downloadScheduleResult.value = SingleEvent(res)
+        _downloadScheduleState.value = LoadingState.Idle(SingleEvent(res))
     }
 
-    /**
-     * @return The current schedule download progress:
-     * -1   : in progress, indeterminate
-     * 0..99: progress value
-     * 100  : download complete or inactive
-     */
-    val downloadScheduleProgress: LiveData<Int>
-        get() = _downloadScheduleProgress
-
-    val downloadScheduleResult: LiveData<SingleEvent<DownloadScheduleResult>>
-        get() = _downloadScheduleResult
+    val downloadScheduleState: LiveData<LoadingState<DownloadScheduleResult>>
+        get() = _downloadScheduleState
 
     @MainThread
     fun getRoomStatuses(context: Context): LiveData<Map<String, RoomStatus>> {

@@ -37,6 +37,7 @@ import be.digitalia.fosdem.api.FosdemUrls
 import be.digitalia.fosdem.db.AppDatabase
 import be.digitalia.fosdem.fragments.*
 import be.digitalia.fosdem.model.DownloadScheduleResult
+import be.digitalia.fosdem.model.LoadingState
 import be.digitalia.fosdem.utils.*
 import be.digitalia.fosdem.widgets.FadeOutViewMediator
 import com.google.android.material.navigation.NavigationView
@@ -95,50 +96,52 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
         // Progress bar setup
         val progressBar: ProgressBar = findViewById(R.id.progress)
         val progressBarMediator = FadeOutViewMediator(progressBar)
-        FosdemApi.downloadScheduleProgress.observe(this) { progressValue ->
-            if (progressValue != 100) {
-                // Visible
-                progressBarMediator.isVisible = true
-                with(progressBar) {
-                    if (progressValue == -1) {
-                        isIndeterminate = true
-                    } else {
-                        isIndeterminate = false
-                        progress = progressValue
-                    }
-                }
-            } else {
-                // Invisible
-                progressBarMediator.isVisible = false
-                with(progressBar) {
-                    isIndeterminate = false
-                    progress = 100
-                }
-            }
-        }
 
-        // Monitor the schedule download result
-        FosdemApi.downloadScheduleResult.observe(this) { singleEvent ->
-            val result = singleEvent.consume() ?: return@observe
-            val snackbar = when (result) {
-                is DownloadScheduleResult.Error -> {
-                    Snackbar.make(contentView, R.string.schedule_loading_error, ERROR_MESSAGE_DISPLAY_DURATION)
-                            .setAction(R.string.schedule_loading_retry_action) { FosdemApi.downloadSchedule(this) }
-                }
-                is DownloadScheduleResult.UpToDate -> {
-                    Snackbar.make(contentView, R.string.events_download_up_to_date, Snackbar.LENGTH_LONG)
-                }
-                is DownloadScheduleResult.Success -> {
-                    val eventsCount = result.eventsCount
-                    val message = if (eventsCount == 0) {
-                        getString(R.string.events_download_empty)
-                    } else {
-                        resources.getQuantityString(R.plurals.events_download_completed, eventsCount, eventsCount)
+        // Monitor the schedule download
+        FosdemApi.downloadScheduleState.observe(this) { state ->
+            when (state) {
+                is LoadingState.Loading -> {
+                    progressBarMediator.isVisible = true
+                    with(progressBar) {
+                        val progressValue = state.progress
+                        if (progressValue == -1) {
+                            isIndeterminate = true
+                        } else {
+                            isIndeterminate = false
+                            progress = progressValue
+                        }
                     }
-                    Snackbar.make(contentView, message, Snackbar.LENGTH_LONG)
+                }
+                is LoadingState.Idle -> {
+                    progressBarMediator.isVisible = false
+                    with(progressBar) {
+                        isIndeterminate = false
+                        progress = 100
+                    }
+
+                    state.result.consume()?.let { result ->
+                        val snackbar = when (result) {
+                            is DownloadScheduleResult.Error -> {
+                                Snackbar.make(contentView, R.string.schedule_loading_error, ERROR_MESSAGE_DISPLAY_DURATION)
+                                        .setAction(R.string.schedule_loading_retry_action) { FosdemApi.downloadSchedule(this) }
+                            }
+                            is DownloadScheduleResult.UpToDate -> {
+                                Snackbar.make(contentView, R.string.events_download_up_to_date, Snackbar.LENGTH_LONG)
+                            }
+                            is DownloadScheduleResult.Success -> {
+                                val eventsCount = result.eventsCount
+                                val message = if (eventsCount == 0) {
+                                    getString(R.string.events_download_empty)
+                                } else {
+                                    resources.getQuantityString(R.plurals.events_download_completed, eventsCount, eventsCount)
+                                }
+                                Snackbar.make(contentView, message, Snackbar.LENGTH_LONG)
+                            }
+                        }
+                        snackbar.show()
+                    }
                 }
             }
-            snackbar.show()
         }
 
         // Setup drawer layout
