@@ -32,7 +32,7 @@ class SearchResultActivity : SimpleToolbarActivity() {
 
         viewModel.results.observe(this) { result ->
             if (result is QueryTooShort) {
-                theme.obtainStyledAttributes(R.styleable.ErrorColors).apply {
+                with(theme.obtainStyledAttributes(R.styleable.ErrorColors)) {
                     val textColor = getColor(R.styleable.ErrorColors_colorOnError, 0)
                     val backgroundColor = getColor(R.styleable.ErrorColors_colorError, 0)
                     recycle()
