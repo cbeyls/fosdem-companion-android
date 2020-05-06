@@ -119,7 +119,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
                 continue
             }
 
-            days.add(event.day)
+            days += event.day
             if (eventId < minEventId) {
                 minEventId = eventId
             }

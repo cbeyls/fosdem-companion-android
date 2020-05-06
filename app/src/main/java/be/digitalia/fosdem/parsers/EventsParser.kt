@@ -97,7 +97,7 @@ class EventsParser : Parser<Sequence<DetailedEvent>> {
                                     id = parser.getAttributeValue(null, "id")!!.toLong(),
                                     name = parser.nextText()!!
                             )
-                            persons.add(person)
+                            persons += person
                         }
                     }
                     "links" -> while (!parser.isNextEndTag("links")) {
@@ -107,7 +107,7 @@ class EventsParser : Parser<Sequence<DetailedEvent>> {
                                     url = parser.getAttributeValue(null, "href")!!,
                                     description = parser.nextText()
                             )
-                            links.add(link)
+                            links += link
                         }
                     }
                     else -> parser.skipToEndTag()
