@@ -61,15 +61,12 @@ private class SingleScrollDirectionEnforcer : RecyclerView.OnScrollListener(), O
         val oldState = scrollState
         scrollState = newState
         if (oldState == RecyclerView.SCROLL_STATE_IDLE && newState == RecyclerView.SCROLL_STATE_DRAGGING) {
-            val layoutManager = recyclerView.layoutManager
-            if (layoutManager != null) {
+            recyclerView.layoutManager?.let { layoutManager ->
                 val canScrollHorizontally = layoutManager.canScrollHorizontally()
                 val canScrollVertically = layoutManager.canScrollVertically()
                 if (canScrollHorizontally != canScrollVertically) {
-                    if (canScrollHorizontally && abs(dy) > abs(dx)) {
-                        recyclerView.stopScroll()
-                    }
-                    if (canScrollVertically && abs(dx) > abs(dy)) {
+                    if ((canScrollHorizontally && abs(dy) > abs(dx))
+                            || (canScrollVertically && abs(dx) > abs(dy))) {
                         recyclerView.stopScroll()
                     }
                 }
