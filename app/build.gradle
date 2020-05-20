@@ -74,7 +74,7 @@ dependencies {
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.1.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.viewpager2:viewpager2:1.0.0'
-    implementation 'androidx.drawerlayout:drawerlayout:1.1.0-beta01'
+    implementation 'androidx.drawerlayout:drawerlayout:1.1.0-rc01'
     implementation 'androidx.preference:preference-ktx:1.1.1'
     implementation 'androidx.browser:browser:1.2.0'
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
