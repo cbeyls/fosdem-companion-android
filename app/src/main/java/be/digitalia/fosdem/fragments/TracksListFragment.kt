@@ -112,10 +112,8 @@ class TracksListFragment : Fragment(R.layout.recyclerview) {
     companion object {
         private const val ARG_DAY = "day"
 
-        fun newInstance(day: Day) = TracksListFragment().apply {
-            arguments = Bundle(1).apply {
-                putParcelable(ARG_DAY, day)
-            }
+        fun createArguments(day: Day) = Bundle(1).apply {
+            putParcelable(ARG_DAY, day)
         }
     }
 }

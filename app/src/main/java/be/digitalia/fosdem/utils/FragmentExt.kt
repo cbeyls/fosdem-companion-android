@@ -1,6 +1,7 @@
 package be.digitalia.fosdem.utils
 
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentFactory
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -33,4 +34,12 @@ private class ViewLifecycleLazy<T : Any>(private val fragment: Fragment, private
             cached = null
         }
     }
+}
+
+fun FragmentFactory.instantiate(fragmentClass: Class<out Fragment>): Fragment {
+    return instantiate(fragmentClass.classLoader!!, fragmentClass.name)
+}
+
+inline fun <reified T : Fragment> FragmentFactory.instantiate(): Fragment {
+    return instantiate(T::class.java)
 }

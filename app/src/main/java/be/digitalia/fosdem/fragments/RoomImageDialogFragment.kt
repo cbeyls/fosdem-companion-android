@@ -8,7 +8,6 @@ import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.FragmentManager
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.RoomImageDialogActivity
 import be.digitalia.fosdem.utils.invertImageColors
@@ -40,20 +39,14 @@ class RoomImageDialogFragment : DialogFragment() {
                 }
     }
 
-    fun show(manager: FragmentManager) {
-        show(manager, TAG)
-    }
-
     companion object {
         const val TAG = "room"
         private const val ARG_ROOM_NAME = "roomName"
         private const val ARG_ROOM_IMAGE_RESOURCE_ID = "imageResId"
 
-        fun newInstance(roomName: String, @DrawableRes imageResId: Int) = RoomImageDialogFragment().apply {
-            arguments = Bundle(2).apply {
-                putString(ARG_ROOM_NAME, roomName)
-                putInt(ARG_ROOM_IMAGE_RESOURCE_ID, imageResId)
-            }
+        fun createArguments(roomName: String, @DrawableRes imageResId: Int) = Bundle(2).apply {
+            putString(ARG_ROOM_NAME, roomName)
+            putInt(ARG_ROOM_IMAGE_RESOURCE_ID, imageResId)
         }
     }
 }

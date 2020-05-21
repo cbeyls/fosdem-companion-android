@@ -34,8 +34,4 @@ class SearchResultListFragment : Fragment(R.layout.recyclerview) {
             holder.isProgressBarVisible = false
         }
     }
-
-    companion object {
-        fun newInstance() = SearchResultListFragment()
-    }
 }

@@ -9,7 +9,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.add
 import androidx.fragment.app.commit
+import androidx.fragment.app.replace
 import androidx.lifecycle.observe
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.EventDetailsFragment
@@ -63,12 +65,12 @@ class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule), Create
         val fm = supportFragmentManager
         if (savedInstanceState == null) {
             val fromEventId = intent.getLongExtra(EXTRA_FROM_EVENT_ID, -1L)
-            val trackScheduleListFragment = if (fromEventId != -1L) {
-                TrackScheduleListFragment.newInstance(day, track, fromEventId)
+            val arguments = if (fromEventId != -1L) {
+                TrackScheduleListFragment.createArguments(day, track, fromEventId)
             } else {
-                TrackScheduleListFragment.newInstance(day, track)
+                TrackScheduleListFragment.createArguments(day, track)
             }
-            fm.commit { add(R.id.schedule, trackScheduleListFragment) }
+            fm.commit { add<TrackScheduleListFragment>(R.id.schedule, args = arguments) }
         } else {
             // Cleanup after switching from dual pane to single pane mode
             if (!isTabletLandscape) {
@@ -98,7 +100,8 @@ class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule), Create
                         // Allow state loss since the event fragment will be synchronized with the list selection after activity re-creation
                         fm.commit {
                             setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                            replace(R.id.event, EventDetailsFragment.newInstance(event))
+                            replace<EventDetailsFragment>(R.id.event,
+                                    args = EventDetailsFragment.createArguments(event))
                         }
                     }
                 } else {
@@ -134,6 +137,7 @@ class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule), Create
     companion object {
         const val EXTRA_DAY = "day"
         const val EXTRA_TRACK = "track"
+
         // Optional extra used as a hint for up navigation from an event
         const val EXTRA_FROM_EVENT_ID = "from_event_id"
     }

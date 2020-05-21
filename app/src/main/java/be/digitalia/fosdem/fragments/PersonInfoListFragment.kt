@@ -106,10 +106,8 @@ class PersonInfoListFragment : Fragment(R.layout.recyclerview) {
     companion object {
         private const val ARG_PERSON = "person"
 
-        fun newInstance(person: Person) = PersonInfoListFragment().apply {
-            arguments = Bundle(1).apply {
-                putParcelable(ARG_PERSON, person)
-            }
+        fun createArguments(person: Person) = Bundle(1).apply {
+            putParcelable(ARG_PERSON, person)
         }
     }
 }

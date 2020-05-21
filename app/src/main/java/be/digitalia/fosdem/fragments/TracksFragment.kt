@@ -16,6 +16,7 @@ import be.digitalia.fosdem.R
 import be.digitalia.fosdem.db.AppDatabase
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.utils.enforceSingleScrollDirection
+import be.digitalia.fosdem.utils.instantiate
 import be.digitalia.fosdem.utils.recyclerView
 import be.digitalia.fosdem.utils.viewLifecycleLazy
 import com.google.android.material.tabs.TabLayout
@@ -92,6 +93,7 @@ class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvi
 
     private class DaysAdapter(fragment: Fragment)
         : FragmentStateAdapter(fragment.childFragmentManager, fragment.viewLifecycleOwner.lifecycle) {
+        private val fragmentFactory = fragment.childFragmentManager.fragmentFactory
 
         var days: List<Day> = emptyList()
             set(value) {
@@ -109,7 +111,9 @@ class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvi
             return days.any { it.index.toLong() == itemId }
         }
 
-        override fun createFragment(position: Int) = TracksListFragment.newInstance(days[position])
+        override fun createFragment(position: Int) = fragmentFactory.instantiate<TracksListFragment>().apply {
+            arguments = TracksListFragment.createArguments(days[position])
+        }
 
         fun getPageTitle(position: Int) = days[position].toString()
     }

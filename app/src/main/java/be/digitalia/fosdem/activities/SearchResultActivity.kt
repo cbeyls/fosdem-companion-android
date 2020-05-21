@@ -7,6 +7,7 @@ import android.view.Menu
 import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.getSystemService
+import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.lifecycle.observe
 import be.digitalia.fosdem.R
@@ -26,7 +27,7 @@ class SearchResultActivity : SimpleToolbarActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         if (savedInstanceState == null) {
-            supportFragmentManager.commit { add(R.id.content, SearchResultListFragment.newInstance()) }
+            supportFragmentManager.commit { add<SearchResultListFragment>(R.id.content) }
             handleIntent(intent, false)
         }
 

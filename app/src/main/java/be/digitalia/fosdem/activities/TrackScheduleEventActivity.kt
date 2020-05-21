@@ -125,6 +125,7 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
     }
 
     class TrackScheduleEventAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fragmentActivity) {
+        private val fragmentFactory = fragmentActivity.supportFragmentManager.fragmentFactory
 
         var events: List<Event> = emptyList()
             set(value) {
@@ -141,7 +142,8 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
         }
 
         override fun createFragment(position: Int): Fragment {
-            return EventDetailsFragment.newInstance(events[position]).apply {
+            return fragmentFactory.instantiate<EventDetailsFragment>().apply {
+                arguments = EventDetailsFragment.createArguments(events[position])
                 // Workaround for duplicate menu items bug
                 setMenuVisibility(false)
             }

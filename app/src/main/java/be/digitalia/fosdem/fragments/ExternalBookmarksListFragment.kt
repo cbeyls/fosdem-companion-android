@@ -43,10 +43,8 @@ class ExternalBookmarksListFragment : Fragment(R.layout.recyclerview) {
     companion object {
         private const val ARG_BOOKMARK_IDS = "bookmark_ids"
 
-        fun newInstance(bookmarkIds: LongArray) = ExternalBookmarksListFragment().apply {
-            arguments = Bundle(1).apply {
-                putLongArray(ARG_BOOKMARK_IDS, bookmarkIds)
-            }
+        fun createArguments(bookmarkIds: LongArray) = Bundle(1).apply {
+            putLongArray(ARG_BOOKMARK_IDS, bookmarkIds)
         }
     }
 }

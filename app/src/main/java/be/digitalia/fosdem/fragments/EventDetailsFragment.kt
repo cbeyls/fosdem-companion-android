@@ -22,6 +22,8 @@ import androidx.core.text.set
 import androidx.core.view.isVisible
 import androidx.core.view.plusAssign
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.add
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import be.digitalia.fosdem.R
@@ -100,7 +102,10 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
                     if (roomImageResId != 0) {
                         roomText[0, roomText.length] = object : ClickableSpan() {
                             override fun onClick(view: View) {
-                                RoomImageDialogFragment.newInstance(roomName, roomImageResId).show(parentFragmentManager)
+                                parentFragmentManager.commit {
+                                    add<RoomImageDialogFragment>(RoomImageDialogFragment.TAG,
+                                            args = RoomImageDialogFragment.createArguments(roomName, roomImageResId))
+                                }
                             }
 
                             override fun updateDrawState(ds: TextPaint) {
@@ -298,10 +303,8 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
         private const val CONFERENCE_HASHTAG = "#FOSDEM"
         private const val VENUE_NAME = "ULB"
 
-        fun newInstance(event: Event) = EventDetailsFragment().apply {
-            arguments = Bundle(1).apply {
-                putParcelable(ARG_EVENT, event)
-            }
+        fun createArguments(event: Event) = Bundle(1).apply {
+            putParcelable(ARG_EVENT, event)
         }
     }
 }

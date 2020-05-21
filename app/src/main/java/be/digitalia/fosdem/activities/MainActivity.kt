@@ -51,24 +51,15 @@ import kotlinx.coroutines.CancellationException
  */
 class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback {
 
-    private enum class Section(@IdRes @get:IdRes val menuItemId: Int, val extendsAppBar: Boolean, val keep: Boolean) {
-        TRACKS(R.id.menu_tracks, true, true) {
-            override fun createFragment() = TracksFragment()
-        },
-        BOOKMARKS(R.id.menu_bookmarks, false, false) {
-            override fun createFragment() = BookmarksListFragment()
-        },
-        LIVE(R.id.menu_live, true, false) {
-            override fun createFragment() = LiveFragment()
-        },
-        SPEAKERS(R.id.menu_speakers, false, false) {
-            override fun createFragment() = PersonsListFragment()
-        },
-        MAP(R.id.menu_map, false, false) {
-            override fun createFragment() = MapFragment()
-        };
-
-        abstract fun createFragment(): Fragment
+    private enum class Section(val fragmentClass: Class<out Fragment>,
+                               @IdRes @get:IdRes val menuItemId: Int,
+                               val extendsAppBar: Boolean,
+                               val keep: Boolean) {
+        TRACKS(TracksFragment::class.java, R.id.menu_tracks, true, true),
+        BOOKMARKS(BookmarksListFragment::class.java, R.id.menu_bookmarks, false, false),
+        LIVE(LiveFragment::class.java, R.id.menu_live, true, false),
+        SPEAKERS(PersonsListFragment::class.java, R.id.menu_speakers, false, false),
+        MAP(MapFragment::class.java, R.id.menu_map, false, false);
 
         companion object {
             fun fromMenuItemId(@IdRes menuItemId: Int): Section? {
@@ -195,7 +186,7 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
                 else -> Section.TRACKS
             }.also { section ->
                 navigationView.setCheckedItem(section.menuItemId)
-                supportFragmentManager.commit { add(R.id.content, section.createFragment(), section.name) }
+                supportFragmentManager.commit { add(R.id.content, section.fragmentClass, null, section.name) }
             }
         }
 
@@ -341,7 +332,7 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
                 if (section.keep && cachedFragment != null) {
                     attach(cachedFragment)
                 } else {
-                    add(R.id.content, section.createFragment(), section.name)
+                    add(R.id.content, section.fragmentClass, null, section.name)
                 }
             }
 

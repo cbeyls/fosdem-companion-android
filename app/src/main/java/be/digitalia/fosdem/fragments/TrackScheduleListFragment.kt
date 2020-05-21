@@ -123,12 +123,10 @@ class TrackScheduleListFragment : Fragment(R.layout.recyclerview), TrackSchedule
         private const val STATE_IS_LIST_ALREADY_SHOWN = "isListAlreadyShown"
         private const val STATE_SELECTED_ID = "selectedId"
 
-        fun newInstance(day: Day, track: Track, fromEventId: Long = RecyclerView.NO_ID) = TrackScheduleListFragment().apply {
-            arguments = Bundle(3).apply {
-                putParcelable(ARG_DAY, day)
-                putParcelable(ARG_TRACK, track)
-                putLong(ARG_FROM_EVENT_ID, fromEventId)
-            }
+        fun createArguments(day: Day, track: Track, fromEventId: Long = RecyclerView.NO_ID) = Bundle(3).apply {
+            putParcelable(ARG_DAY, day)
+            putParcelable(ARG_TRACK, track)
+            putLong(ARG_FROM_EVENT_ID, fromEventId)
         }
     }
 }

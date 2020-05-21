@@ -1,6 +1,7 @@
 package be.digitalia.fosdem.activities
 
 import android.os.Bundle
+import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.ExternalBookmarksListFragment
@@ -26,8 +27,10 @@ class ExternalBookmarksActivity : SimpleToolbarActivity() {
                 return
             }
 
-            val f = ExternalBookmarksListFragment.newInstance(bookmarkIds)
-            supportFragmentManager.commit { add(R.id.content, f) }
+            supportFragmentManager.commit {
+                add<ExternalBookmarksListFragment>(R.id.content,
+                        args = ExternalBookmarksListFragment.createArguments(bookmarkIds))
+            }
         }
     }
 }

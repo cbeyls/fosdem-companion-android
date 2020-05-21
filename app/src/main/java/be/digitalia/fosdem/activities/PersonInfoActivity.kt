@@ -2,6 +2,7 @@ package be.digitalia.fosdem.activities
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.PersonInfoListFragment
@@ -19,8 +20,10 @@ class PersonInfoActivity : AppCompatActivity(R.layout.content_extended_title) {
         title = person.name
 
         if (savedInstanceState == null) {
-            val f = PersonInfoListFragment.newInstance(person)
-            supportFragmentManager.commit { add(R.id.content, f) }
+            supportFragmentManager.commit {
+                add<PersonInfoListFragment>(R.id.content,
+                        args = PersonInfoListFragment.createArguments(person))
+            }
         }
     }
 

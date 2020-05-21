@@ -10,6 +10,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.lifecycle.observe
 import be.digitalia.fosdem.R
@@ -42,7 +43,10 @@ class EventDetailsActivity : AppCompatActivity(R.layout.single_event), CreateNfc
             // The event has been passed as parameter, it can be displayed immediately
             initEvent(intentEvent)
             if (savedInstanceState == null) {
-                supportFragmentManager.commit { add(R.id.content, EventDetailsFragment.newInstance(intentEvent)) }
+                supportFragmentManager.commit {
+                    add<EventDetailsFragment>(R.id.content,
+                            args = EventDetailsFragment.createArguments(intentEvent))
+                }
             }
         } else {
             // Load the event from the DB using its id
@@ -68,7 +72,10 @@ class EventDetailsActivity : AppCompatActivity(R.layout.single_event), CreateNfc
 
                     val fm = supportFragmentManager
                     if (fm.findFragmentById(R.id.content) == null) {
-                        fm.commit(allowStateLoss = true) { add(R.id.content, EventDetailsFragment.newInstance(event)) }
+                        fm.commit(allowStateLoss = true) {
+                            add<EventDetailsFragment>(R.id.content,
+                                    args = EventDetailsFragment.createArguments(event))
+                        }
                     }
                 }
             }
