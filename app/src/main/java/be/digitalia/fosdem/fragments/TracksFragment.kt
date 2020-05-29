@@ -73,7 +73,7 @@ class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvi
             }
         }
 
-        viewLifecycleOwner.lifecycle.addObserver(LifecycleEventObserver { source, event ->
+        viewLifecycleOwner.lifecycle.addObserver(LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_STOP) {
                 // Save the current page to preferences if it has changed
                 val page = holder.pager.currentItem

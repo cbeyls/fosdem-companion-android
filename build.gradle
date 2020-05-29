@@ -6,15 +6,20 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.3'
+        classpath 'com.android.tools.build:gradle:4.0.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
 allprojects {
     repositories {
+        maven {
+            url "https://jitpack.io"
+            content {
+                includeGroup "com.github.chrisbanes"
+            }
+        }
         google()
         jcenter()
-        maven { url "https://jitpack.io" }
     }
 }
