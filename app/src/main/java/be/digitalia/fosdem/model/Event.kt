@@ -6,8 +6,10 @@ import androidx.room.Embedded
 import androidx.room.TypeConverters
 import be.digitalia.fosdem.api.FosdemUrls
 import be.digitalia.fosdem.db.converters.NullableDateTypeConverters
+import be.digitalia.fosdem.utils.DateParceler
 import be.digitalia.fosdem.utils.DateUtils
 import kotlinx.android.parcel.Parcelize
+import kotlinx.android.parcel.WriteWith
 import java.util.*
 
 @Parcelize
@@ -17,10 +19,10 @@ data class Event(
         val day: Day,
         @ColumnInfo(name = "start_time")
         @field:TypeConverters(NullableDateTypeConverters::class)
-        val startTime: Date? = null,
+        val startTime: @WriteWith<DateParceler> Date? = null,
         @ColumnInfo(name = "end_time")
         @field:TypeConverters(NullableDateTypeConverters::class)
-        val endTime: Date? = null,
+        val endTime: @WriteWith<DateParceler> Date? = null,
         @ColumnInfo(name = "room_name")
         val roomName: String?,
         val slug: String?,
