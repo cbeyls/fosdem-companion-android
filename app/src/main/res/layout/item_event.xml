@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.internal.ForegroundLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -31,6 +32,7 @@
         android:textAlignment="viewStart"
         android:textAppearance="?textAppearanceHeadline6"
         android:textSize="18sp"
+        app:drawableTint="?colorControlNormal"
         tools:text="Welcome to FOSDEM 2015" />
 
     <TextView

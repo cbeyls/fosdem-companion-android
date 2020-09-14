@@ -87,6 +87,7 @@
         <item name="android:gravity">start|center_vertical</item>
         <item name="android:textAlignment">viewStart</item>
         <item name="android:drawablePadding">8dp</item>
+        <item name="drawableTint">?colorControlNormal</item>
     </style>
 
     <style name="Header">
