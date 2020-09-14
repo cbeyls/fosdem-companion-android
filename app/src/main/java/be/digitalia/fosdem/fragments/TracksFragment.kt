@@ -8,7 +8,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.observe
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -21,7 +20,6 @@ import be.digitalia.fosdem.utils.recyclerView
 import be.digitalia.fosdem.utils.viewLifecycleLazy
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import com.google.android.material.tabs.TabLayoutMediator.TabConfigurationStrategy
 
 class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvider {
 
@@ -61,9 +59,7 @@ class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvi
                     emptyView.isVisible = false
                     if (pager.adapter == null) {
                         pager.adapter = daysAdapter
-                        TabLayoutMediator(tabs, pager,
-                                TabConfigurationStrategy { tab, position -> tab.text = daysAdapter.getPageTitle(position) }
-                        ).attach()
+                        TabLayoutMediator(tabs, pager) { tab, position -> tab.text = daysAdapter.getPageTitle(position) }.attach()
                     }
                     if (savedCurrentPage != -1) {
                         pager.setCurrentItem(savedCurrentPage.coerceAtMost(totalPages - 1), false)

@@ -9,7 +9,6 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.content.getSystemService
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
-import androidx.lifecycle.observe
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.SearchResultListFragment
 import be.digitalia.fosdem.viewmodels.SearchViewModel

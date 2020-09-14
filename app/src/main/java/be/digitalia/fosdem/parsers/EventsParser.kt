@@ -1,9 +1,19 @@
 package be.digitalia.fosdem.parsers
 
-import be.digitalia.fosdem.model.*
-import be.digitalia.fosdem.utils.*
+import be.digitalia.fosdem.model.Day
+import be.digitalia.fosdem.model.DetailedEvent
+import be.digitalia.fosdem.model.Event
+import be.digitalia.fosdem.model.EventDetails
+import be.digitalia.fosdem.model.Link
+import be.digitalia.fosdem.model.Person
+import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.DateUtils.belgiumTimeZone
 import be.digitalia.fosdem.utils.DateUtils.withBelgiumTimeZone
+import be.digitalia.fosdem.utils.isEndDocument
+import be.digitalia.fosdem.utils.isNextEndTag
+import be.digitalia.fosdem.utils.isStartTag
+import be.digitalia.fosdem.utils.skipToEndTag
+import be.digitalia.fosdem.utils.xmlPullParserFactory
 import okio.BufferedSource
 import org.xmlpull.v1.XmlPullParser
 import java.text.SimpleDateFormat

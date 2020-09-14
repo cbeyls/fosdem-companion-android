@@ -2,7 +2,6 @@ package be.digitalia.fosdem.widgets
 
 import android.widget.ImageButton
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.observe
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.model.BookmarkStatus
 import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel

@@ -14,7 +14,6 @@ import androidx.core.text.set
 import androidx.core.view.isGone
 import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.observe
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import be.digitalia.fosdem.R

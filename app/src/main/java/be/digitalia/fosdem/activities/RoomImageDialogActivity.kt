@@ -12,7 +12,6 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.core.text.set
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.observe
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.api.FosdemUrls

@@ -1,6 +1,10 @@
 package be.digitalia.fosdem.db.entities
 
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
 import be.digitalia.fosdem.db.converters.NullableDateTypeConverters
 import java.util.*
 

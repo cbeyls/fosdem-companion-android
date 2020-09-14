@@ -1,6 +1,10 @@
 package be.digitalia.fosdem.services
 
-import android.app.*
+import android.app.AlarmManager
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -12,7 +16,10 @@ import android.text.SpannableString
 import android.text.format.DateUtils
 import android.text.style.StyleSpan
 import androidx.annotation.RequiresApi
-import androidx.core.app.*
+import androidx.core.app.AlarmManagerCompat
+import androidx.core.app.JobIntentService
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService

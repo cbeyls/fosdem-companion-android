@@ -1,7 +1,12 @@
 package be.digitalia.fosdem.viewmodels
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.map
+import androidx.lifecycle.switchMap
 import be.digitalia.fosdem.db.AppDatabase
 import be.digitalia.fosdem.model.BookmarkStatus
 import be.digitalia.fosdem.model.Event
@@ -12,7 +17,7 @@ class BookmarkStatusViewModel(application: Application) : AndroidViewModel(appli
     private val eventLiveData = MutableLiveData<Event?>()
     private var firstResultReceived = false
 
-    val bookmarkStatus: LiveData<BookmarkStatus?> = eventLiveData.switchMap<Event?, BookmarkStatus?> { event ->
+    val bookmarkStatus: LiveData<BookmarkStatus?> = eventLiveData.switchMap { event ->
         if (event == null) {
             MutableLiveData(null)
         } else {

@@ -16,7 +16,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.set
 import androidx.core.view.isGone
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.observe
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver

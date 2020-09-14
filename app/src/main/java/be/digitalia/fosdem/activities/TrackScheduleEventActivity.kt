@@ -12,7 +12,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.observe
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import be.digitalia.fosdem.R
@@ -20,7 +19,16 @@ import be.digitalia.fosdem.fragments.EventDetailsFragment
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.Track
-import be.digitalia.fosdem.utils.*
+import be.digitalia.fosdem.utils.CreateNfcAppDataCallback
+import be.digitalia.fosdem.utils.enforceSingleScrollDirection
+import be.digitalia.fosdem.utils.instantiate
+import be.digitalia.fosdem.utils.isLightTheme
+import be.digitalia.fosdem.utils.recyclerView
+import be.digitalia.fosdem.utils.setNfcAppDataPushMessageCallbackIfAvailable
+import be.digitalia.fosdem.utils.setTaskColorPrimary
+import be.digitalia.fosdem.utils.statusBarColorCompat
+import be.digitalia.fosdem.utils.tintBackground
+import be.digitalia.fosdem.utils.toNfcAppData
 import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel
 import be.digitalia.fosdem.viewmodels.TrackScheduleEventViewModel
 import be.digitalia.fosdem.widgets.ContentLoadingViewMediator

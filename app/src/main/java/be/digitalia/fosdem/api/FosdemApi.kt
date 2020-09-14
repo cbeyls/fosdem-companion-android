@@ -134,7 +134,7 @@ object FosdemApi {
         var expirationTime = Long.MAX_VALUE
         var retryAttempt = 0
 
-        return liveData<Map<String, RoomStatus>> {
+        return liveData {
             var now = SystemClock.elapsedRealtime()
             var nextRefreshDelay = nextRefreshTime - now
 

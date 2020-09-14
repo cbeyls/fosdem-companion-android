@@ -72,6 +72,7 @@
         <item name="android:enabled">false</item>
         <item name="fabSize">normal</item>
         <item name="srcCompat">@drawable/asld_bookmark_24dp</item>
+        <item name="tint">?attr/colorOnSecondary</item><!-- Workaround for bug on API < 21 -->
     </style>
 
     <style name="SeparatorLine">

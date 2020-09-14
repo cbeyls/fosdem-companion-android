@@ -2,7 +2,11 @@ package be.digitalia.fosdem.viewmodels
 
 import android.app.Application
 import android.text.format.DateUtils
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.map
+import androidx.lifecycle.switchMap
 import be.digitalia.fosdem.db.AppDatabase
 import be.digitalia.fosdem.livedata.LiveDataFactory
 import be.digitalia.fosdem.model.Day

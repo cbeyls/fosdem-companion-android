@@ -1,7 +1,12 @@
 package be.digitalia.fosdem.viewmodels
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.map
+import androidx.lifecycle.switchMap
 import androidx.paging.PagedList
 import androidx.paging.toLiveData
 import be.digitalia.fosdem.db.AppDatabase
@@ -17,7 +22,7 @@ class SearchViewModel(application: Application, private val state: SavedStateHan
         class Success(val list: PagedList<StatusEvent>) : Result()
     }
 
-    val results: LiveData<Result> = queryLiveData.switchMap<String, Result> { query ->
+    val results: LiveData<Result> = queryLiveData.switchMap { query ->
         if (query.length < SEARCH_QUERY_MIN_LENGTH) {
             MutableLiveData(Result.QueryTooShort)
         } else {

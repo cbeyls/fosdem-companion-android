@@ -10,7 +10,11 @@ import android.text.SpannableString
 import android.text.TextPaint
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.ShareCompat
@@ -25,12 +29,20 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.observe
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.PersonInfoActivity
 import be.digitalia.fosdem.api.FosdemApi
-import be.digitalia.fosdem.model.*
-import be.digitalia.fosdem.utils.*
+import be.digitalia.fosdem.model.Building
+import be.digitalia.fosdem.model.Event
+import be.digitalia.fosdem.model.EventDetails
+import be.digitalia.fosdem.model.Link
+import be.digitalia.fosdem.model.Person
+import be.digitalia.fosdem.utils.ClickableArrowKeyMovementMethod
+import be.digitalia.fosdem.utils.DateUtils
+import be.digitalia.fosdem.utils.configureToolbarColors
+import be.digitalia.fosdem.utils.parseHtml
+import be.digitalia.fosdem.utils.roomNameToResourceName
+import be.digitalia.fosdem.utils.stripHtml
 import be.digitalia.fosdem.viewmodels.EventDetailsViewModel
 import com.google.android.material.snackbar.Snackbar
 

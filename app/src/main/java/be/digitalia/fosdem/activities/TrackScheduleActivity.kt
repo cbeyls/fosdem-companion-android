@@ -12,7 +12,6 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
-import androidx.lifecycle.observe
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.EventDetailsFragment
 import be.digitalia.fosdem.fragments.RoomImageDialogFragment
@@ -20,7 +19,13 @@ import be.digitalia.fosdem.fragments.TrackScheduleListFragment
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.Track
-import be.digitalia.fosdem.utils.*
+import be.digitalia.fosdem.utils.CreateNfcAppDataCallback
+import be.digitalia.fosdem.utils.isLightTheme
+import be.digitalia.fosdem.utils.setNfcAppDataPushMessageCallbackIfAvailable
+import be.digitalia.fosdem.utils.setTaskColorPrimary
+import be.digitalia.fosdem.utils.statusBarColorCompat
+import be.digitalia.fosdem.utils.tintBackground
+import be.digitalia.fosdem.utils.toNfcAppData
 import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel
 import be.digitalia.fosdem.viewmodels.TrackScheduleViewModel
 import be.digitalia.fosdem.widgets.setupBookmarkStatus
