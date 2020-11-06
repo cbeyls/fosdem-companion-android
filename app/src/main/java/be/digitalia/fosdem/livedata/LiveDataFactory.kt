@@ -1,15 +1,15 @@
 package be.digitalia.fosdem.livedata
 
-import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
+import androidx.core.os.HandlerCompat
 import androidx.lifecycle.LiveData
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 object LiveDataFactory {
 
-    private val handler = Handler(Looper.getMainLooper())
+    private val handler = HandlerCompat.createAsync(Looper.getMainLooper())
 
     fun interval(period: Long, unit: TimeUnit): LiveData<Long> {
         return IntervalLiveData(unit.toMillis(period))
