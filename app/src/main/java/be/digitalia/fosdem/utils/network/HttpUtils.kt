@@ -7,15 +7,10 @@ import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.ResponseBody
+import okhttp3.tls.HandshakeCertificates
 import java.io.IOException
 import java.net.HttpURLConnection
-import java.security.KeyStore
-import java.util.*
 import java.util.concurrent.TimeUnit
-import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManager
-import javax.net.ssl.TrustManagerFactory
-import javax.net.ssl.X509TrustManager
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -90,24 +85,12 @@ object HttpUtils {
     val okhttp3.Response.lastModified: String?
         get() = header("Last-Modified")
 
-    fun OkHttpClient.Builder.enableTls12(): OkHttpClient.Builder {
+    private fun OkHttpClient.Builder.enableTls12(): OkHttpClient.Builder {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1) {
-            try {
-                val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
-                trustManagerFactory.init(null as KeyStore?)
-                val trustManagers = trustManagerFactory.trustManagers
-                check(trustManagers.isNotEmpty() && trustManagers[0] is X509TrustManager) {
-                    "Unexpected default trust managers: " + Arrays.toString(trustManagers)
-                }
-                val trustManager = trustManagers[0] as X509TrustManager
-
-                val sslContext = SSLContext.getInstance("TLS")
-                sslContext.init(null, arrayOf<TrustManager>(trustManager), null)
-
-                sslSocketFactory(Tls12SocketFactory(sslContext.socketFactory), trustManager)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            val clientCertificates = HandshakeCertificates.Builder()
+                    .addPlatformTrustedCertificates()
+                    .build()
+            sslSocketFactory(Tls12SocketFactory(clientCertificates.sslSocketFactory()), clientCertificates.trustManager())
         }
         return this
     }

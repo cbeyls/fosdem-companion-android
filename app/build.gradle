@@ -64,6 +64,7 @@ android {
 dependencies {
     def lifecycle_version = "2.2.0"
     def room_version = "2.2.5"
+    def okhttp_version = "3.12.12"
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.0'
@@ -83,7 +84,10 @@ dependencies {
     implementation 'androidx.paging:paging-runtime-ktx:2.1.2'
     implementation "androidx.room:room-ktx:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
-    implementation 'com.squareup.okhttp3:okhttp:3.12.12'
+    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+    implementation ("com.squareup.okhttp3:okhttp-tls:$okhttp_version") {
+        exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
+    }
     implementation 'com.squareup.okio:okio:2.9.0'
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 }
