@@ -37,6 +37,10 @@ android {
                         '-Xno-receiver-assertions'
                 ]
             }
+
+            packagingOptions {
+                exclude 'DebugProbesKt.bin'
+            }
         }
     }
 
