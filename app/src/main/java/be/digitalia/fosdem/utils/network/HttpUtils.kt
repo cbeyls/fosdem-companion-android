@@ -1,6 +1,10 @@
 package be.digitalia.fosdem.utils.network
 
 import android.os.Build
+import be.digitalia.fosdem.utils.BackgroundWorkScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Call
 import okhttp3.Callback
@@ -24,11 +28,13 @@ object HttpUtils {
     private const val DEFAULT_CONNECT_TIMEOUT = 10L
     private const val DEFAULT_READ_TIMEOUT = 10L
 
-    private val client = OkHttpClient.Builder()
-            .enableTls12()
-            .connectTimeout(DEFAULT_CONNECT_TIMEOUT, TimeUnit.SECONDS)
-            .readTimeout(DEFAULT_READ_TIMEOUT, TimeUnit.SECONDS)
-            .build()
+    private val deferredClient = BackgroundWorkScope.async(Dispatchers.IO, CoroutineStart.LAZY) {
+        OkHttpClient.Builder()
+                .enableTls12()
+                .connectTimeout(DEFAULT_CONNECT_TIMEOUT, TimeUnit.SECONDS)
+                .readTimeout(DEFAULT_READ_TIMEOUT, TimeUnit.SECONDS)
+                .build()
+    }
 
     suspend fun <T> get(url: String, bodyParser: (body: ResponseBody, rawResponse: okhttp3.Response) -> T): Response.Success<T> {
         return when (val response = get(url, null, bodyParser)) {
@@ -49,6 +55,8 @@ object HttpUtils {
         val request = requestBuilder
                 .url(url)
                 .build()
+
+        val client = deferredClient.await()
 
         return suspendCancellableCoroutine { continuation ->
             val call = client.newCall(request)
