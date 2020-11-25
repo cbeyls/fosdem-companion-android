@@ -17,7 +17,9 @@ import be.digitalia.fosdem.utils.xmlPullParserFactory
 import okio.BufferedSource
 import org.xmlpull.v1.XmlPullParser
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 /**
  * Main parser for FOSDEM schedule data in pentabarf XML format.

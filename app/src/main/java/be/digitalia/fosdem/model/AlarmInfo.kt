@@ -3,7 +3,7 @@ package be.digitalia.fosdem.model
 import androidx.room.ColumnInfo
 import androidx.room.TypeConverters
 import be.digitalia.fosdem.db.converters.NullableDateTypeConverters
-import java.util.*
+import java.util.Date
 
 class AlarmInfo(
         @ColumnInfo(name = "event_id")

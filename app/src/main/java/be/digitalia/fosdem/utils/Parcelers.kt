@@ -1,8 +1,8 @@
 package be.digitalia.fosdem.utils
 
 import android.os.Parcel
-import kotlinx.android.parcel.Parceler
-import java.util.*
+import kotlinx.parcelize.Parceler
+import java.util.Date
 
 object DateParceler : Parceler<Date?> {
 

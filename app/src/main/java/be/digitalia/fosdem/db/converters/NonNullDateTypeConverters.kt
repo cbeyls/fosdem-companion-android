@@ -1,7 +1,7 @@
 package be.digitalia.fosdem.db.converters
 
 import androidx.room.TypeConverter
-import java.util.*
+import java.util.Date
 
 object NonNullDateTypeConverters {
     @JvmStatic

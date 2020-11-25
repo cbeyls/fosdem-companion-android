@@ -6,7 +6,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import be.digitalia.fosdem.db.converters.NullableDateTypeConverters
-import java.util.*
+import java.util.Date
 
 @Entity(tableName = EventEntity.TABLE_NAME, indices = [
     Index(value = ["day_index"], name = "event_day_index_idx"),

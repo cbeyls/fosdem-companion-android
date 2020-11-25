@@ -2,7 +2,9 @@ package be.digitalia.fosdem.utils
 
 import android.content.Context
 import java.text.DateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Locale
+import java.util.TimeZone
 
 object DateUtils {
     val belgiumTimeZone: TimeZone = TimeZone.getTimeZone("GMT+1")

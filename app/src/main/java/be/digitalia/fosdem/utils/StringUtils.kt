@@ -10,7 +10,7 @@ import androidx.core.text.HtmlCompat
 import androidx.core.text.parseAsHtml
 import androidx.core.text.set
 import org.xml.sax.XMLReader
-import java.util.*
+import java.util.Locale
 
 /**
  * Various methods to transform strings
