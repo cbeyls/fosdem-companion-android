@@ -24,6 +24,12 @@ android {
         }
     }
 
+    sourceSets {
+        main {
+            res.srcDirs += 'res-override'
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled true
