@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.core.util.set
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
-import java.util.*
+import java.util.Arrays
 
 /**
  * Adapter which concatenates the items of multiple adapters.

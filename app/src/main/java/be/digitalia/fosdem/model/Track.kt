@@ -7,7 +7,7 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import be.digitalia.fosdem.R
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Entity(tableName = Track.TABLE_NAME, indices = [Index(value = ["name", "type"], name = "track_main_idx", unique = true)])
 @Parcelize

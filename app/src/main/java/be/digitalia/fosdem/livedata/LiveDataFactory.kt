@@ -4,7 +4,7 @@ import android.os.Looper
 import android.os.SystemClock
 import androidx.core.os.HandlerCompat
 import androidx.lifecycle.LiveData
-import java.util.*
+import java.util.Arrays
 import java.util.concurrent.TimeUnit
 
 object LiveDataFactory {

@@ -7,7 +7,7 @@ import androidx.room.Fts3
 import androidx.room.PrimaryKey
 import be.digitalia.fosdem.api.FosdemUrls
 import be.digitalia.fosdem.utils.toSlug
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Fts3
 @Entity(tableName = Person.TABLE_NAME)

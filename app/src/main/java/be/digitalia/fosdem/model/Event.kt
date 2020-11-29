@@ -8,9 +8,9 @@ import be.digitalia.fosdem.api.FosdemUrls
 import be.digitalia.fosdem.db.converters.NullableDateTypeConverters
 import be.digitalia.fosdem.utils.DateParceler
 import be.digitalia.fosdem.utils.DateUtils
-import kotlinx.android.parcel.Parcelize
-import kotlinx.android.parcel.WriteWith
-import java.util.*
+import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.WriteWith
+import java.util.Date
 
 @Parcelize
 data class Event(

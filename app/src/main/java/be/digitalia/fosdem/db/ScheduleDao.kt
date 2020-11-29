@@ -29,7 +29,7 @@ import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.DateUtils
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import java.util.*
+import java.util.HashSet
 
 @Dao
 abstract class ScheduleDao(private val appDatabase: AppDatabase) {

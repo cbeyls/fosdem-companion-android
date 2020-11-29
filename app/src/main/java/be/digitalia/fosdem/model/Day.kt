@@ -7,10 +7,11 @@ import androidx.room.TypeConverters
 import be.digitalia.fosdem.db.converters.NonNullDateTypeConverters
 import be.digitalia.fosdem.utils.DateParceler
 import be.digitalia.fosdem.utils.DateUtils.withBelgiumTimeZone
-import kotlinx.android.parcel.Parcelize
-import kotlinx.android.parcel.WriteWith
+import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.WriteWith
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 @Entity(tableName = Day.TABLE_NAME)
 @Parcelize

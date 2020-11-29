@@ -25,7 +25,9 @@ import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.OutputStream
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Locale
+import java.util.TimeZone
 
 /**
  * Content Provider generating the current bookmarks list in iCalendar format.
