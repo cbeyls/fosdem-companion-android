@@ -1,14 +1,13 @@
 package be.digitalia.fosdem.parsers
 
-import android.util.JsonReader
 import be.digitalia.fosdem.model.RoomStatus
+import com.squareup.moshi.JsonReader
 import okio.BufferedSource
-import java.io.InputStreamReader
 
 class RoomStatusesParser : Parser<Map<String, RoomStatus>> {
 
     override fun parse(source: BufferedSource): Map<String, RoomStatus> {
-        val reader = JsonReader(InputStreamReader(source.inputStream()))
+        val reader = JsonReader.of(source)
         val result = mutableMapOf<String, RoomStatus>()
 
         reader.beginArray()
@@ -18,17 +17,20 @@ class RoomStatusesParser : Parser<Map<String, RoomStatus>> {
 
             reader.beginObject()
             while (reader.hasNext()) {
-                when (reader.nextName()) {
-                    "roomname" -> roomName = reader.nextString()
-                    "state" -> {
-                        val stateValue = reader.nextString()
+                when (reader.selectName(PROPERTIES_NAMES)) {
+                    PROPERTIES_NAME_ROOM_NAME -> roomName = reader.nextString()
+                    PROPERTIES_NAME_STATE -> {
+                        val stateValue = reader.nextInt()
                         try {
-                            roomStatus = RoomStatus.values()[stateValue.toInt()]
+                            roomStatus = RoomStatus.values()[stateValue]
                         } catch (e: Exception) {
                             // Swallow and ignore that room
                         }
                     }
-                    else -> reader.skipValue()
+                    else -> {
+                        reader.skipName()
+                        reader.skipValue()
+                    }
                 }
             }
             reader.endObject()
@@ -40,5 +42,13 @@ class RoomStatusesParser : Parser<Map<String, RoomStatus>> {
         reader.endArray()
 
         return result
+    }
+
+    companion object {
+        private val PROPERTIES_NAMES = JsonReader.Options.of(
+                "roomname", "state"
+        )
+        private const val PROPERTIES_NAME_ROOM_NAME = 0
+        private const val PROPERTIES_NAME_STATE = 1
     }
 }
