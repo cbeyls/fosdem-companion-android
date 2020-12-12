@@ -118,6 +118,7 @@
 
     <!-- Event details -->
     <string name="event_details">Event details</string>
+    <string name="room_building">%1$s (Building %2$s)</string>
     <string name="track_content_description">Track: %1$s</string>
     <string name="time_content_description">Time: %1$s</string>
     <string name="room_content_description">Room: %1$s</string>

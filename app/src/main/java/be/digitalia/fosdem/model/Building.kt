@@ -1,26 +1,24 @@
 package be.digitalia.fosdem.model
 
 enum class Building {
-    J, K, H, U, AW, Unknown;
+    J, K, H, U, AW;
 
     companion object {
-        fun fromRoomName(roomName: String): Building {
-            if (roomName.isNotEmpty()) {
-                when {
-                    roomName.startsWith('J', ignoreCase = true) -> return J
-                    roomName.startsWith('K', ignoreCase = true) -> return K
-                    roomName.startsWith('H', ignoreCase = true) -> return H
-                    roomName.startsWith('U', ignoreCase = true) -> return U
-                    roomName.startsWith("AW", ignoreCase = true) -> return AW
-                    roomName.equals("Janson", ignoreCase = true) -> return J
-                    roomName.equals("Ferrer", ignoreCase = true) -> return H
-                    roomName.equals("Chavanne", ignoreCase = true)
-                            || roomName.equals("Lameere", ignoreCase = true)
-                            || roomName.equals("Guillissen", ignoreCase = true) -> return U
-                }
+        fun fromRoomName(roomName: String): Building? = with(roomName) {
+            when {
+                isEmpty() -> null
+                startsWith('J', ignoreCase = true) -> J
+                startsWith('K', ignoreCase = true) -> K
+                startsWith('H', ignoreCase = true) -> H
+                startsWith('U', ignoreCase = true) -> U
+                startsWith("AW", ignoreCase = true) -> AW
+                equals("Janson", ignoreCase = true) -> J
+                equals("Ferrer", ignoreCase = true) -> H
+                equals("Chavanne", ignoreCase = true)
+                        || equals("Lameere", ignoreCase = true)
+                        || equals("Guillissen", ignoreCase = true) -> U
+                else -> null
             }
-
-            return Unknown
         }
     }
 }

@@ -5,7 +5,6 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Bundle
 import android.provider.CalendarContract
-import android.text.Spannable
 import android.text.SpannableString
 import android.text.TextPaint
 import android.text.method.LinkMovementMethod
@@ -108,7 +107,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
                     isVisible = false
                 } else {
                     val building = Building.fromRoomName(roomName)
-                    val roomText: Spannable = SpannableString("$roomName (Building $building)")
+                    val roomText = SpannableString(if (building == null) roomName else getString(R.string.room_building, roomName, building))
                     val roomImageResId = resources.getIdentifier(roomNameToResourceName(roomName), "drawable", requireActivity().packageName)
                     // If the room image exists, make the room text clickable to display it
                     if (roomImageResId != 0) {
