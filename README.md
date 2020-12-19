@@ -31,9 +31,12 @@ The result apk file will be placed in ```app/build/outputs/apk/```.
 
 ## Used libraries
 
-* [AndroidX](https://developer.android.com/jetpack/androidx/) by The Android Open Source Project
-* [Android Architecture Components](https://developer.android.com/topic/libraries/architecture/) by The Android Open Source Project
-* [Material Components for Android](https://material.io/develop/android/) by The Android Open Source Project
+* [Android Jetpack](https://developer.android.com/jetpack) by The Android Open Source Project
+* [Material Components for Android](https://material.io/develop/android) by The Android Open Source Project
+* [OkHttp](https://github.com/square/okhttp) by Square, Inc.
+* [Moshi](https://github.com/square/moshi) by Square, Inc.
+* [Kotlin Standard Library](https://github.com/JetBrains/kotlin) by JetBrains s.r.o. and Kotlin Programming Language contributors
+* [kotlinx.coroutines](https://github.com/Kotlin/kotlinx.coroutines) by JetBrains s.r.o.
 * [PhotoView](https://github.com/chrisbanes/PhotoView) by Chris Banes, Marek Sebera and John Carlson
 
 ## Contributors

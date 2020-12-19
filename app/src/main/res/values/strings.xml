@@ -146,15 +146,18 @@
     <string name="navigation">On-site navigation</string>
     <string name="no_data">No data available.</string>
     <string name="volunteer">Volunteer</string>
-    <string name="about_text">Programmed by <a href="http://www.digitalia.be/">Christophe Beyls</a>.
+    <string name="about_text">Programmed by <a href="https://www.digitalia.be/">Christophe Beyls</a>.
 \n
 \nLicensed under the Apache License, version 2.0. Source available on <a href="https://github.com/cbeyls/fosdem-companion-android">GitHub</a>.
 \nThe name FOSDEM and the gear logo are registered trademarks of FOSDEM VZW.  Used with permission.
 \n
 \n<small>This application makes use of the following libraries:
-\n- <a href="https://developer.android.com/jetpack/androidx/">AndroidX</a><i> by The Android Open Source Project</i>
-\n- <a href="https://developer.android.com/topic/libraries/architecture/">Android Architecture Components</a><i> by The Android Open Source Project</i>
-\n- <a href="https://material.io/develop/android/">Material Components for Android</a><i> by The Android Open Source Project</i>
+\n- <a href="https://developer.android.com/jetpack">Android Jetpack</a><i> by The Android Open Source Project</i>
+\n- <a href="https://material.io/develop/android">Material Components for Android</a><i> by The Android Open Source Project</i>
+\n- <a href="https://github.com/square/okhttp">OkHttp</a><i> by Square, Inc.</i>
+\n- <a href="https://github.com/square/moshi">Moshi</a><i> by Square, Inc.</i>
+\n- <a href="https://github.com/JetBrains/kotlin">Kotlin Standard Library</a><i> by JetBrains s.r.o. and Kotlin Programming Language contributors</i>
+\n- <a href="https://github.com/Kotlin/kotlinx.coroutines">kotlinx.coroutines</a><i> by JetBrains s.r.o.</i>
 \n- <a href="https://github.com/chrisbanes/PhotoView">PhotoView</a><i> by Chris Banes, Marek Sebera and John Carlson</i></small></string>
 
 </resources>
