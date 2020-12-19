@@ -12,6 +12,9 @@ import be.digitalia.fosdem.R
 @SuppressLint("PrivateResource")
 fun CustomTabsIntent.Builder.configureToolbarColors(context: Context,
                                                     @ColorRes toolbarColorResId: Int): CustomTabsIntent.Builder {
+    val defaultColorSchemeParams = CustomTabColorSchemeParams.Builder()
+            .setToolbarColor(ContextCompat.getColor(context, toolbarColorResId))
+            .build()
     val darkColorSchemeParams = CustomTabColorSchemeParams.Builder()
             .setToolbarColor(ContextCompat.getColor(context, R.color.design_dark_default_color_surface))
             .build()
@@ -23,7 +26,7 @@ fun CustomTabsIntent.Builder.configureToolbarColors(context: Context,
         else -> CustomTabsIntent.COLOR_SCHEME_SYSTEM
     }
 
-    return setToolbarColor(ContextCompat.getColor(context, toolbarColorResId))
+    return setDefaultColorSchemeParams(defaultColorSchemeParams)
             .setColorSchemeParams(CustomTabsIntent.COLOR_SCHEME_DARK, darkColorSchemeParams)
             .setColorScheme(colorScheme)
 }
