@@ -7,5 +7,6 @@
     <dimen name="detail_card_view_margin_top">64dp</dimen>
     <dimen name="detail_card_view_margin_bottom">0dp</dimen>
     <dimen name="detail_fab_margin_end">20dp</dimen>
+    <dimen name="person_info_fab_margin_end">16dp</dimen>
 
 </resources>

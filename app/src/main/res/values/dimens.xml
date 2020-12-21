@@ -17,5 +17,6 @@
     <dimen name="detail_card_view_margin_top">55dp</dimen>
     <dimen name="detail_card_view_margin_bottom">-9dp</dimen>
     <dimen name="detail_fab_margin_end">8dp</dimen>
+    <dimen name="person_info_fab_margin_end">4dp</dimen>
 
 </resources>

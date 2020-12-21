@@ -21,6 +21,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
+            app:expandedTitleMarginBottom="40dp"
             app:expandedTitleMarginEnd="16dp"
             app:expandedTitleMarginStart="16dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
@@ -44,5 +45,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/person_info_fab_margin_end"
+        android:contentDescription="@string/more_info"
+        app:fabSize="auto"
+        app:layout_anchor="@+id/appbar"
+        app:layout_anchorGravity="bottom|end"
+        app:srcCompat="@drawable/ic_info_white_24dp"
+        app:tint="?attr/colorOnSecondary" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
