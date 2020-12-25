@@ -30,6 +30,7 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.PersonInfoActivity
+import be.digitalia.fosdem.activities.VideoPlayerActivity
 import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.model.Building
 import be.digitalia.fosdem.model.Event
@@ -294,8 +295,15 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
 
     private class LinkClickListener(private val event: Event, private val link: Link) : View.OnClickListener {
         override fun onClick(v: View) {
+            val context = v.context
+            if (link.url.endsWith(".mp4") || link.url.endsWith(".webm")) {
+                val intent = Intent(context, VideoPlayerActivity::class.java)
+                        .putExtra(VideoPlayerActivity.EXTRA_URI, link.url)
+                context.startActivity(intent)
+                return
+            }
+
             try {
-                val context = v.context
                 CustomTabsIntent.Builder()
                         .configureToolbarColors(context, event.track.type.appBarColorResId)
                         .setShowTitle(true)

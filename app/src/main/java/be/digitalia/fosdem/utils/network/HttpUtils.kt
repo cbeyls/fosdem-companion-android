@@ -5,6 +5,7 @@ import be.digitalia.fosdem.utils.BackgroundWorkScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Call
 import okhttp3.Callback
@@ -34,6 +35,10 @@ object HttpUtils {
                 .connectTimeout(DEFAULT_CONNECT_TIMEOUT, TimeUnit.SECONDS)
                 .readTimeout(DEFAULT_READ_TIMEOUT, TimeUnit.SECONDS)
                 .build()
+    }
+
+    val deferringCallFactory = Call.Factory { request ->
+        runBlocking { deferredClient.await() }.newCall(request)
     }
 
     suspend fun <T> get(url: String, bodyParser: (body: ResponseBody, rawResponse: okhttp3.Response) -> T): Response.Success<T> {
