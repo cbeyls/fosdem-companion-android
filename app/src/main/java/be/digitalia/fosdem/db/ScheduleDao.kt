@@ -170,7 +170,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     protected abstract fun insertPersons(persons: List<Person>)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     protected abstract fun insertEventsToPersons(eventsToPersons: Array<EventToPerson>)
 
     @Insert
