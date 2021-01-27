@@ -16,7 +16,7 @@ import be.digitalia.fosdem.api.FosdemUrls
 import be.digitalia.fosdem.db.AppDatabase
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.utils.DateUtils
-import be.digitalia.fosdem.utils.ICalendarWriter
+import be.digitalia.fosdem.ical.ICalendarWriter
 import be.digitalia.fosdem.utils.stripHtml
 import be.digitalia.fosdem.utils.toSlug
 import okio.buffer

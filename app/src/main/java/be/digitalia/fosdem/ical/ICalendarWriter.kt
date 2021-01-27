@@ -1,4 +1,4 @@
-package be.digitalia.fosdem.utils
+package be.digitalia.fosdem.ical
 
 import okio.BufferedSink
 import okio.ByteString.Companion.encodeUtf8
@@ -15,7 +15,7 @@ class ICalendarWriter(private val sink: BufferedSink) : Closeable {
         if (value != null) {
             with(sink) {
                 writeUtf8(key)
-                writeUtf8CodePoint(':'.toInt())
+                writeByte(':'.toInt())
 
                 // Escape line break sequences
                 val length = value.length
@@ -26,7 +26,7 @@ class ICalendarWriter(private val sink: BufferedSink) : Closeable {
                     if (c == '\r' || c == '\n') {
                         writeUtf8(value, start, end)
                         write(CRLF)
-                        writeUtf8CodePoint(' '.toInt())
+                        writeByte(' '.toInt())
                         do {
                             end++
                         } while (end < length && (value[end] == '\r' || value[end] == '\n'))
