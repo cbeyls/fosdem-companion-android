@@ -68,7 +68,7 @@ object HttpUtils {
                 override fun onResponse(call: Call, response: okhttp3.Response) {
                     // This block is invoked on OkHttp's network thread
                     val body = response.body()
-                    if (!response.isSuccessful || body == null) {
+                    if (!response.isSuccessful) {
                         body?.close()
                         if (lastModified != null && response.code() == HttpURLConnection.HTTP_NOT_MODIFIED) {
                             // Cached result is still valid; return an empty response
@@ -78,7 +78,7 @@ object HttpUtils {
                         }
                     } else {
                         try {
-                            val parsedBody = body.use { bodyParser(it, response) }
+                            val parsedBody = checkNotNull(body).use { bodyParser(it, response) }
                             continuation.resume(Response.Success(parsedBody, response))
                         } catch (e: Exception) {
                             continuation.resumeWithException(e)
