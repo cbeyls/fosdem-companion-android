@@ -14,9 +14,9 @@ import be.digitalia.fosdem.BuildConfig
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.api.FosdemUrls
 import be.digitalia.fosdem.db.AppDatabase
+import be.digitalia.fosdem.ical.ICalendarWriter
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.utils.DateUtils
-import be.digitalia.fosdem.ical.ICalendarWriter
 import be.digitalia.fosdem.utils.stripHtml
 import be.digitalia.fosdem.utils.toSlug
 import okio.buffer
@@ -144,12 +144,12 @@ class BookmarksExportProvider : ContentProvider() {
     }
 
     companion object {
+        const val TYPE = "text/calendar"
         private val URI = Uri.Builder()
                 .scheme("content")
                 .authority("${BuildConfig.APPLICATION_ID}.bookmarks")
                 .appendPath("bookmarks.ics")
                 .build()
-        private const val TYPE = "text/calendar"
         private val COLUMNS = arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE)
 
         fun getIntent(activity: Activity?): Intent {

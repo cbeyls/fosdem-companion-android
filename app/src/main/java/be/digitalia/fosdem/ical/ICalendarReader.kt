@@ -46,7 +46,7 @@ class ICalendarReader(private val source: BufferedSource) : Closeable {
         state = STATE_BEGIN_VALUE
     }
 
-    fun optKey(options: Options): Int {
+    fun selectKey(options: Options): Int {
         check(state == STATE_BEGIN_KEY)
         val result = source.select(options.suffixedKey)
         if (result >= 0) {

@@ -1,7 +1,10 @@
 package be.digitalia.fosdem.fragments
 
+import android.app.Activity
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.nfc.NdefRecord
 import android.os.Bundle
 import android.view.Menu
@@ -11,17 +14,22 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.content.edit
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import be.digitalia.fosdem.R
+import be.digitalia.fosdem.activities.ExternalBookmarksActivity
 import be.digitalia.fosdem.adapters.BookmarksAdapter
 import be.digitalia.fosdem.providers.BookmarksExportProvider
 import be.digitalia.fosdem.utils.CreateNfcAppDataCallback
 import be.digitalia.fosdem.utils.toBookmarksNfcAppData
 import be.digitalia.fosdem.viewmodels.BookmarksViewModel
 import be.digitalia.fosdem.widgets.MultiChoiceHelper
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.util.concurrent.CancellationException
 
 /**
  * Bookmarks list, optionally filterable.
@@ -133,7 +141,50 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
             startActivity(Intent.createChooser(exportIntent, getString(R.string.export_bookmarks)))
             true
         }
+        R.id.import_bookmarks -> {
+            val importIntent = Intent(Intent.ACTION_GET_CONTENT)
+                    .setType(BookmarksExportProvider.TYPE)
+            try {
+                startActivityForResult(importIntent, IMPORT_REQUEST_CODE)
+            } catch (ignore: Exception) {
+            }
+            true
+        }
         else -> false
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == IMPORT_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            data?.data?.let {
+                importBookmarks(it)
+            }
+        }
+    }
+
+    private fun importBookmarks(uri: Uri) {
+        lifecycleScope.launchWhenStarted {
+            try {
+                val bookmarkIds = viewModel.readBookmarkIds(uri)
+                val intent = Intent(requireContext(), ExternalBookmarksActivity::class.java)
+                        .putExtra(ExternalBookmarksActivity.EXTRA_BOOKMARK_IDS, bookmarkIds)
+                startActivity(intent)
+            } catch (e: Exception) {
+                if (e is CancellationException) {
+                    throw e
+                }
+                ImportBookmarksErrorDialogFragment().show(parentFragmentManager, "importBookmarksError")
+            }
+        }
+    }
+
+    class ImportBookmarksErrorDialogFragment : DialogFragment() {
+        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+            return MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.import_bookmarks)
+                    .setMessage(R.string.import_bookmarks_error)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .create()
+        }
     }
 
     override fun createNfcAppData(): NdefRecord? {
@@ -146,5 +197,6 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
 
     companion object {
         private const val PREF_UPCOMING_ONLY = "bookmarks_upcoming_only"
+        private const val IMPORT_REQUEST_CODE = 1
     }
 }
