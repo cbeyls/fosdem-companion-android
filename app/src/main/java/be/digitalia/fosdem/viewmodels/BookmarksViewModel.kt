@@ -44,7 +44,7 @@ class BookmarksViewModel(application: Application) : AndroidViewModel(applicatio
         }
 
     fun removeBookmarks(eventIds: LongArray) {
-        appDatabase.bookmarksDao.removeBookmarksAsync(*eventIds)
+        appDatabase.bookmarksDao.removeBookmarksAsync(eventIds)
     }
 
     suspend fun readBookmarkIds(uri: Uri): LongArray {

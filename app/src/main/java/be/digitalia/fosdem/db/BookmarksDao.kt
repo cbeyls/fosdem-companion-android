@@ -6,6 +6,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.withTransaction
 import be.digitalia.fosdem.alarms.FosdemAlarmManager
 import be.digitalia.fosdem.db.entities.Bookmark
 import be.digitalia.fosdem.model.AlarmInfo
@@ -14,7 +15,7 @@ import be.digitalia.fosdem.utils.BackgroundWorkScope
 import kotlinx.coroutines.launch
 
 @Dao
-abstract class BookmarksDao {
+abstract class BookmarksDao(private val appDatabase: AppDatabase) {
 
     /**
      * Returns the bookmarks.
@@ -62,20 +63,44 @@ abstract class BookmarksDao {
 
     fun addBookmarkAsync(event: Event) {
         BackgroundWorkScope.launch {
-            if (addBookmarkInternal(Bookmark(event.id)) != -1L) {
-                FosdemAlarmManager.onBookmarkAdded(event)
+            val ids = addBookmarksInternal(listOf(Bookmark(event.id)))
+            if (ids[0] != -1L) {
+                FosdemAlarmManager.onBookmarksAdded(listOf(AlarmInfo(eventId = event.id, startTime = event.startTime)))
             }
         }
     }
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    protected abstract suspend fun addBookmarkInternal(bookmark: Bookmark): Long
+    fun addBookmarksAsync(eventIds: LongArray) {
+        BackgroundWorkScope.launch {
+            appDatabase.withTransaction {
+                // Get AlarmInfos first to filter out non-existing items
+                val alarmInfos = getAlarmInfos(eventIds)
+                alarmInfos.isNotEmpty() || return@withTransaction
 
-    fun removeBookmarkAsync(event: Event) {
-        removeBookmarksAsync(event.id)
+                val ids = addBookmarksInternal(alarmInfos.map { Bookmark(it.eventId) })
+                // Filter out items that were already in bookmarks
+                val addedAlarmInfos = alarmInfos.filterIndexed { index, _ -> ids[index] != -1L }
+                if (addedAlarmInfos.isNotEmpty()) {
+                    FosdemAlarmManager.onBookmarksAdded(addedAlarmInfos)
+                }
+            }
+        }
     }
 
-    fun removeBookmarksAsync(vararg eventIds: Long) {
+    @Query("""SELECT id as event_id, start_time
+        FROM events
+        WHERE id IN (:ids)
+        ORDER BY start_time ASC""")
+    protected abstract suspend fun getAlarmInfos(ids: LongArray): List<AlarmInfo>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    protected abstract suspend fun addBookmarksInternal(bookmarks: List<Bookmark>): LongArray
+
+    fun removeBookmarkAsync(event: Event) {
+        removeBookmarksAsync(longArrayOf(event.id))
+    }
+
+    fun removeBookmarksAsync(eventIds: LongArray) {
         BackgroundWorkScope.launch {
             if (removeBookmarksInternal(eventIds) > 0) {
                 FosdemAlarmManager.onBookmarksRemoved(eventIds)

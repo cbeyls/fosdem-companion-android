@@ -32,6 +32,7 @@ import be.digitalia.fosdem.activities.EventDetailsActivity
 import be.digitalia.fosdem.activities.MainActivity
 import be.digitalia.fosdem.activities.RoomImageDialogActivity
 import be.digitalia.fosdem.db.AppDatabase
+import be.digitalia.fosdem.model.AlarmInfo
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.receivers.AlarmReceiver
 import be.digitalia.fosdem.utils.PreferenceKeys
@@ -86,17 +87,24 @@ class AlarmIntentService : JobIntentService() {
                 }
                 setAlarmReceiverEnabled(false)
             }
-            ACTION_ADD_BOOKMARK -> {
+            ACTION_ADD_BOOKMARKS -> {
                 val delay = delay
-                val eventId = intent.getLongExtra(EXTRA_EVENT_ID, -1L)
-                val startTime = intent.getLongExtra(EXTRA_EVENT_START_TIME, -1L)
-                // Only schedule future events. If they start before the delay, the alarm will go off immediately
-                if (startTime != -1L && startTime >= System.currentTimeMillis()) {
-                    setAlarmReceiverEnabled(true)
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        createNotificationChannel(this)
+                @Suppress("UNCHECKED_CAST")
+                val alarmInfos = intent.getParcelableArrayListExtra<AlarmInfo>(EXTRA_ALARM_INFOS)!!
+                val now = System.currentTimeMillis()
+                var isFirstAlarm = true
+                for ((eventId, startTime) in alarmInfos) {
+                    // Only schedule future events. If they start before the delay, the alarm will go off immediately
+                    if (startTime != null && startTime.time >= now) {
+                        if (isFirstAlarm) {
+                            setAlarmReceiverEnabled(true)
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                createNotificationChannel(this)
+                            }
+                            isFirstAlarm = false
+                        }
+                        AlarmManagerCompat.setExact(alarmManager, AlarmManager.RTC_WAKEUP, startTime.time - delay, getAlarmPendingIntent(eventId))
                     }
-                    AlarmManagerCompat.setExact(alarmManager, AlarmManager.RTC_WAKEUP, startTime - delay, getAlarmPendingIntent(eventId))
                 }
             }
             ACTION_REMOVE_BOOKMARKS -> {
@@ -226,9 +234,8 @@ class AlarmIntentService : JobIntentService() {
 
         const val ACTION_UPDATE_ALARMS = "${BuildConfig.APPLICATION_ID}.action.UPDATE_ALARMS"
         const val ACTION_DISABLE_ALARMS = "${BuildConfig.APPLICATION_ID}.action.DISABLE_ALARMS"
-        const val ACTION_ADD_BOOKMARK = "${BuildConfig.APPLICATION_ID}.action.ADD_BOOKMARK"
-        const val EXTRA_EVENT_ID = "event_id"
-        const val EXTRA_EVENT_START_TIME = "event_start"
+        const val ACTION_ADD_BOOKMARKS = "${BuildConfig.APPLICATION_ID}.action.ADD_BOOKMARK"
+        const val EXTRA_ALARM_INFOS = "alarm_info"
         const val ACTION_REMOVE_BOOKMARKS = "${BuildConfig.APPLICATION_ID}.action.REMOVE_BOOKMARKS"
         const val EXTRA_EVENT_IDS = "event_ids"
 

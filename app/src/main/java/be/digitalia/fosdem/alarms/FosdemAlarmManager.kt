@@ -1,11 +1,12 @@
 package be.digitalia.fosdem.alarms
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import androidx.annotation.MainThread
 import androidx.preference.PreferenceManager
-import be.digitalia.fosdem.model.Event
+import be.digitalia.fosdem.model.AlarmInfo
 import be.digitalia.fosdem.services.AlarmIntentService
 import be.digitalia.fosdem.utils.PreferenceKeys
 
@@ -14,6 +15,7 @@ import be.digitalia.fosdem.utils.PreferenceKeys
  *
  * @author Christophe Beyls
  */
+@SuppressLint("StaticFieldLeak")
 object FosdemAlarmManager {
 
     private lateinit var context: Context
@@ -51,20 +53,17 @@ object FosdemAlarmManager {
     }
 
     @MainThread
-    fun onBookmarkAdded(event: Event) {
+    fun onBookmarksAdded(alarmInfos: List<AlarmInfo>) {
         if (isEnabled) {
-            val serviceIntent = Intent(AlarmIntentService.ACTION_ADD_BOOKMARK).apply {
-                putExtra(AlarmIntentService.EXTRA_EVENT_ID, event.id)
-                event.startTime?.let {
-                    putExtra(AlarmIntentService.EXTRA_EVENT_START_TIME, it.time)
-                }
-            }
+            val arrayList = if (alarmInfos is ArrayList<AlarmInfo>) alarmInfos else ArrayList(alarmInfos)
+            val serviceIntent = Intent(AlarmIntentService.ACTION_ADD_BOOKMARKS)
+                    .putParcelableArrayListExtra(AlarmIntentService.EXTRA_ALARM_INFOS, arrayList)
             AlarmIntentService.enqueueWork(context, serviceIntent)
         }
     }
 
     @MainThread
-    fun onBookmarksRemoved(eventIds: LongArray?) {
+    fun onBookmarksRemoved(eventIds: LongArray) {
         if (isEnabled) {
             val serviceIntent = Intent(AlarmIntentService.ACTION_REMOVE_BOOKMARKS)
                     .putExtra(AlarmIntentService.EXTRA_EVENT_IDS, eventIds)

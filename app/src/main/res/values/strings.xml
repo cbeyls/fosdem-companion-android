@@ -65,6 +65,9 @@
 
     <!-- External bookmarks -->
     <string name="external_bookmarks_title">External bookmarks</string>
+    <string name="external_bookmarks_add_all">Add all</string>
+    <string name="external_bookmarks_add_all_confirmation_title">Confirmation</string>
+    <string name="external_bookmarks_add_all_confirmation_text">Add all events to your local bookmarks?</string>
 
     <!-- Errors -->
     <string name="event_not_found_error">Unable to load the session details.\nMake sure the database has been updated to the latest version.</string>
