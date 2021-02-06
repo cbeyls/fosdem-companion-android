@@ -1,7 +1,7 @@
-package be.digitalia.fosdem.utils
+package be.digitalia.fosdem.ical
 
+import be.digitalia.fosdem.ical.internal.CRLF
 import okio.BufferedSink
-import okio.ByteString.Companion.encodeUtf8
 import java.io.Closeable
 import java.io.IOException
 
@@ -15,9 +15,9 @@ class ICalendarWriter(private val sink: BufferedSink) : Closeable {
         if (value != null) {
             with(sink) {
                 writeUtf8(key)
-                writeUtf8CodePoint(':'.toInt())
+                writeByte(':'.toInt())
 
-                // Escape line break sequences
+                // Fold line break sequences
                 val length = value.length
                 var start = 0
                 var end = 0
@@ -26,7 +26,7 @@ class ICalendarWriter(private val sink: BufferedSink) : Closeable {
                     if (c == '\r' || c == '\n') {
                         writeUtf8(value, start, end)
                         write(CRLF)
-                        writeUtf8CodePoint(' '.toInt())
+                        writeByte(' '.toInt())
                         do {
                             end++
                         } while (end < length && (value[end] == '\r' || value[end] == '\n'))
@@ -46,9 +46,4 @@ class ICalendarWriter(private val sink: BufferedSink) : Closeable {
     override fun close() {
         sink.close()
     }
-
-    companion object {
-        private val CRLF = "\r\n".encodeUtf8()
-    }
-
 }

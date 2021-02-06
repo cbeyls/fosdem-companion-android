@@ -20,5 +20,11 @@
         android:title="@string/export_bookmarks"
         app:iconTint="?colorControlNormal"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/import_bookmarks"
+        android:icon="@drawable/ic_file_download_white_24dp"
+        android:title="@string/import_bookmarks"
+        app:iconTint="?colorControlNormal"
+        app:showAsAction="ifRoom" />
 
 </menu>

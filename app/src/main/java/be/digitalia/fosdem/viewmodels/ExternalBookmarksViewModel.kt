@@ -25,4 +25,9 @@ class ExternalBookmarksViewModel(application: Application) : AndroidViewModel(ap
             bookmarkIdsLiveData.value = bookmarkIds
         }
     }
+
+    fun addAll() {
+        val bookmarkIds = bookmarkIdsLiveData.value ?: return
+        appDatabase.bookmarksDao.addBookmarksAsync(bookmarkIds)
+    }
 }

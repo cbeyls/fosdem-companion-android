@@ -28,6 +28,8 @@
     <string name="upcoming_only">Upcoming only</string>
     <string name="export_bookmarks">Export bookmarks</string>
     <string name="export_bookmarks_file_name">FOSDEM %1$d bookmarks.ics</string>
+    <string name="import_bookmarks">Import bookmarks</string>
+    <string name="import_bookmarks_error">Unable to import bookmarks from the selected file.\n\nMake sure the file was created using this application and the conference year is matching.</string>
     <string name="no_bookmark">No bookmark.</string>
     <string name="remove_bookmarks">Remove bookmarks</string>
     <string name="bookmark_conflict_content_description">%1$s\n Other bookmarks are scheduled at the same time.</string>
@@ -62,7 +64,10 @@
     <string name="no_search_result">No result.</string>
 
     <!-- External bookmarks -->
-    <string name="external_bookmarks_title">Your friend\'s bookmarks</string>
+    <string name="external_bookmarks_title">External bookmarks</string>
+    <string name="external_bookmarks_add_all">Add all</string>
+    <string name="external_bookmarks_add_all_confirmation_title">Confirmation</string>
+    <string name="external_bookmarks_add_all_confirmation_text">Add all events to your local bookmarks?</string>
 
     <!-- Errors -->
     <string name="event_not_found_error">Unable to load the session details.\nMake sure the database has been updated to the latest version.</string>

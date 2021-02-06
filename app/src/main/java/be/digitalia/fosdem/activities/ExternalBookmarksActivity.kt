@@ -18,9 +18,11 @@ class ExternalBookmarksActivity : SimpleToolbarActivity() {
 
         if (savedInstanceState == null) {
             val intent = intent
-            val bookmarkIds = if (intent.hasNfcAppData()) {
-                intent.extractNfcAppData().toBookmarks()
-            } else null
+            val bookmarkIds = when {
+                intent.hasExtra(EXTRA_BOOKMARK_IDS) -> intent.getLongArrayExtra(EXTRA_BOOKMARK_IDS)
+                intent.hasNfcAppData() -> intent.extractNfcAppData().toBookmarks()
+                else -> null
+            }
             if (bookmarkIds == null) {
                 // Invalid data format, exit
                 finish()
@@ -32,5 +34,9 @@ class ExternalBookmarksActivity : SimpleToolbarActivity() {
                         args = ExternalBookmarksListFragment.createArguments(bookmarkIds))
             }
         }
+    }
+
+    companion object {
+        const val EXTRA_BOOKMARK_IDS = "bookmark_ids"
     }
 }
