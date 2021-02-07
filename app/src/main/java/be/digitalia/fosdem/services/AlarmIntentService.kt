@@ -71,7 +71,7 @@ class AlarmIntentService : JobIntentService() {
                         // Cancel pending alarms that are now scheduled in the past, if any
                         alarmManager.cancel(pi)
                     } else {
-                        AlarmManagerCompat.setExact(alarmManager, AlarmManager.RTC_WAKEUP, notificationTime, pi)
+                        AlarmManagerCompat.setExactAndAllowWhileIdle(alarmManager, AlarmManager.RTC_WAKEUP, notificationTime, pi)
                         hasAlarms = true
                     }
                 }
@@ -103,7 +103,7 @@ class AlarmIntentService : JobIntentService() {
                             }
                             isFirstAlarm = false
                         }
-                        AlarmManagerCompat.setExact(alarmManager, AlarmManager.RTC_WAKEUP, startTime.time - delay, getAlarmPendingIntent(eventId))
+                        AlarmManagerCompat.setExactAndAllowWhileIdle(alarmManager, AlarmManager.RTC_WAKEUP, startTime.time - delay, getAlarmPendingIntent(eventId))
                     }
                 }
             }
