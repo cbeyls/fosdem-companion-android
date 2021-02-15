@@ -1,6 +1,5 @@
 package be.digitalia.fosdem.fragments
 
-import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
@@ -11,6 +10,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.content.edit
@@ -73,6 +73,11 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
 
             override fun onDestroyActionMode(mode: ActionMode) {}
         })
+    }
+    private val getBookmarksLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        if (uri != null) {
+            importBookmarks(uri)
+        }
     }
     private var filterMenuItem: MenuItem? = null
     private var upcomingOnlyMenuItem: MenuItem? = null
@@ -142,23 +147,10 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
             true
         }
         R.id.import_bookmarks -> {
-            val importIntent = Intent(Intent.ACTION_GET_CONTENT)
-                    .setType(BookmarksExportProvider.TYPE)
-            try {
-                startActivityForResult(importIntent, IMPORT_REQUEST_CODE)
-            } catch (ignore: Exception) {
-            }
+            getBookmarksLauncher.launch(BookmarksExportProvider.TYPE)
             true
         }
         else -> false
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == IMPORT_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            data?.data?.let {
-                importBookmarks(it)
-            }
-        }
     }
 
     private fun importBookmarks(uri: Uri) {
@@ -197,6 +189,5 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
 
     companion object {
         private const val PREF_UPCOMING_ONLY = "bookmarks_upcoming_only"
-        private const val IMPORT_REQUEST_CODE = 1
     }
 }

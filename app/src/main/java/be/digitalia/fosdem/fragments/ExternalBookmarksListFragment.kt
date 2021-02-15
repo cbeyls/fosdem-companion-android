@@ -8,6 +8,8 @@ import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,6 +26,7 @@ class ExternalBookmarksListFragment : Fragment(R.layout.recyclerview) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        setFragmentResultListener(REQUEST_KEY_CONFIRM_ADD_ALL) { _, _ -> viewModel.addAll() }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -68,9 +71,7 @@ class ExternalBookmarksListFragment : Fragment(R.layout.recyclerview) {
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.add_all -> {
-            val dialogFragment = ConfirmAddAllDialogFragment()
-            dialogFragment.setTargetFragment(this, 0)
-            dialogFragment.show(parentFragmentManager, "confirmAddAll")
+            ConfirmAddAllDialogFragment().show(parentFragmentManager, "confirmAddAll")
             true
         }
         else -> false
@@ -81,18 +82,15 @@ class ExternalBookmarksListFragment : Fragment(R.layout.recyclerview) {
             return MaterialAlertDialogBuilder(requireContext())
                     .setTitle(R.string.external_bookmarks_add_all_confirmation_title)
                     .setMessage(R.string.external_bookmarks_add_all_confirmation_text)
-                    .setPositiveButton(android.R.string.ok) { _, _ -> (targetFragment as ExternalBookmarksListFragment).onConfirmAddAll() }
+                    .setPositiveButton(android.R.string.ok) { _, _ -> setFragmentResult(REQUEST_KEY_CONFIRM_ADD_ALL, Bundle()) }
                     .setNegativeButton(android.R.string.cancel, null)
                     .create()
         }
     }
 
-    fun onConfirmAddAll() {
-        viewModel.addAll()
-    }
-
     companion object {
         private const val ARG_BOOKMARK_IDS = "bookmark_ids"
+        private const val REQUEST_KEY_CONFIRM_ADD_ALL = "confirm_add_all"
 
         fun createArguments(bookmarkIds: LongArray) = Bundle(1).apply {
             putLongArray(ARG_BOOKMARK_IDS, bookmarkIds)
