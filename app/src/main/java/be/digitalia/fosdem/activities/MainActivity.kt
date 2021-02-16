@@ -15,7 +15,6 @@ import android.text.format.DateUtils
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -25,6 +24,7 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.edit
 import androidx.core.content.getSystemService
 import androidx.core.view.ViewCompat
+import androidx.core.view.isInvisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
@@ -46,8 +46,8 @@ import be.digitalia.fosdem.utils.awaitCloseDrawer
 import be.digitalia.fosdem.utils.configureToolbarColors
 import be.digitalia.fosdem.utils.fixCollapsibleActionView
 import be.digitalia.fosdem.utils.setNfcAppDataPushMessageCallbackIfAvailable
-import be.digitalia.fosdem.widgets.FadeOutViewMediator
 import com.google.android.material.navigation.NavigationView
+import com.google.android.material.progressindicator.BaseProgressIndicator
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CancellationException
 
@@ -90,31 +90,29 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
         super.onCreate(savedInstanceState)
         setSupportActionBar(findViewById(R.id.toolbar))
         val contentView: View = findViewById(R.id.content)
-
-        // Progress bar setup
-        val progressBar: ProgressBar = findViewById(R.id.progress)
-        val progressBarMediator = FadeOutViewMediator(progressBar)
+        val progressIndicator: BaseProgressIndicator<*> = findViewById(R.id.progress)
 
         // Monitor the schedule download
         FosdemApi.downloadScheduleState.observe(this) { state ->
             when (state) {
                 is LoadingState.Loading -> {
-                    progressBarMediator.isVisible = true
-                    with(progressBar) {
-                        val progressValue = state.progress
-                        if (progressValue == -1) {
-                            isIndeterminate = true
-                        } else {
-                            isIndeterminate = false
-                            progress = progressValue
+                    with(progressIndicator) {
+                        when (val progressValue = state.progress) {
+                            -1 -> if (!isIndeterminate) {
+                                isInvisible = true
+                                isIndeterminate = true
+                            }
+                            else -> setProgressCompat(progressValue, true)
                         }
+                        show()
                     }
                 }
                 is LoadingState.Idle -> {
-                    progressBarMediator.isVisible = false
-                    with(progressBar) {
+                    with(progressIndicator) {
+                        // Fix: stop transitioning to determinate when hiding
                         isIndeterminate = false
-                        progress = 100
+                        setProgressCompat(100, false)
+                        hide()
                     }
 
                     state.result.consume()?.let { result ->
