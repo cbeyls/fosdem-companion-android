@@ -39,7 +39,7 @@ class MultiChoiceHelper(private val activity: AppCompatActivity, owner: SavedSta
         }
 
         fun bindSelection() {
-            val position = adapterPosition
+            val position = bindingAdapterPosition
             if (position != RecyclerView.NO_POSITION) {
                 val isChecked = multiChoiceHelper.isItemChecked(position)
                 val mainView = itemView
@@ -57,7 +57,7 @@ class MultiChoiceHelper(private val activity: AppCompatActivity, owner: SavedSta
         init {
             itemView.setOnClickListener { view ->
                 if (isMultiChoiceActive) {
-                    val position = adapterPosition
+                    val position = bindingAdapterPosition
                     if (position != RecyclerView.NO_POSITION) {
                         multiChoiceHelper.toggleItemChecked(position)
                     }
@@ -69,7 +69,7 @@ class MultiChoiceHelper(private val activity: AppCompatActivity, owner: SavedSta
                 if (isMultiChoiceActive) {
                     return@setOnLongClickListener false
                 }
-                val position = adapterPosition
+                val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     multiChoiceHelper.setItemChecked(position, true)
                 }

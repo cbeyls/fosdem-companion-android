@@ -152,8 +152,6 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
         override fun createFragment(position: Int): Fragment {
             return fragmentFactory.instantiate<EventDetailsFragment>().apply {
                 arguments = EventDetailsFragment.createArguments(events[position])
-                // Workaround for duplicate menu items bug
-                setMenuVisibility(false)
             }
         }
     }

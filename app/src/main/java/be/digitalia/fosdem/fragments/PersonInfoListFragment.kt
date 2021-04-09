@@ -6,10 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.digitalia.fosdem.R
-import be.digitalia.fosdem.adapters.ConcatAdapter
 import be.digitalia.fosdem.adapters.EventsAdapter
 import be.digitalia.fosdem.viewmodels.PersonInfoViewModel
 
@@ -29,7 +29,10 @@ class PersonInfoListFragment : Fragment(R.layout.recyclerview) {
                 scrollBarStyle = View.SCROLLBARS_OUTSIDE_OVERLAY
                 layoutManager = LinearLayoutManager(context)
             }
-            setAdapter(ConcatAdapter(HeaderAdapter(), adapter))
+            val concatAdapterConfig = ConcatAdapter.Config.Builder()
+                    .setIsolateViewTypes(false)
+                    .build()
+            setAdapter(ConcatAdapter(concatAdapterConfig, HeaderAdapter(), adapter))
             emptyText = getString(R.string.no_data)
             isProgressBarVisible = true
         }
