@@ -144,7 +144,7 @@ class EventsParser : Parser<Sequence<DetailedEvent>> {
                 slug = slug,
                 title = title,
                 subTitle = subTitle,
-                track = Track(trackName, trackType),
+                track = Track(name = trackName, type = trackType),
                 abstractText = abstractText,
                 description = description,
                 personsSummary = null

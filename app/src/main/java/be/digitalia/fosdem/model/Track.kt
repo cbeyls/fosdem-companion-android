@@ -13,12 +13,10 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class Track(
         @PrimaryKey
-        val id: Long,
+        val id: Long = 0L,
         val name: String,
         val type: Type
 ) : Parcelable {
-
-    constructor(name: String, type: Type) : this(0L, name, type)
 
     enum class Type(@StringRes @get:StringRes val nameResId: Int,
                     @ColorRes @get:ColorRes val appBarColorResId: Int,
