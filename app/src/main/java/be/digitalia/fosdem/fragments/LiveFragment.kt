@@ -12,7 +12,9 @@ import be.digitalia.fosdem.utils.recyclerView
 import be.digitalia.fosdem.utils.viewLifecycleLazy
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class LiveFragment : Fragment(R.layout.fragment_live), RecycledViewPoolProvider {
 
     private class ViewHolder(view: View) {

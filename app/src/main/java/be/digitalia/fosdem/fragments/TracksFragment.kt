@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import be.digitalia.fosdem.R
-import be.digitalia.fosdem.db.AppDatabase
+import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.utils.enforceSingleScrollDirection
 import be.digitalia.fosdem.utils.instantiate
@@ -20,7 +20,10 @@ import be.digitalia.fosdem.utils.recyclerView
 import be.digitalia.fosdem.utils.viewLifecycleLazy
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvider {
 
     private class ViewHolder(view: View) {
@@ -29,6 +32,9 @@ class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvi
         val pager: ViewPager2 = view.findViewById(R.id.pager)
         val tabs: TabLayout = view.findViewById(R.id.tabs)
     }
+
+    @Inject
+    lateinit var scheduleDao: ScheduleDao
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -46,7 +52,7 @@ class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvi
             requireActivity().getPreferences(Context.MODE_PRIVATE).getInt(PREF_CURRENT_PAGE, -1)
         } else -1
 
-        AppDatabase.getInstance(requireContext()).scheduleDao.days.observe(viewLifecycleOwner) { days ->
+        scheduleDao.days.observe(viewLifecycleOwner) { days ->
             holder.run {
                 daysAdapter.days = days
 

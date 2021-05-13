@@ -33,12 +33,14 @@ import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel
 import be.digitalia.fosdem.viewmodels.TrackScheduleEventViewModel
 import be.digitalia.fosdem.widgets.ContentLoadingViewMediator
 import be.digitalia.fosdem.widgets.setupBookmarkStatus
+import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * Event view of the track schedule; allows to slide between events of the same track using a ViewPager.
  *
  * @author Christophe Beyls
  */
+@AndroidEntryPoint
 class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_event), CreateNfcAppDataCallback {
 
     private val bookmarkStatusViewModel: BookmarkStatusViewModel by viewModels()

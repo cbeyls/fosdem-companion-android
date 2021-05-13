@@ -19,7 +19,9 @@ import be.digitalia.fosdem.activities.TrackScheduleActivity
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.viewmodels.TracksViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class TracksListFragment : Fragment(R.layout.recyclerview) {
 
     private val viewModel: TracksViewModel by viewModels()

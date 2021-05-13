@@ -31,19 +31,29 @@ import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.EventDetailsActivity
 import be.digitalia.fosdem.activities.MainActivity
 import be.digitalia.fosdem.activities.RoomImageDialogActivity
-import be.digitalia.fosdem.db.AppDatabase
+import be.digitalia.fosdem.db.BookmarksDao
+import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.model.AlarmInfo
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.receivers.AlarmReceiver
 import be.digitalia.fosdem.utils.PreferenceKeys
 import be.digitalia.fosdem.utils.roomNameToResourceName
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
 /**
  * A service to schedule or unschedule alarms in the background, keeping the app responsive.
  *
  * @author Christophe Beyls
  */
+@AndroidEntryPoint
 class AlarmIntentService : JobIntentService() {
+
+    @Inject
+    lateinit var bookmarksDao: BookmarksDao
+    @Inject
+    lateinit var scheduleDao: ScheduleDao
 
     private val alarmManager by lazy<AlarmManager> {
         getSystemService()!!
@@ -63,7 +73,7 @@ class AlarmIntentService : JobIntentService() {
                 val delay = delay
                 val now = System.currentTimeMillis()
                 var hasAlarms = false
-                for (info in AppDatabase.getInstance(this).bookmarksDao.getBookmarksAlarmInfo(0L)) {
+                for (info in bookmarksDao.getBookmarksAlarmInfo(0L)) {
                     val startTime = info.startTime
                     val notificationTime = if (startTime == null) -1L else startTime.time - delay
                     val pi = getAlarmPendingIntent(info.eventId)
@@ -82,7 +92,7 @@ class AlarmIntentService : JobIntentService() {
             }
             ACTION_DISABLE_ALARMS -> {
                 // Cancel alarms of every bookmark in the future
-                for (info in AppDatabase.getInstance(this).bookmarksDao.getBookmarksAlarmInfo(System.currentTimeMillis())) {
+                for (info in bookmarksDao.getBookmarksAlarmInfo(System.currentTimeMillis())) {
                     alarmManager.cancel(getAlarmPendingIntent(info.eventId))
                 }
                 setAlarmReceiverEnabled(false)
@@ -116,7 +126,7 @@ class AlarmIntentService : JobIntentService() {
             }
             AlarmReceiver.ACTION_NOTIFY_EVENT -> {
                 val eventId = intent.dataString!!.toLong()
-                val event = AppDatabase.getInstance(this).scheduleDao.getEvent(eventId)
+                val event = runBlocking { scheduleDao.getEvent(eventId) }
                 if (event != null) {
                     NotificationManagerCompat.from(this).notify(eventId.toInt(), buildNotification(event))
                 }

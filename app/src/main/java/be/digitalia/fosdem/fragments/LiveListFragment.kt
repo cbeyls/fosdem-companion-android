@@ -11,19 +11,27 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.adapters.EventsAdapter
+import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.viewmodels.LiveViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 sealed class LiveListFragment(@StringRes private val emptyTextResId: Int,
                               private val dataSourceProvider: (LiveViewModel) -> LiveData<PagedList<StatusEvent>>)
     : Fragment(R.layout.recyclerview) {
 
+    @Inject
+    lateinit var api: FosdemApi
     private val viewModel: LiveViewModel by viewModels({ requireParentFragment() })
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val adapter = EventsAdapter(view.context, viewLifecycleOwner, false)
+        val adapter = EventsAdapter(view.context, false)
+        api.roomStatuses.observe(viewLifecycleOwner, adapter)
+
         val holder = RecyclerViewViewHolder(view).apply {
             recyclerView.apply {
                 val parent = parentFragment

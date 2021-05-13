@@ -1,21 +1,22 @@
 package be.digitalia.fosdem.viewmodels
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.switchMap
-import be.digitalia.fosdem.db.AppDatabase
+import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.EventDetails
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class EventDetailsViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class EventDetailsViewModel @Inject constructor(scheduleDao: ScheduleDao) : ViewModel() {
 
-    private val appDatabase = AppDatabase.getInstance(application)
     private val eventLiveData = MutableLiveData<Event>()
 
     val eventDetails: LiveData<EventDetails> = eventLiveData.switchMap { event: Event ->
-        appDatabase.scheduleDao.getEventDetails(event)
+        scheduleDao.getEventDetails(event)
     }
 
     fun setEvent(event: Event) {

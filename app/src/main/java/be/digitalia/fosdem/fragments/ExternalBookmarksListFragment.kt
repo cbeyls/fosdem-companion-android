@@ -15,11 +15,17 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.adapters.EventsAdapter
+import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.viewmodels.ExternalBookmarksViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class ExternalBookmarksListFragment : Fragment(R.layout.recyclerview) {
 
+    @Inject
+    lateinit var api: FosdemApi
     private val viewModel: ExternalBookmarksViewModel by viewModels()
     private var addAllMenuItem: MenuItem? = null
 
@@ -32,7 +38,9 @@ class ExternalBookmarksListFragment : Fragment(R.layout.recyclerview) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val adapter = EventsAdapter(view.context, viewLifecycleOwner)
+        val adapter = EventsAdapter(view.context)
+        api.roomStatuses.observe(viewLifecycleOwner, adapter)
+
         val holder = RecyclerViewViewHolder(view).apply {
             recyclerView.apply {
                 layoutManager = LinearLayoutManager(context)

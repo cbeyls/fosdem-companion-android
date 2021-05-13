@@ -17,7 +17,9 @@ import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.viewmodels.TrackScheduleListViewModel
 import be.digitalia.fosdem.viewmodels.TrackScheduleViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class TrackScheduleListFragment : Fragment(R.layout.recyclerview), TrackScheduleAdapter.EventClickListener {
 
     private val viewModel: TrackScheduleListViewModel by viewModels()

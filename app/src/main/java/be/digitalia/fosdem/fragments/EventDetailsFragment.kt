@@ -44,7 +44,10 @@ import be.digitalia.fosdem.utils.roomNameToResourceName
 import be.digitalia.fosdem.utils.stripHtml
 import be.digitalia.fosdem.viewmodels.EventDetailsViewModel
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
 
     private class ViewHolder(view: View) {
@@ -54,6 +57,8 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
         val linksContainer: ViewGroup = view.findViewById(R.id.links_container)
     }
 
+    @Inject
+    lateinit var api: FosdemApi
     private val viewModel: EventDetailsViewModel by viewModels()
 
     val event by lazy<Event>(LazyThreadSafetyMode.NONE) {
@@ -163,7 +168,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
         val roomName = event.roomName
         if (!roomName.isNullOrEmpty()) {
             holder.roomStatusTextView.run {
-                FosdemApi.getRoomStatuses(context).observe(viewLifecycleOwner) { roomStatuses ->
+                api.roomStatuses.observe(viewLifecycleOwner) { roomStatuses ->
                     val roomStatus = roomStatuses[roomName]
                     if (roomStatus == null) {
                         text = null

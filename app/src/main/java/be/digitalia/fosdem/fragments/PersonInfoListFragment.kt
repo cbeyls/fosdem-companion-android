@@ -5,22 +5,31 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.adapters.EventsAdapter
+import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.viewmodels.PersonInfoViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class PersonInfoListFragment : Fragment(R.layout.recyclerview) {
+
+    @Inject
+    lateinit var api: FosdemApi
     // Fetch data from parent Activity's ViewModel
-    private val viewModel: PersonInfoViewModel by viewModels({ requireActivity() })
+    private val viewModel: PersonInfoViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val adapter = EventsAdapter(view.context, viewLifecycleOwner)
+        val adapter = EventsAdapter(view.context)
+        api.roomStatuses.observe(viewLifecycleOwner, adapter)
+
         val holder = RecyclerViewViewHolder(view).apply {
             recyclerView.apply {
                 val contentMargin = resources.getDimensionPixelSize(R.dimen.content_margin)

@@ -15,7 +15,9 @@ import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.utils.DateUtils
 import be.digitalia.fosdem.utils.configureToolbarColors
 import be.digitalia.fosdem.viewmodels.PersonInfoViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class PersonInfoActivity : AppCompatActivity(R.layout.person_info) {
 
     private val viewModel: PersonInfoViewModel by viewModels()

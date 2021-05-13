@@ -17,7 +17,9 @@ import be.digitalia.fosdem.activities.PersonInfoActivity
 import be.digitalia.fosdem.adapters.createSimpleItemCallback
 import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.viewmodels.PersonsViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class PersonsListFragment : Fragment(R.layout.recyclerview_fastscroll) {
 
     private val viewModel: PersonsViewModel by viewModels()

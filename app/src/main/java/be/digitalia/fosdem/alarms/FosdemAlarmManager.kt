@@ -1,6 +1,5 @@
 package be.digitalia.fosdem.alarms
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
@@ -9,16 +8,18 @@ import androidx.preference.PreferenceManager
 import be.digitalia.fosdem.model.AlarmInfo
 import be.digitalia.fosdem.services.AlarmIntentService
 import be.digitalia.fosdem.utils.PreferenceKeys
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * This class monitors bookmarks and preferences changes to dispatch alarm update work to AlarmIntentService.
  *
  * @author Christophe Beyls
  */
-@SuppressLint("StaticFieldLeak")
-object FosdemAlarmManager {
+@Singleton
+class FosdemAlarmManager @Inject constructor(@ApplicationContext private val context: Context) {
 
-    private lateinit var context: Context
     private val onSharedPreferenceChangeListener = OnSharedPreferenceChangeListener { sharedPreferences, key ->
         when (key) {
             PreferenceKeys.NOTIFICATIONS_ENABLED -> {
@@ -35,8 +36,7 @@ object FosdemAlarmManager {
     }
 
     @MainThread
-    fun init(context: Context) {
-        this.context = context.applicationContext
+    fun init() {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.context)
         isEnabled = sharedPreferences.getBoolean(PreferenceKeys.NOTIFICATIONS_ENABLED, false)
         sharedPreferences.registerOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener)

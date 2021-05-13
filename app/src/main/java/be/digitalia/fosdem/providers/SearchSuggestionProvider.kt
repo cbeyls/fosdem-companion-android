@@ -5,7 +5,11 @@ import android.content.ContentProvider
 import android.content.ContentValues
 import android.database.Cursor
 import android.net.Uri
-import be.digitalia.fosdem.db.AppDatabase
+import be.digitalia.fosdem.db.ScheduleDao
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 
 /**
  * Simple content provider responsible for search suggestions.
@@ -34,7 +38,13 @@ class SearchSuggestionProvider : ContentProvider() {
         return SearchManager.SUGGEST_MIME_TYPE
     }
 
-    override fun query(uri: Uri, projection: Array<String>?, selection: String?, selectionArgs: Array<String>?, sortOrder: String?): Cursor? {
+    override fun query(
+        uri: Uri,
+        projection: Array<String>?,
+        selection: String?,
+        selectionArgs: Array<String>?,
+        sortOrder: String?
+    ): Cursor? {
         var query = uri.lastPathSegment ?: return null
         // Ignore empty or too small queries
         query = query.trim()
@@ -45,7 +55,16 @@ class SearchSuggestionProvider : ContentProvider() {
         val limitParam = uri.getQueryParameter("limit")
         val limit = if (limitParam.isNullOrEmpty()) DEFAULT_MAX_RESULTS else limitParam.toInt()
 
-        return AppDatabase.getInstance(context!!).scheduleDao.getSearchSuggestionResults(query, limit)
+        val entryPoint = EntryPointAccessors.fromApplication(
+            context!!.applicationContext, SearchSuggestionProviderEntryPoint::class.java
+        )
+        return entryPoint.scheduleDao.getSearchSuggestionResults(query, limit)
+    }
+
+    @EntryPoint
+    @InstallIn(SingletonComponent::class)
+    interface SearchSuggestionProviderEntryPoint {
+        val scheduleDao: ScheduleDao
     }
 
     companion object {

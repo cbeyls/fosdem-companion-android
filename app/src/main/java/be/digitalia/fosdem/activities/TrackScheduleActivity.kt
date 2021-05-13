@@ -29,12 +29,14 @@ import be.digitalia.fosdem.utils.toNfcAppData
 import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel
 import be.digitalia.fosdem.viewmodels.TrackScheduleViewModel
 import be.digitalia.fosdem.widgets.setupBookmarkStatus
+import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * Track Schedule container, works in both single pane and dual pane modes.
  *
  * @author Christophe Beyls
  */
+@AndroidEntryPoint
 class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule), CreateNfcAppDataCallback {
 
     private val viewModel: TrackScheduleViewModel by viewModels()

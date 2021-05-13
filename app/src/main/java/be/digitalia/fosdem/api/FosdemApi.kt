@@ -1,6 +1,5 @@
 package be.digitalia.fosdem.api
 
-import android.content.Context
 import android.os.SystemClock
 import android.text.format.DateUtils
 import androidx.annotation.MainThread
@@ -9,7 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import be.digitalia.fosdem.alarms.FosdemAlarmManager
-import be.digitalia.fosdem.db.AppDatabase
+import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.livedata.LiveDataFactory.scheduler
 import be.digitalia.fosdem.livedata.SingleEvent
 import be.digitalia.fosdem.model.DownloadScheduleResult
@@ -26,6 +25,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okio.buffer
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.math.pow
 
 /**
@@ -33,18 +34,13 @@ import kotlin.math.pow
  *
  * @author Christophe Beyls
  */
-object FosdemApi {
-    // 8:30 (local time)
-    private const val DAY_START_TIME = 8 * DateUtils.HOUR_IN_MILLIS + 30 * DateUtils.MINUTE_IN_MILLIS
-    // 19:00 (local time)
-    private const val DAY_END_TIME = 19 * DateUtils.HOUR_IN_MILLIS
-    private const val ROOM_STATUS_REFRESH_DELAY = 90L * DateUtils.SECOND_IN_MILLIS
-    private const val ROOM_STATUS_FIRST_RETRY_DELAY = 30L * DateUtils.SECOND_IN_MILLIS
-    private const val ROOM_STATUS_EXPIRATION_DELAY = 6L * DateUtils.MINUTE_IN_MILLIS
-
+@Singleton
+class FosdemApi @Inject constructor(
+    private val scheduleDao: ScheduleDao,
+    private val alarmManager: FosdemAlarmManager
+) {
     private var downloadJob: Job? = null
     private val _downloadScheduleState = MutableLiveData<LoadingState<DownloadScheduleResult>>()
-    private var roomStatuses: LiveData<Map<String, RoomStatus>>? = null
 
     /**
      * Download & store the schedule to the database.
@@ -52,12 +48,11 @@ object FosdemApi {
      * The result will be sent back through downloadScheduleResult LiveData.
      */
     @MainThread
-    fun downloadSchedule(context: Context): Job {
+    fun downloadSchedule(): Job {
         // Returns the download job in progress, if any
         return downloadJob ?: run {
-            val appContext = context.applicationContext
             BackgroundWorkScope.launch {
-                downloadScheduleInternal(appContext)
+                downloadScheduleInternal()
                 downloadJob = null
             }.also {
                 downloadJob = it
@@ -66,10 +61,9 @@ object FosdemApi {
     }
 
     @MainThread
-    private suspend fun downloadScheduleInternal(context: Context) {
+    private suspend fun downloadScheduleInternal() {
         _downloadScheduleState.value = LoadingState.Loading()
         val res = try {
-            val scheduleDao = AppDatabase.getInstance(context).scheduleDao
             val response = HttpUtils.get(FosdemUrls.schedule, scheduleDao.lastModifiedTag) { body, rawResponse ->
                 val length = body.contentLength()
                 val source = if (length > 0L) {
@@ -89,7 +83,7 @@ object FosdemApi {
             when (response) {
                 is HttpUtils.Response.NotModified -> DownloadScheduleResult.UpToDate    // Nothing parsed, the result is up-to-date
                 is HttpUtils.Response.Success -> {
-                    FosdemAlarmManager.onScheduleRefreshed()
+                    alarmManager.onScheduleRefreshed()
                     DownloadScheduleResult.Success(response.body)
                 }
             }
@@ -102,28 +96,24 @@ object FosdemApi {
     val downloadScheduleState: LiveData<LoadingState<DownloadScheduleResult>>
         get() = _downloadScheduleState
 
-    @MainThread
-    fun getRoomStatuses(context: Context): LiveData<Map<String, RoomStatus>> {
-        return roomStatuses ?: run {
-            // The room statuses will only be loaded when the event is live.
-            // Use the days from the database to determine it.
-            val scheduler = AppDatabase.getInstance(context).scheduleDao.days.switchMap { days ->
-                val startEndTimestamps = LongArray(days.size * 2)
-                var index = 0
-                for (day in days) {
-                    val dayStart = day.date.time
-                    startEndTimestamps[index++] = dayStart + DAY_START_TIME
-                    startEndTimestamps[index++] = dayStart + DAY_END_TIME
-                }
-                scheduler(*startEndTimestamps)
+    val roomStatuses: LiveData<Map<String, RoomStatus>> by lazy(LazyThreadSafetyMode.NONE) {
+        // The room statuses will only be loaded when the event is live.
+        // Use the days from the database to determine it.
+        val scheduler = scheduleDao.days.switchMap { days ->
+            val startEndTimestamps = LongArray(days.size * 2)
+            var index = 0
+            for (day in days) {
+                val dayStart = day.date.time
+                startEndTimestamps[index++] = dayStart + DAY_START_TIME
+                startEndTimestamps[index++] = dayStart + DAY_END_TIME
             }
-            val liveRoomStatuses = buildLiveRoomStatusesLiveData()
-            val offlineRoomStatuses = MutableLiveData(emptyMap<String, RoomStatus>())
-            scheduler.switchMap { isLive -> if (isLive) liveRoomStatuses else offlineRoomStatuses }
-                    .also { roomStatuses = it }
-            // Implementors: replace the above code with the next line to disable room status support
-            // MutableLiveData().also { roomStatuses = it }
+            scheduler(*startEndTimestamps)
         }
+        val liveRoomStatuses = buildLiveRoomStatusesLiveData()
+        val offlineRoomStatuses = MutableLiveData(emptyMap<String, RoomStatus>())
+        scheduler.switchMap { isLive -> if (isLive) liveRoomStatuses else offlineRoomStatuses }
+        // Implementors: replace the above code block with the next line to disable room status support
+        // MutableLiveData()
     }
 
     /**
@@ -177,5 +167,16 @@ object FosdemApi {
                 nextRefreshTime = now + nextRefreshDelay
             }
         }
+    }
+
+    companion object {
+        // 8:30 (local time)
+        private const val DAY_START_TIME = 8 * DateUtils.HOUR_IN_MILLIS + 30 * DateUtils.MINUTE_IN_MILLIS
+
+        // 19:00 (local time)
+        private const val DAY_END_TIME = 19 * DateUtils.HOUR_IN_MILLIS
+        private const val ROOM_STATUS_REFRESH_DELAY = 90L * DateUtils.SECOND_IN_MILLIS
+        private const val ROOM_STATUS_FIRST_RETRY_DELAY = 30L * DateUtils.SECOND_IN_MILLIS
+        private const val ROOM_STATUS_EXPIRATION_DELAY = 6L * DateUtils.MINUTE_IN_MILLIS
     }
 }

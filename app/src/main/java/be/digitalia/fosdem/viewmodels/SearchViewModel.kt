@@ -1,20 +1,21 @@
 package be.digitalia.fosdem.viewmodels
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.paging.PagedList
 import androidx.paging.toLiveData
-import be.digitalia.fosdem.db.AppDatabase
+import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.model.StatusEvent
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class SearchViewModel(application: Application, private val state: SavedStateHandle) : AndroidViewModel(application) {
+@HiltViewModel
+class SearchViewModel @Inject constructor(scheduleDao: ScheduleDao, private val state: SavedStateHandle) : ViewModel() {
 
-    private val appDatabase = AppDatabase.getInstance(application)
     private val queryLiveData: LiveData<String> = state.getLiveData(STATE_QUERY)
 
     sealed class Result {
@@ -26,9 +27,9 @@ class SearchViewModel(application: Application, private val state: SavedStateHan
         if (query.length < SEARCH_QUERY_MIN_LENGTH) {
             MutableLiveData(Result.QueryTooShort)
         } else {
-            appDatabase.scheduleDao.getSearchResults(query)
-                    .toLiveData(20)
-                    .map { pagedList -> Result.Success(pagedList) }
+            scheduleDao.getSearchResults(query)
+                .toLiveData(20)
+                .map { pagedList -> Result.Success(pagedList) }
         }
     }
 
