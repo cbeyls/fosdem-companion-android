@@ -9,14 +9,6 @@ import be.digitalia.fosdem.model.Track
 object GlobalTypeConverters {
     @JvmStatic
     @TypeConverter
-    fun toTrackType(value: String): Track.Type = enumValueOf(value)
-
-    @JvmStatic
-    @TypeConverter
-    fun fromTrackType(value: Track.Type): String = value.name
-
-    @JvmStatic
-    @TypeConverter
     fun fromDay(day: Day): Long = day.index.toLong()
 
     @JvmStatic
