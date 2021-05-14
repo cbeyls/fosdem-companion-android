@@ -30,8 +30,6 @@ sealed class LiveListFragment(@StringRes private val emptyTextResId: Int,
         super.onViewCreated(view, savedInstanceState)
 
         val adapter = EventsAdapter(view.context, false)
-        api.roomStatuses.observe(viewLifecycleOwner, adapter)
-
         val holder = RecyclerViewViewHolder(view).apply {
             recyclerView.apply {
                 val parent = parentFragment
@@ -47,6 +45,9 @@ sealed class LiveListFragment(@StringRes private val emptyTextResId: Int,
             isProgressBarVisible = true
         }
 
+        api.roomStatuses.observe(viewLifecycleOwner) { statuses ->
+            adapter.roomStatuses = statuses
+        }
         dataSourceProvider(viewModel).observe(viewLifecycleOwner) { events ->
             adapter.submitList(events) {
                 // Ensure we stay at scroll position 0 so we can see the insertion animation

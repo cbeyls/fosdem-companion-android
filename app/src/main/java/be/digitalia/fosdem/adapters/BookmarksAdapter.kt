@@ -15,7 +15,6 @@ import androidx.collection.SimpleArrayMap
 import androidx.core.content.ContextCompat
 import androidx.core.text.set
 import androidx.core.view.isGone
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
@@ -28,14 +27,19 @@ import be.digitalia.fosdem.widgets.MultiChoiceHelper
 import java.text.DateFormat
 
 class BookmarksAdapter(context: Context, private val multiChoiceHelper: MultiChoiceHelper) :
-    ListAdapter<Event, BookmarksAdapter.ViewHolder>(DIFF_CALLBACK), Observer<Map<String, RoomStatus>> {
+    ListAdapter<Event, BookmarksAdapter.ViewHolder>(DIFF_CALLBACK) {
 
     private val timeDateFormat = DateUtils.getTimeDateFormat(context)
 
     @ColorInt
     private val errorColor: Int
     private val observers = SimpleArrayMap<AdapterDataObserver, BookmarksDataObserverWrapper>()
-    private var roomStatuses: Map<String, RoomStatus>? = null
+
+    var roomStatuses: Map<String, RoomStatus>? = null
+        set(value) {
+            field = value
+            notifyItemRangeChanged(0, itemCount, DETAILS_PAYLOAD)
+        }
 
     init {
         setHasStableIds(true)
@@ -43,11 +47,6 @@ class BookmarksAdapter(context: Context, private val multiChoiceHelper: MultiCho
             errorColor = getColor(R.styleable.ErrorColors_colorError, 0)
             recycle()
         }
-    }
-
-    override fun onChanged(statuses: Map<String, RoomStatus>?) {
-        roomStatuses = statuses
-        notifyItemRangeChanged(0, itemCount, DETAILS_PAYLOAD)
     }
 
     override fun getItemId(position: Int) = getItem(position).id
@@ -58,7 +57,7 @@ class BookmarksAdapter(context: Context, private val multiChoiceHelper: MultiCho
     }
 
     private fun getRoomStatus(event: Event): RoomStatus? {
-        return roomStatuses?.let { it[event.roomName] }
+        return roomStatuses?.get(event.roomName)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {

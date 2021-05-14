@@ -39,8 +39,6 @@ class ExternalBookmarksListFragment : Fragment(R.layout.recyclerview) {
         super.onViewCreated(view, savedInstanceState)
 
         val adapter = EventsAdapter(view.context)
-        api.roomStatuses.observe(viewLifecycleOwner, adapter)
-
         val holder = RecyclerViewViewHolder(view).apply {
             recyclerView.apply {
                 layoutManager = LinearLayoutManager(context)
@@ -53,6 +51,9 @@ class ExternalBookmarksListFragment : Fragment(R.layout.recyclerview) {
 
         val bookmarkIds = requireArguments().getLongArray(ARG_BOOKMARK_IDS)!!
 
+        api.roomStatuses.observe(viewLifecycleOwner) { statuses ->
+            adapter.roomStatuses = statuses
+        }
         with(viewModel) {
             setBookmarkIds(bookmarkIds)
             bookmarks.observe(viewLifecycleOwner) { bookmarks ->

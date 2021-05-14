@@ -28,8 +28,6 @@ class PersonInfoListFragment : Fragment(R.layout.recyclerview) {
         super.onViewCreated(view, savedInstanceState)
 
         val adapter = EventsAdapter(view.context)
-        api.roomStatuses.observe(viewLifecycleOwner, adapter)
-
         val holder = RecyclerViewViewHolder(view).apply {
             recyclerView.apply {
                 val contentMargin = resources.getDimensionPixelSize(R.dimen.content_margin)
@@ -46,6 +44,9 @@ class PersonInfoListFragment : Fragment(R.layout.recyclerview) {
             isProgressBarVisible = true
         }
 
+        api.roomStatuses.observe(viewLifecycleOwner) { statuses ->
+            adapter.roomStatuses = statuses
+        }
         viewModel.events.observe(viewLifecycleOwner) { events ->
             adapter.submitList(events)
             holder.isProgressBarVisible = false

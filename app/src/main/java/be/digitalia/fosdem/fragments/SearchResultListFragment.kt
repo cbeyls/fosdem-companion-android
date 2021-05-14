@@ -24,8 +24,6 @@ class SearchResultListFragment : Fragment(R.layout.recyclerview) {
         super.onViewCreated(view, savedInstanceState)
 
         val adapter = EventsAdapter(view.context)
-        api.roomStatuses.observe(viewLifecycleOwner, adapter)
-
         val holder = RecyclerViewViewHolder(view).apply {
             recyclerView.apply {
                 layoutManager = LinearLayoutManager(context)
@@ -36,6 +34,9 @@ class SearchResultListFragment : Fragment(R.layout.recyclerview) {
             isProgressBarVisible = true
         }
 
+        api.roomStatuses.observe(viewLifecycleOwner) { statuses ->
+            adapter.roomStatuses = statuses
+        }
         viewModel.results.observe(viewLifecycleOwner) { result ->
             adapter.submitList((result as? SearchViewModel.Result.Success)?.list)
             holder.isProgressBarVisible = false

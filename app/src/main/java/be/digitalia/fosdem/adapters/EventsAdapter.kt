@@ -13,7 +13,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.set
 import androidx.core.view.isGone
 import androidx.core.widget.TextViewCompat
-import androidx.lifecycle.Observer
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import be.digitalia.fosdem.R
@@ -25,15 +24,15 @@ import be.digitalia.fosdem.utils.DateUtils
 import java.text.DateFormat
 
 class EventsAdapter constructor(context: Context, private val showDay: Boolean = true) :
-    PagedListAdapter<StatusEvent, EventsAdapter.ViewHolder>(DIFF_CALLBACK), Observer<Map<String, RoomStatus>> {
+    PagedListAdapter<StatusEvent, EventsAdapter.ViewHolder>(DIFF_CALLBACK) {
 
     private val timeDateFormat = DateUtils.getTimeDateFormat(context)
-    private var roomStatuses: Map<String, RoomStatus>? = null
 
-    override fun onChanged(statuses: Map<String, RoomStatus>?) {
-        roomStatuses = statuses
-        notifyItemRangeChanged(0, itemCount, DETAILS_PAYLOAD)
-    }
+    var roomStatuses: Map<String, RoomStatus>? = null
+        set(value) {
+            field = value
+            notifyItemRangeChanged(0, itemCount, DETAILS_PAYLOAD)
+        }
 
     override fun getItemViewType(position: Int) = R.layout.item_event
 
@@ -43,7 +42,7 @@ class EventsAdapter constructor(context: Context, private val showDay: Boolean =
     }
 
     private fun getRoomStatus(event: Event): RoomStatus? {
-        return roomStatuses?.let { it[event.roomName] }
+        return roomStatuses?.get(event.roomName)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {

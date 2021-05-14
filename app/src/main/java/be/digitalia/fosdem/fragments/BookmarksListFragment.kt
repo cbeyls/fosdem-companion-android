@@ -101,8 +101,6 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
         super.onViewCreated(view, savedInstanceState)
 
         val adapter = BookmarksAdapter(view.context, multiChoiceHelper)
-        api.roomStatuses.observe(viewLifecycleOwner, adapter)
-
         val holder = RecyclerViewViewHolder(view).apply {
             recyclerView.apply {
                 layoutManager = LinearLayoutManager(recyclerView.context)
@@ -113,6 +111,9 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
             isProgressBarVisible = true
         }
 
+        api.roomStatuses.observe(viewLifecycleOwner) { statuses ->
+            adapter.roomStatuses = statuses
+        }
         viewModel.bookmarks.observe(viewLifecycleOwner) { bookmarks ->
             adapter.submitList(bookmarks)
             multiChoiceHelper.setAdapter(adapter, viewLifecycleOwner)
