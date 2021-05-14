@@ -38,7 +38,7 @@ fun String.removeDiacritics(): String {
     val result = CharArray(length) { i ->
         var c = this[i]
         if (c in '\u00c0'..'\u017f') {
-            c = tab00c0[c.toInt() - '\u00c0'.toInt()]
+            c = tab00c0[c.code - '\u00c0'.code]
         }
         c
     }
@@ -96,7 +96,7 @@ fun String.toSlug(): String {
             .replace("ß", "ss")
             .trimNonAlpha()
             .replaceNonAlphaGroups('_')
-            .toLowerCase(Locale.US)
+            .lowercase(Locale.US)
 }
 
 fun String.stripHtml(): String {
@@ -120,7 +120,7 @@ fun roomNameToResourceName(roomName: String): String {
             if (lastDigit) {
                 break
             }
-            builder.append(c.toLowerCase())
+            builder.append(c.lowercase(Locale.US))
         } else if (c.isDigit()) {
             builder.append(c)
             lastDigit = true

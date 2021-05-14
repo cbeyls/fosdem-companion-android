@@ -18,7 +18,7 @@ class ICalendarReader(private val source: BufferedSource) : Closeable {
                 val buffer = Buffer()
                 val result = Array(keys.size) {
                     buffer.writeUtf8(keys[it])
-                    buffer.writeByte(':'.toInt())
+                    buffer.writeByte(':'.code)
                     buffer.readByteString()
                 }
                 return Options(okio.Options.of(*result))
@@ -30,7 +30,7 @@ class ICalendarReader(private val source: BufferedSource) : Closeable {
 
     fun nextKey(): String {
         check(state == STATE_BEGIN_KEY)
-        val endPosition = source.indexOf(':'.toByte())
+        val endPosition = source.indexOf(':'.code.toByte())
         endPosition >= 0L || throw IOException("Invalid key")
         val result = source.readUtf8(endPosition)
         source.skip(1L)
@@ -40,7 +40,7 @@ class ICalendarReader(private val source: BufferedSource) : Closeable {
 
     fun skipKey() {
         check(state == STATE_BEGIN_KEY)
-        val endPosition = source.indexOf(':'.toByte())
+        val endPosition = source.indexOf(':'.code.toByte())
         endPosition >= 0L || throw IOException("Invalid key")
         source.skip(endPosition + 1L)
         state = STATE_BEGIN_VALUE
@@ -65,7 +65,7 @@ class ICalendarReader(private val source: BufferedSource) : Closeable {
             }
             lineLambda(endPosition)
             skip(2L)
-            if (!request(1L) || buffer[0L] != ' '.toByte()) {
+            if (!request(1L) || buffer[0L] != ' '.code.toByte()) {
                 break
             }
             skip(1L)

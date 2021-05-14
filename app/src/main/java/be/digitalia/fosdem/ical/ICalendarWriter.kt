@@ -15,7 +15,7 @@ class ICalendarWriter(private val sink: BufferedSink) : Closeable {
         if (value != null) {
             with(sink) {
                 writeUtf8(key)
-                writeByte(':'.toInt())
+                writeByte(':'.code)
 
                 // Fold line break sequences
                 val length = value.length
@@ -26,7 +26,7 @@ class ICalendarWriter(private val sink: BufferedSink) : Closeable {
                     if (c == '\r' || c == '\n') {
                         writeUtf8(value, start, end)
                         write(CRLF)
-                        writeByte(' '.toInt())
+                        writeByte(' '.code)
                         do {
                             end++
                         } while (end < length && (value[end] == '\r' || value[end] == '\n'))
