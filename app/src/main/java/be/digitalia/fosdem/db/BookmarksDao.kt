@@ -7,7 +7,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.withTransaction
-import be.digitalia.fosdem.alarms.FosdemAlarmManager
 import be.digitalia.fosdem.db.entities.Bookmark
 import be.digitalia.fosdem.model.AlarmInfo
 import be.digitalia.fosdem.model.Event
@@ -16,7 +15,6 @@ import kotlinx.coroutines.launch
 
 @Dao
 abstract class BookmarksDao(private val appDatabase: AppDatabase) {
-
     /**
      * Returns the bookmarks.
      *
@@ -65,7 +63,7 @@ abstract class BookmarksDao(private val appDatabase: AppDatabase) {
         BackgroundWorkScope.launch {
             val ids = addBookmarksInternal(listOf(Bookmark(event.id)))
             if (ids[0] != -1L) {
-                FosdemAlarmManager.onBookmarksAdded(listOf(AlarmInfo(eventId = event.id, startTime = event.startTime)))
+                appDatabase.alarmManager.onBookmarksAdded(listOf(AlarmInfo(eventId = event.id, startTime = event.startTime)))
             }
         }
     }
@@ -81,7 +79,7 @@ abstract class BookmarksDao(private val appDatabase: AppDatabase) {
                 // Filter out items that were already in bookmarks
                 val addedAlarmInfos = alarmInfos.filterIndexed { index, _ -> ids[index] != -1L }
                 if (addedAlarmInfos.isNotEmpty()) {
-                    FosdemAlarmManager.onBookmarksAdded(addedAlarmInfos)
+                    appDatabase.alarmManager.onBookmarksAdded(addedAlarmInfos)
                 }
             }
         }
@@ -103,7 +101,7 @@ abstract class BookmarksDao(private val appDatabase: AppDatabase) {
     fun removeBookmarksAsync(eventIds: LongArray) {
         BackgroundWorkScope.launch {
             if (removeBookmarksInternal(eventIds) > 0) {
-                FosdemAlarmManager.onBookmarksRemoved(eventIds)
+                appDatabase.alarmManager.onBookmarksRemoved(eventIds)
             }
         }
     }

@@ -10,15 +10,21 @@ import android.net.Uri
 import android.os.ParcelFileDescriptor
 import android.provider.OpenableColumns
 import androidx.core.app.ShareCompat
+import androidx.core.content.ContentProviderCompat
 import be.digitalia.fosdem.BuildConfig
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.api.FosdemUrls
-import be.digitalia.fosdem.db.AppDatabase
+import be.digitalia.fosdem.db.BookmarksDao
+import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.ical.ICalendarWriter
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.utils.DateUtils
 import be.digitalia.fosdem.utils.stripHtml
 import be.digitalia.fosdem.utils.toSlug
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 import okio.buffer
 import okio.sink
 import java.io.FileNotFoundException
@@ -34,6 +40,19 @@ import java.util.TimeZone
  */
 class BookmarksExportProvider : ContentProvider() {
 
+    private val scheduleDao: ScheduleDao by lazy {
+        EntryPointAccessors.fromApplication(
+            ContentProviderCompat.requireContext(this),
+            BookmarksExportProviderEntryPoint::class.java
+        ).scheduleDao
+    }
+    private val bookmarksDao: BookmarksDao by lazy {
+        EntryPointAccessors.fromApplication(
+            ContentProviderCompat.requireContext(this),
+            BookmarksExportProviderEntryPoint::class.java
+        ).bookmarksDao
+    }
+
     override fun onCreate() = true
 
     override fun insert(uri: Uri, values: ContentValues?) = throw UnsupportedOperationException()
@@ -45,7 +64,7 @@ class BookmarksExportProvider : ContentProvider() {
     override fun getType(uri: Uri) = TYPE
 
     override fun query(uri: Uri, projection: Array<String>?, selection: String?, selectionArgs: Array<String>?, sortOrder: String?): Cursor? {
-        val ctx = context!!
+        val ctx = ContentProviderCompat.requireContext(this)
         val proj = projection ?: COLUMNS
         val cols = arrayOfNulls<String>(proj.size)
         val values = arrayOfNulls<Any>(proj.size)
@@ -54,7 +73,7 @@ class BookmarksExportProvider : ContentProvider() {
             when (col) {
                 OpenableColumns.DISPLAY_NAME -> {
                     cols[columnCount] = OpenableColumns.DISPLAY_NAME
-                    values[columnCount++] = ctx.getString(R.string.export_bookmarks_file_name, AppDatabase.getInstance(ctx).scheduleDao.getYear())
+                    values[columnCount++] = ctx.getString(R.string.export_bookmarks_file_name, scheduleDao.getYear())
                 }
                 OpenableColumns.SIZE -> {
                     cols[columnCount] = OpenableColumns.SIZE
@@ -72,17 +91,14 @@ class BookmarksExportProvider : ContentProvider() {
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
         return try {
             val pipe = ParcelFileDescriptor.createPipe()
-            DownloadThread(
-                    ParcelFileDescriptor.AutoCloseOutputStream(pipe[1]),
-                    AppDatabase.getInstance(context!!)
-            ).start()
+            DownloadThread(ParcelFileDescriptor.AutoCloseOutputStream(pipe[1]), bookmarksDao).start()
             pipe[0]
         } catch (e: IOException) {
             throw FileNotFoundException("Could not open pipe")
         }
     }
 
-    private class DownloadThread(private val outputStream: OutputStream, private val appDatabase: AppDatabase) : Thread() {
+    private class DownloadThread(private val outputStream: OutputStream, private val bookmarksDao: BookmarksDao) : Thread() {
         private val calendar = Calendar.getInstance(DateUtils.belgiumTimeZone, Locale.US)
         // Format all times in GMT
         private val dateFormat = SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'", Locale.US).apply {
@@ -93,7 +109,7 @@ class BookmarksExportProvider : ContentProvider() {
         override fun run() {
             try {
                 ICalendarWriter(outputStream.sink().buffer()).use { writer ->
-                    val bookmarks = appDatabase.bookmarksDao.getBookmarks()
+                    val bookmarks = bookmarksDao.getBookmarks()
                     writer.write("BEGIN", "VCALENDAR")
                     writer.write("VERSION", "2.0")
                     writer.write("PRODID", "-//${BuildConfig.APPLICATION_ID}//NONSGML ${BuildConfig.VERSION_NAME}//EN")
@@ -141,6 +157,13 @@ class BookmarksExportProvider : ContentProvider() {
 
             write("END", "VEVENT")
         }
+    }
+
+    @EntryPoint
+    @InstallIn(SingletonComponent::class)
+    interface BookmarksExportProviderEntryPoint {
+        val scheduleDao: ScheduleDao
+        val bookmarksDao: BookmarksDao
     }
 
     companion object {

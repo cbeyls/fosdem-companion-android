@@ -1,16 +1,16 @@
 package be.digitalia.fosdem.viewmodels
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import androidx.paging.PagedList
 import androidx.paging.toLiveData
-import be.digitalia.fosdem.db.AppDatabase
+import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.model.Person
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class PersonsViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class PersonsViewModel @Inject constructor(scheduleDao: ScheduleDao) : ViewModel() {
 
-    private val appDatabase = AppDatabase.getInstance(application)
-
-    val persons: LiveData<PagedList<Person>> = appDatabase.scheduleDao.getPersons().toLiveData(100)
+    val persons: LiveData<PagedList<Person>> = scheduleDao.getPersons().toLiveData(100)
 }

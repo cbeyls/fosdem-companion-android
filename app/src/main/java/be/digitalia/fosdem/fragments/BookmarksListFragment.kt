@@ -23,21 +23,27 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.ExternalBookmarksActivity
 import be.digitalia.fosdem.adapters.BookmarksAdapter
+import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.providers.BookmarksExportProvider
 import be.digitalia.fosdem.utils.CreateNfcAppDataCallback
 import be.digitalia.fosdem.utils.toBookmarksNfcAppData
 import be.digitalia.fosdem.viewmodels.BookmarksViewModel
 import be.digitalia.fosdem.widgets.MultiChoiceHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.concurrent.CancellationException
+import javax.inject.Inject
 
 /**
  * Bookmarks list, optionally filterable.
  *
  * @author Christophe Beyls
  */
+@AndroidEntryPoint
 class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataCallback {
 
+    @Inject
+    lateinit var api: FosdemApi
     private val viewModel: BookmarksViewModel by viewModels()
     private val multiChoiceHelper: MultiChoiceHelper by lazy(LazyThreadSafetyMode.NONE) {
         MultiChoiceHelper(requireActivity() as AppCompatActivity, this, object : MultiChoiceHelper.MultiChoiceModeListener {
@@ -94,7 +100,7 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val adapter = BookmarksAdapter(view.context, viewLifecycleOwner, multiChoiceHelper)
+        val adapter = BookmarksAdapter(view.context, multiChoiceHelper)
         val holder = RecyclerViewViewHolder(view).apply {
             recyclerView.apply {
                 layoutManager = LinearLayoutManager(recyclerView.context)
@@ -105,6 +111,9 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
             isProgressBarVisible = true
         }
 
+        api.roomStatuses.observe(viewLifecycleOwner) { statuses ->
+            adapter.roomStatuses = statuses
+        }
         viewModel.bookmarks.observe(viewLifecycleOwner) { bookmarks ->
             adapter.submitList(bookmarks)
             multiChoiceHelper.setAdapter(adapter, viewLifecycleOwner)

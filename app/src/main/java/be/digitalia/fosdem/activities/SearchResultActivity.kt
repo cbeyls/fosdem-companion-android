@@ -14,7 +14,9 @@ import be.digitalia.fosdem.fragments.SearchResultListFragment
 import be.digitalia.fosdem.viewmodels.SearchViewModel
 import be.digitalia.fosdem.viewmodels.SearchViewModel.Result.QueryTooShort
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SearchResultActivity : SimpleToolbarActivity() {
 
     private val viewModel: SearchViewModel by viewModels()

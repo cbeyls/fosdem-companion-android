@@ -19,6 +19,8 @@ import be.digitalia.fosdem.utils.configureToolbarColors
 import be.digitalia.fosdem.utils.invertImageColors
 import be.digitalia.fosdem.utils.isLightTheme
 import be.digitalia.fosdem.utils.toSlug
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * A special Activity which is displayed like a dialog and shows a room image.
@@ -26,7 +28,11 @@ import be.digitalia.fosdem.utils.toSlug
  *
  * @author Christophe Beyls
  */
+@AndroidEntryPoint
 class RoomImageDialogActivity : AppCompatActivity(R.layout.dialog_room_image) {
+
+    @Inject
+    lateinit var api: FosdemApi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,14 +46,14 @@ class RoomImageDialogActivity : AppCompatActivity(R.layout.dialog_room_image) {
             }
             setImageResource(intent.getIntExtra(EXTRA_ROOM_IMAGE_RESOURCE_ID, 0))
         }
-        configureToolbar(this, findViewById(R.id.toolbar), roomName)
+        configureToolbar(api, this, findViewById(R.id.toolbar), roomName)
     }
 
     companion object {
         const val EXTRA_ROOM_NAME = "roomName"
         const val EXTRA_ROOM_IMAGE_RESOURCE_ID = "imageResId"
 
-        fun configureToolbar(owner: LifecycleOwner, toolbar: Toolbar, roomName: String) {
+        fun configureToolbar(api: FosdemApi, owner: LifecycleOwner, toolbar: Toolbar, roomName: String) {
             toolbar.title = roomName
             if (roomName.isNotEmpty()) {
                 val context = toolbar.context
@@ -72,7 +78,7 @@ class RoomImageDialogActivity : AppCompatActivity(R.layout.dialog_room_image) {
                 }
 
                 // Display the room status as subtitle
-                FosdemApi.getRoomStatuses(toolbar.context).observe(owner) { roomStatuses ->
+                api.roomStatuses.observe(owner) { roomStatuses ->
                     val roomStatus = roomStatuses[roomName]
                     toolbar.subtitle = if (roomStatus != null) {
                         SpannableString(context.getString(roomStatus.nameResId)).apply {

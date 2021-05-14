@@ -3,35 +3,42 @@ package be.digitalia.fosdem.viewmodels
 import android.app.Application
 import android.net.Uri
 import android.text.format.DateUtils
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.switchMap
 import be.digitalia.fosdem.BuildConfig
-import be.digitalia.fosdem.db.AppDatabase
+import be.digitalia.fosdem.db.BookmarksDao
+import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.livedata.LiveDataFactory
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.parsers.ExportedBookmarksParser
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okio.buffer
 import okio.source
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class BookmarksViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class BookmarksViewModel @Inject constructor(
+    private val bookmarksDao: BookmarksDao,
+    private val scheduleDao: ScheduleDao,
+    private val application: Application
+) : ViewModel() {
 
-    private val appDatabase = AppDatabase.getInstance(application)
     private val upcomingOnlyLiveData = MutableLiveData<Boolean>()
 
     val bookmarks: LiveData<List<Event>> = upcomingOnlyLiveData.switchMap { upcomingOnly: Boolean ->
         if (upcomingOnly) {
             // Refresh upcoming bookmarks every 2 minutes
             LiveDataFactory.interval(2L, TimeUnit.MINUTES)
-                    .switchMap {
-                        appDatabase.bookmarksDao.getBookmarks(System.currentTimeMillis() - TIME_OFFSET)
-                    }
+                .switchMap {
+                    bookmarksDao.getBookmarks(System.currentTimeMillis() - TIME_OFFSET)
+                }
         } else {
-            appDatabase.bookmarksDao.getBookmarks(-1L)
+            bookmarksDao.getBookmarks(-1L)
         }
     }
 
@@ -44,15 +51,14 @@ class BookmarksViewModel(application: Application) : AndroidViewModel(applicatio
         }
 
     fun removeBookmarks(eventIds: LongArray) {
-        appDatabase.bookmarksDao.removeBookmarksAsync(eventIds)
+        bookmarksDao.removeBookmarksAsync(eventIds)
     }
 
-    suspend fun readBookmarkIds(uri: Uri): LongArray {
-        return withContext(Dispatchers.IO) {
-            val parser = ExportedBookmarksParser(BuildConfig.APPLICATION_ID, appDatabase.scheduleDao.getYear())
-            checkNotNull(getApplication<Application>().contentResolver.openInputStream(uri)).source().buffer().use {
-                parser.parse(it)
-            }
+    @Suppress("BlockingMethodInNonBlockingContext")
+    suspend fun readBookmarkIds(uri: Uri): LongArray = withContext(Dispatchers.IO) {
+        val parser = ExportedBookmarksParser(BuildConfig.APPLICATION_ID, scheduleDao.getYear())
+        checkNotNull(application.contentResolver.openInputStream(uri)).source().buffer().use {
+            parser.parse(it)
         }
     }
 

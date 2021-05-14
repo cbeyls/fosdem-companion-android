@@ -28,12 +28,14 @@ import be.digitalia.fosdem.utils.toNfcAppData
 import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel
 import be.digitalia.fosdem.viewmodels.EventViewModel
 import be.digitalia.fosdem.widgets.setupBookmarkStatus
+import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * Displays a single event passed either as a complete Parcelable object in extras or as an id in data.
  *
  * @author Christophe Beyls
  */
+@AndroidEntryPoint
 class EventDetailsActivity : AppCompatActivity(R.layout.single_event), CreateNfcAppDataCallback {
 
     private val bookmarkStatusViewModel: BookmarkStatusViewModel by viewModels()

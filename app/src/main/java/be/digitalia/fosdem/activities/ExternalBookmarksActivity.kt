@@ -8,7 +8,9 @@ import be.digitalia.fosdem.fragments.ExternalBookmarksListFragment
 import be.digitalia.fosdem.utils.extractNfcAppData
 import be.digitalia.fosdem.utils.hasNfcAppData
 import be.digitalia.fosdem.utils.toBookmarks
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ExternalBookmarksActivity : SimpleToolbarActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -1,29 +1,30 @@
 package be.digitalia.fosdem.viewmodels
 
-import android.app.Application
 import android.text.format.DateUtils
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.switchMap
 import androidx.paging.PagedList
 import androidx.paging.toLiveData
-import be.digitalia.fosdem.db.AppDatabase
+import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.livedata.LiveDataFactory
 import be.digitalia.fosdem.model.StatusEvent
+import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class LiveViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class LiveViewModel @Inject constructor(scheduleDao: ScheduleDao) : ViewModel() {
 
-    private val appDatabase = AppDatabase.getInstance(application)
     private val heartbeat = LiveDataFactory.interval(1L, TimeUnit.MINUTES)
 
     val nextEvents: LiveData<PagedList<StatusEvent>> = heartbeat.switchMap {
         val now = System.currentTimeMillis()
-        appDatabase.scheduleDao.getEventsWithStartTime(now, now + NEXT_EVENTS_INTERVAL).toLiveData(20)
+        scheduleDao.getEventsWithStartTime(now, now + NEXT_EVENTS_INTERVAL).toLiveData(20)
     }
 
     val eventsInProgress: LiveData<PagedList<StatusEvent>> = heartbeat.switchMap {
-        appDatabase.scheduleDao.getEventsInProgress(System.currentTimeMillis()).toLiveData(20)
+        scheduleDao.getEventsInProgress(System.currentTimeMillis()).toLiveData(20)
     }
 
     companion object {

@@ -13,30 +13,26 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.set
 import androidx.core.view.isGone
 import androidx.core.widget.TextViewCompat
-import androidx.lifecycle.LifecycleOwner
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.EventDetailsActivity
-import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.RoomStatus
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.utils.DateUtils
 import java.text.DateFormat
 
-class EventsAdapter constructor(context: Context, owner: LifecycleOwner, private val showDay: Boolean = true)
-    : PagedListAdapter<StatusEvent, EventsAdapter.ViewHolder>(DIFF_CALLBACK) {
+class EventsAdapter constructor(context: Context, private val showDay: Boolean = true) :
+    PagedListAdapter<StatusEvent, EventsAdapter.ViewHolder>(DIFF_CALLBACK) {
 
     private val timeDateFormat = DateUtils.getTimeDateFormat(context)
-    private var roomStatuses: Map<String, RoomStatus>? = null
 
-    init {
-        FosdemApi.getRoomStatuses(context).observe(owner) { statuses ->
-            roomStatuses = statuses
+    var roomStatuses: Map<String, RoomStatus>? = null
+        set(value) {
+            field = value
             notifyItemRangeChanged(0, itemCount, DETAILS_PAYLOAD)
         }
-    }
 
     override fun getItemViewType(position: Int) = R.layout.item_event
 
@@ -46,7 +42,7 @@ class EventsAdapter constructor(context: Context, owner: LifecycleOwner, private
     }
 
     private fun getRoomStatus(event: Event): RoomStatus? {
-        return roomStatuses?.let { it[event.roomName] }
+        return roomStatuses?.get(event.roomName)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {

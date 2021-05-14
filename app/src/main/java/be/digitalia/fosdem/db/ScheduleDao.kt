@@ -268,8 +268,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         LEFT JOIN persons p ON ep.person_id = p.`rowid`
         WHERE e.id = :id
         GROUP BY e.id""")
-    @WorkerThread
-    abstract fun getEvent(id: Long): Event?
+    abstract suspend fun getEvent(id: Long): Event?
 
     /**
      * Returns all found events whose id is part of the given list.
@@ -321,7 +320,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         WHERE e.day_index = :day AND e.track_id = :track
         GROUP BY e.id
         ORDER BY e.start_time ASC""")
-    abstract fun getEventsSnapshot(day: Day, track: Track): List<Event>
+    abstract suspend fun getEventsSnapshot(day: Day, track: Track): List<Event>
 
     /**
      * Returns events starting in the specified interval, ordered by ascending start time.

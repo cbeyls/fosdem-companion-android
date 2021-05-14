@@ -33,7 +33,7 @@ import be.digitalia.fosdem.BuildConfig
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.api.FosdemUrls
-import be.digitalia.fosdem.db.AppDatabase
+import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.fragments.BookmarksListFragment
 import be.digitalia.fosdem.fragments.LiveFragment
 import be.digitalia.fosdem.fragments.MapFragment
@@ -49,13 +49,16 @@ import be.digitalia.fosdem.utils.setNfcAppDataPushMessageCallbackIfAvailable
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.progressindicator.BaseProgressIndicator
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CancellationException
+import javax.inject.Inject
 
 /**
  * Main entry point of the application. Allows to switch between section fragments and update the database.
  *
  * @author Christophe Beyls
  */
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback {
 
     private enum class Section(val fragmentClass: Class<out Fragment>,
@@ -79,6 +82,11 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
                              val drawerLayout: DrawerLayout,
                              val navigationView: NavigationView)
 
+    @Inject
+    lateinit var api: FosdemApi
+    @Inject
+    lateinit var scheduleDao: ScheduleDao
+
     private lateinit var holder: ViewHolder
     private lateinit var drawerToggle: ActionBarDrawerToggle
     private var searchMenuItem: MenuItem? = null
@@ -93,7 +101,7 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
         val progressIndicator: BaseProgressIndicator<*> = findViewById(R.id.progress)
 
         // Monitor the schedule download
-        FosdemApi.downloadScheduleState.observe(this) { state ->
+        api.downloadScheduleState.observe(this) { state ->
             when (state) {
                 is LoadingState.Loading -> {
                     with(progressIndicator) {
@@ -119,7 +127,7 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
                         val snackbar = when (result) {
                             is DownloadScheduleResult.Error -> {
                                 Snackbar.make(contentView, R.string.schedule_loading_error, ERROR_MESSAGE_DISPLAY_DURATION)
-                                        .setAction(R.string.schedule_loading_retry_action) { FosdemApi.downloadSchedule(this) }
+                                        .setAction(R.string.schedule_loading_retry_action) { api.downloadSchedule() }
                             }
                             is DownloadScheduleResult.UpToDate -> {
                                 Snackbar.make(contentView, R.string.events_download_up_to_date, Snackbar.LENGTH_LONG)
@@ -174,7 +182,7 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
 
         // Latest update date, below the list
         val latestUpdateTextView: TextView = navigationView.findViewById(R.id.latest_update)
-        AppDatabase.getInstance(this).scheduleDao.latestUpdateTime
+        scheduleDao.latestUpdateTime
                 .observe(this) { time ->
                     val timeString = if (time == -1L) getString(R.string.never)
                     else DateFormat.format(LATEST_UPDATE_DATE_FORMAT, time)
@@ -238,7 +246,7 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
 
         // Scheduled database update
         val now = System.currentTimeMillis()
-        val latestUpdateTime = AppDatabase.getInstance(this).scheduleDao.latestUpdateTime.value
+        val latestUpdateTime = scheduleDao.latestUpdateTime.value
         if (latestUpdateTime == null || latestUpdateTime < now - DATABASE_VALIDITY_DURATION) {
             val prefs = getPreferences(Context.MODE_PRIVATE)
             val latestAttemptTime = prefs.getLong(PREF_LATEST_AUTO_UPDATE_ATTEMPT_TIME, -1L)
@@ -247,7 +255,7 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
                     putLong(PREF_LATEST_AUTO_UPDATE_ATTEMPT_TIME, now)
                 }
                 // Try to update immediately. If it fails, the user gets a message and a retry button.
-                FosdemApi.downloadSchedule(this)
+                api.downloadSchedule()
             }
         }
     }
@@ -289,7 +297,7 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
                     item.icon = icon
                     icon.start()
                 }
-                FosdemApi.downloadSchedule(this)
+                api.downloadSchedule()
                 true
             }
             else -> false
