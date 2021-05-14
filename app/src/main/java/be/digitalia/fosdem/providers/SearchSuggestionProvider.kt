@@ -5,6 +5,7 @@ import android.content.ContentProvider
 import android.content.ContentValues
 import android.database.Cursor
 import android.net.Uri
+import androidx.core.content.ContentProviderCompat
 import be.digitalia.fosdem.db.ScheduleDao
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -18,33 +19,24 @@ import dagger.hilt.components.SingletonComponent
  */
 class SearchSuggestionProvider : ContentProvider() {
 
-    override fun onCreate(): Boolean {
-        return true
+    private val scheduleDao: ScheduleDao by lazy {
+        EntryPointAccessors.fromApplication(
+            ContentProviderCompat.requireContext(this),
+            SearchSuggestionProviderEntryPoint::class.java
+        ).scheduleDao
     }
 
-    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?): Int {
-        throw UnsupportedOperationException()
-    }
+    override fun onCreate() = true
 
-    override fun insert(uri: Uri, values: ContentValues?): Uri? {
-        throw UnsupportedOperationException()
-    }
+    override fun insert(uri: Uri, values: ContentValues?) = throw UnsupportedOperationException()
 
-    override fun update(uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<String>?): Int {
-        throw UnsupportedOperationException()
-    }
+    override fun update(uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<String>?) = throw UnsupportedOperationException()
 
-    override fun getType(uri: Uri): String? {
-        return SearchManager.SUGGEST_MIME_TYPE
-    }
+    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?) = throw UnsupportedOperationException()
 
-    override fun query(
-        uri: Uri,
-        projection: Array<String>?,
-        selection: String?,
-        selectionArgs: Array<String>?,
-        sortOrder: String?
-    ): Cursor? {
+    override fun getType(uri: Uri) = SearchManager.SUGGEST_MIME_TYPE
+
+    override fun query(uri: Uri, projection: Array<String>?, selection: String?, selectionArgs: Array<String>?, sortOrder: String?): Cursor? {
         var query = uri.lastPathSegment ?: return null
         // Ignore empty or too small queries
         query = query.trim()
@@ -55,10 +47,7 @@ class SearchSuggestionProvider : ContentProvider() {
         val limitParam = uri.getQueryParameter("limit")
         val limit = if (limitParam.isNullOrEmpty()) DEFAULT_MAX_RESULTS else limitParam.toInt()
 
-        val entryPoint = EntryPointAccessors.fromApplication(
-            context!!.applicationContext, SearchSuggestionProviderEntryPoint::class.java
-        )
-        return entryPoint.scheduleDao.getSearchSuggestionResults(query, limit)
+        return scheduleDao.getSearchSuggestionResults(query, limit)
     }
 
     @EntryPoint

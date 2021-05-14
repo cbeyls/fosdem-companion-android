@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.ParcelFileDescriptor
 import android.provider.OpenableColumns
 import androidx.core.app.ShareCompat
+import androidx.core.content.ContentProviderCompat
 import be.digitalia.fosdem.BuildConfig
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.api.FosdemUrls
@@ -39,6 +40,19 @@ import java.util.TimeZone
  */
 class BookmarksExportProvider : ContentProvider() {
 
+    private val scheduleDao: ScheduleDao by lazy {
+        EntryPointAccessors.fromApplication(
+            ContentProviderCompat.requireContext(this),
+            BookmarksExportProviderEntryPoint::class.java
+        ).scheduleDao
+    }
+    private val bookmarksDao: BookmarksDao by lazy {
+        EntryPointAccessors.fromApplication(
+            ContentProviderCompat.requireContext(this),
+            BookmarksExportProviderEntryPoint::class.java
+        ).bookmarksDao
+    }
+
     override fun onCreate() = true
 
     override fun insert(uri: Uri, values: ContentValues?) = throw UnsupportedOperationException()
@@ -50,10 +64,7 @@ class BookmarksExportProvider : ContentProvider() {
     override fun getType(uri: Uri) = TYPE
 
     override fun query(uri: Uri, projection: Array<String>?, selection: String?, selectionArgs: Array<String>?, sortOrder: String?): Cursor? {
-        val ctx = context!!
-        val entryPoint = EntryPointAccessors.fromApplication(
-            ctx.applicationContext, BookmarksExportProviderEntryPoint::class.java
-        )
+        val ctx = ContentProviderCompat.requireContext(this)
         val proj = projection ?: COLUMNS
         val cols = arrayOfNulls<String>(proj.size)
         val values = arrayOfNulls<Any>(proj.size)
@@ -62,7 +73,7 @@ class BookmarksExportProvider : ContentProvider() {
             when (col) {
                 OpenableColumns.DISPLAY_NAME -> {
                     cols[columnCount] = OpenableColumns.DISPLAY_NAME
-                    values[columnCount++] = ctx.getString(R.string.export_bookmarks_file_name, entryPoint.scheduleDao.getYear())
+                    values[columnCount++] = ctx.getString(R.string.export_bookmarks_file_name, scheduleDao.getYear())
                 }
                 OpenableColumns.SIZE -> {
                     cols[columnCount] = OpenableColumns.SIZE
@@ -78,15 +89,9 @@ class BookmarksExportProvider : ContentProvider() {
     }
 
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
-        val entryPoint = EntryPointAccessors.fromApplication(
-            context!!.applicationContext, BookmarksExportProviderEntryPoint::class.java
-        )
         return try {
             val pipe = ParcelFileDescriptor.createPipe()
-            DownloadThread(
-                ParcelFileDescriptor.AutoCloseOutputStream(pipe[1]),
-                entryPoint.bookmarksDao
-            ).start()
+            DownloadThread(ParcelFileDescriptor.AutoCloseOutputStream(pipe[1]), bookmarksDao).start()
             pipe[0]
         } catch (e: IOException) {
             throw FileNotFoundException("Could not open pipe")
