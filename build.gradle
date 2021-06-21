@@ -2,7 +2,7 @@
 buildscript {
     ext {
         kotlin_version = '1.5.10'
-        hilt_version = '2.35.1'
+        hilt_version = '2.37'
     }
     repositories {
         google()

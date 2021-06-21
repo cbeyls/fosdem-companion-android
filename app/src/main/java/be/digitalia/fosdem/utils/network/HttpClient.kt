@@ -1,42 +1,26 @@
 package be.digitalia.fosdem.utils.network
 
-import android.os.Build
-import be.digitalia.fosdem.utils.BackgroundWorkScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Call
 import okhttp3.Callback
-import okhttp3.OkHttpClient
+import okhttp3.Headers
 import okhttp3.Request
 import okhttp3.ResponseBody
-import okhttp3.tls.HandshakeCertificates
 import java.io.IOException
 import java.net.HttpURLConnection
-import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 /**
- * Utility class to perform HTTP requests.
+ * High-level coroutines-based HTTP client.
  *
  * @author Christophe Beyls
  */
-object HttpUtils {
+class HttpClient @Inject constructor(private val deferredCallFactory: @JvmSuppressWildcards Deferred<Call.Factory>) {
 
-    private const val DEFAULT_CONNECT_TIMEOUT = 10L
-    private const val DEFAULT_READ_TIMEOUT = 10L
-
-    private val deferredClient = BackgroundWorkScope.async(Dispatchers.IO, CoroutineStart.LAZY) {
-        OkHttpClient.Builder()
-                .enableTls12()
-                .connectTimeout(DEFAULT_CONNECT_TIMEOUT, TimeUnit.SECONDS)
-                .readTimeout(DEFAULT_READ_TIMEOUT, TimeUnit.SECONDS)
-                .build()
-    }
-
-    suspend fun <T> get(url: String, bodyParser: (body: ResponseBody, rawResponse: okhttp3.Response) -> T): Response.Success<T> {
+    suspend fun <T> get(url: String, bodyParser: (body: ResponseBody, headers: Headers) -> T): Response.Success<T> {
         return when (val response = get(url, null, bodyParser)) {
             // Can only receive NotModified if lastModified argument is non-null
             is Response.NotModified -> throw IllegalStateException()
@@ -47,19 +31,17 @@ object HttpUtils {
     /**
      * @param lastModified header value matching a previous "Last-Modified" response header.
      */
-    suspend fun <T> get(url: String, lastModified: String?, bodyParser: (body: ResponseBody, rawResponse: okhttp3.Response) -> T): Response<T> {
+    suspend fun <T> get(url: String, lastModified: String?, bodyParser: (body: ResponseBody, headers: Headers) -> T): Response<T> {
         val requestBuilder = Request.Builder()
         if (lastModified != null) {
             requestBuilder.header("If-Modified-Since", lastModified)
         }
         val request = requestBuilder
-                .url(url)
-                .build()
+            .url(url)
+            .build()
 
-        val client = deferredClient.await()
-
+        val call = deferredCallFactory.await().newCall(request)
         return suspendCancellableCoroutine { continuation ->
-            val call = client.newCall(request)
             call.enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
                     continuation.resumeWithException(e)
@@ -78,7 +60,7 @@ object HttpUtils {
                         }
                     } else {
                         try {
-                            val parsedBody = checkNotNull(body).use { bodyParser(it, response) }
+                            val parsedBody = checkNotNull(body).use { bodyParser(it, response.headers()) }
                             continuation.resume(Response.Success(parsedBody, response))
                         } catch (e: Exception) {
                             continuation.resumeWithException(e)
@@ -90,21 +72,12 @@ object HttpUtils {
         }
     }
 
-    val okhttp3.Response.lastModified: String?
-        get() = header("Last-Modified")
-
-    private fun OkHttpClient.Builder.enableTls12(): OkHttpClient.Builder {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1) {
-            val clientCertificates = HandshakeCertificates.Builder()
-                    .addPlatformTrustedCertificates()
-                    .build()
-            sslSocketFactory(Tls12SocketFactory(clientCertificates.sslSocketFactory()), clientCertificates.trustManager())
-        }
-        return this
-    }
-
     sealed class Response<out T> {
         object NotModified : Response<Nothing>()
         class Success<T>(val body: T, val raw: okhttp3.Response) : Response<T>()
+    }
+
+    companion object {
+        const val LAST_MODIFIED_HEADER_NAME = "Last-Modified"
     }
 }

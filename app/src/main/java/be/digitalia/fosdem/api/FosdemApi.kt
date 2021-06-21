@@ -18,8 +18,7 @@ import be.digitalia.fosdem.parsers.EventsParser
 import be.digitalia.fosdem.parsers.RoomStatusesParser
 import be.digitalia.fosdem.utils.BackgroundWorkScope
 import be.digitalia.fosdem.utils.ByteCountSource
-import be.digitalia.fosdem.utils.network.HttpUtils
-import be.digitalia.fosdem.utils.network.HttpUtils.lastModified
+import be.digitalia.fosdem.utils.network.HttpClient
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -36,6 +35,7 @@ import kotlin.math.pow
  */
 @Singleton
 class FosdemApi @Inject constructor(
+    private val httpClient: HttpClient,
     private val scheduleDao: ScheduleDao,
     private val alarmManager: FosdemAlarmManager
 ) {
@@ -50,13 +50,11 @@ class FosdemApi @Inject constructor(
     @MainThread
     fun downloadSchedule(): Job {
         // Returns the download job in progress, if any
-        return downloadJob ?: run {
-            BackgroundWorkScope.launch {
-                downloadScheduleInternal()
-                downloadJob = null
-            }.also {
-                downloadJob = it
-            }
+        return downloadJob ?: BackgroundWorkScope.launch {
+            downloadScheduleInternal()
+            downloadJob = null
+        }.also {
+            downloadJob = it
         }
     }
 
@@ -64,7 +62,7 @@ class FosdemApi @Inject constructor(
     private suspend fun downloadScheduleInternal() {
         _downloadScheduleState.value = LoadingState.Loading()
         val res = try {
-            val response = HttpUtils.get(FosdemUrls.schedule, scheduleDao.lastModifiedTag) { body, rawResponse ->
+            val response = httpClient.get(FosdemUrls.schedule, scheduleDao.lastModifiedTag) { body, headers ->
                 val length = body.contentLength()
                 val source = if (length > 0L) {
                     // Broadcast the progression in percents, with a precision of 1/10 of the total file size
@@ -78,11 +76,11 @@ class FosdemApi @Inject constructor(
                 }
 
                 val events = EventsParser().parse(source)
-                scheduleDao.storeSchedule(events, rawResponse.lastModified)
+                scheduleDao.storeSchedule(events, headers.get(HttpClient.LAST_MODIFIED_HEADER_NAME))
             }
             when (response) {
-                is HttpUtils.Response.NotModified -> DownloadScheduleResult.UpToDate    // Nothing parsed, the result is up-to-date
-                is HttpUtils.Response.Success -> {
+                is HttpClient.Response.NotModified -> DownloadScheduleResult.UpToDate    // Nothing parsed, the result is up-to-date
+                is HttpClient.Response.Success -> {
                     alarmManager.onScheduleRefreshed()
                     DownloadScheduleResult.Success(response.body)
                 }
@@ -139,7 +137,7 @@ class FosdemApi @Inject constructor(
                 }
 
                 nextRefreshDelay = try {
-                    val response = HttpUtils.get(FosdemUrls.rooms) { body, _ ->
+                    val response = httpClient.get(FosdemUrls.rooms) { body, _ ->
                         RoomStatusesParser().parse(body.source())
                     }
                     now = SystemClock.elapsedRealtime()

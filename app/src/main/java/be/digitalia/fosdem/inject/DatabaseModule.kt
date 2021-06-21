@@ -30,13 +30,13 @@ object DatabaseModule {
 
     @Provides
     @Named("Database")
-    fun providesSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
+    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
         return context.applicationContext.getSharedPreferences(DB_PREFS_FILE, Context.MODE_PRIVATE)
     }
 
     @Provides
     @Singleton
-    fun providesAppDatabase(@ApplicationContext context: Context): AppDatabase {
+    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(database: SupportSQLiteDatabase) = with(database) {
                 // Events: make primary key and track_id not null
@@ -80,8 +80,8 @@ object DatabaseModule {
     }
 
     @Provides
-    fun providesScheduleDao(appDatabase: AppDatabase): ScheduleDao = appDatabase.scheduleDao
+    fun provideScheduleDao(appDatabase: AppDatabase): ScheduleDao = appDatabase.scheduleDao
 
     @Provides
-    fun providesBookmarksDao(appDatabase: AppDatabase): BookmarksDao = appDatabase.bookmarksDao
+    fun provideBookmarksDao(appDatabase: AppDatabase): BookmarksDao = appDatabase.bookmarksDao
 }
