@@ -151,7 +151,7 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
             true
         }
         R.id.export_bookmarks -> {
-            val exportIntent = BookmarksExportProvider.getIntent(activity)
+            val exportIntent = BookmarksExportProvider.getIntent(requireActivity())
             startActivity(Intent.createChooser(exportIntent, getString(R.string.export_bookmarks)))
             true
         }

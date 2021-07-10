@@ -175,9 +175,9 @@ class BookmarksExportProvider : ContentProvider() {
                 .build()
         private val COLUMNS = arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE)
 
-        fun getIntent(activity: Activity?): Intent {
+        fun getIntent(activity: Activity): Intent {
             // Supports granting read permission for the attached shared file
-            return ShareCompat.IntentBuilder.from(activity!!)
+            return ShareCompat.IntentBuilder(activity)
                     .setStream(URI)
                     .setType(TYPE)
                     .intent

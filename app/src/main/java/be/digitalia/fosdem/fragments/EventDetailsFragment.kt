@@ -189,7 +189,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
     private fun createShareChooserIntent(): Intent {
         val title = event.title ?: ""
         val url = event.url ?: ""
-        return ShareCompat.IntentBuilder.from(requireActivity())
+        return ShareCompat.IntentBuilder(requireActivity())
                 .setSubject("$title ($CONFERENCE_NAME)")
                 .setType("text/plain")
                 .setText("$title $url $CONFERENCE_HASHTAG")
