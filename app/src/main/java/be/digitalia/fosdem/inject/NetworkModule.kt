@@ -50,7 +50,7 @@ object NetworkModule {
      */
     @Provides
     @Singleton
-    fun provideDeferredCallFactory(lazyClient: dagger.Lazy<OkHttpClient>): Deferred<Call.Factory> {
+    fun provideCallFactoryAsync(lazyClient: dagger.Lazy<OkHttpClient>): Deferred<Call.Factory> {
         return BackgroundWorkScope.async(Dispatchers.IO, CoroutineStart.LAZY) { lazyClient.get() }
     }
 }
