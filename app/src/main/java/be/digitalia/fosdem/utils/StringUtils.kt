@@ -78,7 +78,7 @@ private fun String.replaceNonAlphaGroups(replacement: Char): String {
 /**
  * Removes all removable chars at the beginning and end of source.
  */
-private fun String.trimNonAlpha(): String {
+fun String.trimNonAlpha(): String {
     return trim { it.isRemovable }
 }
 

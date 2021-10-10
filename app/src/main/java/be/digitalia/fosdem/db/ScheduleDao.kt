@@ -1,8 +1,5 @@
 package be.digitalia.fosdem.db
 
-import android.app.SearchManager
-import android.database.Cursor
-import android.provider.BaseColumns
 import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
 import androidx.core.content.edit
@@ -409,38 +406,6 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         GROUP BY e.id
         ORDER BY e.start_time ASC""")
     abstract fun getSearchResults(query: String): DataSource.Factory<Int, StatusEvent>
-
-    /**
-     * Method called by SearchSuggestionProvider to return search results in the format expected by the search framework.
-     */
-    @Query("""SELECT e.id AS ${BaseColumns._ID},
-        et.title AS ${SearchManager.SUGGEST_COLUMN_TEXT_1},
-        IFNULL(GROUP_CONCAT(p.name, ', '), '') || ' - ' || t.name AS ${SearchManager.SUGGEST_COLUMN_TEXT_2},
-        e.id AS ${SearchManager.SUGGEST_COLUMN_INTENT_DATA}
-        FROM events e
-        JOIN events_titles et ON e.id = et.`rowid`
-        JOIN tracks t ON e.track_id = t.id
-        LEFT JOIN events_persons ep ON e.id = ep.event_id
-        LEFT JOIN persons p ON ep.person_id = p.`rowid`
-        WHERE e.id IN (
-            SELECT `rowid`
-            FROM events_titles
-            WHERE events_titles MATCH :query || '*'
-        UNION
-            SELECT e.id
-            FROM events e
-            JOIN tracks t ON e.track_id = t.id
-            WHERE t.name LIKE '%' || :query || '%'
-        UNION
-            SELECT ep.event_id
-            FROM events_persons ep
-            JOIN persons p ON ep.person_id = p.`rowid`
-            WHERE p.name MATCH :query || '*'
-        )
-        GROUP BY e.id
-        ORDER BY e.start_time ASC LIMIT :limit""")
-    @WorkerThread
-    abstract fun getSearchSuggestionResults(query: String, limit: Int): Cursor
 
     /**
      * Returns all persons in alphabetical order.

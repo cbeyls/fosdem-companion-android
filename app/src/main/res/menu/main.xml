@@ -7,9 +7,7 @@
         android:icon="@drawable/ic_search_white_24dp"
         android:menuCategory="secondary"
         android:title="@string/search_events"
-        app:actionViewClass="androidx.appcompat.widget.SearchView"
-        app:iconTint="?colorControlNormal"
-        app:showAsAction="ifRoom|collapseActionView" />
+        app:iconTint="?colorControlNormal" />
     <item
         android:id="@+id/refresh"
         android:icon="@drawable/avd_sync_white_24dp"

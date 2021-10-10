@@ -1,7 +1,6 @@
 package be.digitalia.fosdem.activities
 
 import android.annotation.SuppressLint
-import android.app.SearchManager
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -19,10 +18,8 @@ import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SearchView
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.edit
-import androidx.core.content.getSystemService
 import androidx.core.view.ViewCompat
 import androidx.core.view.isInvisible
 import androidx.drawerlayout.widget.DrawerLayout
@@ -44,7 +41,6 @@ import be.digitalia.fosdem.model.LoadingState
 import be.digitalia.fosdem.utils.CreateNfcAppDataCallback
 import be.digitalia.fosdem.utils.awaitCloseDrawer
 import be.digitalia.fosdem.utils.configureToolbarColors
-import be.digitalia.fosdem.utils.fixCollapsibleActionView
 import be.digitalia.fosdem.utils.setNfcAppDataPushMessageCallbackIfAvailable
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.progressindicator.BaseProgressIndicator
@@ -89,7 +85,6 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
 
     private lateinit var holder: ViewHolder
     private lateinit var drawerToggle: ActionBarDrawerToggle
-    private var searchMenuItem: MenuItem? = null
 
     private lateinit var currentSection: Section
 
@@ -260,26 +255,8 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
         }
     }
 
-    override fun onStop() {
-        searchMenuItem?.run {
-            if (isActionViewExpanded) {
-                collapseActionView()
-            }
-        }
-
-        super.onStop()
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
-
-        searchMenuItem = menu.findItem(R.id.search)?.apply {
-            fixCollapsibleActionView()
-            // Associate searchable configuration with the SearchView
-            val searchManager: SearchManager? = getSystemService()
-            (actionView as SearchView).setSearchableInfo(searchManager?.getSearchableInfo(componentName))
-        }
-
         return true
     }
 
@@ -290,6 +267,12 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
         }
 
         return when (item.itemId) {
+            R.id.search -> {
+                val intent = Intent(this, SearchResultActivity::class.java)
+                startActivity(intent)
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+                true
+            }
             R.id.refresh -> {
                 val icon = item.icon
                 if (icon is Animatable) {

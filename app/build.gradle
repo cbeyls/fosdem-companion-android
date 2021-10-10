@@ -59,6 +59,9 @@ android {
     }
 
     kotlinOptions {
+        freeCompilerArgs = [
+                '-Xopt-in=kotlin.RequiresOptIn'
+        ]
         jvmTarget = "1.8"
     }
 
