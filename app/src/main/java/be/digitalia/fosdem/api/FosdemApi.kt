@@ -7,7 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
-import be.digitalia.fosdem.alarms.FosdemAlarmManager
+import be.digitalia.fosdem.alarms.AppAlarmManager
 import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.livedata.LiveDataFactory.scheduler
 import be.digitalia.fosdem.livedata.SingleEvent
@@ -37,7 +37,7 @@ import kotlin.math.pow
 class FosdemApi @Inject constructor(
     private val httpClient: HttpClient,
     private val scheduleDao: ScheduleDao,
-    private val alarmManager: FosdemAlarmManager
+    private val alarmManager: AppAlarmManager
 ) {
     private var downloadJob: Job? = null
     private val _downloadScheduleState = MutableLiveData<LoadingState<DownloadScheduleResult>>()

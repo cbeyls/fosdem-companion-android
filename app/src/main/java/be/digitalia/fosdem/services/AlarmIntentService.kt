@@ -13,9 +13,9 @@ import android.graphics.Typeface
 import android.os.Build
 import android.provider.Settings
 import android.text.SpannableString
-import android.text.format.DateUtils
 import android.text.style.StyleSpan
 import androidx.annotation.RequiresApi
+import androidx.annotation.WorkerThread
 import androidx.core.app.AlarmManagerCompat
 import androidx.core.app.JobIntentService
 import androidx.core.app.NotificationCompat
@@ -25,7 +25,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import androidx.core.net.toUri
 import androidx.core.text.set
-import androidx.preference.PreferenceManager
 import be.digitalia.fosdem.BuildConfig
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.EventDetailsActivity
@@ -36,9 +35,10 @@ import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.model.AlarmInfo
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.receivers.AlarmReceiver
-import be.digitalia.fosdem.utils.PreferenceKeys
+import be.digitalia.fosdem.settings.UserSettingsProvider
 import be.digitalia.fosdem.utils.roomNameToResourceName
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
@@ -50,6 +50,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class AlarmIntentService : JobIntentService() {
 
+    @Inject
+    lateinit var userSettingsProvider: UserSettingsProvider
     @Inject
     lateinit var bookmarksDao: BookmarksDao
     @Inject
@@ -70,7 +72,7 @@ class AlarmIntentService : JobIntentService() {
         when (intent.action) {
             ACTION_UPDATE_ALARMS -> {
                 // Create/update all alarms
-                val delay = delay
+                val delay = runBlocking { userSettingsProvider.notificationsDelayInMillis.first() }
                 val now = System.currentTimeMillis()
                 var hasAlarms = false
                 for (info in bookmarksDao.getBookmarksAlarmInfo(0L)) {
@@ -98,7 +100,7 @@ class AlarmIntentService : JobIntentService() {
                 setAlarmReceiverEnabled(false)
             }
             ACTION_ADD_BOOKMARKS -> {
-                val delay = delay
+                val delay = runBlocking { userSettingsProvider.notificationsDelayInMillis.first() }
                 @Suppress("UNCHECKED_CAST")
                 val alarmInfos = intent.getParcelableArrayListExtra<AlarmInfo>(EXTRA_ALARM_INFOS)!!
                 val now = System.currentTimeMillis()
@@ -134,15 +136,6 @@ class AlarmIntentService : JobIntentService() {
         }
     }
 
-    // Convert from minutes to milliseconds
-    private val delay: Long
-        get() {
-            val delayString = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-                    .getString(PreferenceKeys.NOTIFICATIONS_DELAY, "0")!!
-            // Convert from minutes to milliseconds
-            return delayString.toLong() * DateUtils.MINUTE_IN_MILLIS
-        }
-
     /**
      * Allows disabling the Alarm Receiver so the app is not loaded at boot when it's not necessary.
      */
@@ -152,6 +145,7 @@ class AlarmIntentService : JobIntentService() {
         packageManager.setComponentEnabledSetting(componentName, flag, PackageManager.DONT_KILL_APP)
     }
 
+    @WorkerThread
     private fun buildNotification(event: Event): Notification {
         val eventPendingIntent = TaskStackBuilder
                 .create(this)
@@ -163,8 +157,8 @@ class AlarmIntentService : JobIntentService() {
                 .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
 
         var defaultFlags = Notification.DEFAULT_SOUND
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        if (sharedPreferences.getBoolean(PreferenceKeys.NOTIFICATIONS_VIBRATE, false)) {
+        val isVibrationEnabled = runBlocking { userSettingsProvider.isNotificationsVibrationEnabled.first() }
+        if (isVibrationEnabled) {
             defaultFlags = defaultFlags or Notification.DEFAULT_VIBRATE
         }
 
@@ -206,7 +200,8 @@ class AlarmIntentService : JobIntentService() {
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 
         // Blink the LED with FOSDEM color if enabled in the options
-        if (sharedPreferences.getBoolean(PreferenceKeys.NOTIFICATIONS_LED, false)) {
+        val isLedEnabled = runBlocking { userSettingsProvider.isNotificationsLedEnabled.first() }
+        if (isLedEnabled) {
             notificationBuilder.setLights(notificationColor, 1000, 5000)
         }
 

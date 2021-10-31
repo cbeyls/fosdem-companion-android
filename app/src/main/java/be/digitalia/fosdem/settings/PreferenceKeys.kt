@@ -1,4 +1,4 @@
-package be.digitalia.fosdem.utils
+package be.digitalia.fosdem.settings
 
 object PreferenceKeys {
     const val THEME = "theme"

@@ -12,7 +12,7 @@ import androidx.preference.PreferenceFragmentCompat
 import be.digitalia.fosdem.BuildConfig
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.services.AlarmIntentService
-import be.digitalia.fosdem.utils.PreferenceKeys
+import be.digitalia.fosdem.settings.PreferenceKeys
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class SettingsFragment : PreferenceFragmentCompat() {
