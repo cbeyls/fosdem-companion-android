@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.DatabaseConfiguration
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import be.digitalia.fosdem.alarms.FosdemAlarmManager
+import be.digitalia.fosdem.alarms.AppAlarmManager
 import be.digitalia.fosdem.db.converters.GlobalTypeConverters
 import be.digitalia.fosdem.db.entities.Bookmark
 import be.digitalia.fosdem.db.entities.EventEntity
@@ -33,7 +33,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     lateinit var sharedPreferences: SharedPreferences
         private set
-    lateinit var alarmManager: FosdemAlarmManager
+    lateinit var alarmManager: AppAlarmManager
         private set
 
     override fun init(configuration: DatabaseConfiguration) {
@@ -49,6 +49,6 @@ abstract class AppDatabase : RoomDatabase() {
     interface AppDatabaseEntryPoint {
         @get:Named("Database")
         val sharedPreferences: SharedPreferences
-        val alarmManager: FosdemAlarmManager
+        val alarmManager: AppAlarmManager
     }
 }

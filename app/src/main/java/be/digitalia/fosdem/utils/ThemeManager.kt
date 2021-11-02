@@ -1,27 +1,23 @@
 package be.digitalia.fosdem.utils
 
-import android.content.Context
-import android.content.SharedPreferences
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.preference.PreferenceManager
+import be.digitalia.fosdem.settings.UserSettingsProvider
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+import javax.inject.Singleton
 
-object ThemeManager {
+/**
+ * Automatically switches the light/dark theme when the user updates its preferences.
+ */
+@Singleton
+class ThemeManager @Inject constructor(userSettingsProvider: UserSettingsProvider) {
 
-    private val onSharedPreferenceChangeListener = OnSharedPreferenceChangeListener { sharedPreferences, key ->
-        if (key == PreferenceKeys.THEME) {
-            updateTheme(sharedPreferences)
+    init {
+        BackgroundWorkScope.launch {
+            userSettingsProvider.theme.collect { theme ->
+                AppCompatDelegate.setDefaultNightMode(theme ?: AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            }
         }
-    }
-
-    fun init(context: Context) {
-        val defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context.applicationContext)
-        updateTheme(defaultSharedPreferences)
-        defaultSharedPreferences.registerOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener)
-    }
-
-    private fun updateTheme(sharedPreferences: SharedPreferences) {
-        val mode = sharedPreferences.getString(PreferenceKeys.THEME, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString())!!.toInt()
-        AppCompatDelegate.setDefaultNightMode(mode)
     }
 }
