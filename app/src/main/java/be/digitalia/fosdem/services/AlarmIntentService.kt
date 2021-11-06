@@ -65,7 +65,7 @@ class AlarmIntentService : JobIntentService() {
         val intent = Intent(this, AlarmReceiver::class.java)
                 .setAction(AlarmReceiver.ACTION_NOTIFY_EVENT)
                 .setData(eventId.toString().toUri())
-        return PendingIntent.getBroadcast(this, 0, intent, 0)
+        return PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
     }
 
     override fun onHandleWork(intent: Intent) {
@@ -219,7 +219,10 @@ class AlarmIntentService : JobIntentService() {
                     .setData(roomName.toUri())
                     .putExtra(RoomImageDialogActivity.EXTRA_ROOM_NAME, roomName)
                     .putExtra(RoomImageDialogActivity.EXTRA_ROOM_IMAGE_RESOURCE_ID, roomImageResId)
-            val mapPendingIntent = PendingIntent.getActivity(this, 0, mapIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+            val mapPendingIntent = PendingIntent.getActivity(
+                this, 0, mapIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
             val mapTitle = getString(R.string.room_map)
             notificationBuilder.addAction(NotificationCompat.Action(R.drawable.ic_place_white_24dp, mapTitle, mapPendingIntent))
             // Use bigger action icon for wearable notification
