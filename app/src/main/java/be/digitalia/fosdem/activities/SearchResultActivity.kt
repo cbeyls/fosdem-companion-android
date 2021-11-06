@@ -40,6 +40,7 @@ class SearchResultActivity : AppCompatActivity(R.layout.search_result) {
         searchEditText = findViewById(R.id.search_edittext)
         val searchClearButton: View = findViewById(R.id.search_clear)
 
+        @OptIn(kotlinx.coroutines.FlowPreview::class)
         searchEditText.textChangeEvents
             .onEach {
                 // immediately update the button state
