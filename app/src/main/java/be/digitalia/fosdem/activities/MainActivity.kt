@@ -47,6 +47,9 @@ import com.google.android.material.progressindicator.BaseProgressIndicator
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -177,12 +180,13 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
 
         // Latest update date, below the list
         val latestUpdateTextView: TextView = navigationView.findViewById(R.id.latest_update)
-        scheduleDao.latestUpdateTime
-                .observe(this) { time ->
-                    val timeString = if (time == -1L) getString(R.string.never)
-                    else DateFormat.format(LATEST_UPDATE_DATE_FORMAT, time)
-                    latestUpdateTextView.text = getString(R.string.last_update, timeString)
-                }
+        lifecycleScope.launch {
+            scheduleDao.latestUpdateTime.collect { time ->
+                val timeString = time?.let { DateFormat.format(LATEST_UPDATE_DATE_FORMAT, it) }
+                        ?: getString(R.string.never)
+                latestUpdateTextView.text = getString(R.string.last_update, timeString)
+            }
+        }
 
         holder = ViewHolder(contentView, drawerLayout, navigationView)
 
@@ -240,17 +244,19 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
         super.onStart()
 
         // Scheduled database update
-        val now = System.currentTimeMillis()
-        val latestUpdateTime = scheduleDao.latestUpdateTime.value
-        if (latestUpdateTime == null || latestUpdateTime < now - DATABASE_VALIDITY_DURATION) {
-            val prefs = getPreferences(Context.MODE_PRIVATE)
-            val latestAttemptTime = prefs.getLong(PREF_LATEST_AUTO_UPDATE_ATTEMPT_TIME, -1L)
-            if (latestAttemptTime == -1L || latestAttemptTime < now - AUTO_UPDATE_SNOOZE_DURATION) {
-                prefs.edit {
-                    putLong(PREF_LATEST_AUTO_UPDATE_ATTEMPT_TIME, now)
+        lifecycleScope.launch {
+            val now = System.currentTimeMillis()
+            val latestUpdateTime = scheduleDao.latestUpdateTime.first()
+            if (latestUpdateTime == null || latestUpdateTime.time < now - DATABASE_VALIDITY_DURATION) {
+                val prefs = getPreferences(Context.MODE_PRIVATE)
+                val latestAttemptTime = prefs.getLong(PREF_LATEST_AUTO_UPDATE_ATTEMPT_TIME, -1L)
+                if (latestAttemptTime == -1L || latestAttemptTime < now - AUTO_UPDATE_SNOOZE_DURATION) {
+                    prefs.edit {
+                        putLong(PREF_LATEST_AUTO_UPDATE_ATTEMPT_TIME, now)
+                    }
+                    // Try to update immediately. If it fails, the user gets a message and a retry button.
+                    api.downloadSchedule()
                 }
-                // Try to update immediately. If it fails, the user gets a message and a retry button.
-                api.downloadSchedule()
             }
         }
     }

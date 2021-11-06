@@ -1,8 +1,12 @@
 package be.digitalia.fosdem.inject
 
 import android.content.Context
-import android.content.SharedPreferences
 import androidx.annotation.WorkerThread
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -15,6 +19,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.runBlocking
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -22,18 +27,20 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
     private const val DB_FILE = "fosdem.sqlite"
-    private const val DB_PREFS_FILE = "database"
+    private const val DB_DATASTORE_FILE = "database"
 
     @Provides
     @Named("Database")
-    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
-        return context.getSharedPreferences(DB_PREFS_FILE, Context.MODE_PRIVATE)
+    fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
+        return PreferenceDataStoreFactory.create(
+                produceFile = { context.preferencesDataStoreFile(DB_DATASTORE_FILE) }
+        )
     }
 
     @Provides
     @Singleton
     fun provideAppDatabase(@ApplicationContext context: Context,
-                           @Named("Database") sharedPreferences: SharedPreferences,
+                           @Named("Database") dataStore: DataStore<Preferences>,
                            alarmManager: AppAlarmManager): AppDatabase {
         return Room.databaseBuilder(context, AppDatabase::class.java, DB_FILE)
                 .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
@@ -41,13 +48,15 @@ object DatabaseModule {
                 .addCallback(object : RoomDatabase.Callback() {
                     @WorkerThread
                     override fun onDestructiveMigration(db: SupportSQLiteDatabase) {
-                        sharedPreferences.edit().clear().commit()
+                        runBlocking {
+                            dataStore.edit { it.clear() }
+                        }
                     }
                 })
                 .build()
                 .also {
                     // Manual dependency injection
-                    it.sharedPreferences = sharedPreferences
+                    it.dataStore = dataStore
                     it.alarmManager = alarmManager
                 }
     }

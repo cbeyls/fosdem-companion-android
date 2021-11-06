@@ -1,6 +1,7 @@
 package be.digitalia.fosdem.db
 
-import android.content.SharedPreferences
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
@@ -26,6 +27,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract val bookmarksDao: BookmarksDao
 
     // Manually injected fields, used by Daos
-    lateinit var sharedPreferences: SharedPreferences
+    lateinit var dataStore: DataStore<Preferences>
     lateinit var alarmManager: AppAlarmManager
 }

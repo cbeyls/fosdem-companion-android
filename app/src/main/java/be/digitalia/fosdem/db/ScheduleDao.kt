@@ -1,10 +1,10 @@
 package be.digitalia.fosdem.db
 
-import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
-import androidx.core.content.edit
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.paging.DataSource
 import androidx.room.Dao
@@ -26,31 +26,28 @@ import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.DateUtils
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
+import java.util.Date
 import java.util.HashSet
 
 @Dao
 abstract class ScheduleDao(private val appDatabase: AppDatabase) {
 
-    private val _latestUpdateTime = MutableLiveData<Long>()
-
     /**
-     * @return The last update time in milliseconds since EPOCH, or -1 if not available.
-     * This LiveData is pre-initialized with the up-to-date value.
+     * @return The latest update time, or null if not available.
      */
-    val latestUpdateTime: LiveData<Long>
-        @MainThread
-        get() {
-            if (_latestUpdateTime.value == null) {
-                _latestUpdateTime.value = appDatabase.sharedPreferences.getLong(LAST_UPDATE_TIME_PREF, -1L)
-            }
-            return _latestUpdateTime
-        }
+    val latestUpdateTime: Flow<Date?> = appDatabase.dataStore.data.map { prefs ->
+        prefs[LATEST_UPDATE_TIME_PREF_KEY]?.let { Date(it) }
+    }
 
     /**
      * @return The time identifier of the current version of the database.
      */
-    val lastModifiedTag: String?
-        get() = appDatabase.sharedPreferences.getString(LAST_MODIFIED_TAG_PREF, null)
+    val lastModifiedTag: Flow<String?> = appDatabase.dataStore.data.map { prefs ->
+        prefs[LAST_MODIFIED_TAG_PREF]
+    }
 
     private class EmptyScheduleException : Exception()
 
@@ -69,11 +66,16 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         }
         if (totalEvents > 0) { // Set last update time and server's last modified tag
             val now = System.currentTimeMillis()
-            appDatabase.sharedPreferences.edit {
-                putLong(LAST_UPDATE_TIME_PREF, now)
-                putString(LAST_MODIFIED_TAG_PREF, lastModifiedTag)
+            runBlocking {
+                appDatabase.dataStore.edit { prefs ->
+                    prefs[LATEST_UPDATE_TIME_PREF_KEY] = now
+                    if (lastModifiedTag == null) {
+                        prefs.remove(LAST_MODIFIED_TAG_PREF)
+                    } else {
+                        prefs[LAST_MODIFIED_TAG_PREF] = lastModifiedTag
+                    }
+                }
             }
-            _latestUpdateTime.postValue(now)
         }
         return totalEvents
     }
@@ -436,7 +438,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     protected abstract suspend fun getLinks(event: Event?): List<Link>
 
     companion object {
-        private const val LAST_UPDATE_TIME_PREF = "last_update_time"
-        private const val LAST_MODIFIED_TAG_PREF = "last_modified_tag"
+        private val LATEST_UPDATE_TIME_PREF_KEY = longPreferencesKey("latest_update_time")
+        private val LAST_MODIFIED_TAG_PREF = stringPreferencesKey("last_modified_tag")
     }
 }

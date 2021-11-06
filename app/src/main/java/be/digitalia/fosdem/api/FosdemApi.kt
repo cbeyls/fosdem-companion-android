@@ -22,6 +22,7 @@ import be.digitalia.fosdem.utils.network.HttpClient
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import okio.buffer
 import javax.inject.Inject
@@ -58,11 +59,10 @@ class FosdemApi @Inject constructor(
         }
     }
 
-    @MainThread
     private suspend fun downloadScheduleInternal() {
         _downloadScheduleState.value = LoadingState.Loading()
         val res = try {
-            val response = httpClient.get(FosdemUrls.schedule, scheduleDao.lastModifiedTag) { body, headers ->
+            val response = httpClient.get(FosdemUrls.schedule, scheduleDao.lastModifiedTag.first()) { body, headers ->
                 val length = body.contentLength()
                 val source = if (length > 0L) {
                     // Broadcast the progression in percents, with a precision of 1/10 of the total file size
