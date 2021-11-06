@@ -49,9 +49,11 @@
         </activity>
         <activity
             android:name=".activities.TrackScheduleActivity"
+            android:exported="false"
             android:parentActivityName=".activities.MainActivity" />
         <activity
             android:name=".activities.TrackScheduleEventActivity"
+            android:exported="false"
             android:label="@string/event_details" />
         <activity
             android:name=".activities.EventDetailsActivity"
@@ -68,9 +70,11 @@
         </activity>
         <activity
             android:name=".activities.PersonInfoActivity"
+            android:exported="false"
             android:theme="@style/AppTheme.TranslucentStatusBar" />
         <activity
             android:name=".activities.SearchResultActivity"
+            android:exported="true"
             android:label="@string/search_events"
             android:launchMode="singleTop">
             <intent-filter>
@@ -98,6 +102,7 @@
         <activity
             android:name=".activities.RoomImageDialogActivity"
             android:excludeFromRecents="true"
+            android:exported="false"
             android:taskAffinity=""
             android:theme="@style/AlertDialogTheme" />
         <activity
