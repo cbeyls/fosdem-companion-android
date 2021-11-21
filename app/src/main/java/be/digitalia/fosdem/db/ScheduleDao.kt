@@ -72,10 +72,9 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
             val now = System.currentTimeMillis()
             runBlocking {
                 appDatabase.dataStore.edit { prefs ->
+                    prefs.clear()
                     prefs[LATEST_UPDATE_TIME_PREF_KEY] = now
-                    if (lastModifiedTag == null) {
-                        prefs.remove(LAST_MODIFIED_TAG_PREF)
-                    } else {
+                    if (lastModifiedTag != null) {
                         prefs[LAST_MODIFIED_TAG_PREF] = lastModifiedTag
                     }
                 }
