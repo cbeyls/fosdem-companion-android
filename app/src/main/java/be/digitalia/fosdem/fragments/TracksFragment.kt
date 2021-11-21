@@ -1,6 +1,6 @@
 package be.digitalia.fosdem.fragments
 
-import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.edit
@@ -22,6 +22,8 @@ import be.digitalia.fosdem.viewmodels.TracksViewModel
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import javax.inject.Named
 
 @AndroidEntryPoint
 class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvider {
@@ -32,6 +34,10 @@ class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvi
         val pager: ViewPager2 = view.findViewById(R.id.pager)
         val tabs: TabLayout = view.findViewById(R.id.tabs)
     }
+
+    @Inject
+    @Named("UIState")
+    lateinit var preferences: SharedPreferences
 
     private val viewModel: TracksViewModel by viewModels()
 
@@ -48,7 +54,7 @@ class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvi
 
         var savedCurrentPage = if (savedInstanceState == null) {
             // Restore the current page from preferences
-            requireActivity().getPreferences(Context.MODE_PRIVATE).getInt(PREF_CURRENT_PAGE, -1)
+            preferences.getInt(TRACKS_CURRENT_PAGE_PREF_KEY, -1)
         } else -1
 
         viewModel.days.observe(viewLifecycleOwner) { days ->
@@ -78,10 +84,9 @@ class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvi
             if (event == Lifecycle.Event.ON_STOP) {
                 // Save the current page to preferences if it has changed
                 val page = holder.pager.currentItem
-                val prefs = requireActivity().getPreferences(Context.MODE_PRIVATE)
-                if (prefs.getInt(PREF_CURRENT_PAGE, -1) != page) {
-                    prefs.edit {
-                        putInt(PREF_CURRENT_PAGE, page)
+                if (preferences.getInt(TRACKS_CURRENT_PAGE_PREF_KEY, -1) != page) {
+                    preferences.edit {
+                        putInt(TRACKS_CURRENT_PAGE_PREF_KEY, page)
                     }
                 }
             }
@@ -120,6 +125,6 @@ class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvi
     }
 
     companion object {
-        private const val PREF_CURRENT_PAGE = "tracks_current_page"
+        private const val TRACKS_CURRENT_PAGE_PREF_KEY = "tracks_current_page"
     }
 }
