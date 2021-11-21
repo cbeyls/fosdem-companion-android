@@ -18,13 +18,13 @@ import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.TrackScheduleActivity
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Track
-import be.digitalia.fosdem.viewmodels.TracksViewModel
+import be.digitalia.fosdem.viewmodels.TracksListViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class TracksListFragment : Fragment(R.layout.recyclerview) {
 
-    private val viewModel: TracksViewModel by viewModels()
+    private val viewModel: TracksListViewModel by viewModels()
     private val day by lazy<Day>(LazyThreadSafetyMode.NONE) {
         requireArguments().getParcelable(ARG_DAY)!!
     }

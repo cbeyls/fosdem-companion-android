@@ -23,11 +23,15 @@ import be.digitalia.fosdem.model.Link
 import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.model.Track
+import be.digitalia.fosdem.utils.BackgroundWorkScope
 import be.digitalia.fosdem.utils.DateUtils
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.runBlocking
 import java.util.Date
 import java.util.HashSet
@@ -215,37 +219,29 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     protected abstract fun clearDays()
 
     // Cache days
-    private val daysLiveDataDelegate = lazy { getDaysInternal() }
-
-    val days: LiveData<List<Day>> by daysLiveDataDelegate
+    val days: Flow<List<Day>> by lazy {
+        getDaysInternal().shareIn(
+            scope = BackgroundWorkScope,
+            started = SharingStarted.Eagerly,
+            replay = 1
+        )
+    }
 
     @Query("SELECT `index`, date FROM days ORDER BY `index` ASC")
-    protected abstract fun getDaysInternal(): LiveData<List<Day>>
+    protected abstract fun getDaysInternal(): Flow<List<Day>>
 
-    @WorkerThread
-    fun getYear(): Int {
-        var date = 0L
-
-        // Compute from cached days if available
-        val days = if (daysLiveDataDelegate.isInitialized()) days.value else null
-        if (days != null) {
-            if (days.isNotEmpty()) {
-                date = days[0].date.time
-            }
+    suspend fun getYear(): Int {
+        // Compute from days if available
+        val days = days.first()
+        val date = if (days.isNotEmpty()) {
+            days[0].date.time
         } else {
-            date = getConferenceStartDate()
-        }
-
-        // Use the current year by default
-        if (date == 0L) {
-            date = System.currentTimeMillis()
+            // Use the current year by default
+            System.currentTimeMillis()
         }
 
         return DateUtils.getYear(date)
     }
-
-    @Query("SELECT date FROM days ORDER BY `index` ASC LIMIT 1")
-    protected abstract fun getConferenceStartDate(): Long
 
     @Query("""SELECT t.id, t.name, t.type FROM tracks t
         JOIN events e ON t.id = e.track_id

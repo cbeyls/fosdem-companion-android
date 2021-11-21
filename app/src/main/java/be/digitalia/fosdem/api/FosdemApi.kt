@@ -5,6 +5,8 @@ import android.text.format.DateUtils
 import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import be.digitalia.fosdem.alarms.AppAlarmManager
@@ -97,7 +99,7 @@ class FosdemApi @Inject constructor(
     val roomStatuses: LiveData<Map<String, RoomStatus>> by lazy(LazyThreadSafetyMode.NONE) {
         // The room statuses will only be loaded when the event is live.
         // Use the days from the database to determine it.
-        val scheduler = scheduleDao.days.switchMap { days ->
+        val scheduler = scheduleDao.days.asLiveData().distinctUntilChanged().switchMap { days ->
             val startEndTimestamps = LongArray(days.size * 2)
             var index = 0
             for (day in days) {
