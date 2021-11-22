@@ -2,8 +2,8 @@ package be.digitalia.fosdem.activities
 
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
-import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.drawable.Animatable
 import android.net.Uri
 import android.nfc.NdefRecord
@@ -47,7 +47,11 @@ import com.google.android.material.progressindicator.BaseProgressIndicator
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Named
 
 /**
  * Main entry point of the application. Allows to switch between section fragments and update the database.
@@ -79,7 +83,12 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
                              val navigationView: NavigationView)
 
     @Inject
+    @Named("UIState")
+    lateinit var preferences: SharedPreferences
+
+    @Inject
     lateinit var api: FosdemApi
+
     @Inject
     lateinit var scheduleDao: ScheduleDao
 
@@ -177,12 +186,13 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
 
         // Latest update date, below the list
         val latestUpdateTextView: TextView = navigationView.findViewById(R.id.latest_update)
-        scheduleDao.latestUpdateTime
-                .observe(this) { time ->
-                    val timeString = if (time == -1L) getString(R.string.never)
-                    else DateFormat.format(LATEST_UPDATE_DATE_FORMAT, time)
-                    latestUpdateTextView.text = getString(R.string.last_update, timeString)
-                }
+        lifecycleScope.launch {
+            scheduleDao.latestUpdateTime.collect { time ->
+                val timeString = time?.let { DateFormat.format(LATEST_UPDATE_DATE_FORMAT, it) }
+                        ?: getString(R.string.never)
+                latestUpdateTextView.text = getString(R.string.last_update, timeString)
+            }
+        }
 
         holder = ViewHolder(contentView, drawerLayout, navigationView)
 
@@ -240,17 +250,18 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
         super.onStart()
 
         // Scheduled database update
-        val now = System.currentTimeMillis()
-        val latestUpdateTime = scheduleDao.latestUpdateTime.value
-        if (latestUpdateTime == null || latestUpdateTime < now - DATABASE_VALIDITY_DURATION) {
-            val prefs = getPreferences(Context.MODE_PRIVATE)
-            val latestAttemptTime = prefs.getLong(PREF_LATEST_AUTO_UPDATE_ATTEMPT_TIME, -1L)
-            if (latestAttemptTime == -1L || latestAttemptTime < now - AUTO_UPDATE_SNOOZE_DURATION) {
-                prefs.edit {
-                    putLong(PREF_LATEST_AUTO_UPDATE_ATTEMPT_TIME, now)
+        lifecycleScope.launch {
+            val now = System.currentTimeMillis()
+            val latestUpdateTime = scheduleDao.latestUpdateTime.first()
+            if (latestUpdateTime == null || latestUpdateTime.time < now - DATABASE_VALIDITY_DURATION) {
+                val latestAttemptTime = preferences.getLong(LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY, -1L)
+                if (latestAttemptTime == -1L || latestAttemptTime < now - AUTO_UPDATE_SNOOZE_DURATION) {
+                    preferences.edit {
+                        putLong(LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY, now)
+                    }
+                    // Try to update immediately. If it fails, the user gets a message and a retry button.
+                    api.downloadSchedule()
                 }
-                // Try to update immediately. If it fails, the user gets a message and a retry button.
-                api.downloadSchedule()
             }
         }
     }
@@ -349,7 +360,7 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
         private const val ERROR_MESSAGE_DISPLAY_DURATION = 5000
         private const val DATABASE_VALIDITY_DURATION = DateUtils.DAY_IN_MILLIS
         private const val AUTO_UPDATE_SNOOZE_DURATION = DateUtils.DAY_IN_MILLIS
-        private const val PREF_LATEST_AUTO_UPDATE_ATTEMPT_TIME = "last_download_reminder_time"
+        private const val LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY = "latest_update_attempt_time"
         private const val LATEST_UPDATE_DATE_FORMAT = "d MMM yyyy kk:mm:ss"
     }
 }

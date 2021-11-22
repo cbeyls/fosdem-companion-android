@@ -1,8 +1,8 @@
 package be.digitalia.fosdem.fragments
 
 import android.app.Dialog
-import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.nfc.NdefRecord
 import android.os.Bundle
@@ -33,6 +33,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.concurrent.CancellationException
 import javax.inject.Inject
+import javax.inject.Named
 
 /**
  * Bookmarks list, optionally filterable.
@@ -43,7 +44,11 @@ import javax.inject.Inject
 class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataCallback {
 
     @Inject
+    @Named("UIState")
+    lateinit var preferences: SharedPreferences
+    @Inject
     lateinit var api: FosdemApi
+
     private val viewModel: BookmarksViewModel by viewModels()
     private val multiChoiceHelper: MultiChoiceHelper by lazy(LazyThreadSafetyMode.NONE) {
         MultiChoiceHelper(requireActivity() as AppCompatActivity, this, object : MultiChoiceHelper.MultiChoiceModeListener {
@@ -91,7 +96,7 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val upcomingOnly = requireActivity().getPreferences(Context.MODE_PRIVATE).getBoolean(PREF_UPCOMING_ONLY, false)
+        val upcomingOnly = preferences.getBoolean(UPCOMING_ONLY_PREF_KEY, false)
         viewModel.upcomingOnly = upcomingOnly
 
         setHasOptionsMenu(true)
@@ -145,8 +150,8 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
             val upcomingOnly = !viewModel.upcomingOnly
             viewModel.upcomingOnly = upcomingOnly
             updateMenuItems()
-            requireActivity().getPreferences(Context.MODE_PRIVATE).edit {
-                putBoolean(PREF_UPCOMING_ONLY, upcomingOnly)
+            preferences.edit {
+                putBoolean(UPCOMING_ONLY_PREF_KEY, upcomingOnly)
             }
             true
         }
@@ -197,6 +202,6 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
     }
 
     companion object {
-        private const val PREF_UPCOMING_ONLY = "bookmarks_upcoming_only"
+        private const val UPCOMING_ONLY_PREF_KEY = "bookmarks_upcoming_only"
     }
 }

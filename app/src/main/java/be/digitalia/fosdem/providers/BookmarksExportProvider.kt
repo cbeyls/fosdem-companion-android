@@ -25,6 +25,7 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.runBlocking
 import okio.buffer
 import okio.sink
 import java.io.FileNotFoundException
@@ -73,7 +74,8 @@ class BookmarksExportProvider : ContentProvider() {
             when (col) {
                 OpenableColumns.DISPLAY_NAME -> {
                     cols[columnCount] = OpenableColumns.DISPLAY_NAME
-                    values[columnCount++] = ctx.getString(R.string.export_bookmarks_file_name, scheduleDao.getYear())
+                    val year = runBlocking { scheduleDao.getYear() }
+                    values[columnCount++] = ctx.getString(R.string.export_bookmarks_file_name, year)
                 }
                 OpenableColumns.SIZE -> {
                     cols[columnCount] = OpenableColumns.SIZE
