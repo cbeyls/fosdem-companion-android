@@ -18,7 +18,7 @@ import be.digitalia.fosdem.model.Track
 
 @Database(
     entities = [EventEntity::class, EventTitles::class, Person::class, EventToPerson::class,
-        Link::class, Track::class, Day::class, Bookmark::class], version = 2, exportSchema = false
+        Link::class, Track::class, Day::class, Bookmark::class], version = 3, exportSchema = false
 )
 @TypeConverters(GlobalTypeConverters::class)
 abstract class AppDatabase : RoomDatabase() {
