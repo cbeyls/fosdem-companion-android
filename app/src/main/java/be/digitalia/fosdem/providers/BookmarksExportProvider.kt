@@ -18,7 +18,6 @@ import be.digitalia.fosdem.db.BookmarksDao
 import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.ical.ICalendarWriter
 import be.digitalia.fosdem.model.Event
-import be.digitalia.fosdem.utils.DateUtils
 import be.digitalia.fosdem.utils.stripHtml
 import be.digitalia.fosdem.utils.toSlug
 import dagger.hilt.EntryPoint
@@ -31,10 +30,10 @@ import okio.sink
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.OutputStream
-import java.text.SimpleDateFormat
-import java.util.Calendar
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import java.util.Locale
-import java.util.TimeZone
 
 /**
  * Content Provider generating the current bookmarks list in iCalendar format.
@@ -101,12 +100,7 @@ class BookmarksExportProvider : ContentProvider() {
     }
 
     private class DownloadThread(private val outputStream: OutputStream, private val bookmarksDao: BookmarksDao) : Thread() {
-        private val calendar = Calendar.getInstance(DateUtils.belgiumTimeZone, Locale.US)
-        // Format all times in GMT
-        private val dateFormat = SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'", Locale.US).apply {
-            timeZone = TimeZone.getTimeZone("GMT+0")
-        }
-        private val dtStamp = dateFormat.format(System.currentTimeMillis())
+        private val dtStamp = LocalDateTime.now(ZoneOffset.UTC).format(DATE_TIME_FORMAT)
 
         override fun run() {
             try {
@@ -130,11 +124,11 @@ class BookmarksExportProvider : ContentProvider() {
         private fun writeEvent(writer: ICalendarWriter, event: Event) = with(writer) {
             write("BEGIN", "VEVENT")
 
-            val year = DateUtils.getYear(event.day.date.time, calendar)
+            val year = event.day.date.year
             write("UID", "${event.id}@$year@${BuildConfig.APPLICATION_ID}")
             write("DTSTAMP", dtStamp)
-            event.startTime?.let { write("DTSTART", dateFormat.format(it)) }
-            event.endTime?.let { write("DTEND", dateFormat.format(it)) }
+            event.startTime?.let { write("DTSTART", it.atOffset(ZoneOffset.UTC).format(DATE_TIME_FORMAT)) }
+            event.endTime?.let { write("DTEND", it.atOffset(ZoneOffset.UTC).format(DATE_TIME_FORMAT)) }
             write("SUMMARY", event.title)
             var description = event.abstractText
             if (description.isNullOrEmpty()) {
@@ -176,6 +170,7 @@ class BookmarksExportProvider : ContentProvider() {
                 .appendPath("bookmarks.ics")
                 .build()
         private val COLUMNS = arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE)
+        private val DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'", Locale.US)
 
         fun getIntent(activity: Activity): Intent {
             // Supports granting read permission for the attached shared file

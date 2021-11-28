@@ -5,12 +5,12 @@ import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.TypeConverters
 import be.digitalia.fosdem.api.FosdemUrls
-import be.digitalia.fosdem.db.converters.NullableDateTypeConverters
-import be.digitalia.fosdem.utils.DateParceler
-import be.digitalia.fosdem.utils.DateUtils
+import be.digitalia.fosdem.db.converters.NullableInstantTypeConverters
+import be.digitalia.fosdem.utils.InstantParceler
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.WriteWith
-import java.util.Date
+import java.time.Duration
+import java.time.Instant
 
 @Parcelize
 data class Event(
@@ -18,11 +18,11 @@ data class Event(
         @Embedded(prefix = "day_")
         val day: Day,
         @ColumnInfo(name = "start_time")
-        @field:TypeConverters(NullableDateTypeConverters::class)
-        val startTime: @WriteWith<DateParceler> Date? = null,
+        @field:TypeConverters(NullableInstantTypeConverters::class)
+        val startTime: @WriteWith<InstantParceler> Instant? = null,
         @ColumnInfo(name = "end_time")
-        @field:TypeConverters(NullableDateTypeConverters::class)
-        val endTime: @WriteWith<DateParceler> Date? = null,
+        @field:TypeConverters(NullableInstantTypeConverters::class)
+        val endTime: @WriteWith<InstantParceler> Instant? = null,
         @ColumnInfo(name = "room_name")
         val roomName: String?,
         val slug: String?,
@@ -38,22 +38,21 @@ data class Event(
         val personsSummary: String?
 ) : Parcelable {
 
-    fun isRunningAtTime(time: Long): Boolean {
-        return startTime != null && endTime != null && time in startTime.time..endTime.time
+    fun isRunningAtTime(time: Instant): Boolean {
+        return startTime != null && endTime != null && time in startTime..endTime
     }
 
-    /**
-     * @return The event duration in minutes
-     */
-    val duration: Int
+    val duration: Duration
         get() = if (startTime == null || endTime == null) {
-            0
-        } else ((endTime.time - startTime.time) / android.text.format.DateUtils.MINUTE_IN_MILLIS).toInt()
+            Duration.ZERO
+        } else {
+            Duration.between(startTime, endTime)
+        }
 
     val url: String?
         get() {
             val s = slug ?: return null
-            return FosdemUrls.getEvent(s, DateUtils.getYear(day.date.time))
+            return FosdemUrls.getEvent(s, day.date.year)
         }
 
     override fun toString(): String = title.orEmpty()

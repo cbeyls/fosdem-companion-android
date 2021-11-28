@@ -7,8 +7,7 @@ import be.digitalia.fosdem.model.EventDetails
 import be.digitalia.fosdem.model.Link
 import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.model.Track
-import be.digitalia.fosdem.utils.DateUtils.belgiumTimeZone
-import be.digitalia.fosdem.utils.DateUtils.withBelgiumTimeZone
+import be.digitalia.fosdem.utils.DateUtils
 import be.digitalia.fosdem.utils.isEndDocument
 import be.digitalia.fosdem.utils.isNextEndTag
 import be.digitalia.fosdem.utils.isStartTag
@@ -16,10 +15,9 @@ import be.digitalia.fosdem.utils.skipToEndTag
 import be.digitalia.fosdem.utils.xmlPullParserFactory
 import okio.BufferedSource
 import org.xmlpull.v1.XmlPullParser
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
+import java.time.Duration
+import java.time.Instant
+import java.time.LocalDate
 
 /**
  * Main parser for FOSDEM schedule data in pentabarf XML format.
@@ -27,10 +25,6 @@ import java.util.Locale
  * @author Christophe Beyls
  */
 class EventsParser : Parser<Sequence<DetailedEvent>> {
-
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US).withBelgiumTimeZone()
-    // Calendar used to compute the events time, according to Belgium timezone
-    private val calendar = Calendar.getInstance(belgiumTimeZone, Locale.US)
 
     override fun parse(source: BufferedSource): Sequence<DetailedEvent> {
         val parser: XmlPullParser = xmlPullParserFactory.newPullParser().apply {
@@ -48,7 +42,7 @@ class EventsParser : Parser<Sequence<DetailedEvent>> {
                                 "day" -> {
                                     currentDay = Day(
                                             index = parser.getAttributeValue(null, "index")!!.toInt(),
-                                            date = dateFormat.parse(parser.getAttributeValue(null, "date"))!!
+                                            date = LocalDate.parse(parser.getAttributeValue(null, "date"))
                                     )
                                 }
                                 "room" -> currentRoomName = parser.getAttributeValue(null, "name")
@@ -65,7 +59,7 @@ class EventsParser : Parser<Sequence<DetailedEvent>> {
 
     private fun parseEvent(parser: XmlPullParser, day: Day, roomName: String?): DetailedEvent {
         val id = parser.getAttributeValue(null, "id")!!.toLong()
-        var startTime: Date? = null
+        var startTime: Instant? = null
         var duration: String? = null
         var slug: String? = null
         var title: String? = null
@@ -83,12 +77,10 @@ class EventsParser : Parser<Sequence<DetailedEvent>> {
                     "start" -> {
                         val timeString = parser.nextText()
                         if (!timeString.isNullOrEmpty()) {
-                            startTime = with(calendar) {
-                                time = day.date
-                                set(Calendar.HOUR_OF_DAY, getHours(timeString))
-                                set(Calendar.MINUTE, getMinutes(timeString))
-                                time
-                            }
+                            startTime = day.date
+                                .atTime(getHours(timeString), getMinutes(timeString))
+                                .atZone(DateUtils.conferenceZoneId)
+                                .toInstant()
                         }
                     }
                     "duration" -> duration = parser.nextText()
@@ -128,11 +120,7 @@ class EventsParser : Parser<Sequence<DetailedEvent>> {
         }
 
         val endTime = if (startTime != null && !duration.isNullOrEmpty()) {
-            with(calendar) {
-                add(Calendar.HOUR_OF_DAY, getHours(duration))
-                add(Calendar.MINUTE, getMinutes(duration))
-                time
-            }
+            startTime + Duration.ofMinutes(getHours(duration) * 60L + getMinutes(duration))
         } else null
 
         val event = Event(

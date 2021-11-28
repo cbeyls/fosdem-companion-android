@@ -20,8 +20,7 @@ data class Person(
 ) : Parcelable {
 
     fun getUrl(year: Int): String? {
-        val n = name ?: return null
-        return FosdemUrls.getPerson(n.toSlug(), year)
+        return name?.let { FosdemUrls.getPerson(it.toSlug(), year) }
     }
 
     override fun toString(): String = name.orEmpty()

@@ -12,6 +12,8 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.TypeConverters
+import be.digitalia.fosdem.db.converters.NonNullInstantTypeConverters
 import be.digitalia.fosdem.db.entities.EventEntity
 import be.digitalia.fosdem.db.entities.EventTitles
 import be.digitalia.fosdem.db.entities.EventToPerson
@@ -24,7 +26,6 @@ import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.BackgroundWorkScope
-import be.digitalia.fosdem.utils.DateUtils
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -33,7 +34,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.runBlocking
-import java.util.Date
+import java.time.Instant
+import java.time.LocalDate
 import java.util.HashSet
 
 @Dao
@@ -42,8 +44,8 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     /**
      * @return The latest update time, or null if not available.
      */
-    val latestUpdateTime: Flow<Date?> = appDatabase.dataStore.data.map { prefs ->
-        prefs[LATEST_UPDATE_TIME_PREF_KEY]?.let { Date(it) }
+    val latestUpdateTime: Flow<Instant?> = appDatabase.dataStore.data.map { prefs ->
+        prefs[LATEST_UPDATE_TIME_PREF_KEY]?.let { Instant.ofEpochSecond(it) }
     }
 
     /**
@@ -69,11 +71,11 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
             0
         }
         if (totalEvents > 0) { // Set last update time and server's last modified tag
-            val now = System.currentTimeMillis()
+            val now = Instant.now()
             runBlocking {
                 appDatabase.dataStore.edit { prefs ->
                     prefs.clear()
-                    prefs[LATEST_UPDATE_TIME_PREF_KEY] = now
+                    prefs[LATEST_UPDATE_TIME_PREF_KEY] = now.epochSecond
                     if (lastModifiedTag != null) {
                         prefs[LAST_MODIFIED_TAG_PREF] = lastModifiedTag
                     }
@@ -230,16 +232,9 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     protected abstract fun getDaysInternal(): Flow<List<Day>>
 
     suspend fun getYear(): Int {
-        // Compute from days if available
-        val days = days.first()
-        val date = if (days.isNotEmpty()) {
-            days[0].date.time
-        } else {
-            // Use the current year by default
-            System.currentTimeMillis()
-        }
-
-        return DateUtils.getYear(date)
+        // Compute from days if available, fall back to current year
+        val date = days.first().firstOrNull()?.date ?: LocalDate.now()
+        return date.year
     }
 
     @Query("""SELECT t.id, t.name, t.type FROM tracks t
@@ -332,7 +327,8 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         WHERE e.start_time BETWEEN :minStartTime AND :maxStartTime
         GROUP BY e.id
         ORDER BY e.start_time ASC""")
-    abstract fun getEventsWithStartTime(minStartTime: Long, maxStartTime: Long): DataSource.Factory<Int, StatusEvent>
+    @TypeConverters(NonNullInstantTypeConverters::class)
+    abstract fun getEventsWithStartTime(minStartTime: Instant, maxStartTime: Instant): DataSource.Factory<Int, StatusEvent>
 
     /**
      * Returns events in progress at the specified time, ordered by descending start time.
@@ -350,7 +346,8 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         WHERE e.start_time <= :time AND :time < e.end_time
         GROUP BY e.id
         ORDER BY e.start_time DESC""")
-    abstract fun getEventsInProgress(time: Long): DataSource.Factory<Int, StatusEvent>
+    @TypeConverters(NonNullInstantTypeConverters::class)
+    abstract fun getEventsInProgress(time: Instant): DataSource.Factory<Int, StatusEvent>
 
     /**
      * Returns the events presented by the specified person.

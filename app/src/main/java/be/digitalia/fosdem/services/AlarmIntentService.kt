@@ -40,6 +40,7 @@ import be.digitalia.fosdem.utils.roomNameToResourceName
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import java.time.Instant
 import javax.inject.Inject
 
 /**
@@ -75,9 +76,9 @@ class AlarmIntentService : JobIntentService() {
                 val delay = runBlocking { userSettingsProvider.notificationsDelayInMillis.first() }
                 val now = System.currentTimeMillis()
                 var hasAlarms = false
-                for (info in bookmarksDao.getBookmarksAlarmInfo(0L)) {
+                for (info in bookmarksDao.getBookmarksAlarmInfo(Instant.EPOCH)) {
                     val startTime = info.startTime
-                    val notificationTime = if (startTime == null) -1L else startTime.time - delay
+                    val notificationTime = if (startTime == null) -1L else startTime.toEpochMilli() - delay
                     val pi = getAlarmPendingIntent(info.eventId)
                     if (notificationTime < now) {
                         // Cancel pending alarms that are now scheduled in the past, if any
@@ -94,7 +95,7 @@ class AlarmIntentService : JobIntentService() {
             }
             ACTION_DISABLE_ALARMS -> {
                 // Cancel alarms of every bookmark in the future
-                for (info in bookmarksDao.getBookmarksAlarmInfo(System.currentTimeMillis())) {
+                for (info in bookmarksDao.getBookmarksAlarmInfo(Instant.now())) {
                     alarmManager.cancel(getAlarmPendingIntent(info.eventId))
                 }
                 setAlarmReceiverEnabled(false)
@@ -107,7 +108,7 @@ class AlarmIntentService : JobIntentService() {
                 var isFirstAlarm = true
                 for ((eventId, startTime) in alarmInfos) {
                     // Only schedule future events. If they start before the delay, the alarm will go off immediately
-                    if (startTime != null && startTime.time >= now) {
+                    if (startTime != null && startTime.toEpochMilli() >= now) {
                         if (isFirstAlarm) {
                             setAlarmReceiverEnabled(true)
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -115,7 +116,10 @@ class AlarmIntentService : JobIntentService() {
                             }
                             isFirstAlarm = false
                         }
-                        AlarmManagerCompat.setExactAndAllowWhileIdle(alarmManager, AlarmManager.RTC_WAKEUP, startTime.time - delay, getAlarmPendingIntent(eventId))
+                        AlarmManagerCompat.setExactAndAllowWhileIdle(
+                            alarmManager, AlarmManager.RTC_WAKEUP,
+                            startTime.toEpochMilli() - delay, getAlarmPendingIntent(eventId)
+                        )
                     }
                 }
             }
@@ -187,7 +191,7 @@ class AlarmIntentService : JobIntentService() {
         val notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL)
                 .setSmallIcon(R.drawable.ic_stat_fosdem)
                 .setColor(notificationColor)
-                .setWhen(event.startTime?.time ?: System.currentTimeMillis())
+                .setWhen(event.startTime?.toEpochMilli() ?: System.currentTimeMillis())
                 .setContentTitle(event.title)
                 .setContentText(contentText)
                 .setStyle(NotificationCompat.BigTextStyle().bigText(bigText).setSummaryText(trackName))

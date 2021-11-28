@@ -18,6 +18,7 @@ import be.digitalia.fosdem.R
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.utils.DateUtils
+import java.time.Instant
 
 class TrackScheduleAdapter(context: Context, private val listener: EventClickListener? = null)
     : ListAdapter<StatusEvent, TrackScheduleAdapter.ViewHolder>(EventsAdapter.DIFF_CALLBACK) {
@@ -26,7 +27,7 @@ class TrackScheduleAdapter(context: Context, private val listener: EventClickLis
         fun onEventClick(event: Event)
     }
 
-    private val timeDateFormat = DateUtils.getTimeDateFormat(context)
+    private val timeFormatter = DateUtils.getTimeFormatter(context)
     @ColorInt
     private val timeBackgroundColor: Int = ContextCompat.getColor(context, R.color.schedule_time_background)
     @ColorInt
@@ -46,7 +47,7 @@ class TrackScheduleAdapter(context: Context, private val listener: EventClickLis
         }
     }
 
-    var currentTime: Long = -1L
+    var currentTime: Instant? = null
         set(value) {
             if (field != value) {
                 field = value
@@ -127,7 +128,7 @@ class TrackScheduleAdapter(context: Context, private val listener: EventClickLis
             val context = itemView.context
             this.event = event
 
-            time.text = event.startTime?.let { timeDateFormat.format(it) }
+            time.text = event.startTime?.atZone(DateUtils.conferenceZoneId)?.format(timeFormatter)
             title.text = event.title
             val bookmarkDrawable = if (isBookmarked) AppCompatResources.getDrawable(context, R.drawable.ic_bookmark_white_24dp) else null
             TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(title, null, null, bookmarkDrawable, null)
@@ -141,8 +142,8 @@ class TrackScheduleAdapter(context: Context, private val listener: EventClickLis
             room.contentDescription = context.getString(R.string.room_content_description, event.roomName.orEmpty())
         }
 
-        fun bindTimeColors(event: Event, currentTime: Long) {
-            if (currentTime != -1L && event.isRunningAtTime(currentTime)) {
+        fun bindTimeColors(event: Event, currentTime: Instant?) {
+            if (currentTime != null && event.isRunningAtTime(currentTime)) {
                 // Contrast colors for running event
                 time.setBackgroundColor(timeRunningBackgroundColor)
                 time.setTextColor(timeRunningForegroundColor)

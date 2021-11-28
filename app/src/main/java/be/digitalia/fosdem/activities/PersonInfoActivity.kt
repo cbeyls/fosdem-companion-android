@@ -12,7 +12,6 @@ import androidx.fragment.app.commit
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.PersonInfoListFragment
 import be.digitalia.fosdem.model.Person
-import be.digitalia.fosdem.utils.DateUtils
 import be.digitalia.fosdem.utils.configureToolbarColors
 import be.digitalia.fosdem.viewmodels.PersonInfoViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,8 +35,7 @@ class PersonInfoActivity : AppCompatActivity(R.layout.person_info) {
             // Look for the first non-placeholder event in the paged list
             val statusEvent = viewModel.events.value?.firstOrNull { it != null }
             if (statusEvent != null) {
-                val year = DateUtils.getYear(statusEvent.event.day.date.time)
-                val url = person.getUrl(year)
+                val url = person.getUrl(statusEvent.event.day.date.year)
                 if (url != null) {
                     try {
                         CustomTabsIntent.Builder()

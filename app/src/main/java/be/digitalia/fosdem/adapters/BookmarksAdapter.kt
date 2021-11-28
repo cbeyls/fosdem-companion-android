@@ -24,12 +24,12 @@ import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.RoomStatus
 import be.digitalia.fosdem.utils.DateUtils
 import be.digitalia.fosdem.widgets.MultiChoiceHelper
-import java.text.DateFormat
+import java.time.format.DateTimeFormatter
 
 class BookmarksAdapter(context: Context, private val multiChoiceHelper: MultiChoiceHelper) :
     ListAdapter<Event, BookmarksAdapter.ViewHolder>(DIFF_CALLBACK) {
 
-    private val timeDateFormat = DateUtils.getTimeDateFormat(context)
+    private val timeFormatter = DateUtils.getTimeFormatter(context)
 
     @ColorInt
     private val errorColor: Int
@@ -53,7 +53,7 @@ class BookmarksAdapter(context: Context, private val multiChoiceHelper: MultiCho
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_event, parent, false)
-        return ViewHolder(view, multiChoiceHelper, timeDateFormat, errorColor)
+        return ViewHolder(view, multiChoiceHelper, timeFormatter, errorColor)
     }
 
     private fun getRoomStatus(event: Event): RoomStatus? {
@@ -101,7 +101,7 @@ class BookmarksAdapter(context: Context, private val multiChoiceHelper: MultiCho
     }
 
     class ViewHolder(itemView: View, helper: MultiChoiceHelper,
-                     private val timeDateFormat: DateFormat, @ColorInt private val errorColor: Int)
+                     private val timeFormatter: DateTimeFormatter, @ColorInt private val errorColor: Int)
         : MultiChoiceHelper.ViewHolder(itemView, helper), View.OnClickListener {
         private val title: TextView = itemView.findViewById(R.id.title)
         private val persons: TextView = itemView.findViewById(R.id.persons)
@@ -130,10 +130,8 @@ class BookmarksAdapter(context: Context, private val multiChoiceHelper: MultiCho
 
         fun bindDetails(event: Event, previous: Event?, next: Event?, roomStatus: RoomStatus?) {
             val context = details.context
-            val startTime = event.startTime
-            val endTime = event.endTime
-            val startTimeString = if (startTime != null) timeDateFormat.format(startTime) else "?"
-            val endTimeString = if (endTime != null) timeDateFormat.format(endTime) else "?"
+            val startTimeString = event.startTime?.atZone(DateUtils.conferenceZoneId)?.format(timeFormatter) ?: "?"
+            val endTimeString = event.endTime?.atZone(DateUtils.conferenceZoneId)?.format(timeFormatter) ?: "?"
             val roomName = event.roomName.orEmpty()
             val detailsText: CharSequence = "${event.day.shortName}, $startTimeString ― $endTimeString  |  $roomName"
             val detailsSpannable = SpannableString(detailsText)
