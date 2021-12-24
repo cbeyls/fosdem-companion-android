@@ -77,7 +77,7 @@ android {
 
 dependencies {
     def lifecycle_version = "2.4.0"
-    def room_version = "2.3.0"
+    def room_version = "2.4.0"
     def okhttp_version = "3.12.13"
 
     implementation "androidx.multidex:multidex:2.0.1"
@@ -106,6 +106,6 @@ dependencies {
         exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
     }
     implementation 'com.squareup.okio:okio:3.0.0'
-    implementation 'com.squareup.moshi:moshi:1.12.0'
+    implementation 'com.squareup.moshi:moshi:1.13.0'
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 }
