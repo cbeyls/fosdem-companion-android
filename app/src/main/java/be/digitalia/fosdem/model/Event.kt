@@ -56,5 +56,5 @@ data class Event(
             return FosdemUrls.getEvent(s, DateUtils.getYear(day.date.time))
         }
 
-    override fun toString(): String = title ?: ""
+    override fun toString(): String = title.orEmpty()
 }

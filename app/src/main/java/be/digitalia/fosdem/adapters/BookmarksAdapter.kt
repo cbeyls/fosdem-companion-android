@@ -134,7 +134,7 @@ class BookmarksAdapter(context: Context, private val multiChoiceHelper: MultiCho
             val endTime = event.endTime
             val startTimeString = if (startTime != null) timeDateFormat.format(startTime) else "?"
             val endTimeString = if (endTime != null) timeDateFormat.format(endTime) else "?"
-            val roomName = event.roomName ?: ""
+            val roomName = event.roomName.orEmpty()
             val detailsText: CharSequence = "${event.day.shortName}, $startTimeString ― $endTimeString  |  $roomName"
             val detailsSpannable = SpannableString(detailsText)
             var detailsDescription = detailsText

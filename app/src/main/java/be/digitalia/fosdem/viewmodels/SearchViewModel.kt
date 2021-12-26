@@ -34,7 +34,7 @@ class SearchViewModel @Inject constructor(scheduleDao: ScheduleDao, private val 
     }
 
     var query: String
-        get() = queryLiveData.value ?: ""
+        get() = queryLiveData.value.orEmpty()
         set(value) {
             if (value != queryLiveData.value) {
                 state[STATE_QUERY] = value

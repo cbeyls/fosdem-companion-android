@@ -21,6 +21,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.sample
@@ -42,6 +43,7 @@ class SearchResultActivity : AppCompatActivity(R.layout.search_result) {
 
         @OptIn(kotlinx.coroutines.FlowPreview::class)
         searchEditText.textChangeEvents
+            .conflate()
             .onEach {
                 // immediately update the button state
                 searchClearButton.isGone = it.isNullOrEmpty()
@@ -49,7 +51,7 @@ class SearchResultActivity : AppCompatActivity(R.layout.search_result) {
             .sample(SEARCH_INPUT_SAMPLE_MILLIS)
             .onEach {
                 // only update the results every SEARCH_INPUT_SAMPLE_MILLIS
-                viewModel.query = it?.toString() ?: ""
+                viewModel.query = it?.toString().orEmpty()
             }
             .launchIn(lifecycleScope)
 
@@ -74,7 +76,7 @@ class SearchResultActivity : AppCompatActivity(R.layout.search_result) {
     private fun handleIntent(intent: Intent) {
         val query = when (intent.action) {
             Intent.ACTION_SEARCH, GMS_ACTION_SEARCH -> intent.getStringExtra(SearchManager.QUERY)
-                ?.trimNonAlpha() ?: ""
+                ?.trimNonAlpha().orEmpty()
             else -> ""
         }
         viewModel.query = query

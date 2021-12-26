@@ -99,7 +99,7 @@ class EventsAdapter constructor(context: Context, private val showDay: Boolean =
             val bookmarkDrawable = if (isBookmarked) AppCompatResources.getDrawable(context, R.drawable.ic_bookmark_white_24dp) else null
             TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(title, null, null, bookmarkDrawable, null)
             title.contentDescription = if (isBookmarked) {
-                context.getString(R.string.in_bookmarks_content_description, event.title ?: "")
+                context.getString(R.string.in_bookmarks_content_description, event.title.orEmpty())
             } else null
             val personsSummary = event.personsSummary
             persons.text = personsSummary
@@ -116,7 +116,7 @@ class EventsAdapter constructor(context: Context, private val showDay: Boolean =
             val endTime = event.endTime
             val startTimeString = if (startTime != null) timeDateFormat.format(startTime) else "?"
             val endTimeString = if (endTime != null) timeDateFormat.format(endTime) else "?"
-            val roomName = event.roomName ?: ""
+            val roomName = event.roomName.orEmpty()
             var detailsText: CharSequence = if (showDay) {
                 "${event.day.shortName}, $startTimeString ― $endTimeString  |  $roomName"
             } else {

@@ -24,7 +24,7 @@ data class Person(
         return FosdemUrls.getPerson(n.toSlug(), year)
     }
 
-    override fun toString(): String = name ?: ""
+    override fun toString(): String = name.orEmpty()
 
     companion object {
         const val TABLE_NAME = "persons"

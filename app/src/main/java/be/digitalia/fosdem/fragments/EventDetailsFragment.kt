@@ -187,8 +187,8 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
     }
 
     private fun createShareChooserIntent(): Intent {
-        val title = event.title ?: ""
-        val url = event.url ?: ""
+        val title = event.title.orEmpty()
+        val url = event.url.orEmpty()
         return ShareCompat.IntentBuilder(requireActivity())
                 .setSubject("$title ($CONFERENCE_NAME)")
                 .setType("text/plain")
@@ -215,7 +215,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
 
             var description = event.abstractText
             if (description.isNullOrEmpty()) {
-                description = event.description ?: ""
+                description = event.description.orEmpty()
             }
             description = description.stripHtml()
             // Add speaker info if available
