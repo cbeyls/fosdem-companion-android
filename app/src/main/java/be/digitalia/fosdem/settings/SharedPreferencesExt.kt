@@ -5,6 +5,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.onStart
 
 /**
@@ -36,7 +37,7 @@ private inline fun <T> SharedPreferences.getAsFlow(
         }
         registerOnSharedPreferenceChangeListener(listener)
         awaitClose { unregisterOnSharedPreferenceChangeListener(listener) }
-    }.onStart {
+    }.conflate().onStart {
         // By emitting the initial value here, we prevent the upstream callbackFlow from starting
         // if the Flow consumer is only interested in the first value
         emit(valueProvider(key))
