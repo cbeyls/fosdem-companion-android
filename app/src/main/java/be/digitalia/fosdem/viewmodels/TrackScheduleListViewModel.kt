@@ -40,9 +40,7 @@ class TrackScheduleListViewModel @Inject constructor(scheduleDao: ScheduleDao) :
         }
         .switchMap { isOn ->
             if (isOn) {
-                LiveDataFactory.interval(REFRESH_TIME_INTERVAL_MINUTES, TimeUnit.MINUTES).map {
-                    Instant.now()
-                }
+                LiveDataFactory.interval(TIME_REFRESH_PERIOD).map { Instant.now() }
             } else {
                 MutableLiveData(null)
             }
@@ -56,6 +54,6 @@ class TrackScheduleListViewModel @Inject constructor(scheduleDao: ScheduleDao) :
     }
 
     companion object {
-        private const val REFRESH_TIME_INTERVAL_MINUTES = 1L
+        private val TIME_REFRESH_PERIOD = TimeUnit.MINUTES.toMillis(1L)
     }
 }

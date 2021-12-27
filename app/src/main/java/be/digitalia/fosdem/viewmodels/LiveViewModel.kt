@@ -17,7 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LiveViewModel @Inject constructor(scheduleDao: ScheduleDao) : ViewModel() {
 
-    private val heartbeat = LiveDataFactory.interval(1L, TimeUnit.MINUTES)
+    private val heartbeat = LiveDataFactory.interval(REFRESH_PERIOD)
 
     val nextEvents: LiveData<PagedList<StatusEvent>> = heartbeat.switchMap {
         val now = Instant.now()
@@ -29,6 +29,7 @@ class LiveViewModel @Inject constructor(scheduleDao: ScheduleDao) : ViewModel() 
     }
 
     companion object {
+        private val REFRESH_PERIOD = TimeUnit.MINUTES.toMillis(1L)
         private val NEXT_EVENTS_INTERVAL = Duration.ofMinutes(30L)
     }
 }

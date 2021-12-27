@@ -34,7 +34,7 @@ class BookmarksViewModel @Inject constructor(
     val bookmarks: LiveData<List<Event>> = upcomingOnlyLiveData.switchMap { upcomingOnly: Boolean ->
         if (upcomingOnly) {
             // Refresh upcoming bookmarks every 2 minutes
-            LiveDataFactory.interval(2L, TimeUnit.MINUTES)
+            LiveDataFactory.interval(REFRESH_PERIOD)
                 .switchMap {
                     bookmarksDao.getBookmarks(Instant.now() - TIME_OFFSET)
                 }
@@ -64,6 +64,7 @@ class BookmarksViewModel @Inject constructor(
     }
 
     companion object {
+        private val REFRESH_PERIOD = TimeUnit.MINUTES.toMillis(2L)
         // In upcomingOnly mode, events that just started are still shown for 5 minutes
         private val TIME_OFFSET = Duration.ofMinutes(5L)
     }
