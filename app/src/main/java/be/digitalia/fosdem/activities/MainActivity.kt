@@ -9,8 +9,6 @@ import android.net.Uri
 import android.nfc.NdefRecord
 import android.os.Build
 import android.os.Bundle
-import android.text.format.DateFormat
-import android.text.format.DateUtils
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -47,9 +45,12 @@ import com.google.android.material.progressindicator.BaseProgressIndicator
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.time.Duration
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -91,6 +92,8 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
 
     @Inject
     lateinit var scheduleDao: ScheduleDao
+
+    private val latestUpdateDateTimeFormatter = DateTimeFormatter.ofPattern(LATEST_UPDATE_DATE_TIME_FORMAT)
 
     private lateinit var holder: ViewHolder
     private lateinit var drawerToggle: ActionBarDrawerToggle
@@ -188,7 +191,7 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
         val latestUpdateTextView: TextView = navigationView.findViewById(R.id.latest_update)
         lifecycleScope.launch {
             scheduleDao.latestUpdateTime.collect { time ->
-                val timeString = time?.let { DateFormat.format(LATEST_UPDATE_DATE_FORMAT, it) }
+                val timeString = time?.atZone(ZoneId.systemDefault())?.format(latestUpdateDateTimeFormatter)
                         ?: getString(R.string.never)
                 latestUpdateTextView.text = getString(R.string.last_update, timeString)
             }
@@ -251,13 +254,15 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
 
         // Scheduled database update
         lifecycleScope.launch {
-            val now = System.currentTimeMillis()
+            val now = Instant.now()
             val latestUpdateTime = scheduleDao.latestUpdateTime.first()
-            if (latestUpdateTime == null || latestUpdateTime.time < now - DATABASE_VALIDITY_DURATION) {
-                val latestAttemptTime = preferences.getLong(LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY, -1L)
-                if (latestAttemptTime == -1L || latestAttemptTime < now - AUTO_UPDATE_SNOOZE_DURATION) {
+            if (latestUpdateTime == null || latestUpdateTime < now - DATABASE_VALIDITY_DURATION) {
+                val latestAttemptTime = Instant.ofEpochMilli(
+                    preferences.getLong(LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY, 0L)
+                )
+                if (latestAttemptTime == Instant.EPOCH || latestAttemptTime < now - AUTO_UPDATE_SNOOZE_DURATION) {
                     preferences.edit {
-                        putLong(LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY, now)
+                        putLong(LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY, now.toEpochMilli())
                     }
                     // Try to update immediately. If it fails, the user gets a message and a retry button.
                     api.downloadSchedule()
@@ -358,9 +363,9 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
         const val ACTION_SHORTCUT_LIVE = "${BuildConfig.APPLICATION_ID}.intent.action.SHORTCUT_LIVE"
 
         private const val ERROR_MESSAGE_DISPLAY_DURATION = 5000
-        private const val DATABASE_VALIDITY_DURATION = DateUtils.DAY_IN_MILLIS
-        private const val AUTO_UPDATE_SNOOZE_DURATION = DateUtils.DAY_IN_MILLIS
+        private val DATABASE_VALIDITY_DURATION = Duration.ofDays(1L)
+        private val AUTO_UPDATE_SNOOZE_DURATION = Duration.ofDays(1L)
         private const val LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY = "latest_update_attempt_time"
-        private const val LATEST_UPDATE_DATE_FORMAT = "d MMM yyyy kk:mm:ss"
+        private const val LATEST_UPDATE_DATE_TIME_FORMAT = "d MMM yyyy kk:mm:ss"
     }
 }

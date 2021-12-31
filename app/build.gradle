@@ -12,8 +12,9 @@ android {
 
     defaultConfig {
         applicationId "be.digitalia.fosdem"
-        minSdkVersion 17
+        minSdkVersion 18
         targetSdkVersion 31
+        multiDexEnabled = true
         versionCode 1700205
         versionName "2.0.5"
         // Supported languages
@@ -48,15 +49,15 @@ android {
             }
 
             packagingOptions {
+                exclude 'androidsupportmultidexversion.txt'
                 exclude 'DebugProbesKt.bin'
+                exclude 'kotlin-tooling-metadata.json'
             }
-        }
-        debug {
-            multiDexEnabled = true
         }
     }
 
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -79,6 +80,8 @@ dependencies {
     def lifecycle_version = "2.4.0"
     def room_version = "2.4.0"
     def okhttp_version = "3.12.13"
+
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 
     implementation "androidx.multidex:multidex:2.0.1"
     implementation "com.google.dagger:hilt-android:$hilt_version"

@@ -4,13 +4,12 @@ import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import be.digitalia.fosdem.db.converters.NonNullDateTypeConverters
-import be.digitalia.fosdem.utils.DateParceler
-import be.digitalia.fosdem.utils.DateUtils.withBelgiumTimeZone
+import be.digitalia.fosdem.db.converters.NonNullLocalDateTypeConverters
+import be.digitalia.fosdem.utils.LocalDateParceler
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.WriteWith
-import java.text.SimpleDateFormat
-import java.util.Date
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @Entity(tableName = Day.TABLE_NAME)
@@ -18,8 +17,8 @@ import java.util.Locale
 data class Day(
         @PrimaryKey
         val index: Int,
-        @field:TypeConverters(NonNullDateTypeConverters::class)
-        val date: @WriteWith<DateParceler> Date
+        @field:TypeConverters(NonNullLocalDateTypeConverters::class)
+        val date: @WriteWith<LocalDateParceler> LocalDate
 ) : Comparable<Day>, Parcelable {
 
     val name: String
@@ -37,6 +36,6 @@ data class Day(
     companion object {
         const val TABLE_NAME = "days"
 
-        private val DAY_DATE_FORMAT = SimpleDateFormat("EEEE", Locale.US).withBelgiumTimeZone()
+        private val DAY_DATE_FORMAT = DateTimeFormatter.ofPattern("EEEE", Locale.US)
     }
 }

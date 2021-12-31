@@ -2,7 +2,6 @@ package be.digitalia.fosdem.viewmodels
 
 import android.app.Application
 import android.net.Uri
-import android.text.format.DateUtils
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -18,6 +17,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okio.buffer
 import okio.source
+import java.time.Duration
+import java.time.Instant
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -33,12 +34,12 @@ class BookmarksViewModel @Inject constructor(
     val bookmarks: LiveData<List<Event>> = upcomingOnlyLiveData.switchMap { upcomingOnly: Boolean ->
         if (upcomingOnly) {
             // Refresh upcoming bookmarks every 2 minutes
-            LiveDataFactory.interval(2L, TimeUnit.MINUTES)
+            LiveDataFactory.interval(REFRESH_PERIOD)
                 .switchMap {
-                    bookmarksDao.getBookmarks(System.currentTimeMillis() - TIME_OFFSET)
+                    bookmarksDao.getBookmarks(Instant.now() - TIME_OFFSET)
                 }
         } else {
-            bookmarksDao.getBookmarks(-1L)
+            bookmarksDao.getBookmarks(Instant.EPOCH)
         }
     }
 
@@ -63,7 +64,8 @@ class BookmarksViewModel @Inject constructor(
     }
 
     companion object {
+        private val REFRESH_PERIOD = TimeUnit.MINUTES.toMillis(2L)
         // In upcomingOnly mode, events that just started are still shown for 5 minutes
-        private const val TIME_OFFSET = 5L * DateUtils.MINUTE_IN_MILLIS
+        private val TIME_OFFSET = Duration.ofMinutes(5L)
     }
 }

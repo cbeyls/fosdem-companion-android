@@ -1,25 +1,19 @@
 package be.digitalia.fosdem.utils
 
 import android.content.Context
-import java.text.DateFormat
-import java.util.Calendar
-import java.util.Locale
-import java.util.TimeZone
+import android.text.format.DateFormat
+import androidx.core.os.ConfigurationCompat
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 object DateUtils {
-    val belgiumTimeZone: TimeZone = TimeZone.getTimeZone("GMT+1")
+    val conferenceZoneId: ZoneId = ZoneOffset.ofHours(1)
 
-    fun DateFormat.withBelgiumTimeZone(): DateFormat {
-        timeZone = belgiumTimeZone
-        return this
-    }
-
-    fun getTimeDateFormat(context: Context): DateFormat {
-        return android.text.format.DateFormat.getTimeFormat(context).withBelgiumTimeZone()
-    }
-
-    fun getYear(timestamp: Long, calendar: Calendar = Calendar.getInstance(belgiumTimeZone, Locale.US)): Int {
-        calendar.timeInMillis = timestamp
-        return calendar.get(Calendar.YEAR)
+    fun getTimeFormatter(context: Context): DateTimeFormatter {
+        val primaryLocale = ConfigurationCompat.getLocales(context.resources.configuration)[0]
+        val basePattern = if (DateFormat.is24HourFormat(context)) "Hm" else "hm"
+        val bestPattern = DateFormat.getBestDateTimePattern(primaryLocale, basePattern)
+        return DateTimeFormatter.ofPattern(bestPattern, primaryLocale)
     }
 }

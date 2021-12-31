@@ -1,12 +1,12 @@
 package be.digitalia.fosdem.settings
 
 import android.content.Context
-import android.text.format.DateUtils
 import androidx.preference.PreferenceManager
 import be.digitalia.fosdem.R
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -35,6 +35,6 @@ class UserSettingsProvider @Inject constructor(@ApplicationContext context: Cont
         get() = sharedPreferences.getStringAsFlow(PreferenceKeys.NOTIFICATIONS_DELAY)
                 .map {
                     // Convert from minutes to milliseconds
-                    (it?.toLong() ?: 0L) * DateUtils.MINUTE_IN_MILLIS
+                    TimeUnit.MINUTES.toMillis(it?.toLong() ?: 0L)
                 }
 }

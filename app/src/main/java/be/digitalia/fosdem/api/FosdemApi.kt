@@ -1,7 +1,6 @@
 package be.digitalia.fosdem.api
 
 import android.os.SystemClock
-import android.text.format.DateUtils
 import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -20,6 +19,7 @@ import be.digitalia.fosdem.parsers.EventsParser
 import be.digitalia.fosdem.parsers.RoomStatusesParser
 import be.digitalia.fosdem.utils.BackgroundWorkScope
 import be.digitalia.fosdem.utils.ByteCountSource
+import be.digitalia.fosdem.utils.DateUtils
 import be.digitalia.fosdem.utils.network.HttpClient
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -27,6 +27,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import okio.buffer
+import java.time.LocalTime
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.pow
@@ -103,9 +105,12 @@ class FosdemApi @Inject constructor(
             val startEndTimestamps = LongArray(days.size * 2)
             var index = 0
             for (day in days) {
-                val dayStart = day.date.time
-                startEndTimestamps[index++] = dayStart + DAY_START_TIME
-                startEndTimestamps[index++] = dayStart + DAY_END_TIME
+                startEndTimestamps[index++] = day.date.atTime(DAY_START_TIME)
+                    .atZone(DateUtils.conferenceZoneId)
+                    .toEpochSecond() * 1000L
+                startEndTimestamps[index++] = day.date.atTime(DAY_END_TIME)
+                    .atZone(DateUtils.conferenceZoneId)
+                    .toEpochSecond() * 1000L
             }
             scheduler(*startEndTimestamps)
         }
@@ -170,13 +175,10 @@ class FosdemApi @Inject constructor(
     }
 
     companion object {
-        // 8:30 (local time)
-        private const val DAY_START_TIME = 8 * DateUtils.HOUR_IN_MILLIS + 30 * DateUtils.MINUTE_IN_MILLIS
-
-        // 19:00 (local time)
-        private const val DAY_END_TIME = 19 * DateUtils.HOUR_IN_MILLIS
-        private const val ROOM_STATUS_REFRESH_DELAY = 90L * DateUtils.SECOND_IN_MILLIS
-        private const val ROOM_STATUS_FIRST_RETRY_DELAY = 30L * DateUtils.SECOND_IN_MILLIS
-        private const val ROOM_STATUS_EXPIRATION_DELAY = 6L * DateUtils.MINUTE_IN_MILLIS
+        private val DAY_START_TIME = LocalTime.of(8, 30)
+        private val DAY_END_TIME = LocalTime.of(19, 0)
+        private val ROOM_STATUS_REFRESH_DELAY = TimeUnit.SECONDS.toMillis(90L)
+        private val ROOM_STATUS_FIRST_RETRY_DELAY = TimeUnit.SECONDS.toMillis(30L)
+        private val ROOM_STATUS_EXPIRATION_DELAY = TimeUnit.MINUTES.toMillis(6L)
     }
 }

@@ -6,19 +6,22 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.TypeConverters
 import androidx.room.withTransaction
+import be.digitalia.fosdem.db.converters.NonNullInstantTypeConverters
 import be.digitalia.fosdem.db.entities.Bookmark
 import be.digitalia.fosdem.model.AlarmInfo
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.utils.BackgroundWorkScope
 import kotlinx.coroutines.launch
+import java.time.Instant
 
 @Dao
 abstract class BookmarksDao(private val appDatabase: AppDatabase) {
     /**
      * Returns the bookmarks.
      *
-     * @param minStartTime When greater than 0, only return the events starting after this time.
+     * @param minStartTime When greater than Instant.EPOCH, only return the events starting after this time.
      */
     @Query("""SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
         GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type
@@ -32,7 +35,8 @@ abstract class BookmarksDao(private val appDatabase: AppDatabase) {
         WHERE e.start_time > :minStartTime
         GROUP BY e.id
         ORDER BY e.start_time ASC""")
-    abstract fun getBookmarks(minStartTime: Long): LiveData<List<Event>>
+    @TypeConverters(NonNullInstantTypeConverters::class)
+    abstract fun getBookmarks(minStartTime: Instant): LiveData<List<Event>>
 
     @Query("""SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
         GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type
@@ -54,7 +58,8 @@ abstract class BookmarksDao(private val appDatabase: AppDatabase) {
         WHERE e.start_time > :minStartTime
         ORDER BY e.start_time ASC""")
     @WorkerThread
-    abstract fun getBookmarksAlarmInfo(minStartTime: Long): Array<AlarmInfo>
+    @TypeConverters(NonNullInstantTypeConverters::class)
+    abstract fun getBookmarksAlarmInfo(minStartTime: Instant): Array<AlarmInfo>
 
     @Query("SELECT COUNT(*) FROM bookmarks WHERE event_id = :event")
     abstract fun getBookmarkStatus(event: Event): LiveData<Boolean>

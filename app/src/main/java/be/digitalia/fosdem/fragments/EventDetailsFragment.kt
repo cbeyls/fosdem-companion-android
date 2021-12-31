@@ -99,9 +99,9 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
             }
 
             view.findViewById<TextView>(R.id.time).apply {
-                val timeDateFormat = DateUtils.getTimeDateFormat(context)
-                val startTime = event.startTime?.let { timeDateFormat.format(it) } ?: "?"
-                val endTime = event.endTime?.let { timeDateFormat.format(it) } ?: "?"
+                val timeFormatter = DateUtils.getTimeFormatter(context)
+                val startTime = event.startTime?.atZone(DateUtils.conferenceZoneId)?.format(timeFormatter) ?: "?"
+                val endTime = event.endTime?.atZone(DateUtils.conferenceZoneId)?.format(timeFormatter) ?: "?"
                 text = "${event.day}, $startTime ― $endTime"
                 contentDescription = getString(R.string.time_content_description, text)
             }
@@ -226,8 +226,8 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
                 description = "$speakersLabel: $personsSummary\n\n$description"
             }
             putExtra(CalendarContract.Events.DESCRIPTION, description)
-            event.startTime?.let { putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, it.time) }
-            event.endTime?.let { putExtra(CalendarContract.EXTRA_EVENT_END_TIME, it.time) }
+            event.startTime?.let { putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, it.toEpochMilli()) }
+            event.endTime?.let { putExtra(CalendarContract.EXTRA_EVENT_END_TIME, it.toEpochMilli()) }
         }
 
         try {

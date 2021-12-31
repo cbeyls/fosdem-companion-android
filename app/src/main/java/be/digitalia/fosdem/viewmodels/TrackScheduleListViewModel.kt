@@ -1,6 +1,5 @@
 package be.digitalia.fosdem.viewmodels
 
-import android.text.format.DateUtils
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,7 +10,10 @@ import be.digitalia.fosdem.livedata.LiveDataFactory
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.model.Track
+import be.digitalia.fosdem.utils.DateUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.Duration
+import java.time.Instant
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -25,21 +27,22 @@ class TrackScheduleListViewModel @Inject constructor(scheduleDao: ScheduleDao) :
     }
 
     /**
-     * @return The current time during the target day, or -1 outside of the target day.
+     * @return The current time during the target day, or null outside of the target day.
      */
-    val currentTime: LiveData<Long> = dayTrackLiveData
+    val currentTime: LiveData<Instant?> = dayTrackLiveData
         .switchMap { (day, _) ->
             // Auto refresh during the day passed as argument
-            val dayStart = day.date.time
-            LiveDataFactory.scheduler(dayStart, dayStart + DateUtils.DAY_IN_MILLIS)
+            val dayStart = day.date.atStartOfDay(DateUtils.conferenceZoneId).toInstant()
+            LiveDataFactory.scheduler(
+                dayStart.toEpochMilli(),
+                (dayStart + Duration.ofDays(1L)).toEpochMilli()
+            )
         }
         .switchMap { isOn ->
             if (isOn) {
-                LiveDataFactory.interval(REFRESH_TIME_INTERVAL, TimeUnit.MILLISECONDS).map {
-                    System.currentTimeMillis()
-                }
+                LiveDataFactory.interval(TIME_REFRESH_PERIOD).map { Instant.now() }
             } else {
-                MutableLiveData(-1L)
+                MutableLiveData(null)
             }
         }
 
@@ -51,6 +54,6 @@ class TrackScheduleListViewModel @Inject constructor(scheduleDao: ScheduleDao) :
     }
 
     companion object {
-        private const val REFRESH_TIME_INTERVAL = DateUtils.MINUTE_IN_MILLIS
+        private val TIME_REFRESH_PERIOD = TimeUnit.MINUTES.toMillis(1L)
     }
 }

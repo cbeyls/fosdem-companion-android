@@ -21,12 +21,12 @@ import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.RoomStatus
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.utils.DateUtils
-import java.text.DateFormat
+import java.time.format.DateTimeFormatter
 
 class EventsAdapter constructor(context: Context, private val showDay: Boolean = true) :
     PagedListAdapter<StatusEvent, EventsAdapter.ViewHolder>(DIFF_CALLBACK) {
 
-    private val timeDateFormat = DateUtils.getTimeDateFormat(context)
+    private val timeFormatter = DateUtils.getTimeFormatter(context)
 
     var roomStatuses: Map<String, RoomStatus>? = null
         set(value) {
@@ -38,7 +38,7 @@ class EventsAdapter constructor(context: Context, private val showDay: Boolean =
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_event, parent, false)
-        return ViewHolder(view, timeDateFormat)
+        return ViewHolder(view, timeFormatter)
     }
 
     private fun getRoomStatus(event: Event): RoomStatus? {
@@ -70,7 +70,7 @@ class EventsAdapter constructor(context: Context, private val showDay: Boolean =
         }
     }
 
-    class ViewHolder(itemView: View, private val timeDateFormat: DateFormat)
+    class ViewHolder(itemView: View, private val timeFormatter: DateTimeFormatter)
         : RecyclerView.ViewHolder(itemView), View.OnClickListener {
         private val title: TextView = itemView.findViewById(R.id.title)
         private val persons: TextView = itemView.findViewById(R.id.persons)
@@ -112,10 +112,8 @@ class EventsAdapter constructor(context: Context, private val showDay: Boolean =
 
         fun bindDetails(event: Event, showDay: Boolean, roomStatus: RoomStatus?) {
             val context = details.context
-            val startTime = event.startTime
-            val endTime = event.endTime
-            val startTimeString = if (startTime != null) timeDateFormat.format(startTime) else "?"
-            val endTimeString = if (endTime != null) timeDateFormat.format(endTime) else "?"
+            val startTimeString = event.startTime?.atZone(DateUtils.conferenceZoneId)?.format(timeFormatter) ?: "?"
+            val endTimeString = event.endTime?.atZone(DateUtils.conferenceZoneId)?.format(timeFormatter) ?: "?"
             val roomName = event.roomName.orEmpty()
             var detailsText: CharSequence = if (showDay) {
                 "${event.day.shortName}, $startTimeString ― $endTimeString  |  $roomName"

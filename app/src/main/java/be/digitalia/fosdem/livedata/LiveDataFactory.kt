@@ -5,14 +5,13 @@ import android.os.SystemClock
 import androidx.core.os.HandlerCompat
 import androidx.lifecycle.LiveData
 import java.util.Arrays
-import java.util.concurrent.TimeUnit
 
 object LiveDataFactory {
 
     private val handler = HandlerCompat.createAsync(Looper.getMainLooper())
 
-    fun interval(period: Long, unit: TimeUnit): LiveData<Long> {
-        return IntervalLiveData(unit.toMillis(period))
+    fun interval(periodInMillis: Long): LiveData<Long> {
+        return IntervalLiveData(periodInMillis)
     }
 
     /**
