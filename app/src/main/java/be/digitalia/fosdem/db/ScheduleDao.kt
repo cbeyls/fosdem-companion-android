@@ -45,7 +45,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
      * @return The latest update time, or null if not available.
      */
     val latestUpdateTime: Flow<Instant?> = appDatabase.dataStore.data.map { prefs ->
-        prefs[LATEST_UPDATE_TIME_PREF_KEY]?.let { Instant.ofEpochSecond(it) }
+        prefs[LATEST_UPDATE_TIME_PREF_KEY]?.let { Instant.ofEpochMilli(it) }
     }
 
     /**
@@ -75,7 +75,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
             runBlocking {
                 appDatabase.dataStore.edit { prefs ->
                     prefs.clear()
-                    prefs[LATEST_UPDATE_TIME_PREF_KEY] = now.epochSecond
+                    prefs[LATEST_UPDATE_TIME_PREF_KEY] = now.toEpochMilli()
                     if (lastModifiedTag != null) {
                         prefs[LAST_MODIFIED_TAG_PREF] = lastModifiedTag
                     }
