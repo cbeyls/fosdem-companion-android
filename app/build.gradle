@@ -49,7 +49,9 @@ android {
             }
 
             packagingOptions {
+                exclude 'androidsupportmultidexversion.txt'
                 exclude 'DebugProbesKt.bin'
+                exclude 'kotlin-tooling-metadata.json'
             }
         }
     }
