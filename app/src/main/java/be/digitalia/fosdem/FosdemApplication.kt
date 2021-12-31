@@ -28,8 +28,6 @@ class FosdemApplication : Application() {
 
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
-        if (BuildConfig.DEBUG) {
-            MultiDex.install(this)
-        }
+        MultiDex.install(this)
     }
 }
