@@ -11,7 +11,6 @@ import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
-import androidx.core.widget.TextViewCompat
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import be.digitalia.fosdem.R
@@ -131,7 +130,7 @@ class TrackScheduleAdapter(context: Context, private val listener: EventClickLis
             time.text = event.startTime?.atZone(DateUtils.conferenceZoneId)?.format(timeFormatter)
             title.text = event.title
             val bookmarkDrawable = if (isBookmarked) AppCompatResources.getDrawable(context, R.drawable.ic_bookmark_white_24dp) else null
-            TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(title, null, null, bookmarkDrawable, null)
+            title.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, bookmarkDrawable, null)
             title.contentDescription = if (isBookmarked) {
                 context.getString(R.string.in_bookmarks_content_description, event.title.orEmpty())
             } else null

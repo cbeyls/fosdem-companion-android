@@ -2,7 +2,6 @@ package be.digitalia.fosdem.widgets
 
 import android.os.SystemClock
 import android.view.View
-import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 
 /**
@@ -46,7 +45,7 @@ class ContentLoadingViewMediator(private val view: View) {
                 return
             }
             field = value
-            if (ViewCompat.isAttachedToWindow(view)) {
+            if (view.isAttachedToWindow) {
                 view.removeCallbacks(delayedAction)
 
                 if (value && startTime == -1L) {

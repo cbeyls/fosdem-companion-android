@@ -7,7 +7,6 @@ import android.content.SharedPreferences
 import android.graphics.drawable.Animatable
 import android.net.Uri
 import android.nfc.NdefRecord
-import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -245,11 +244,6 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
     }
 
     override fun onStart() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            if (delegate.applyDayNight()) {
-                recreate()
-            }
-        }
         super.onStart()
 
         // Scheduled database update
