@@ -118,7 +118,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
                     if (roomImageResId != 0) {
                         roomText[0, roomText.length] = object : ClickableSpan() {
                             override fun onClick(view: View) {
-                                parentFragmentManager.commit {
+                                parentFragmentManager.commit(allowStateLoss = true) {
                                     add<RoomImageDialogFragment>(RoomImageDialogFragment.TAG,
                                             args = RoomImageDialogFragment.createArguments(roomName, roomImageResId))
                                 }
