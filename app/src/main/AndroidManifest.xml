@@ -8,14 +8,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.NFC" />
 
-    <!-- Permissions required for alarms -->
-    <uses-permission
-        android:name="android.permission.WAKE_LOCK"
-        android:maxSdkVersion="25" />
+    <!-- Permission required for alarms -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission
-        android:name="android.permission.VIBRATE"
-        android:maxSdkVersion="18" />
 
     <!-- Make touch screen optional since all screens can be used with a pad -->
     <uses-feature
@@ -122,11 +116,6 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-
-        <service
-            android:name=".services.AlarmIntentService"
-            android:exported="false"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <provider
             android:name=".providers.BookmarksExportProvider"

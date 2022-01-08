@@ -7,13 +7,16 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.switchMap
 import be.digitalia.fosdem.BuildConfig
+import be.digitalia.fosdem.alarms.AppAlarmManager
 import be.digitalia.fosdem.db.BookmarksDao
 import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.livedata.LiveDataFactory
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.parsers.ExportedBookmarksParser
+import be.digitalia.fosdem.utils.BackgroundWorkScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.buffer
 import okio.source
@@ -26,6 +29,7 @@ import javax.inject.Inject
 class BookmarksViewModel @Inject constructor(
     private val bookmarksDao: BookmarksDao,
     private val scheduleDao: ScheduleDao,
+    private val alarmManager: AppAlarmManager,
     private val application: Application
 ) : ViewModel() {
 
@@ -52,7 +56,11 @@ class BookmarksViewModel @Inject constructor(
         }
 
     fun removeBookmarks(eventIds: LongArray) {
-        bookmarksDao.removeBookmarksAsync(eventIds)
+        BackgroundWorkScope.launch {
+            if (bookmarksDao.removeBookmarks(eventIds) > 0) {
+                alarmManager.onBookmarksRemoved(eventIds)
+            }
+        }
     }
 
     @Suppress("BlockingMethodInNonBlockingContext")

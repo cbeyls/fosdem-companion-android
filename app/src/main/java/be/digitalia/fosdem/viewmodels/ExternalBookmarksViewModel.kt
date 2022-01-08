@@ -6,16 +6,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.switchMap
 import androidx.paging.PagedList
 import androidx.paging.toLiveData
+import be.digitalia.fosdem.alarms.AppAlarmManager
 import be.digitalia.fosdem.db.BookmarksDao
 import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.model.StatusEvent
+import be.digitalia.fosdem.utils.BackgroundWorkScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ExternalBookmarksViewModel @Inject constructor(
     scheduleDao: ScheduleDao,
-    private val bookmarksDao: BookmarksDao
+    private val bookmarksDao: BookmarksDao,
+    private val alarmManager: AppAlarmManager
 ) : ViewModel() {
 
     private val bookmarkIdsLiveData = MutableLiveData<LongArray>()
@@ -33,6 +37,10 @@ class ExternalBookmarksViewModel @Inject constructor(
 
     fun addAll() {
         val bookmarkIds = bookmarkIdsLiveData.value ?: return
-        bookmarksDao.addBookmarksAsync(bookmarkIds)
+        BackgroundWorkScope.launch {
+            bookmarksDao.addBookmarks(bookmarkIds).let { alarmInfos ->
+                alarmManager.onBookmarksAdded(alarmInfos)
+            }
+        }
     }
 }

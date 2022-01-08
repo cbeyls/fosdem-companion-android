@@ -141,9 +141,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
 
             val persons = details.persons
             insertPersons(persons)
-            val eventsToPersons = Array(persons.size) {
-                EventToPerson(eventId, persons[it].id)
-            }
+            val eventsToPersons = persons.map { EventToPerson(eventId, it.id) }
             insertEventsToPersons(eventsToPersons)
 
             insertLinks(details.links)
@@ -175,7 +173,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     protected abstract fun insertPersons(persons: List<Person>)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    protected abstract fun insertEventsToPersons(eventsToPersons: Array<EventToPerson>)
+    protected abstract fun insertEventsToPersons(eventsToPersons: List<EventToPerson>)
 
     @Insert
     protected abstract fun insertLinks(links: List<Link>)

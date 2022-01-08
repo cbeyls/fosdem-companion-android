@@ -5,10 +5,9 @@ import android.content.Context
 import android.content.Intent
 import be.digitalia.fosdem.BuildConfig
 import be.digitalia.fosdem.alarms.AppAlarmManager
-import be.digitalia.fosdem.services.AlarmIntentService
 import be.digitalia.fosdem.utils.BackgroundWorkScope
+import be.digitalia.fosdem.utils.goAsync
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -24,15 +23,13 @@ class AlarmReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
-            ACTION_NOTIFY_EVENT -> {
-                val serviceIntent = Intent(ACTION_NOTIFY_EVENT)
-                    .setData(intent.data)
-                AlarmIntentService.enqueueWork(context, serviceIntent)
-            }
-            Intent.ACTION_BOOT_COMPLETED -> {
-                BackgroundWorkScope.launch {
-                    alarmManager.onBootCompleted()
+            ACTION_NOTIFY_EVENT -> intent.dataString?.toLongOrNull()?.let { eventId ->
+                goAsync(BackgroundWorkScope) {
+                    alarmManager.notifyEvent(eventId)
                 }
+            }
+            Intent.ACTION_BOOT_COMPLETED -> goAsync(BackgroundWorkScope) {
+                alarmManager.onBootCompleted()
             }
         }
     }

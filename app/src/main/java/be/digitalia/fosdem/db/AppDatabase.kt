@@ -5,7 +5,6 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import be.digitalia.fosdem.alarms.AppAlarmManager
 import be.digitalia.fosdem.db.converters.GlobalTypeConverters
 import be.digitalia.fosdem.db.entities.Bookmark
 import be.digitalia.fosdem.db.entities.EventEntity
@@ -28,5 +27,4 @@ abstract class AppDatabase : RoomDatabase() {
 
     // Manually injected fields, used by Daos
     lateinit var dataStore: DataStore<Preferences>
-    lateinit var alarmManager: AppAlarmManager
 }

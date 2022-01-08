@@ -11,7 +11,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import be.digitalia.fosdem.BuildConfig
 import be.digitalia.fosdem.R
-import be.digitalia.fosdem.services.AlarmIntentService
+import be.digitalia.fosdem.alarms.AppAlarmManager
 import be.digitalia.fosdem.settings.PreferenceKeys
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
@@ -29,7 +29,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private fun setupNotificationsChannel() {
         findPreference<Preference>(PreferenceKeys.NOTIFICATIONS_CHANNEL)?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            AlarmIntentService.startChannelNotificationSettingsActivity(requireContext())
+            AppAlarmManager.startChannelNotificationSettingsActivity(requireContext())
             true
         }
     }
