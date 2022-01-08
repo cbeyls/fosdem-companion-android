@@ -6,14 +6,12 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.TypeConverters
-import androidx.room.withTransaction
 import be.digitalia.fosdem.db.converters.NonNullInstantTypeConverters
 import be.digitalia.fosdem.db.entities.Bookmark
 import be.digitalia.fosdem.model.AlarmInfo
 import be.digitalia.fosdem.model.Event
-import be.digitalia.fosdem.utils.BackgroundWorkScope
-import kotlinx.coroutines.launch
 import java.time.Instant
 
 @Dao
@@ -50,44 +48,33 @@ abstract class BookmarksDao(private val appDatabase: AppDatabase) {
         GROUP BY e.id
         ORDER BY e.start_time ASC""")
     @WorkerThread
-    abstract fun getBookmarks(): Array<Event>
+    abstract fun getBookmarks(): List<Event>
 
     @Query("""SELECT b.event_id, e.start_time
         FROM bookmarks b
         JOIN events e ON b.event_id = e.id
         WHERE e.start_time > :minStartTime
         ORDER BY e.start_time ASC""")
-    @WorkerThread
     @TypeConverters(NonNullInstantTypeConverters::class)
-    abstract fun getBookmarksAlarmInfo(minStartTime: Instant): Array<AlarmInfo>
+    abstract suspend fun getBookmarksAlarmInfo(minStartTime: Instant): List<AlarmInfo>
 
     @Query("SELECT COUNT(*) FROM bookmarks WHERE event_id = :event")
     abstract fun getBookmarkStatus(event: Event): LiveData<Boolean>
 
-    fun addBookmarkAsync(event: Event) {
-        BackgroundWorkScope.launch {
-            val ids = addBookmarksInternal(listOf(Bookmark(event.id)))
-            if (ids[0] != -1L) {
-                appDatabase.alarmManager.onBookmarksAdded(listOf(AlarmInfo(eventId = event.id, startTime = event.startTime)))
-            }
-        }
+    suspend fun addBookmark(event: Event): AlarmInfo? {
+        val ids = addBookmarksInternal(listOf(Bookmark(event.id)))
+        return if (ids[0] != -1L) AlarmInfo(event.id, event.startTime) else null
     }
 
-    fun addBookmarksAsync(eventIds: LongArray) {
-        BackgroundWorkScope.launch {
-            appDatabase.withTransaction {
-                // Get AlarmInfos first to filter out non-existing items
-                val alarmInfos = getAlarmInfos(eventIds)
-                alarmInfos.isNotEmpty() || return@withTransaction
+    @Transaction
+    open suspend fun addBookmarks(eventIds: LongArray): List<AlarmInfo> {
+        // Get AlarmInfos first to filter out non-existing items
+        val alarmInfos = getAlarmInfos(eventIds)
+        alarmInfos.isNotEmpty() || return emptyList()
 
-                val ids = addBookmarksInternal(alarmInfos.map { Bookmark(it.eventId) })
-                // Filter out items that were already in bookmarks
-                val addedAlarmInfos = alarmInfos.filterIndexed { index, _ -> ids[index] != -1L }
-                if (addedAlarmInfos.isNotEmpty()) {
-                    appDatabase.alarmManager.onBookmarksAdded(addedAlarmInfos)
-                }
-            }
-        }
+        val ids = addBookmarksInternal(alarmInfos.map { Bookmark(it.eventId) })
+        // Filter out items that were already in bookmarks
+        return alarmInfos.filterIndexed { index, _ -> ids[index] != -1L }
     }
 
     @Query("""SELECT id as event_id, start_time
@@ -99,18 +86,6 @@ abstract class BookmarksDao(private val appDatabase: AppDatabase) {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     protected abstract suspend fun addBookmarksInternal(bookmarks: List<Bookmark>): LongArray
 
-    fun removeBookmarkAsync(event: Event) {
-        removeBookmarksAsync(longArrayOf(event.id))
-    }
-
-    fun removeBookmarksAsync(eventIds: LongArray) {
-        BackgroundWorkScope.launch {
-            if (removeBookmarksInternal(eventIds) > 0) {
-                appDatabase.alarmManager.onBookmarksRemoved(eventIds)
-            }
-        }
-    }
-
     @Query("DELETE FROM bookmarks WHERE event_id IN (:eventIds)")
-    protected abstract suspend fun removeBookmarksInternal(eventIds: LongArray): Int
+    abstract suspend fun removeBookmarks(eventIds: LongArray): Int
 }

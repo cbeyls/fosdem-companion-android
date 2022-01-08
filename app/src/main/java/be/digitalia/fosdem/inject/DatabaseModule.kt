@@ -10,7 +10,6 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import be.digitalia.fosdem.alarms.AppAlarmManager
 import be.digitalia.fosdem.db.AppDatabase
 import be.digitalia.fosdem.db.BookmarksDao
 import be.digitalia.fosdem.db.ScheduleDao
@@ -39,26 +38,26 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideAppDatabase(@ApplicationContext context: Context,
-                           @Named("Database") dataStore: DataStore<Preferences>,
-                           alarmManager: AppAlarmManager): AppDatabase {
+    fun provideAppDatabase(
+        @ApplicationContext context: Context,
+        @Named("Database") dataStore: DataStore<Preferences>
+    ): AppDatabase {
         return Room.databaseBuilder(context, AppDatabase::class.java, DB_FILE)
-                .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-                .fallbackToDestructiveMigration()
-                .addCallback(object : RoomDatabase.Callback() {
-                    @WorkerThread
-                    override fun onDestructiveMigration(db: SupportSQLiteDatabase) {
-                        runBlocking {
-                            dataStore.edit { it.clear() }
-                        }
+            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+            .fallbackToDestructiveMigration()
+            .addCallback(object : RoomDatabase.Callback() {
+                @WorkerThread
+                override fun onDestructiveMigration(db: SupportSQLiteDatabase) {
+                    runBlocking {
+                        dataStore.edit { it.clear() }
                     }
-                })
-                .build()
-                .also {
-                    // Manual dependency injection
-                    it.dataStore = dataStore
-                    it.alarmManager = alarmManager
                 }
+            })
+            .build()
+            .also {
+                // Manual dependency injection
+                it.dataStore = dataStore
+            }
     }
 
     @Provides
