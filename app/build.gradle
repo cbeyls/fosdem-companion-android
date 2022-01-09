@@ -76,6 +76,28 @@ android {
     }
 }
 
+afterEvaluate {
+    // Update configuration of the R8 tasks to optimize desugaring shrinker
+    def originalSetting = "\"support_all_callbacks_from_library\": true"
+    def replacementSetting = "\"support_all_callbacks_from_library\": false"
+    tasks.findAll { task -> task.getClass().getSimpleName().startsWith("R8Task") }.each { task ->
+        task.configure {
+            def patchedDesugarConfig = coreLibDesugarConfig.getProvider().map {
+                it.replace(originalSetting, replacementSetting)
+            }
+            coreLibDesugarConfig.set(patchedDesugarConfig)
+        }
+    }
+    tasks.findAll { task -> task.getClass().getSimpleName().startsWith("L8DexDesugarLibTask") }.each { task ->
+        task.configure {
+            def patchedDesugarConfig = libConfiguration.getProvider().map {
+                it.replace(originalSetting, replacementSetting)
+            }
+            libConfiguration.set(patchedDesugarConfig)
+        }
+    }
+}
+
 dependencies {
     def lifecycle_version = "2.4.0"
     def room_version = "2.4.0"
@@ -105,7 +127,7 @@ dependencies {
     implementation "androidx.datastore:datastore-preferences:1.0.0"
     kapt "androidx.room:room-compiler:$room_version"
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
-    implementation ("com.squareup.okhttp3:okhttp-tls:$okhttp_version") {
+    implementation("com.squareup.okhttp3:okhttp-tls:$okhttp_version") {
         exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
     }
     implementation 'com.squareup.okio:okio:3.0.0'
