@@ -2,7 +2,6 @@ package be.digitalia.fosdem.viewmodels
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
@@ -14,9 +13,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class SearchViewModel @Inject constructor(scheduleDao: ScheduleDao, private val state: SavedStateHandle) : ViewModel() {
+class SearchViewModel @Inject constructor(scheduleDao: ScheduleDao) : ViewModel() {
 
-    private val queryLiveData: LiveData<String> = state.getLiveData(STATE_QUERY)
+    private val queryLiveData = MutableLiveData<String>()
 
     sealed class Result {
         object QueryTooShort : Result()
@@ -33,16 +32,13 @@ class SearchViewModel @Inject constructor(scheduleDao: ScheduleDao, private val 
         }
     }
 
-    var query: String
-        get() = queryLiveData.value.orEmpty()
-        set(value) {
-            if (value != queryLiveData.value) {
-                state[STATE_QUERY] = value
-            }
+    fun setQuery(query: String) {
+        if (query != queryLiveData.value) {
+            queryLiveData.value = query
         }
+    }
 
     companion object {
         private const val SEARCH_QUERY_MIN_LENGTH = 3
-        private const val STATE_QUERY = "query"
     }
 }
