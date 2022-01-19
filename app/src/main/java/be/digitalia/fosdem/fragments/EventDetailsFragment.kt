@@ -46,7 +46,6 @@ import be.digitalia.fosdem.utils.stripHtml
 import be.digitalia.fosdem.viewmodels.EventDetailsViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -170,7 +169,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
         val roomName = event.roomName
         if (!roomName.isNullOrEmpty()) {
             viewLifecycleOwner.launchAndRepeatOnLifecycle {
-                api.roomStatuses.collectLatest { statuses ->
+                api.roomStatuses.collect { statuses ->
                     holder.roomStatusTextView.run {
                         val roomStatus = statuses[roomName]
                         if (roomStatus == null) {

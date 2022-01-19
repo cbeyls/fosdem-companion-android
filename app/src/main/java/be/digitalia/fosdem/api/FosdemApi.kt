@@ -2,14 +2,11 @@ package be.digitalia.fosdem.api
 
 import android.os.SystemClock
 import androidx.annotation.MainThread
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import be.digitalia.fosdem.alarms.AppAlarmManager
 import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.flow.flowWhileShared
 import be.digitalia.fosdem.flow.schedulerFlow
 import be.digitalia.fosdem.flow.sharedFlow
-import be.digitalia.fosdem.livedata.SingleEvent
 import be.digitalia.fosdem.model.DownloadScheduleResult
 import be.digitalia.fosdem.model.LoadingState
 import be.digitalia.fosdem.model.RoomStatus
@@ -24,12 +21,16 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.buffer
 import java.time.LocalTime
@@ -50,7 +51,8 @@ class FosdemApi @Inject constructor(
     private val alarmManager: AppAlarmManager
 ) {
     private var downloadJob: Job? = null
-    private val _downloadScheduleState = MutableLiveData<LoadingState<DownloadScheduleResult>>()
+    private val _downloadScheduleState =
+        MutableStateFlow<LoadingState<DownloadScheduleResult>>(LoadingState.Idle())
 
     /**
      * Download & store the schedule to the database.
@@ -78,7 +80,7 @@ class FosdemApi @Inject constructor(
                     ByteCountSource(body.source(), length / 10L) { byteCount ->
                         // Cap percent to 100
                         val percent = (byteCount * 100L / length).toInt().coerceAtMost(100)
-                        _downloadScheduleState.postValue(LoadingState.Loading(percent))
+                        _downloadScheduleState.value = LoadingState.Loading(percent)
                     }.buffer()
                 } else {
                     body.source()
@@ -97,11 +99,20 @@ class FosdemApi @Inject constructor(
         } catch (e: Exception) {
             DownloadScheduleResult.Error
         }
-        _downloadScheduleState.value = LoadingState.Idle(SingleEvent(res))
+        _downloadScheduleState.value = LoadingState.Idle(res)
     }
 
-    val downloadScheduleState: LiveData<LoadingState<DownloadScheduleResult>>
-        get() = _downloadScheduleState
+    val downloadScheduleState: StateFlow<LoadingState<DownloadScheduleResult>> =
+        _downloadScheduleState.asStateFlow()
+
+    fun downloadScheduleResultConsumed() {
+        _downloadScheduleState.update { state ->
+            when (state) {
+                is LoadingState.Loading -> state
+                is LoadingState.Idle -> LoadingState.Idle()
+            }
+        }
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val roomStatuses: Flow<Map<String, RoomStatus>> by lazy(LazyThreadSafetyMode.NONE) {

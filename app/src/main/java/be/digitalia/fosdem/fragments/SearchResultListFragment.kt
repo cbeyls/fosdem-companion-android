@@ -12,7 +12,6 @@ import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.SearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -37,7 +36,7 @@ class SearchResultListFragment : Fragment(R.layout.recyclerview) {
         }
 
         viewLifecycleOwner.launchAndRepeatOnLifecycle {
-            api.roomStatuses.collectLatest { statuses ->
+            api.roomStatuses.collect { statuses ->
                 adapter.roomStatuses = statuses
             }
         }

@@ -32,7 +32,6 @@ import be.digitalia.fosdem.viewmodels.BookmarksViewModel
 import be.digitalia.fosdem.widgets.MultiChoiceHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
 import java.util.concurrent.CancellationException
 import javax.inject.Inject
 import javax.inject.Named
@@ -119,7 +118,7 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
         }
 
         viewLifecycleOwner.launchAndRepeatOnLifecycle {
-            api.roomStatuses.collectLatest { statuses ->
+            api.roomStatuses.collect { statuses ->
                 adapter.roomStatuses = statuses
             }
         }

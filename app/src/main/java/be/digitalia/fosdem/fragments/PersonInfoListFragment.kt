@@ -16,7 +16,6 @@ import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.PersonInfoViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -50,7 +49,7 @@ class PersonInfoListFragment : Fragment(R.layout.recyclerview) {
         }
 
         viewLifecycleOwner.launchAndRepeatOnLifecycle {
-            api.roomStatuses.collectLatest { statuses ->
+            api.roomStatuses.collect { statuses ->
                 adapter.roomStatuses = statuses
             }
         }

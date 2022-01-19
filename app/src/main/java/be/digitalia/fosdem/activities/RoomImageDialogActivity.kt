@@ -21,7 +21,6 @@ import be.digitalia.fosdem.utils.isLightTheme
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.utils.toSlug
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
 /**
@@ -81,7 +80,7 @@ class RoomImageDialogActivity : AppCompatActivity(R.layout.dialog_room_image) {
 
                 owner.launchAndRepeatOnLifecycle {
                     // Display the room status as subtitle
-                    api.roomStatuses.collectLatest { statuses ->
+                    api.roomStatuses.collect { statuses ->
                         toolbar.subtitle = statuses[roomName]?.let { roomStatus ->
                             SpannableString(context.getString(roomStatus.nameResId)).apply {
                                 this[0, length] = ForegroundColorSpan(ContextCompat.getColor(context, roomStatus.colorResId))

@@ -16,7 +16,6 @@ import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.LiveViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -48,7 +47,7 @@ sealed class LiveListFragment(@StringRes private val emptyTextResId: Int,
         }
 
         viewLifecycleOwner.launchAndRepeatOnLifecycle {
-            api.roomStatuses.collectLatest { statuses ->
+            api.roomStatuses.collect { statuses ->
                 adapter.roomStatuses = statuses
             }
         }
