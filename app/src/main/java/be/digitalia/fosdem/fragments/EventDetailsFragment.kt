@@ -39,12 +39,14 @@ import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.utils.ClickableArrowKeyMovementMethod
 import be.digitalia.fosdem.utils.DateUtils
 import be.digitalia.fosdem.utils.configureToolbarColors
+import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.utils.parseHtml
 import be.digitalia.fosdem.utils.roomNameToResourceName
 import be.digitalia.fosdem.utils.stripHtml
 import be.digitalia.fosdem.viewmodels.EventDetailsViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -167,14 +169,18 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
         // Live room status
         val roomName = event.roomName
         if (!roomName.isNullOrEmpty()) {
-            holder.roomStatusTextView.run {
-                api.roomStatuses.observe(viewLifecycleOwner) { roomStatuses ->
-                    val roomStatus = roomStatuses[roomName]
-                    if (roomStatus == null) {
-                        text = null
-                    } else {
-                        setText(roomStatus.nameResId)
-                        setTextColor(ContextCompat.getColorStateList(context, roomStatus.colorResId))
+            viewLifecycleOwner.launchAndRepeatOnLifecycle {
+                api.roomStatuses.collectLatest { statuses ->
+                    holder.roomStatusTextView.run {
+                        val roomStatus = statuses[roomName]
+                        if (roomStatus == null) {
+                            text = null
+                        } else {
+                            setText(roomStatus.nameResId)
+                            setTextColor(
+                                ContextCompat.getColorStateList(context, roomStatus.colorResId)
+                            )
+                        }
                     }
                 }
             }

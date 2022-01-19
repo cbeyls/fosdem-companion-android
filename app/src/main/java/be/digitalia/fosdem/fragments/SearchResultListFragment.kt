@@ -9,8 +9,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.adapters.EventsAdapter
 import be.digitalia.fosdem.api.FosdemApi
+import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.SearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -34,8 +36,10 @@ class SearchResultListFragment : Fragment(R.layout.recyclerview) {
             isProgressBarVisible = true
         }
 
-        api.roomStatuses.observe(viewLifecycleOwner) { statuses ->
-            adapter.roomStatuses = statuses
+        viewLifecycleOwner.launchAndRepeatOnLifecycle {
+            api.roomStatuses.collectLatest { statuses ->
+                adapter.roomStatuses = statuses
+            }
         }
         viewModel.results.observe(viewLifecycleOwner) { result ->
             adapter.submitList((result as? SearchViewModel.Result.Success)?.list)

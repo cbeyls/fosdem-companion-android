@@ -27,10 +27,12 @@ class EventsAdapter constructor(context: Context, private val showDay: Boolean =
 
     private val timeFormatter = DateUtils.getTimeFormatter(context)
 
-    var roomStatuses: Map<String, RoomStatus>? = null
+    var roomStatuses: Map<String, RoomStatus> = emptyMap()
         set(value) {
-            field = value
-            notifyItemRangeChanged(0, itemCount, DETAILS_PAYLOAD)
+            if (field != value) {
+                field = value
+                notifyItemRangeChanged(0, itemCount, DETAILS_PAYLOAD)
+            }
         }
 
     override fun getItemViewType(position: Int) = R.layout.item_event
@@ -40,10 +42,6 @@ class EventsAdapter constructor(context: Context, private val showDay: Boolean =
         return ViewHolder(view, timeFormatter)
     }
 
-    private fun getRoomStatus(event: Event): RoomStatus? {
-        return roomStatuses?.get(event.roomName)
-    }
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val statusEvent = getItem(position)
         if (statusEvent == null) {
@@ -51,7 +49,7 @@ class EventsAdapter constructor(context: Context, private val showDay: Boolean =
         } else {
             val event = statusEvent.event
             holder.bind(event, statusEvent.isBookmarked)
-            holder.bindDetails(event, showDay, getRoomStatus(event))
+            holder.bindDetails(event, showDay, roomStatuses[event.roomName])
         }
     }
 
@@ -63,7 +61,7 @@ class EventsAdapter constructor(context: Context, private val showDay: Boolean =
             if (statusEvent != null) {
                 if (DETAILS_PAYLOAD in payloads) {
                     val event = statusEvent.event
-                    holder.bindDetails(event, showDay, getRoomStatus(event))
+                    holder.bindDetails(event, showDay, roomStatuses[event.roomName])
                 }
             }
         }

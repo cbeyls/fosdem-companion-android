@@ -4,13 +4,11 @@ import android.os.SystemClock
 import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.distinctUntilChanged
-import androidx.lifecycle.liveData
-import androidx.lifecycle.switchMap
 import be.digitalia.fosdem.alarms.AppAlarmManager
 import be.digitalia.fosdem.db.ScheduleDao
-import be.digitalia.fosdem.livedata.LiveDataFactory.scheduler
+import be.digitalia.fosdem.flow.flowWhileShared
+import be.digitalia.fosdem.flow.schedulerFlow
+import be.digitalia.fosdem.flow.sharedFlow
 import be.digitalia.fosdem.livedata.SingleEvent
 import be.digitalia.fosdem.model.DownloadScheduleResult
 import be.digitalia.fosdem.model.LoadingState
@@ -22,9 +20,16 @@ import be.digitalia.fosdem.utils.ByteCountSource
 import be.digitalia.fosdem.utils.DateUtils
 import be.digitalia.fosdem.utils.network.HttpClient
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import okio.buffer
 import java.time.LocalTime
@@ -98,50 +103,57 @@ class FosdemApi @Inject constructor(
     val downloadScheduleState: LiveData<LoadingState<DownloadScheduleResult>>
         get() = _downloadScheduleState
 
-    val roomStatuses: LiveData<Map<String, RoomStatus>> by lazy(LazyThreadSafetyMode.NONE) {
-        // The room statuses will only be loaded when the event is live.
-        // Use the days from the database to determine it.
-        val scheduler = scheduleDao.days.asLiveData().distinctUntilChanged().switchMap { days ->
-            val startEndTimestamps = LongArray(days.size * 2)
-            var index = 0
-            for (day in days) {
-                startEndTimestamps[index++] = day.date.atTime(DAY_START_TIME)
-                    .atZone(DateUtils.conferenceZoneId)
-                    .toEpochSecond() * 1000L
-                startEndTimestamps[index++] = day.date.atTime(DAY_END_TIME)
-                    .atZone(DateUtils.conferenceZoneId)
-                    .toEpochSecond() * 1000L
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val roomStatuses: Flow<Map<String, RoomStatus>> by lazy(LazyThreadSafetyMode.NONE) {
+        sharedFlow(BackgroundWorkScope) { subscriptionCount ->
+            // The room statuses will only be loaded when the event is live.
+            // Use the days from the database to determine it.
+            val scheduler = scheduleDao.days.flatMapLatest { days ->
+                val startEndTimestamps = LongArray(days.size * 2)
+                var index = 0
+                for (day in days) {
+                    startEndTimestamps[index++] = day.date.atTime(DAY_START_TIME)
+                        .atZone(DateUtils.conferenceZoneId)
+                        .toEpochSecond() * 1000L
+                    startEndTimestamps[index++] = day.date.atTime(DAY_END_TIME)
+                        .atZone(DateUtils.conferenceZoneId)
+                        .toEpochSecond() * 1000L
+                }
+                schedulerFlow(startEndTimestamps)
+                    .flowWhileShared(subscriptionCount, SharingStarted.WhileSubscribed(5000L))
             }
-            scheduler(*startEndTimestamps)
+            val offlineRoomStatuses = flowOf(emptyMap<String, RoomStatus>())
+            scheduler.distinctUntilChanged().flatMapLatest { isLive ->
+                if (isLive) {
+                    buildLiveRoomStatusesFlow()
+                        .flowWhileShared(subscriptionCount, SharingStarted.WhileSubscribed(5000L))
+                }
+                else offlineRoomStatuses
+            }
         }
-        val liveRoomStatuses = buildLiveRoomStatusesLiveData()
-        val offlineRoomStatuses = MutableLiveData(emptyMap<String, RoomStatus>())
-        scheduler.switchMap { isLive -> if (isLive) liveRoomStatuses else offlineRoomStatuses }
         // Implementors: replace the above code block with the next line to disable room status support
-        // MutableLiveData()
+        // emptyFlow()
     }
 
     /**
-     * Builds a LiveData instance which loads and refreshes the Room statuses during the event.
+     * Builds a stateful cold Flow which loads and refreshes the Room statuses during the event.
      */
-    private fun buildLiveRoomStatusesLiveData(): LiveData<Map<String, RoomStatus>> {
+    private fun buildLiveRoomStatusesFlow(): Flow<Map<String, RoomStatus>> {
         var nextRefreshTime = 0L
         var expirationTime = Long.MAX_VALUE
         var retryAttempt = 0
 
-        return liveData {
+        return flow {
             var now = SystemClock.elapsedRealtime()
             var nextRefreshDelay = nextRefreshTime - now
 
-            if (now > expirationTime && latestValue?.isEmpty() == false) {
+            if (now > expirationTime) {
                 // When the data expires, replace it with an empty value
                 emit(emptyMap())
             }
 
             while (true) {
-                if (nextRefreshDelay > 0) {
-                    delay(nextRefreshDelay)
-                }
+                delay(nextRefreshDelay)
 
                 nextRefreshDelay = try {
                     val response = httpClient.get(FosdemUrls.rooms) { body, _ ->
@@ -159,7 +171,7 @@ class FosdemApi @Inject constructor(
                     }
                     now = SystemClock.elapsedRealtime()
 
-                    if (now > expirationTime && latestValue?.isEmpty() == false) {
+                    if (now > expirationTime) {
                         emit(emptyMap())
                     }
 

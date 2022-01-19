@@ -13,8 +13,10 @@ import be.digitalia.fosdem.R
 import be.digitalia.fosdem.adapters.EventsAdapter
 import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.model.Person
+import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.PersonInfoViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -47,8 +49,10 @@ class PersonInfoListFragment : Fragment(R.layout.recyclerview) {
             isProgressBarVisible = true
         }
 
-        api.roomStatuses.observe(viewLifecycleOwner) { statuses ->
-            adapter.roomStatuses = statuses
+        viewLifecycleOwner.launchAndRepeatOnLifecycle {
+            api.roomStatuses.collectLatest { statuses ->
+                adapter.roomStatuses = statuses
+            }
         }
         viewModel.events.observe(viewLifecycleOwner) { events ->
             adapter.submitList(events)

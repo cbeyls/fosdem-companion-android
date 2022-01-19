@@ -30,6 +30,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
@@ -219,7 +220,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
 
     // Cache days
     val days: Flow<List<Day>> by lazy {
-        getDaysInternal().shareIn(
+        getDaysInternal().distinctUntilChanged().shareIn(
             scope = BackgroundWorkScope,
             started = SharingStarted.Eagerly,
             replay = 1

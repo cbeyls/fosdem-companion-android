@@ -26,11 +26,13 @@ import be.digitalia.fosdem.adapters.BookmarksAdapter
 import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.providers.BookmarksExportProvider
 import be.digitalia.fosdem.utils.CreateNfcAppDataCallback
+import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.utils.toBookmarksNfcAppData
 import be.digitalia.fosdem.viewmodels.BookmarksViewModel
 import be.digitalia.fosdem.widgets.MultiChoiceHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import java.util.concurrent.CancellationException
 import javax.inject.Inject
 import javax.inject.Named
@@ -116,8 +118,10 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
             isProgressBarVisible = true
         }
 
-        api.roomStatuses.observe(viewLifecycleOwner) { statuses ->
-            adapter.roomStatuses = statuses
+        viewLifecycleOwner.launchAndRepeatOnLifecycle {
+            api.roomStatuses.collectLatest { statuses ->
+                adapter.roomStatuses = statuses
+            }
         }
         viewModel.bookmarks.observe(viewLifecycleOwner) { bookmarks ->
             adapter.submitList(bookmarks)

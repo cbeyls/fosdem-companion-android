@@ -16,9 +16,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.adapters.EventsAdapter
 import be.digitalia.fosdem.api.FosdemApi
+import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.ExternalBookmarksViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -51,8 +53,10 @@ class ExternalBookmarksListFragment : Fragment(R.layout.recyclerview) {
 
         val bookmarkIds = requireArguments().getLongArray(ARG_BOOKMARK_IDS)!!
 
-        api.roomStatuses.observe(viewLifecycleOwner) { statuses ->
-            adapter.roomStatuses = statuses
+        viewLifecycleOwner.launchAndRepeatOnLifecycle {
+            api.roomStatuses.collectLatest { statuses ->
+                adapter.roomStatuses = statuses
+            }
         }
         with(viewModel) {
             setBookmarkIds(bookmarkIds)
