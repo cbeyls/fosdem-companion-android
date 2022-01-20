@@ -10,12 +10,12 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
-import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.adapters.EventsAdapter
 import be.digitalia.fosdem.api.FosdemApi
+import be.digitalia.fosdem.utils.assistedViewModels
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.ExternalBookmarksViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -27,7 +27,12 @@ class ExternalBookmarksListFragment : Fragment(R.layout.recyclerview) {
 
     @Inject
     lateinit var api: FosdemApi
-    private val viewModel: ExternalBookmarksViewModel by viewModels()
+    @Inject
+    lateinit var viewModelFactory: ExternalBookmarksViewModel.Factory
+    private val viewModel: ExternalBookmarksViewModel by assistedViewModels {
+        val bookmarkIds = requireArguments().getLongArray(ARG_BOOKMARK_IDS)!!
+        viewModelFactory.create(bookmarkIds)
+    }
     private var addAllMenuItem: MenuItem? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,20 +55,15 @@ class ExternalBookmarksListFragment : Fragment(R.layout.recyclerview) {
             isProgressBarVisible = true
         }
 
-        val bookmarkIds = requireArguments().getLongArray(ARG_BOOKMARK_IDS)!!
-
         viewLifecycleOwner.launchAndRepeatOnLifecycle {
             api.roomStatuses.collect { statuses ->
                 adapter.roomStatuses = statuses
             }
         }
-        with(viewModel) {
-            setBookmarkIds(bookmarkIds)
-            bookmarks.observe(viewLifecycleOwner) { bookmarks ->
-                adapter.submitList(bookmarks)
-                addAllMenuItem?.isEnabled = bookmarks.isNotEmpty()
-                holder.isProgressBarVisible = false
-            }
+        viewModel.bookmarks.observe(viewLifecycleOwner) { bookmarks ->
+            adapter.submitList(bookmarks)
+            addAllMenuItem?.isEnabled = bookmarks.isNotEmpty()
+            holder.isProgressBarVisible = false
         }
     }
 

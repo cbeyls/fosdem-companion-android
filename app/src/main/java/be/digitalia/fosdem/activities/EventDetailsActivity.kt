@@ -16,6 +16,7 @@ import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.EventDetailsFragment
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.utils.CreateNfcAppDataCallback
+import be.digitalia.fosdem.utils.assistedViewModels
 import be.digitalia.fosdem.utils.extractNfcAppData
 import be.digitalia.fosdem.utils.hasNfcAppData
 import be.digitalia.fosdem.utils.isLightTheme
@@ -29,6 +30,7 @@ import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel
 import be.digitalia.fosdem.viewmodels.EventViewModel
 import be.digitalia.fosdem.widgets.setupBookmarkStatus
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * Displays a single event passed either as a complete Parcelable object in extras or as an id in data.
@@ -39,7 +41,20 @@ import dagger.hilt.android.AndroidEntryPoint
 class EventDetailsActivity : AppCompatActivity(R.layout.single_event), CreateNfcAppDataCallback {
 
     private val bookmarkStatusViewModel: BookmarkStatusViewModel by viewModels()
-    private val viewModel: EventViewModel by viewModels()
+    @Inject
+    lateinit var viewModelFactory: EventViewModel.Factory
+    private val viewModel: EventViewModel by assistedViewModels {
+        // Load the event from the DB using its id
+        val intent = intent
+        val eventIdString = if (intent.hasNfcAppData()) {
+            // NFC intent
+            intent.extractNfcAppData().toEventIdString()
+        } else {
+            // Normal in-app intent
+            intent.dataString!!
+        }
+        viewModelFactory.create(eventIdString.toLong())
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,19 +74,6 @@ class EventDetailsActivity : AppCompatActivity(R.layout.single_event), CreateNfc
                 }
             }
         } else {
-            // Load the event from the DB using its id
-            if (!viewModel.isEventIdSet) {
-                val intent = intent
-                val eventIdString = if (intent.hasNfcAppData()) {
-                    // NFC intent
-                    intent.extractNfcAppData().toEventIdString()
-                } else {
-                    // Normal in-app intent
-                    intent.dataString!!
-                }
-                viewModel.setEventId(eventIdString.toLong())
-            }
-
             viewModel.event.observe(this) { event ->
                 if (event == null) {
                     // Event not found, quit

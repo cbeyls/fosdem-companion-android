@@ -27,7 +27,6 @@ import androidx.core.view.plusAssign
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
-import androidx.fragment.app.viewModels
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.PersonInfoActivity
 import be.digitalia.fosdem.api.FosdemApi
@@ -38,6 +37,7 @@ import be.digitalia.fosdem.model.Link
 import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.utils.ClickableArrowKeyMovementMethod
 import be.digitalia.fosdem.utils.DateUtils
+import be.digitalia.fosdem.utils.assistedViewModels
 import be.digitalia.fosdem.utils.configureToolbarColors
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.utils.parseHtml
@@ -60,7 +60,11 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
 
     @Inject
     lateinit var api: FosdemApi
-    private val viewModel: EventDetailsViewModel by viewModels()
+    @Inject
+    lateinit var viewModelFactory: EventDetailsViewModel.Factory
+    private val viewModel: EventDetailsViewModel by assistedViewModels {
+        viewModelFactory.create(event)
+    }
 
     val event by lazy<Event>(LazyThreadSafetyMode.NONE) {
         requireArguments().getParcelable(ARG_EVENT)!!
@@ -158,11 +162,8 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
             }
         }
 
-        with(viewModel) {
-            setEvent(event)
-            eventDetails.observe(viewLifecycleOwner) { eventDetails ->
-                showEventDetails(holder, eventDetails)
-            }
+        viewModel.eventDetails.observe(viewLifecycleOwner) { eventDetails ->
+            showEventDetails(holder, eventDetails)
         }
 
         // Live room status

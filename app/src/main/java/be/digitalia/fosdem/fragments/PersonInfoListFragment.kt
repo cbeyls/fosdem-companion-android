@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -13,6 +12,7 @@ import be.digitalia.fosdem.R
 import be.digitalia.fosdem.adapters.EventsAdapter
 import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.model.Person
+import be.digitalia.fosdem.utils.assistedViewModels
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.PersonInfoViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -23,13 +23,15 @@ class PersonInfoListFragment : Fragment(R.layout.recyclerview) {
 
     @Inject
     lateinit var api: FosdemApi
-    private val viewModel: PersonInfoViewModel by viewModels()
+    @Inject
+    lateinit var viewModelFactory: PersonInfoViewModel.Factory
+    private val viewModel: PersonInfoViewModel by assistedViewModels {
+        val person: Person = requireArguments().getParcelable(ARG_PERSON)!!
+        viewModelFactory.create(person)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val person: Person = requireArguments().getParcelable(ARG_PERSON)!!
-        viewModel.setPerson(person)
 
         val adapter = EventsAdapter(view.context)
         val holder = RecyclerViewViewHolder(view).apply {

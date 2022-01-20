@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,13 +17,20 @@ import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.TrackScheduleActivity
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Track
+import be.digitalia.fosdem.utils.assistedViewModels
 import be.digitalia.fosdem.viewmodels.TracksListViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class TracksListFragment : Fragment(R.layout.recyclerview) {
 
-    private val viewModel: TracksListViewModel by viewModels()
+    @Inject
+    lateinit var viewModelFactory: TracksListViewModel.Factory
+    private val viewModel: TracksListViewModel by assistedViewModels {
+        viewModelFactory.create(day)
+    }
+
     private val day by lazy<Day>(LazyThreadSafetyMode.NONE) {
         requireArguments().getParcelable(ARG_DAY)!!
     }
@@ -48,12 +54,9 @@ class TracksListFragment : Fragment(R.layout.recyclerview) {
             isProgressBarVisible = true
         }
 
-        with(viewModel) {
-            setDay(day)
-            tracks.observe(viewLifecycleOwner) { tracks ->
-                adapter.submitList(tracks)
-                holder.isProgressBarVisible = false
-            }
+        viewModel.tracks.observe(viewLifecycleOwner) { tracks ->
+            adapter.submitList(tracks)
+            holder.isProgressBarVisible = false
         }
     }
 

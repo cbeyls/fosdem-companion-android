@@ -1,32 +1,25 @@
 package be.digitalia.fosdem.viewmodels
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
-import androidx.lifecycle.switchMap
 import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.model.Event
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 
-@HiltViewModel
-class EventViewModel @Inject constructor(scheduleDao: ScheduleDao) : ViewModel() {
+class EventViewModel @AssistedInject constructor(
+    scheduleDao: ScheduleDao,
+    @Assisted eventId: Long
+) : ViewModel() {
 
-    private val eventIdLiveData = MutableLiveData<Long>()
-
-    val event: LiveData<Event?> = eventIdLiveData.switchMap { id ->
-        liveData {
-            emit(scheduleDao.getEvent(id))
-        }
+    val event: LiveData<Event?> = liveData {
+        emit(scheduleDao.getEvent(eventId))
     }
 
-    val isEventIdSet
-        get() = eventIdLiveData.value != null
-
-    fun setEventId(eventId: Long) {
-        if (eventId != eventIdLiveData.value) {
-            eventIdLiveData.value = eventId
-        }
+    @AssistedFactory
+    interface Factory {
+        fun create(eventId: Long): EventViewModel
     }
 }

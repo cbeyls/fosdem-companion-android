@@ -20,6 +20,7 @@ import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.CreateNfcAppDataCallback
+import be.digitalia.fosdem.utils.assistedViewModels
 import be.digitalia.fosdem.utils.enforceSingleScrollDirection
 import be.digitalia.fosdem.utils.instantiate
 import be.digitalia.fosdem.utils.isLightTheme
@@ -34,6 +35,7 @@ import be.digitalia.fosdem.viewmodels.TrackScheduleEventViewModel
 import be.digitalia.fosdem.widgets.ContentLoadingViewMediator
 import be.digitalia.fosdem.widgets.setupBookmarkStatus
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * Event view of the track schedule; allows to slide between events of the same track using a ViewPager.
@@ -44,15 +46,22 @@ import dagger.hilt.android.AndroidEntryPoint
 class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_event), CreateNfcAppDataCallback {
 
     private val bookmarkStatusViewModel: BookmarkStatusViewModel by viewModels()
-    private val viewModel: TrackScheduleEventViewModel by viewModels()
+    @Inject
+    lateinit var viewModelFactory: TrackScheduleEventViewModel.Factory
+    private val viewModel: TrackScheduleEventViewModel by assistedViewModels {
+        viewModelFactory.create(day, track)
+    }
+
+    private val day: Day by lazy(LazyThreadSafetyMode.NONE) {
+        intent.getParcelableExtra(EXTRA_DAY)!!
+    }
+    private val track: Track by lazy(LazyThreadSafetyMode.NONE) {
+        intent.getParcelableExtra(EXTRA_TRACK)!!
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setSupportActionBar(findViewById(R.id.bottom_appbar))
-
-        val intent = intent
-        val day: Day = intent.getParcelableExtra(EXTRA_DAY)!!
-        val track: Track = intent.getParcelableExtra(EXTRA_TRACK)!!
 
         val progress = ContentLoadingViewMediator(findViewById(R.id.progress))
         val pager: ViewPager2 = findViewById(R.id.pager)
@@ -92,28 +101,24 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
 
         progress.isVisible = true
 
-        with(viewModel) {
-            setDayAndTrack(day, track)
-            scheduleSnapshot.observe(this@TrackScheduleEventActivity) { events ->
-                progress.isVisible = false
+        viewModel.scheduleSnapshot.observe(this@TrackScheduleEventActivity) { events ->
+            progress.isVisible = false
 
-                pager.isVisible = true
-                adapter.events = events
+            pager.isVisible = true
+            adapter.events = events
 
-                // Delay setting the adapter
-                // to ensure the current position is restored properly
-                if (pager.adapter == null) {
-                    pager.adapter = adapter
+            // Delay setting the adapter to ensure the current position is restored properly
+            if (pager.adapter == null) {
+                pager.adapter = adapter
 
-                    if (initialEventId != -1L) {
-                        val position = events.indexOfFirst { it.id == initialEventId }
-                        if (position != -1) {
-                            pager.setCurrentItem(position, false)
-                        }
+                if (initialEventId != -1L) {
+                    val position = events.indexOfFirst { it.id == initialEventId }
+                    if (position != -1) {
+                        pager.setCurrentItem(position, false)
                     }
-
-                    bookmarkStatusViewModel.event = adapter.events.getOrNull(pager.currentItem)
                 }
+
+                bookmarkStatusViewModel.event = adapter.events.getOrNull(pager.currentItem)
             }
         }
 

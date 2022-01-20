@@ -11,26 +11,25 @@ import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.DateUtils
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
-@HiltViewModel
-class TrackScheduleListViewModel @Inject constructor(scheduleDao: ScheduleDao) : ViewModel() {
+class TrackScheduleListViewModel @AssistedInject constructor(
+    scheduleDao: ScheduleDao,
+    @Assisted day: Day,
+    @Assisted track: Track
+) : ViewModel() {
 
-    private val dayTrackLiveData = MutableLiveData<Pair<Day, Track>>()
-
-    val schedule: LiveData<List<StatusEvent>> = dayTrackLiveData.switchMap { (day, track) ->
-        scheduleDao.getEvents(day, track)
-    }
+    val schedule: LiveData<List<StatusEvent>> = scheduleDao.getEvents(day, track)
 
     /**
      * @return The current time during the target day, or null outside of the target day.
      */
-    val currentTime: LiveData<Instant?> = dayTrackLiveData
-        .switchMap { (day, _) ->
+    val currentTime: LiveData<Instant?> = run {
             // Auto refresh during the day passed as argument
             val dayStart = day.date.atStartOfDay(DateUtils.conferenceZoneId).toInstant()
             LiveDataFactory.scheduler(
@@ -46,11 +45,9 @@ class TrackScheduleListViewModel @Inject constructor(scheduleDao: ScheduleDao) :
             }
         }
 
-    fun setDayAndTrack(day: Day, track: Track) {
-        val dayTrack = day to track
-        if (dayTrack != dayTrackLiveData.value) {
-            dayTrackLiveData.value = dayTrack
-        }
+    @AssistedFactory
+    interface Factory {
+        fun create(day: Day, track: Track): TrackScheduleListViewModel
     }
 
     companion object {
