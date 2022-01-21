@@ -51,7 +51,7 @@ class SearchResultActivity : AppCompatActivity(R.layout.search_result) {
             .sample(SEARCH_INPUT_SAMPLE_MILLIS)
             .onEach {
                 // only update the results every SEARCH_INPUT_SAMPLE_MILLIS
-                viewModel.query = it?.toString().orEmpty()
+                viewModel.setQuery(it?.toString().orEmpty())
             }
             .launchIn(lifecycleScope)
 
@@ -63,9 +63,12 @@ class SearchResultActivity : AppCompatActivity(R.layout.search_result) {
             supportFragmentManager.commit { add<SearchResultListFragment>(R.id.content) }
             handleIntent(intent)
             searchEditText.requestFocus()
-        } else {
-            searchEditText.setText(viewModel.query)
         }
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        viewModel.setQuery(searchEditText.text?.toString().orEmpty())
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -79,7 +82,7 @@ class SearchResultActivity : AppCompatActivity(R.layout.search_result) {
                 ?.trimNonAlpha().orEmpty()
             else -> ""
         }
-        viewModel.query = query
+        viewModel.setQuery(query)
         searchEditText.setText(query)
     }
 

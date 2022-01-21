@@ -28,7 +28,6 @@
                 android:hint="@string/search_hint"
                 android:imeOptions="actionSearch"
                 android:inputType="text"
-                android:saveEnabled="false"
                 android:singleLine="true" />
 
             <ImageView
