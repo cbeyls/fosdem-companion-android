@@ -5,13 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.adapters.EventsAdapter
 import be.digitalia.fosdem.api.FosdemApi
+import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.viewmodels.PersonInfoViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -21,11 +22,13 @@ class PersonInfoListFragment : Fragment(R.layout.recyclerview) {
 
     @Inject
     lateinit var api: FosdemApi
-    // Fetch data from parent Activity's ViewModel
-    private val viewModel: PersonInfoViewModel by activityViewModels()
+    private val viewModel: PersonInfoViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val person: Person = requireArguments().getParcelable(ARG_PERSON)!!
+        viewModel.setPerson(person)
 
         val adapter = EventsAdapter(view.context)
         val holder = RecyclerViewViewHolder(view).apply {
@@ -69,5 +72,13 @@ class PersonInfoListFragment : Fragment(R.layout.recyclerview) {
         }
 
         private class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    }
+
+    companion object {
+        private const val ARG_PERSON = "person"
+
+        fun createArguments(person: Person) = Bundle(1).apply {
+            putParcelable(ARG_PERSON, person)
+        }
     }
 }
