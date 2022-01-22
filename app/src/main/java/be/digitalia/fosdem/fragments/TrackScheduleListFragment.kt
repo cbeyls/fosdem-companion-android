@@ -15,6 +15,7 @@ import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.assistedViewModels
+import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.TrackScheduleListViewModel
 import be.digitalia.fosdem.viewmodels.TrackScheduleViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -87,7 +88,11 @@ class TrackScheduleListFragment : Fragment(R.layout.recyclerview), TrackSchedule
                     }
                 }
 
-                activityViewModel.setSelectEvent(if (selectedPosition == -1) null else schedule[selectedPosition].event)
+                if (selectedPosition == -1) {
+                    activityViewModel.clearSelection()
+                } else {
+                    activityViewModel.setSelectEvent(schedule[selectedPosition].event)
+                }
 
                 // Ensure the selection is visible
                 if ((selectionEnabled || !isListAlreadyShown) && selectedPosition != -1) {
@@ -99,8 +104,16 @@ class TrackScheduleListFragment : Fragment(R.layout.recyclerview), TrackSchedule
             }
         }
         if (selectionEnabled) {
-            activityViewModel.selectedEvent.observe(viewLifecycleOwner) { event ->
-                adapter.selectedId = event?.id ?: RecyclerView.NO_ID
+            viewLifecycleOwner.launchAndRepeatOnLifecycle {
+                activityViewModel.eventSelection.collect { selection ->
+                    when (selection) {
+                        is TrackScheduleViewModel.EventSelection.EventSelected ->
+                            adapter.selectedId = selection.event.id
+                        is TrackScheduleViewModel.EventSelection.NoSelection ->
+                            adapter.selectedId = RecyclerView.NO_ID
+                        else -> Unit
+                    }
+                }
             }
         }
     }

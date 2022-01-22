@@ -11,16 +11,17 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
+import androidx.fragment.app.commitNow
 import androidx.fragment.app.replace
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.EventDetailsFragment
 import be.digitalia.fosdem.fragments.RoomImageDialogFragment
 import be.digitalia.fosdem.fragments.TrackScheduleListFragment
 import be.digitalia.fosdem.model.Day
-import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.CreateNfcAppDataCallback
 import be.digitalia.fosdem.utils.isLightTheme
+import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.utils.setNfcAppDataPushMessageCallbackIfAvailable
 import be.digitalia.fosdem.utils.setTaskColorPrimary
 import be.digitalia.fosdem.utils.statusBarColorCompat
@@ -99,26 +100,32 @@ class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule), Create
 
         if (isTabletLandscape) {
             // Tablet mode: Show event details in the right pane fragment
-            viewModel.selectedEvent.observe(this) { event: Event? ->
-                val currentFragment = fm.findFragmentById(R.id.event) as EventDetailsFragment?
-                if (event != null) {
-                    // Only replace the fragment if the event is different
-                    if (currentFragment?.event != event) {
-                        // Allow state loss since the event fragment will be synchronized with the list selection after activity re-creation
-                        fm.commit {
-                            setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                            replace<EventDetailsFragment>(R.id.event,
-                                    args = EventDetailsFragment.createArguments(event))
+            launchAndRepeatOnLifecycle {
+                viewModel.eventSelection.collect { selection ->
+                    val currentFragment = fm.findFragmentById(R.id.event) as EventDetailsFragment?
+                    when (selection) {
+                        is TrackScheduleViewModel.EventSelection.EventSelected -> {
+                            // Only replace the fragment if the event is different
+                            val event = selection.event
+                            if (currentFragment?.event != event) {
+                                fm.commitNow {
+                                    setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                                    replace<EventDetailsFragment>(R.id.event,
+                                        args = EventDetailsFragment.createArguments(event))
+                                }
+                            }
+                            bookmarkStatusViewModel.event = event
                         }
-                    }
-                } else {
-                    // Nothing is selected because the list is empty
-                    if (currentFragment != null) {
-                        fm.commit { remove(currentFragment) }
+                        is TrackScheduleViewModel.EventSelection.NoSelection -> {
+                            // Nothing is selected because the list is empty
+                            if (currentFragment != null) {
+                                fm.commitNow { remove(currentFragment) }
+                            }
+                            bookmarkStatusViewModel.event = null
+                        }
+                        else -> Unit
                     }
                 }
-
-                bookmarkStatusViewModel.event = event
             }
 
             findViewById<ImageButton?>(R.id.fab)?.setupBookmarkStatus(bookmarkStatusViewModel, this)
@@ -138,7 +145,11 @@ class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule), Create
     // CreateNfcAppDataCallback
 
     override fun createNfcAppData(): NdefRecord? {
-        return viewModel.selectedEvent.value?.toNfcAppData(this)
+        return viewModel.eventSelection.value.let { eventSelection ->
+            if (eventSelection is TrackScheduleViewModel.EventSelection.EventSelected) {
+                eventSelection.event.toNfcAppData(this)
+            } else null
+        }
     }
 
     companion object {

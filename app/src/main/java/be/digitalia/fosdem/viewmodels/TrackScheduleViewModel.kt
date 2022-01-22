@@ -1,21 +1,30 @@
 package be.digitalia.fosdem.viewmodels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import be.digitalia.fosdem.model.Event
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 /**
  * ViewModel used for communication between TrackScheduleActivity and TrackScheduleListFragment
  */
 class TrackScheduleViewModel : ViewModel() {
 
-    private var _selectedEvent = MutableLiveData<Event?>()
-    val selectedEvent: LiveData<Event?> = _selectedEvent
+    private val _eventSelection = MutableStateFlow<EventSelection>(EventSelection.Unknown)
+    val eventSelection: StateFlow<EventSelection> = _eventSelection.asStateFlow()
 
-    fun setSelectEvent(event: Event?) {
-        if (event != _selectedEvent.value) {
-            _selectedEvent.value = event
-        }
+    fun setSelectEvent(event: Event) {
+        _eventSelection.value = EventSelection.EventSelected(event)
+    }
+
+    fun clearSelection() {
+        _eventSelection.value = EventSelection.NoSelection
+    }
+
+    sealed class EventSelection {
+        object Unknown : EventSelection()
+        object NoSelection : EventSelection()
+        data class EventSelected(val event: Event) : EventSelection()
     }
 }
