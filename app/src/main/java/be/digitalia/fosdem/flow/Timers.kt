@@ -3,19 +3,34 @@ package be.digitalia.fosdem.flow
 import android.os.SystemClock
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import java.util.Arrays
 
-fun rememberIntervalFlow(periodInMillis: Long): Flow<Long> {
-    var updateTime = 0L
-    var version = 0L
+fun tickerFlow(periodInMillis: Long): Flow<Unit> = flow {
+    while (true) {
+        emit(Unit)
+        delay(periodInMillis)
+    }
+}
+
+/**
+ * Creates a ticker Flow which only emits when subscriptionCount > 0.
+ */
+fun whileSubscribedTickerFlow(subscriptionCount: StateFlow<Int>, periodInMillis: Long): Flow<Unit> {
     return flow {
-        delay(updateTime - SystemClock.elapsedRealtime())
-        while (true) {
-            emit(version++)
-            updateTime = SystemClock.elapsedRealtime() + periodInMillis
-            delay(periodInMillis)
+        var nextEmissionTime = 0L
+        flow {
+            delay(nextEmissionTime - SystemClock.elapsedRealtime())
+            while (true) {
+                emit(Unit)
+                nextEmissionTime = SystemClock.elapsedRealtime() + periodInMillis
+                delay(periodInMillis)
+            }
         }
+            .flowWhileShared(subscriptionCount, SharingStarted.WhileSubscribed())
+            .collect(this)
     }
 }
 
@@ -25,7 +40,7 @@ fun rememberIntervalFlow(periodInMillis: Long): Flow<Long> {
  * @param startEndTimestamps a list of timestamps in milliseconds, sorted in chronological order.
  * Odd and even values represent beginnings and ends of periods, respectively.
  */
-fun schedulerFlow(startEndTimestamps: LongArray): Flow<Boolean> {
+fun schedulerFlow(vararg startEndTimestamps: Long): Flow<Boolean> {
     return flow {
         var now = System.currentTimeMillis()
         var pos = Arrays.binarySearch(startEndTimestamps, now)

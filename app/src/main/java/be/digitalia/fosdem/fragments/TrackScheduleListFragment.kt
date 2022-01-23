@@ -70,39 +70,40 @@ class TrackScheduleListFragment : Fragment(R.layout.recyclerview), TrackSchedule
             isProgressBarVisible = true
         }
 
-        with(viewModel) {
-            currentTime.observe(viewLifecycleOwner) { now ->
+        launchAndRepeatOnLifecycle {
+            viewModel.currentTime.collect { now ->
                 adapter.currentTime = now
             }
-            schedule.observe(viewLifecycleOwner) { schedule ->
-                adapter.submitList(schedule)
-
-                var selectedPosition = if (selectedId == -1L) -1 else schedule.indexOfFirst { it.event.id == selectedId }
-                if (selectedPosition == -1) {
-                    // There is no current valid selection, reset to use the first item (if any)
-                    if (schedule.isNotEmpty()) {
-                        selectedPosition = 0
-                        selectedId = schedule[0].event.id
-                    } else {
-                        selectedId = -1L
-                    }
-                }
-
-                if (selectedPosition == -1) {
-                    activityViewModel.clearSelection()
-                } else {
-                    activityViewModel.setSelectEvent(schedule[selectedPosition].event)
-                }
-
-                // Ensure the selection is visible
-                if ((selectionEnabled || !isListAlreadyShown) && selectedPosition != -1) {
-                    holder.recyclerView.scrollToPosition(selectedPosition)
-                }
-                isListAlreadyShown = true
-
-                holder.isProgressBarVisible = false
-            }
         }
+        viewModel.schedule.observe(viewLifecycleOwner) { schedule ->
+            adapter.submitList(schedule)
+
+            var selectedPosition = if (selectedId == -1L) -1 else schedule.indexOfFirst { it.event.id == selectedId }
+            if (selectedPosition == -1) {
+                // There is no current valid selection, reset to use the first item (if any)
+                if (schedule.isNotEmpty()) {
+                    selectedPosition = 0
+                    selectedId = schedule[0].event.id
+                } else {
+                    selectedId = -1L
+                }
+            }
+
+            if (selectedPosition == -1) {
+                activityViewModel.clearSelection()
+            } else {
+                activityViewModel.setSelectEvent(schedule[selectedPosition].event)
+            }
+
+            // Ensure the selection is visible
+            if ((selectionEnabled || !isListAlreadyShown) && selectedPosition != -1) {
+                holder.recyclerView.scrollToPosition(selectedPosition)
+            }
+            isListAlreadyShown = true
+
+            holder.isProgressBarVisible = false
+        }
+
         if (selectionEnabled) {
             viewLifecycleOwner.launchAndRepeatOnLifecycle {
                 activityViewModel.eventSelection.collect { selection ->

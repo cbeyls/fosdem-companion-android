@@ -1,12 +1,14 @@
 package be.digitalia.fosdem.viewmodels
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.map
-import androidx.lifecycle.switchMap
+import androidx.lifecycle.viewModelScope
 import be.digitalia.fosdem.db.ScheduleDao
-import be.digitalia.fosdem.livedata.LiveDataFactory
+import be.digitalia.fosdem.flow.flowWhileShared
+import be.digitalia.fosdem.flow.schedulerFlow
+import be.digitalia.fosdem.flow.sharedFlow
+import be.digitalia.fosdem.flow.tickerFlow
+import be.digitalia.fosdem.flow.whileSubscribedTickerFlow
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.model.Track
@@ -14,6 +16,13 @@ import be.digitalia.fosdem.utils.DateUtils
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.TimeUnit
@@ -29,21 +38,21 @@ class TrackScheduleListViewModel @AssistedInject constructor(
     /**
      * @return The current time during the target day, or null outside of the target day.
      */
-    val currentTime: LiveData<Instant?> = run {
-            // Auto refresh during the day passed as argument
-            val dayStart = day.date.atStartOfDay(DateUtils.conferenceZoneId).toInstant()
-            LiveDataFactory.scheduler(
-                dayStart.toEpochMilli(),
-                (dayStart + Duration.ofDays(1L)).toEpochMilli()
-            )
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val currentTime: Flow<Instant?> = run {
+        // Auto refresh during the day passed as argument
+        val dayStart = day.date.atStartOfDay(DateUtils.conferenceZoneId).toInstant()
+        schedulerFlow(
+            dayStart.toEpochMilli(),
+            (dayStart + Duration.ofDays(1L)).toEpochMilli()
+        )
+    }.flatMapLatest { isOn ->
+        if (isOn) {
+            tickerFlow(TIME_REFRESH_PERIOD).map { Instant.now() }
+        } else {
+            flowOf(null)
         }
-        .switchMap { isOn ->
-            if (isOn) {
-                LiveDataFactory.interval(TIME_REFRESH_PERIOD).map { Instant.now() }
-            } else {
-                MutableLiveData(null)
-            }
-        }
+    }
 
     @AssistedFactory
     interface Factory {

@@ -130,7 +130,7 @@ class FosdemApi @Inject constructor(
                         .atZone(DateUtils.conferenceZoneId)
                         .toEpochSecond() * 1000L
                 }
-                schedulerFlow(startEndTimestamps)
+                schedulerFlow(*startEndTimestamps)
                     .flowWhileShared(subscriptionCount, SharingStarted.WhileSubscribed(5000L))
             }
             val offlineRoomStatuses = flowOf(emptyMap<String, RoomStatus>())
