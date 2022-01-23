@@ -27,6 +27,7 @@ import androidx.core.view.plusAssign
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
+import androidx.lifecycle.lifecycleScope
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.PersonInfoActivity
 import be.digitalia.fosdem.api.FosdemApi
@@ -162,8 +163,8 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
             }
         }
 
-        viewModel.eventDetails.observe(viewLifecycleOwner) { eventDetails ->
-            showEventDetails(holder, eventDetails)
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            showEventDetails(holder, viewModel.eventDetails.await())
         }
 
         // Live room status
@@ -225,9 +226,9 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
             }
             description = description.stripHtml()
             // Add speaker info if available
-            val personsCount = viewModel.eventDetails.value?.persons?.size ?: 0
-            if (personsCount > 0) {
-                val personsSummary = event.personsSummary ?: "?"
+            val personsSummary = event.personsSummary
+            if (!personsSummary.isNullOrBlank()) {
+                val personsCount = personsSummary.count { it == ',' } + 1
                 val speakersLabel = resources.getQuantityString(R.plurals.speakers, personsCount)
                 description = "$speakersLabel: $personsSummary\n\n$description"
             }

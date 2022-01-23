@@ -5,7 +5,6 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.liveData
 import androidx.paging.DataSource
 import androidx.room.Dao
 import androidx.room.Insert
@@ -28,6 +27,7 @@ import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.BackgroundWorkScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -408,14 +408,12 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         ORDER BY name COLLATE NOCASE""")
     abstract fun getPersons(): DataSource.Factory<Int, Person>
 
-    fun getEventDetails(event: Event): LiveData<EventDetails> {
-        return liveData {
-            // Load persons and links in parallel as soon as the LiveData becomes active
-            coroutineScope {
-                val persons = async { getPersons(event) }
-                val links = async { getLinks(event) }
-                emit(EventDetails(persons.await(), links.await()))
-            }
+    suspend fun getEventDetails(event: Event): EventDetails {
+        // Load persons and links in parallel
+        return coroutineScope {
+            val persons = async { getPersons(event) }
+            val links = async { getLinks(event) }
+            EventDetails(persons.await(), links.await())
         }
     }
 
