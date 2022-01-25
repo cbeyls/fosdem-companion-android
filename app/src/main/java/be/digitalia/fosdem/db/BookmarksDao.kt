@@ -10,12 +10,19 @@ import androidx.room.Transaction
 import androidx.room.TypeConverters
 import be.digitalia.fosdem.db.converters.NonNullInstantTypeConverters
 import be.digitalia.fosdem.db.entities.Bookmark
+import be.digitalia.fosdem.db.entities.EventEntity
 import be.digitalia.fosdem.model.AlarmInfo
 import be.digitalia.fosdem.model.Event
+import kotlinx.coroutines.flow.StateFlow
 import java.time.Instant
 
 @Dao
-abstract class BookmarksDao(private val appDatabase: AppDatabase) {
+abstract class BookmarksDao(appDatabase: AppDatabase) {
+
+    val version: StateFlow<Int> = appDatabase.createVersionFlow(
+        EventEntity.TABLE_NAME, Bookmark.TABLE_NAME
+    )
+
     /**
      * Returns the bookmarks.
      *
@@ -59,7 +66,7 @@ abstract class BookmarksDao(private val appDatabase: AppDatabase) {
     abstract suspend fun getBookmarksAlarmInfo(minStartTime: Instant): List<AlarmInfo>
 
     @Query("SELECT COUNT(*) FROM bookmarks WHERE event_id = :event")
-    abstract fun getBookmarkStatus(event: Event): LiveData<Boolean>
+    abstract suspend fun getBookmarkStatus(event: Event): Boolean
 
     suspend fun addBookmark(event: Event): AlarmInfo? {
         val ids = addBookmarksInternal(listOf(Bookmark(event.id)))
