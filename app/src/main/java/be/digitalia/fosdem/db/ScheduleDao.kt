@@ -4,7 +4,6 @@ import androidx.annotation.WorkerThread
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.lifecycle.LiveData
 import androidx.paging.DataSource
 import androidx.room.Dao
 import androidx.room.Insert
@@ -27,9 +26,9 @@ import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.BackgroundWorkScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -37,10 +36,13 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.runBlocking
 import java.time.Instant
 import java.time.LocalDate
-import java.util.HashSet
 
 @Dao
 abstract class ScheduleDao(private val appDatabase: AppDatabase) {
+    val version: StateFlow<Int> =
+        appDatabase.createVersionFlow(EventEntity.TABLE_NAME)
+    val bookmarksVersion: StateFlow<Int>
+        get() = appDatabase.bookmarksDao.version
 
     /**
      * @return The latest update time, or null if not available.
@@ -241,7 +243,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         WHERE e.day_index = :day
         GROUP BY t.id
         ORDER BY t.name ASC""")
-    abstract fun getTracks(day: Day): LiveData<List<Track>>
+    abstract suspend fun getTracks(day: Day): List<Track>
 
     /**
      * Returns the event with the specified id, or null if not found.
@@ -292,7 +294,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         WHERE e.day_index = :day AND e.track_id = :track
         GROUP BY e.id
         ORDER BY e.start_time ASC""")
-    abstract fun getEvents(day: Day, track: Track): LiveData<List<StatusEvent>>
+    abstract suspend fun getEvents(day: Day, track: Track): List<StatusEvent>
 
     /**
      * Returns a snapshot of the events for a specified track (without the bookmark status).

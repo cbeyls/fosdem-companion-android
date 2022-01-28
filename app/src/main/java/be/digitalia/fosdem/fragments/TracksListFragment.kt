@@ -18,6 +18,7 @@ import be.digitalia.fosdem.activities.TrackScheduleActivity
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.assistedViewModels
+import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.TracksListViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -54,9 +55,11 @@ class TracksListFragment : Fragment(R.layout.recyclerview) {
             isProgressBarVisible = true
         }
 
-        viewModel.tracks.observe(viewLifecycleOwner) { tracks ->
-            adapter.submitList(tracks)
-            holder.isProgressBarVisible = false
+        viewLifecycleOwner.launchAndRepeatOnLifecycle {
+            viewModel.tracks.collect { tracks ->
+                adapter.submitList(tracks)
+                holder.isProgressBarVisible = false
+            }
         }
     }
 

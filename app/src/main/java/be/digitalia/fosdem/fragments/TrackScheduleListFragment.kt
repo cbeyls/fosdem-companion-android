@@ -19,6 +19,7 @@ import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.TrackScheduleListViewModel
 import be.digitalia.fosdem.viewmodels.TrackScheduleViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -70,49 +71,54 @@ class TrackScheduleListFragment : Fragment(R.layout.recyclerview), TrackSchedule
             isProgressBarVisible = true
         }
 
-        launchAndRepeatOnLifecycle {
-            viewModel.currentTime.collect { now ->
-                adapter.currentTime = now
-            }
-        }
-        viewModel.schedule.observe(viewLifecycleOwner) { schedule ->
-            adapter.submitList(schedule)
+        viewLifecycleOwner.launchAndRepeatOnLifecycle {
+            launch {
+                viewModel.schedule.collect { schedule ->
+                    adapter.submitList(schedule)
 
-            var selectedPosition = if (selectedId == -1L) -1 else schedule.indexOfFirst { it.event.id == selectedId }
-            if (selectedPosition == -1) {
-                // There is no current valid selection, reset to use the first item (if any)
-                if (schedule.isNotEmpty()) {
-                    selectedPosition = 0
-                    selectedId = schedule[0].event.id
-                } else {
-                    selectedId = -1L
+                    var selectedPosition = if (selectedId == -1L) -1 else schedule.indexOfFirst { it.event.id == selectedId }
+                    if (selectedPosition == -1) {
+                        // There is no current valid selection, reset to use the first item (if any)
+                        if (schedule.isNotEmpty()) {
+                            selectedPosition = 0
+                            selectedId = schedule[0].event.id
+                        } else {
+                            selectedId = -1L
+                        }
+                    }
+
+                    if (selectedPosition == -1) {
+                        activityViewModel.clearSelection()
+                    } else {
+                        activityViewModel.setSelectEvent(schedule[selectedPosition].event)
+                    }
+
+                    // Ensure the selection is visible
+                    if ((selectionEnabled || !isListAlreadyShown) && selectedPosition != -1) {
+                        holder.recyclerView.scrollToPosition(selectedPosition)
+                    }
+                    isListAlreadyShown = true
+
+                    holder.isProgressBarVisible = false
                 }
             }
 
-            if (selectedPosition == -1) {
-                activityViewModel.clearSelection()
-            } else {
-                activityViewModel.setSelectEvent(schedule[selectedPosition].event)
+            launch {
+                viewModel.currentTime.collect { now ->
+                    adapter.currentTime = now
+                }
             }
 
-            // Ensure the selection is visible
-            if ((selectionEnabled || !isListAlreadyShown) && selectedPosition != -1) {
-                holder.recyclerView.scrollToPosition(selectedPosition)
-            }
-            isListAlreadyShown = true
-
-            holder.isProgressBarVisible = false
-        }
-
-        if (selectionEnabled) {
-            viewLifecycleOwner.launchAndRepeatOnLifecycle {
-                activityViewModel.eventSelection.collect { selection ->
-                    when (selection) {
-                        is TrackScheduleViewModel.EventSelection.EventSelected ->
-                            adapter.selectedId = selection.event.id
-                        is TrackScheduleViewModel.EventSelection.NoSelection ->
-                            adapter.selectedId = RecyclerView.NO_ID
-                        else -> Unit
+            if (selectionEnabled) {
+                launch {
+                    activityViewModel.eventSelection.collect { selection ->
+                        when (selection) {
+                            is TrackScheduleViewModel.EventSelection.EventSelected ->
+                                adapter.selectedId = selection.event.id
+                            is TrackScheduleViewModel.EventSelection.NoSelection ->
+                                adapter.selectedId = RecyclerView.NO_ID
+                            else -> Unit
+                        }
                     }
                 }
             }

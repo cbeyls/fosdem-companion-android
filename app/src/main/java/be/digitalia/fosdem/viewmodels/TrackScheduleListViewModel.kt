@@ -1,9 +1,11 @@
 package be.digitalia.fosdem.viewmodels
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import be.digitalia.fosdem.db.ScheduleDao
+import be.digitalia.fosdem.db.observableQuery
 import be.digitalia.fosdem.flow.schedulerFlow
+import be.digitalia.fosdem.flow.stateFlow
 import be.digitalia.fosdem.flow.tickerFlow
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.StatusEvent
@@ -14,6 +16,7 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -27,7 +30,11 @@ class TrackScheduleListViewModel @AssistedInject constructor(
     @Assisted track: Track
 ) : ViewModel() {
 
-    val schedule: LiveData<List<StatusEvent>> = scheduleDao.getEvents(day, track)
+    val schedule: Flow<List<StatusEvent>> = stateFlow(viewModelScope, null) { subscriptionCount ->
+        observableQuery(scheduleDao.bookmarksVersion, subscriptionCount) {
+            scheduleDao.getEvents(day, track)
+        }
+    }.filterNotNull()
 
     /**
      * @return The current time during the target day, or null outside of the target day.
