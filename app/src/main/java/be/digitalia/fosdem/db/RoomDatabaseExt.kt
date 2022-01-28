@@ -27,10 +27,10 @@ fun RoomDatabase.createVersionFlow(vararg tables: String): StateFlow<Int> {
 fun <T> observableQuery(
     version: StateFlow<Int>,
     subscriptionCount: StateFlow<Int>,
-    producer: suspend () -> T
+    producer: suspend (version: Int) -> T
 ): Flow<T> {
     return version
         .flowWhileShared(subscriptionCount, SharingStarted.WhileSubscribed())
         .distinctUntilChanged()
-        .mapLatest { producer() }
+        .mapLatest(producer)
 }

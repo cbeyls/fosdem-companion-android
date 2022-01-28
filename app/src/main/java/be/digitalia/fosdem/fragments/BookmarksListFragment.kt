@@ -16,7 +16,6 @@ import androidx.appcompat.view.ActionMode
 import androidx.core.content.edit
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,12 +25,15 @@ import be.digitalia.fosdem.adapters.BookmarksAdapter
 import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.providers.BookmarksExportProvider
 import be.digitalia.fosdem.utils.CreateNfcAppDataCallback
+import be.digitalia.fosdem.utils.assistedViewModels
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.utils.toBookmarksNfcAppData
 import be.digitalia.fosdem.viewmodels.BookmarksViewModel
 import be.digitalia.fosdem.widgets.MultiChoiceHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.launch
 import java.util.concurrent.CancellationException
 import javax.inject.Inject
 import javax.inject.Named
@@ -50,7 +52,13 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
     @Inject
     lateinit var api: FosdemApi
 
-    private val viewModel: BookmarksViewModel by viewModels()
+    @Inject
+    lateinit var viewModelFactory: BookmarksViewModel.Factory
+    private val viewModel: BookmarksViewModel by assistedViewModels {
+        val upcomingOnly = preferences.getBoolean(UPCOMING_ONLY_PREF_KEY, false)
+        viewModelFactory.create(upcomingOnly)
+    }
+
     private val multiChoiceHelper: MultiChoiceHelper by lazy(LazyThreadSafetyMode.NONE) {
         MultiChoiceHelper(requireActivity() as AppCompatActivity, this, object : MultiChoiceHelper.MultiChoiceModeListener {
 
@@ -96,10 +104,6 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val upcomingOnly = preferences.getBoolean(UPCOMING_ONLY_PREF_KEY, false)
-        viewModel.upcomingOnly = upcomingOnly
-
         setHasOptionsMenu(true)
     }
 
@@ -118,14 +122,18 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
         }
 
         viewLifecycleOwner.launchAndRepeatOnLifecycle {
-            api.roomStatuses.collect { statuses ->
-                adapter.roomStatuses = statuses
+            launch {
+                api.roomStatuses.collect { statuses ->
+                    adapter.roomStatuses = statuses
+                }
             }
-        }
-        viewModel.bookmarks.observe(viewLifecycleOwner) { bookmarks ->
-            adapter.submitList(bookmarks)
-            multiChoiceHelper.setAdapter(adapter, viewLifecycleOwner)
-            holder.isProgressBarVisible = false
+            launch {
+                viewModel.bookmarks.filterNotNull().collect { bookmarks ->
+                    adapter.submitList(bookmarks)
+                    multiChoiceHelper.setAdapter(adapter, viewLifecycleOwner)
+                    holder.isProgressBarVisible = false
+                }
+            }
         }
     }
 
@@ -199,9 +207,7 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
     override fun createNfcAppData(): NdefRecord? {
         val context = context ?: return null
         val bookmarks = viewModel.bookmarks.value
-        return if (bookmarks.isNullOrEmpty()) {
-            null
-        } else bookmarks.toBookmarksNfcAppData(context)
+        return if (bookmarks.isNullOrEmpty()) null else bookmarks.toBookmarksNfcAppData(context)
     }
 
     companion object {

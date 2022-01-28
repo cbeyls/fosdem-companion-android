@@ -1,7 +1,5 @@
 package be.digitalia.fosdem.db
 
-import androidx.annotation.WorkerThread
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -18,15 +16,13 @@ import java.time.Instant
 
 @Dao
 abstract class BookmarksDao(appDatabase: AppDatabase) {
-
-    val version: StateFlow<Int> = appDatabase.createVersionFlow(
-        EventEntity.TABLE_NAME, Bookmark.TABLE_NAME
-    )
+    val version: StateFlow<Int> =
+        appDatabase.createVersionFlow(EventEntity.TABLE_NAME, Bookmark.TABLE_NAME)
 
     /**
      * Returns the bookmarks.
      *
-     * @param minStartTime When greater than Instant.EPOCH, only return the events starting after this time.
+     * @param minStartTime Only return the events starting after this time.
      */
     @Query("""SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
         GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type
@@ -41,21 +37,7 @@ abstract class BookmarksDao(appDatabase: AppDatabase) {
         GROUP BY e.id
         ORDER BY e.start_time ASC""")
     @TypeConverters(NonNullInstantTypeConverters::class)
-    abstract fun getBookmarks(minStartTime: Instant): LiveData<List<Event>>
-
-    @Query("""SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
-        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type
-        FROM bookmarks b
-        JOIN events e ON b.event_id = e.id
-        JOIN events_titles et ON e.id = et.`rowid`
-        JOIN days d ON e.day_index = d.`index`
-        JOIN tracks t ON e.track_id = t.id
-        LEFT JOIN events_persons ep ON e.id = ep.event_id
-        LEFT JOIN persons p ON ep.person_id = p.`rowid`
-        GROUP BY e.id
-        ORDER BY e.start_time ASC""")
-    @WorkerThread
-    abstract fun getBookmarks(): List<Event>
+    abstract suspend fun getBookmarks(minStartTime: Instant = Instant.EPOCH): List<Event>
 
     @Query("""SELECT b.event_id, e.start_time
         FROM bookmarks b

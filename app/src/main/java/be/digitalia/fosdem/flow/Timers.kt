@@ -18,7 +18,7 @@ fun tickerFlow(periodInMillis: Long): Flow<Unit> = flow {
 /**
  * Creates a ticker Flow which only emits when subscriptionCount > 0.
  */
-fun whileSubscribedTickerFlow(subscriptionCount: StateFlow<Int>, periodInMillis: Long): Flow<Unit> {
+fun whileSubscribedTickerFlow(periodInMillis: Long, subscriptionCount: StateFlow<Int>): Flow<Unit> {
     return flow {
         var nextEmissionTime = 0L
         flow {

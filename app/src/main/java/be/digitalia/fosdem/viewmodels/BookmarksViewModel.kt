@@ -2,20 +2,26 @@ package be.digitalia.fosdem.viewmodels
 
 import android.app.Application
 import android.net.Uri
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.switchMap
+import androidx.lifecycle.viewModelScope
 import be.digitalia.fosdem.BuildConfig
 import be.digitalia.fosdem.alarms.AppAlarmManager
 import be.digitalia.fosdem.db.BookmarksDao
 import be.digitalia.fosdem.db.ScheduleDao
-import be.digitalia.fosdem.livedata.LiveDataFactory
+import be.digitalia.fosdem.db.observableQuery
+import be.digitalia.fosdem.flow.stateFlow
+import be.digitalia.fosdem.flow.whileSubscribedTickerFlow
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.parsers.ExportedBookmarksParser
 import be.digitalia.fosdem.utils.BackgroundWorkScope
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.buffer
@@ -23,36 +29,39 @@ import okio.source
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
-@HiltViewModel
-class BookmarksViewModel @Inject constructor(
+class BookmarksViewModel @AssistedInject constructor(
     private val bookmarksDao: BookmarksDao,
     private val scheduleDao: ScheduleDao,
     private val alarmManager: AppAlarmManager,
-    private val application: Application
+    private val application: Application,
+    @Assisted initialUpcomingOnly: Boolean
 ) : ViewModel() {
 
-    private val upcomingOnlyLiveData = MutableLiveData<Boolean>()
+    private val upcomingOnlyStateFlow = MutableStateFlow(initialUpcomingOnly)
 
-    val bookmarks: LiveData<List<Event>> = upcomingOnlyLiveData.switchMap { upcomingOnly: Boolean ->
-        if (upcomingOnly) {
-            // Refresh upcoming bookmarks every 2 minutes
-            LiveDataFactory.interval(REFRESH_PERIOD)
-                .switchMap {
-                    bookmarksDao.getBookmarks(Instant.now() - TIME_OFFSET)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val bookmarks: StateFlow<List<Event>?> = stateFlow(viewModelScope, null) { subscriptionCount ->
+        upcomingOnlyStateFlow.flatMapLatest { upcomingOnly ->
+            if (upcomingOnly) {
+                // Refresh upcoming bookmarks every 2 minutes
+                whileSubscribedTickerFlow(REFRESH_PERIOD, subscriptionCount).flatMapLatest {
+                    observableQuery(bookmarksDao.version, subscriptionCount) {
+                        bookmarksDao.getBookmarks(Instant.now() - TIME_OFFSET)
+                    }
                 }
-        } else {
-            bookmarksDao.getBookmarks(Instant.EPOCH)
+            } else {
+                observableQuery(bookmarksDao.version, subscriptionCount) {
+                    bookmarksDao.getBookmarks()
+                }
+            }
         }
     }
 
     var upcomingOnly: Boolean
-        get() = upcomingOnlyLiveData.value == true
+        get() = upcomingOnlyStateFlow.value
         set(value) {
-            if (value != upcomingOnlyLiveData.value) {
-                upcomingOnlyLiveData.value = value
-            }
+            upcomingOnlyStateFlow.value = value
         }
 
     fun removeBookmarks(eventIds: LongArray) {
@@ -71,8 +80,14 @@ class BookmarksViewModel @Inject constructor(
         }
     }
 
+    @AssistedFactory
+    interface Factory {
+        fun create(initialUpcomingOnly: Boolean): BookmarksViewModel
+    }
+
     companion object {
         private val REFRESH_PERIOD = TimeUnit.MINUTES.toMillis(2L)
+
         // In upcomingOnly mode, events that just started are still shown for 5 minutes
         private val TIME_OFFSET = Duration.ofMinutes(5L)
     }
