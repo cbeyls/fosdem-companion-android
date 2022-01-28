@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import be.digitalia.fosdem.R
@@ -101,7 +102,8 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
 
         progress.isVisible = true
 
-        viewModel.scheduleSnapshot.observe(this@TrackScheduleEventActivity) { events ->
+        lifecycleScope.launchWhenStarted {
+            val events = viewModel.scheduleSnapshot.await()
             progress.isVisible = false
 
             pager.isVisible = true

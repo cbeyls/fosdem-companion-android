@@ -12,6 +12,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
+import androidx.lifecycle.lifecycleScope
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.EventDetailsFragment
 import be.digitalia.fosdem.model.Event
@@ -74,10 +75,11 @@ class EventDetailsActivity : AppCompatActivity(R.layout.single_event), CreateNfc
                 }
             }
         } else {
-            viewModel.event.observe(this) { event ->
+            lifecycleScope.launchWhenStarted {
+                val event = viewModel.event.await()
                 if (event == null) {
                     // Event not found, quit
-                    Toast.makeText(this, getString(R.string.event_not_found_error), Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@EventDetailsActivity, getString(R.string.event_not_found_error), Toast.LENGTH_LONG).show()
                     finish()
                 } else {
                     initEvent(event)
@@ -86,7 +88,7 @@ class EventDetailsActivity : AppCompatActivity(R.layout.single_event), CreateNfc
                     if (fm.findFragmentById(R.id.content) == null) {
                         fm.commit(allowStateLoss = true) {
                             add<EventDetailsFragment>(R.id.content,
-                                    args = EventDetailsFragment.createArguments(event))
+                                args = EventDetailsFragment.createArguments(event))
                         }
                     }
                 }

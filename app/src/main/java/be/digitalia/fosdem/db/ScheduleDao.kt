@@ -279,7 +279,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     abstract fun getEvents(ids: LongArray): DataSource.Factory<Int, StatusEvent>
 
     /**
-     * Returns the events for a specified track.
+     * Returns the events for a specified track, including their bookmark status.
      */
     @Query("""SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
         GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type,
@@ -297,7 +297,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     abstract suspend fun getEvents(day: Day, track: Track): List<StatusEvent>
 
     /**
-     * Returns a snapshot of the events for a specified track (without the bookmark status).
+     * Returns the events for a specified track, without their bookmark status.
      */
     @Query("""SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
         GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type
@@ -310,7 +310,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         WHERE e.day_index = :day AND e.track_id = :track
         GROUP BY e.id
         ORDER BY e.start_time ASC""")
-    abstract suspend fun getEventsSnapshot(day: Day, track: Track): List<Event>
+    abstract suspend fun getEventsWithoutBookmarkStatus(day: Day, track: Track): List<Event>
 
     /**
      * Returns events starting in the specified interval, ordered by ascending start time.
