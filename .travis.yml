@@ -5,7 +5,7 @@ dist: focal
 jdk: openjdk11
 
 env:
-  - ANDROID_SDK_ROOT=$HOME/android-sdk COMMAND_LINE_TOOLS_ARCHIVE=commandlinetools-linux-7583922_latest.zip
+  - ANDROID_SDK_ROOT=$HOME/android-sdk COMMAND_LINE_TOOLS_ARCHIVE=commandlinetools-linux-8092744_latest.zip
 
 install:
   # Download latest Android command line tools if not already in cache and replace the previous ones, if any
