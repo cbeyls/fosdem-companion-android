@@ -6,7 +6,7 @@ import be.digitalia.fosdem.alarms.AppAlarmManager
 import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.flow.flowWhileShared
 import be.digitalia.fosdem.flow.schedulerFlow
-import be.digitalia.fosdem.flow.sharedFlow
+import be.digitalia.fosdem.flow.stateFlow
 import be.digitalia.fosdem.model.DownloadScheduleResult
 import be.digitalia.fosdem.model.LoadingState
 import be.digitalia.fosdem.model.RoomStatus
@@ -116,7 +116,7 @@ class FosdemApi @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val roomStatuses: Flow<Map<String, RoomStatus>> by lazy(LazyThreadSafetyMode.NONE) {
-        sharedFlow(BackgroundWorkScope) { subscriptionCount ->
+        stateFlow(BackgroundWorkScope, emptyMap()) { subscriptionCount ->
             // The room statuses will only be loaded when the event is live.
             // Use the days from the database to determine it.
             val scheduler = scheduleDao.days.flatMapLatest { days ->

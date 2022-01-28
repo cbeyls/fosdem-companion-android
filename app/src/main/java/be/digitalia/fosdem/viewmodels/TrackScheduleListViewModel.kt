@@ -2,13 +2,9 @@ package be.digitalia.fosdem.viewmodels
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import be.digitalia.fosdem.db.ScheduleDao
-import be.digitalia.fosdem.flow.flowWhileShared
 import be.digitalia.fosdem.flow.schedulerFlow
-import be.digitalia.fosdem.flow.sharedFlow
 import be.digitalia.fosdem.flow.tickerFlow
-import be.digitalia.fosdem.flow.whileSubscribedTickerFlow
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.model.Track
@@ -18,8 +14,6 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
