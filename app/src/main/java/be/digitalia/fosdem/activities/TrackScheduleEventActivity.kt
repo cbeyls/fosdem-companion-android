@@ -64,8 +64,8 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
         } else -1L
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar).apply {
-            setNavigationIcon(R.drawable.abc_ic_ab_back_material)
-            setNavigationContentDescription(R.string.abc_action_bar_up_description)
+            setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material)
+            setNavigationContentDescription(androidx.appcompat.R.string.abc_action_bar_up_description)
             setNavigationOnClickListener { onSupportNavigateUp() }
             title = track.toString()
             subtitle = day.toString()

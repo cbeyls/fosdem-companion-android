@@ -217,7 +217,7 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
     private fun updateActionBar(section: Section, menuItem: MenuItem) {
         title = menuItem.title
         ViewCompat.setTranslationZ(holder.contentView,
-                if (section.extendsAppBar) resources.getDimension(R.dimen.design_appbar_elevation) else 0f)
+                if (section.extendsAppBar) resources.getDimension(com.google.android.material.R.dimen.design_appbar_elevation) else 0f)
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {

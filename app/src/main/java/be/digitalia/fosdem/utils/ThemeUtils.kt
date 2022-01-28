@@ -14,7 +14,6 @@ import android.view.Window
 import android.widget.ImageView
 import androidx.annotation.ColorInt
 import androidx.core.graphics.drawable.DrawableCompat
-import be.digitalia.fosdem.R
 
 var Window.statusBarColorCompat: Int
     @ColorInt
@@ -49,7 +48,7 @@ fun View.tintBackground(backgroundColor: ColorStateList?) {
 val Context.isLightTheme: Boolean
     get() {
         val value = TypedValue()
-        return theme.resolveAttribute(R.attr.isLightTheme, value, true) && value.data != 0
+        return theme.resolveAttribute(androidx.appcompat.R.attr.isLightTheme, value, true) && value.data != 0
     }
 
 fun ImageView.invertImageColors() {

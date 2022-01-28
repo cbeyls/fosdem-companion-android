@@ -2,7 +2,6 @@ package be.digitalia.fosdem.utils
 
 import androidx.appcompat.app.AppCompatDelegate
 import be.digitalia.fosdem.settings.UserSettingsProvider
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton

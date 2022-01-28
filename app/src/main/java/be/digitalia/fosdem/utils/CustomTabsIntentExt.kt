@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
-import be.digitalia.fosdem.R
 
 @SuppressLint("PrivateResource")
 fun CustomTabsIntent.Builder.configureToolbarColors(context: Context,
@@ -16,7 +15,7 @@ fun CustomTabsIntent.Builder.configureToolbarColors(context: Context,
             .setToolbarColor(ContextCompat.getColor(context, toolbarColorResId))
             .build()
     val darkColorSchemeParams = CustomTabColorSchemeParams.Builder()
-            .setToolbarColor(ContextCompat.getColor(context, R.color.design_dark_default_color_surface))
+            .setToolbarColor(ContextCompat.getColor(context, com.google.android.material.R.color.design_dark_default_color_surface))
             .build()
 
     // Request the browser tab to follow the app theme setting
