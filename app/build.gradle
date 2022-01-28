@@ -20,12 +20,6 @@ android {
         // Supported languages
         resConfigs "en"
         vectorDrawables.useSupportLibrary = true
-
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments += ["room.incremental": "true"]
-            }
-        }
     }
 
     sourceSets {
@@ -80,20 +74,22 @@ afterEvaluate {
     // Update configuration of the R8 tasks to optimize desugaring shrinker
     def originalSetting = "\"support_all_callbacks_from_library\": true"
     def replacementSetting = "\"support_all_callbacks_from_library\": false"
-    tasks.findAll { task -> task.getClass().getSimpleName().startsWith("R8Task") }.each { task ->
-        task.configure {
-            def patchedDesugarConfig = coreLibDesugarConfig.getProvider().map {
-                it.replace(originalSetting, replacementSetting)
+    tasks.forEach { task ->
+        def taskSimpleName = task.getClass().getSimpleName()
+        if (taskSimpleName.startsWith("R8Task")) {
+            task.configure {
+                def patchedDesugarConfig = coreLibDesugarConfig.getProvider().map {
+                    it.replace(originalSetting, replacementSetting)
+                }
+                coreLibDesugarConfig.set(patchedDesugarConfig)
             }
-            coreLibDesugarConfig.set(patchedDesugarConfig)
-        }
-    }
-    tasks.findAll { task -> task.getClass().getSimpleName().startsWith("L8DexDesugarLibTask") }.each { task ->
-        task.configure {
-            def patchedDesugarConfig = libConfiguration.getProvider().map {
-                it.replace(originalSetting, replacementSetting)
+        } else if (taskSimpleName.startsWith("L8DexDesugarLibTask")) {
+            task.configure {
+                def patchedDesugarConfig = libConfiguration.getProvider().map {
+                    it.replace(originalSetting, replacementSetting)
+                }
+                libConfiguration.set(patchedDesugarConfig)
             }
-            libConfiguration.set(patchedDesugarConfig)
         }
     }
 }
@@ -111,14 +107,14 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0'
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.activity:activity-ktx:1.4.0'
-    implementation 'androidx.fragment:fragment-ktx:1.4.0'
+    implementation 'androidx.fragment:fragment-ktx:1.4.1'
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'androidx.viewpager2:viewpager2:1.1.0-beta01'
     implementation 'androidx.drawerlayout:drawerlayout:1.1.1'
-    implementation 'androidx.preference:preference-ktx:1.1.1'
+    implementation 'androidx.preference:preference-ktx:1.2.0'
     implementation 'androidx.browser:browser:1.4.0'
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
