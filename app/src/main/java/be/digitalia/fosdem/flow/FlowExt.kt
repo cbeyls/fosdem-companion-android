@@ -15,10 +15,10 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-inline fun <T> stateFlow(
+fun <T> stateFlow(
     scope: CoroutineScope,
     initialValue: T,
-    crossinline producer: (subscriptionCount: StateFlow<Int>) -> Flow<T>
+    producer: (subscriptionCount: StateFlow<Int>) -> Flow<T>
 ): StateFlow<T> {
     val state = MutableStateFlow(initialValue)
     scope.launch {
