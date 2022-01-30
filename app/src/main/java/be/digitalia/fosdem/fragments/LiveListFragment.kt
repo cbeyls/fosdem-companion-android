@@ -19,10 +19,8 @@ import be.digitalia.fosdem.viewmodels.LiveViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -55,18 +53,18 @@ sealed class LiveListFragment(
             isProgressBarVisible = true
         }
 
-        adapter.loadStateFlow.map { it.refresh is LoadState.Loading }
-            .distinctUntilChanged()
-            .onEach { isLoading ->
-                if (!isLoading) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            adapter.loadStateFlow
+                .distinctUntilChangedBy { it.refresh }
+                .filter { it.refresh !is LoadState.Loading }
+                .collect {
                     holder.isProgressBarVisible = false
                     // Ensure we stay at scroll position 0 so we can see the insertion animation
                     with(holder.recyclerView) {
                         if (scrollY == 0) scrollToPosition(0)
                     }
                 }
-            }
-            .launchIn(viewLifecycleOwner.lifecycleScope)
+        }
 
         viewLifecycleOwner.launchAndRepeatOnLifecycle {
             launch {
