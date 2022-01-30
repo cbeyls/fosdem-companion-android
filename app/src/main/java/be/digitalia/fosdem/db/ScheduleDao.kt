@@ -24,6 +24,7 @@ import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.BackgroundWorkScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -32,6 +33,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.runBlocking
 import java.time.Instant
@@ -221,16 +223,17 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     protected abstract fun clearDays()
 
     // Cache days
-    val days: Flow<List<Day>> by lazy {
-        getDaysInternal().stateIn(
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val days: Flow<List<Day>> = appDatabase.createVersionFlow(Day.TABLE_NAME)
+        .mapLatest { getDaysInternal() }
+        .stateIn(
             scope = BackgroundWorkScope,
-            started = SharingStarted.Eagerly,
+            started = SharingStarted.Lazily,
             initialValue = null
         ).filterNotNull()
-    }
 
     @Query("SELECT `index`, date FROM days ORDER BY `index` ASC")
-    protected abstract fun getDaysInternal(): Flow<List<Day>>
+    protected abstract suspend fun getDaysInternal(): List<Day>
 
     suspend fun getYear(): Int {
         // Compute from days if available, fall back to current year
