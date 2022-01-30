@@ -11,12 +11,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-fun <T> stateFlow(
+inline fun <T> stateFlow(
     scope: CoroutineScope,
     initialValue: T,
-    producer: (subscriptionCount: StateFlow<Int>) -> Flow<T>
+    crossinline producer: (subscriptionCount: StateFlow<Int>) -> Flow<T>
 ): StateFlow<T> {
     val state = MutableStateFlow(initialValue)
     scope.launch {
@@ -39,4 +41,21 @@ fun <T> Flow<T>.flowWhileShared(
                 SharingCommand.STOP_AND_RESET_REPLAY_CACHE -> emptyFlow()
             }
         }
+}
+
+inline fun <T> countSubscriptionsFlow(producer: (subscriptionCount: StateFlow<Int>) -> Flow<T>): Flow<T> {
+    val subscriptionCount = MutableStateFlow(0)
+    return producer(subscriptionCount.asStateFlow())
+        .countSubscriptionsTo(subscriptionCount)
+}
+
+fun <T> Flow<T>.countSubscriptionsTo(subscriptionCount: MutableStateFlow<Int>): Flow<T> {
+    return flow {
+        subscriptionCount.update { it + 1 }
+        try {
+            collect(this)
+        } finally {
+            subscriptionCount.update { it - 1 }
+        }
+    }
 }

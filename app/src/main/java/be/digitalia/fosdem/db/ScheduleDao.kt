@@ -4,7 +4,7 @@ import androidx.annotation.WorkerThread
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.paging.DataSource
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -276,7 +276,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         WHERE e.id IN (:ids)
         GROUP BY e.id
         ORDER BY e.start_time ASC""")
-    abstract fun getEvents(ids: LongArray): DataSource.Factory<Int, StatusEvent>
+    abstract fun getEvents(ids: LongArray): PagingSource<Int, StatusEvent>
 
     /**
      * Returns the events for a specified track, including their bookmark status.
@@ -329,7 +329,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         GROUP BY e.id
         ORDER BY e.start_time ASC""")
     @TypeConverters(NonNullInstantTypeConverters::class)
-    abstract fun getEventsWithStartTime(minStartTime: Instant, maxStartTime: Instant): DataSource.Factory<Int, StatusEvent>
+    abstract fun getEventsWithStartTime(minStartTime: Instant, maxStartTime: Instant): PagingSource<Int, StatusEvent>
 
     /**
      * Returns events in progress at the specified time, ordered by descending start time.
@@ -348,7 +348,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         GROUP BY e.id
         ORDER BY e.start_time DESC""")
     @TypeConverters(NonNullInstantTypeConverters::class)
-    abstract fun getEventsInProgress(time: Instant): DataSource.Factory<Int, StatusEvent>
+    abstract fun getEventsInProgress(time: Instant): PagingSource<Int, StatusEvent>
 
     /**
      * Returns the events presented by the specified person.
@@ -366,7 +366,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         WHERE ep2.person_id = :person
         GROUP BY e.id
         ORDER BY e.start_time ASC""")
-    abstract fun getEvents(person: Person): DataSource.Factory<Int, StatusEvent>
+    abstract fun getEvents(person: Person): PagingSource<Int, StatusEvent>
 
     /**
      * Search through matching titles, subtitles, track names, person names.
@@ -400,7 +400,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         )
         GROUP BY e.id
         ORDER BY e.start_time ASC""")
-    abstract fun getSearchResults(query: String): DataSource.Factory<Int, StatusEvent>
+    abstract fun getSearchResults(query: String): PagingSource<Int, StatusEvent>
 
     /**
      * Returns all persons in alphabetical order.
@@ -408,7 +408,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     @Query("""SELECT `rowid`, name
         FROM persons
         ORDER BY name COLLATE NOCASE""")
-    abstract fun getPersons(): DataSource.Factory<Int, Person>
+    abstract fun getPersons(): PagingSource<Int, Person>
 
     suspend fun getEventDetails(event: Event): EventDetails {
         // Load persons and links in parallel

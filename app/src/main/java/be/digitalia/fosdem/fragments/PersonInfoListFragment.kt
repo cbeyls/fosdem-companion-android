@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,6 +18,9 @@ import be.digitalia.fosdem.utils.assistedViewModels
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.PersonInfoViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -50,14 +55,22 @@ class PersonInfoListFragment : Fragment(R.layout.recyclerview) {
             isProgressBarVisible = true
         }
 
-        viewLifecycleOwner.launchAndRepeatOnLifecycle {
-            api.roomStatuses.collect { statuses ->
-                adapter.roomStatuses = statuses
-            }
-        }
-        viewModel.events.observe(viewLifecycleOwner) { events ->
-            adapter.submitList(events)
+        viewLifecycleOwner.lifecycleScope.launch {
+            adapter.loadStateFlow.first { it.refresh !is LoadState.Loading }
             holder.isProgressBarVisible = false
+        }
+
+        viewLifecycleOwner.launchAndRepeatOnLifecycle {
+            launch {
+                api.roomStatuses.collect { statuses ->
+                    adapter.roomStatuses = statuses
+                }
+            }
+            launch {
+                viewModel.events.collectLatest { pagingData ->
+                    adapter.submitData(pagingData)
+                }
+            }
         }
     }
 

@@ -1,44 +1,49 @@
 package be.digitalia.fosdem.viewmodels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.map
-import androidx.lifecycle.switchMap
-import androidx.paging.PagedList
-import androidx.paging.toLiveData
+import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.model.StatusEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(scheduleDao: ScheduleDao) : ViewModel() {
 
-    private val queryLiveData = MutableLiveData<String>()
-
-    sealed class Result {
-        object QueryTooShort : Result()
-        class Success(val list: PagedList<StatusEvent>) : Result()
+    sealed class QueryState {
+        object Idle : QueryState()
+        object TooShort : QueryState()
+        data class Valid(val query: String) : QueryState()
     }
 
-    val results: LiveData<Result> = queryLiveData.switchMap { query ->
-        if (query.length < SEARCH_QUERY_MIN_LENGTH) {
-            MutableLiveData(Result.QueryTooShort)
+    private val queryState = MutableStateFlow<QueryState>(QueryState.Idle)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val results: Flow<PagingData<StatusEvent>> = queryState.flatMapLatest { queryState ->
+        if (queryState is QueryState.Valid) {
+            Pager(PagingConfig(20)) {
+                scheduleDao.getSearchResults(queryState.query)
+            }.flow
         } else {
-            scheduleDao.getSearchResults(query)
-                .toLiveData(20)
-                .map { pagedList -> Result.Success(pagedList) }
+            flowOf(PagingData.empty())
         }
-    }
+    }.cachedIn(viewModelScope)
 
     fun setQuery(query: String) {
-        if (query != queryLiveData.value) {
-            queryLiveData.value = query
-        }
+        queryState.value = if (query.length < SEARCH_QUERY_MIN_LENGTH) QueryState.TooShort
+        else QueryState.Valid(query)
     }
 
     companion object {
-        private const val SEARCH_QUERY_MIN_LENGTH = 3
+        const val SEARCH_QUERY_MIN_LENGTH = 3
     }
 }

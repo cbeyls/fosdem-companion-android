@@ -12,7 +12,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.text.set
 import androidx.core.view.isGone
-import androidx.paging.PagedListAdapter
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.RecyclerView
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.EventDetailsActivity
@@ -23,7 +23,7 @@ import be.digitalia.fosdem.utils.DateUtils
 import java.time.format.DateTimeFormatter
 
 class EventsAdapter constructor(context: Context, private val showDay: Boolean = true) :
-    PagedListAdapter<StatusEvent, EventsAdapter.ViewHolder>(DIFF_CALLBACK) {
+    PagingDataAdapter<StatusEvent, EventsAdapter.ViewHolder>(DIFF_CALLBACK) {
 
     private val timeFormatter = DateUtils.getTimeFormatter(context)
 

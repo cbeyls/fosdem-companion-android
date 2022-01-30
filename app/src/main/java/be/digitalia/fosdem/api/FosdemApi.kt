@@ -57,7 +57,7 @@ class FosdemApi @Inject constructor(
     /**
      * Download & store the schedule to the database.
      * Only a single Job will be active at a time.
-     * The result will be sent back through downloadScheduleResult LiveData.
+     * The result will be notified through downloadScheduleState StateFlow.
      */
     @MainThread
     fun downloadSchedule(): Job {
