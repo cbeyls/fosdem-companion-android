@@ -44,10 +44,7 @@ class LiveViewModel @Inject constructor(scheduleDao: ScheduleDao) : ViewModel() 
                 .flowWhileShared(subscriptionCount, SharingStarted.WhileSubscribed())
                 .distinctUntilChanged()
                 .flatMapLatest { now ->
-                    Pager(
-                        config = PagingConfig(20),
-                        pagingSourceFactory = { pagingSourceFactory(now) }
-                    ).flow
+                    Pager(PagingConfig(20)) { pagingSourceFactory(now) }.flow
                 }.cachedIn(viewModelScope)
         }
     }
