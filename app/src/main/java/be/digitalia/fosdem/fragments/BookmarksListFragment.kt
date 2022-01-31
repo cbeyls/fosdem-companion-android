@@ -16,6 +16,7 @@ import androidx.appcompat.view.ActionMode
 import androidx.core.content.edit
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,7 +26,6 @@ import be.digitalia.fosdem.adapters.BookmarksAdapter
 import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.providers.BookmarksExportProvider
 import be.digitalia.fosdem.utils.CreateNfcAppDataCallback
-import be.digitalia.fosdem.utils.assistedViewModels
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.utils.toBookmarksNfcAppData
 import be.digitalia.fosdem.viewmodels.BookmarksViewModel
@@ -52,13 +52,7 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
     @Inject
     lateinit var api: FosdemApi
 
-    @Inject
-    lateinit var viewModelFactory: BookmarksViewModel.Factory
-    private val viewModel: BookmarksViewModel by assistedViewModels {
-        val upcomingOnly = preferences.getBoolean(UPCOMING_ONLY_PREF_KEY, false)
-        viewModelFactory.create(upcomingOnly)
-    }
-
+    private val viewModel: BookmarksViewModel by viewModels()
     private val multiChoiceHelper: MultiChoiceHelper by lazy(LazyThreadSafetyMode.NONE) {
         MultiChoiceHelper(requireActivity() as AppCompatActivity, this, object : MultiChoiceHelper.MultiChoiceModeListener {
 
@@ -104,6 +98,10 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val upcomingOnly = preferences.getBoolean(UPCOMING_ONLY_PREF_KEY, false)
+        viewModel.upcomingOnly = upcomingOnly
+
         setHasOptionsMenu(true)
     }
 

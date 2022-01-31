@@ -14,13 +14,13 @@ import be.digitalia.fosdem.flow.whileSubscribedTickerFlow
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.parsers.ExportedBookmarksParser
 import be.digitalia.fosdem.utils.BackgroundWorkScope
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -29,37 +29,41 @@ import okio.source
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class BookmarksViewModel @AssistedInject constructor(
+@HiltViewModel
+class BookmarksViewModel @Inject constructor(
     private val bookmarksDao: BookmarksDao,
     private val scheduleDao: ScheduleDao,
     private val alarmManager: AppAlarmManager,
-    private val application: Application,
-    @Assisted initialUpcomingOnly: Boolean
+    private val application: Application
 ) : ViewModel() {
 
-    private val upcomingOnlyStateFlow = MutableStateFlow(initialUpcomingOnly)
+    private val upcomingOnlyStateFlow = MutableStateFlow<Boolean?>(null)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val bookmarks: StateFlow<List<Event>?> = stateFlow(viewModelScope, null) { subscriptionCount ->
-        upcomingOnlyStateFlow.flatMapLatest { upcomingOnly ->
+        upcomingOnlyStateFlow.filterNotNull().flatMapLatest { upcomingOnly ->
             if (upcomingOnly) {
                 // Refresh upcoming bookmarks every 2 minutes
                 whileSubscribedTickerFlow(REFRESH_PERIOD, subscriptionCount).flatMapLatest {
-                    observableQuery(bookmarksDao.version, subscriptionCount) {
-                        bookmarksDao.getBookmarks(Instant.now() - TIME_OFFSET)
-                    }
+                    getObservableBookmarks(Instant.now() - TIME_OFFSET, subscriptionCount)
                 }
             } else {
-                observableQuery(bookmarksDao.version, subscriptionCount) {
-                    bookmarksDao.getBookmarks()
-                }
+                getObservableBookmarks(Instant.EPOCH, subscriptionCount)
             }
         }
     }
 
+    private fun getObservableBookmarks(
+        minStartTime: Instant,
+        subscriptionCount: StateFlow<Int>
+    ): Flow<List<Event>> = observableQuery(bookmarksDao.version, subscriptionCount) {
+        bookmarksDao.getBookmarks(minStartTime)
+    }
+
     var upcomingOnly: Boolean
-        get() = upcomingOnlyStateFlow.value
+        get() = upcomingOnlyStateFlow.value == true
         set(value) {
             upcomingOnlyStateFlow.value = value
         }
@@ -78,11 +82,6 @@ class BookmarksViewModel @AssistedInject constructor(
         checkNotNull(application.contentResolver.openInputStream(uri)).source().buffer().use {
             parser.parse(it)
         }
-    }
-
-    @AssistedFactory
-    interface Factory {
-        fun create(initialUpcomingOnly: Boolean): BookmarksViewModel
     }
 
     companion object {
