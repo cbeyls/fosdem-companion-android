@@ -87,11 +87,8 @@ class TrackScheduleListFragment : Fragment(R.layout.recyclerview), TrackSchedule
                         }
                     }
 
-                    if (selectedPosition == -1) {
-                        activityViewModel.clearSelection()
-                    } else {
-                        activityViewModel.setSelectEvent(schedule[selectedPosition].event)
-                    }
+                    activityViewModel.selectedEvent =
+                        if (selectedPosition == -1) null else schedule[selectedPosition].event
 
                     // Ensure the selection is visible
                     if ((selectionEnabled || !isListAlreadyShown) && selectedPosition != -1) {
@@ -111,14 +108,8 @@ class TrackScheduleListFragment : Fragment(R.layout.recyclerview), TrackSchedule
 
             if (selectionEnabled) {
                 launch {
-                    activityViewModel.eventSelection.collect { selection ->
-                        when (selection) {
-                            is TrackScheduleViewModel.EventSelection.EventSelected ->
-                                adapter.selectedId = selection.event.id
-                            is TrackScheduleViewModel.EventSelection.NoSelection ->
-                                adapter.selectedId = RecyclerView.NO_ID
-                            else -> Unit
-                        }
+                    activityViewModel.selectedEventFlow.collect { event ->
+                        adapter.selectedId = event?.id ?: RecyclerView.NO_ID
                     }
                 }
             }
@@ -127,7 +118,7 @@ class TrackScheduleListFragment : Fragment(R.layout.recyclerview), TrackSchedule
 
     override fun onEventClick(event: Event) {
         selectedId = event.id
-        activityViewModel.setSelectEvent(event)
+        activityViewModel.selectedEvent = event
 
         if (!selectionEnabled) {
             // Classic mode: Show event details in a new activity

@@ -101,30 +101,25 @@ class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule), Create
         if (isTabletLandscape) {
             // Tablet mode: Show event details in the right pane fragment
             launchAndRepeatOnLifecycle {
-                viewModel.eventSelection.collect { selection ->
+                viewModel.selectedEventFlow.collect { event ->
                     val currentFragment = fm.findFragmentById(R.id.event) as EventDetailsFragment?
-                    when (selection) {
-                        is TrackScheduleViewModel.EventSelection.EventSelected -> {
-                            // Only replace the fragment if the event is different
-                            val event = selection.event
-                            if (currentFragment?.event != event) {
-                                fm.commitNow {
-                                    setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                                    replace<EventDetailsFragment>(R.id.event,
-                                        args = EventDetailsFragment.createArguments(event))
-                                }
+                    if (event != null) {
+                        // Only replace the fragment if the event is different
+                        if (currentFragment?.event != event) {
+                            fm.commitNow {
+                                setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                                replace<EventDetailsFragment>(R.id.event,
+                                    args = EventDetailsFragment.createArguments(event))
                             }
-                            bookmarkStatusViewModel.event = event
                         }
-                        is TrackScheduleViewModel.EventSelection.NoSelection -> {
-                            // Nothing is selected because the list is empty
-                            if (currentFragment != null) {
-                                fm.commitNow { remove(currentFragment) }
-                            }
-                            bookmarkStatusViewModel.event = null
+                    } else {
+                        // Nothing is selected because the list is empty
+                        if (currentFragment != null) {
+                            fm.commitNow { remove(currentFragment) }
                         }
-                        else -> Unit
                     }
+
+                    bookmarkStatusViewModel.event = event
                 }
             }
 
@@ -145,11 +140,7 @@ class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule), Create
     // CreateNfcAppDataCallback
 
     override fun createNfcAppData(): NdefRecord? {
-        return viewModel.eventSelection.value.let { eventSelection ->
-            if (eventSelection is TrackScheduleViewModel.EventSelection.EventSelected) {
-                eventSelection.event.toNfcAppData(this)
-            } else null
-        }
+        return viewModel.selectedEvent?.toNfcAppData(this)
     }
 
     companion object {
