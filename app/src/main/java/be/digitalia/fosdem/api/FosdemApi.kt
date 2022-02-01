@@ -107,10 +107,7 @@ class FosdemApi @Inject constructor(
 
     fun downloadScheduleResultConsumed() {
         _downloadScheduleState.update { state ->
-            when (state) {
-                is LoadingState.Loading -> state
-                is LoadingState.Idle -> LoadingState.Idle()
-            }
+            if (state is LoadingState.Idle) LoadingState.Idle() else state
         }
     }
 
@@ -133,13 +130,12 @@ class FosdemApi @Inject constructor(
                 schedulerFlow(*startEndTimestamps)
                     .flowWhileShared(subscriptionCount, SharingStarted.WhileSubscribed(5000L))
             }
-            val offlineRoomStatuses = flowOf(emptyMap<String, RoomStatus>())
             scheduler.distinctUntilChanged().flatMapLatest { isLive ->
                 if (isLive) {
                     buildLiveRoomStatusesFlow()
                         .flowWhileShared(subscriptionCount, SharingStarted.WhileSubscribed(5000L))
                 }
-                else offlineRoomStatuses
+                else flowOf(emptyMap())
             }
         }
         // Implementors: replace the above code block with the next line to disable room status support
