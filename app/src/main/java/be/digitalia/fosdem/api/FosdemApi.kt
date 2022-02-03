@@ -128,7 +128,7 @@ class FosdemApi @Inject constructor(
                         .toEpochSecond() * 1000L
                 }
                 schedulerFlow(*startEndTimestamps)
-                    .flowWhileShared(subscriptionCount, SharingStarted.WhileSubscribed(5000L))
+                    .flowWhileShared(subscriptionCount, SharingStarted.WhileSubscribed())
             }
             scheduler.distinctUntilChanged().flatMapLatest { isLive ->
                 if (isLive) {
