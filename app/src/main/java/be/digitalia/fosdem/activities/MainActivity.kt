@@ -273,13 +273,14 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        super.onCreateOptionsMenu(menu)
         menuInflater.inflate(R.menu.main, menu)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Will close the drawer if the home button is pressed
-        if (drawerToggle.onOptionsItemSelected(item)) {
+        if (super.onOptionsItemSelected(item) || drawerToggle.onOptionsItemSelected(item)) {
             return true
         }
 

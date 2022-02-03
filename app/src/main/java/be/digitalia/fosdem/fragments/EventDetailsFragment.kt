@@ -22,11 +22,13 @@ import androidx.core.net.toUri
 import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
 import androidx.core.text.set
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.core.view.plusAssign
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.PersonInfoActivity
@@ -73,7 +75,33 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
+        requireActivity().addMenuProvider(EventDetailsMenuProvider(), this, Lifecycle.State.RESUMED)
+    }
+
+    private inner class EventDetailsMenuProvider : MenuProvider {
+        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+            menuInflater.inflate(R.menu.event, menu)
+            menu.findItem(R.id.share)?.intent = createShareChooserIntent()
+        }
+
+        private fun createShareChooserIntent(): Intent {
+            val title = event.title.orEmpty()
+            val url = event.url.orEmpty()
+            return ShareCompat.IntentBuilder(requireContext())
+                .setSubject("$title ($CONFERENCE_NAME)")
+                .setType("text/plain")
+                .setText("$title $url $CONFERENCE_HASHTAG")
+                .setChooserTitle(R.string.share)
+                .createChooserIntent()
+        }
+
+        override fun onMenuItemSelected(menuItem: MenuItem) = when (menuItem.itemId) {
+            R.id.add_to_agenda -> {
+                addToAgenda()
+                true
+            }
+            else -> false
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -186,30 +214,6 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
                 }
             }
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.event, menu)
-        menu.findItem(R.id.share)?.intent = createShareChooserIntent()
-    }
-
-    private fun createShareChooserIntent(): Intent {
-        val title = event.title.orEmpty()
-        val url = event.url.orEmpty()
-        return ShareCompat.IntentBuilder(requireContext())
-                .setSubject("$title ($CONFERENCE_NAME)")
-                .setType("text/plain")
-                .setText("$title $url $CONFERENCE_HASHTAG")
-                .setChooserTitle(R.string.share)
-                .createChooserIntent()
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.add_to_agenda -> {
-            addToAgenda()
-            true
-        }
-        else -> false
     }
 
     private fun addToAgenda() {

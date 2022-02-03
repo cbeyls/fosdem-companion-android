@@ -14,6 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.content.edit
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -93,16 +94,53 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
             importBookmarks(uri)
         }
     }
-    private var filterMenuItem: MenuItem? = null
-    private var upcomingOnlyMenuItem: MenuItem? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val upcomingOnly = preferences.getBoolean(UPCOMING_ONLY_PREF_KEY, false)
-        viewModel.upcomingOnly = upcomingOnly
+        viewModel.upcomingOnly = preferences.getBoolean(UPCOMING_ONLY_PREF_KEY, false)
 
-        setHasOptionsMenu(true)
+        requireActivity().addMenuProvider(BookmarksMenuProvider(), this)
+    }
+
+    private inner class BookmarksMenuProvider : MenuProvider {
+        private var filterMenuItem: MenuItem? = null
+        private var upcomingOnlyMenuItem: MenuItem? = null
+
+        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+            menuInflater.inflate(R.menu.bookmarks, menu)
+            filterMenuItem = menu.findItem(R.id.filter)
+            upcomingOnlyMenuItem = menu.findItem(R.id.upcoming_only)
+            updateMenuItems()
+        }
+
+        override fun onMenuItemSelected(menuItem: MenuItem) = when (menuItem.itemId) {
+            R.id.upcoming_only -> {
+                val upcomingOnly = !viewModel.upcomingOnly
+                viewModel.upcomingOnly = upcomingOnly
+                updateMenuItems()
+                preferences.edit {
+                    putBoolean(UPCOMING_ONLY_PREF_KEY, upcomingOnly)
+                }
+                true
+            }
+            R.id.export_bookmarks -> {
+                val exportIntent = BookmarksExportProvider.getIntent(requireActivity())
+                startActivity(Intent.createChooser(exportIntent, getString(R.string.export_bookmarks)))
+                true
+            }
+            R.id.import_bookmarks -> {
+                getBookmarksLauncher.launch(BookmarksExportProvider.TYPE)
+                true
+            }
+            else -> false
+        }
+
+        private fun updateMenuItems() {
+            val upcomingOnly = viewModel.upcomingOnly
+            filterMenuItem?.setIcon(if (upcomingOnly) R.drawable.ic_filter_list_selected_white_24dp else R.drawable.ic_filter_list_white_24dp)
+            upcomingOnlyMenuItem?.isChecked = upcomingOnly
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -133,47 +171,6 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
                 }
             }
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.bookmarks, menu)
-        filterMenuItem = menu.findItem(R.id.filter)
-        upcomingOnlyMenuItem = menu.findItem(R.id.upcoming_only)
-        updateMenuItems()
-    }
-
-    private fun updateMenuItems() {
-        val upcomingOnly = viewModel.upcomingOnly
-        filterMenuItem?.setIcon(if (upcomingOnly) R.drawable.ic_filter_list_selected_white_24dp else R.drawable.ic_filter_list_white_24dp)
-        upcomingOnlyMenuItem?.isChecked = upcomingOnly
-    }
-
-    override fun onDestroyOptionsMenu() {
-        super.onDestroyOptionsMenu()
-        filterMenuItem = null
-        upcomingOnlyMenuItem = null
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.upcoming_only -> {
-            val upcomingOnly = !viewModel.upcomingOnly
-            viewModel.upcomingOnly = upcomingOnly
-            updateMenuItems()
-            preferences.edit {
-                putBoolean(UPCOMING_ONLY_PREF_KEY, upcomingOnly)
-            }
-            true
-        }
-        R.id.export_bookmarks -> {
-            val exportIntent = BookmarksExportProvider.getIntent(requireActivity())
-            startActivity(Intent.createChooser(exportIntent, getString(R.string.export_bookmarks)))
-            true
-        }
-        R.id.import_bookmarks -> {
-            getBookmarksLauncher.launch(BookmarksExportProvider.TYPE)
-            true
-        }
-        else -> false
     }
 
     private fun importBookmarks(uri: Uri) {

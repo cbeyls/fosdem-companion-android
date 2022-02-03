@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.ImageView
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.net.toUri
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.api.FosdemUrls.localNavigation
@@ -22,7 +23,24 @@ class MapFragment : Fragment(R.layout.fragment_map) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.map, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem) = when (menuItem.itemId) {
+                R.id.directions -> {
+                    launchDirections()
+                    true
+                }
+                R.id.navigation -> {
+                    launchLocalNavigation()
+                    true
+                }
+                else -> false
+            }
+        }, this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -33,20 +51,6 @@ class MapFragment : Fragment(R.layout.fragment_map) {
                 invertImageColors()
             }
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) = inflater.inflate(R.menu.map, menu)
-
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.directions -> {
-            launchDirections()
-            true
-        }
-        R.id.navigation -> {
-            launchLocalNavigation()
-            true
-        }
-        else -> false
     }
 
     private fun launchDirections() {
