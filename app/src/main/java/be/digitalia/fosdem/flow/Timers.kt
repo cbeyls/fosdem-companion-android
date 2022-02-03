@@ -3,8 +3,6 @@ package be.digitalia.fosdem.flow
 import android.os.SystemClock
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import java.util.Arrays
 
@@ -16,21 +14,18 @@ fun tickerFlow(periodInMillis: Long): Flow<Unit> = flow {
 }
 
 /**
- * Creates a ticker Flow which only emits when subscriptionCount > 0.
+ * Creates a ticker Flow which remembers the time of the last emission of the previous collection.
+ * It only supports one subscriber at a time.
  */
-fun whileSubscribedTickerFlow(periodInMillis: Long, subscriptionCount: StateFlow<Int>): Flow<Unit> {
+fun rememberTickerFlow(periodInMillis: Long): Flow<Unit> {
+    var nextEmissionTime = 0L
     return flow {
-        var nextEmissionTime = 0L
-        flow {
-            delay(nextEmissionTime - SystemClock.elapsedRealtime())
-            while (true) {
-                emit(Unit)
-                nextEmissionTime = SystemClock.elapsedRealtime() + periodInMillis
-                delay(periodInMillis)
-            }
+        delay(nextEmissionTime - SystemClock.elapsedRealtime())
+        while (true) {
+            emit(Unit)
+            nextEmissionTime = SystemClock.elapsedRealtime() + periodInMillis
+            delay(periodInMillis)
         }
-            .flowWhileShared(subscriptionCount, SharingStarted.WhileSubscribed())
-            .collect(this)
     }
 }
 

@@ -9,8 +9,9 @@ import be.digitalia.fosdem.alarms.AppAlarmManager
 import be.digitalia.fosdem.db.BookmarksDao
 import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.db.observableQuery
+import be.digitalia.fosdem.flow.flowWhileShared
+import be.digitalia.fosdem.flow.rememberTickerFlow
 import be.digitalia.fosdem.flow.stateFlow
-import be.digitalia.fosdem.flow.whileSubscribedTickerFlow
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.parsers.ExportedBookmarksParser
 import be.digitalia.fosdem.utils.BackgroundWorkScope
@@ -19,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
@@ -46,9 +48,11 @@ class BookmarksViewModel @Inject constructor(
         upcomingOnlyStateFlow.filterNotNull().flatMapLatest { upcomingOnly ->
             if (upcomingOnly) {
                 // Refresh upcoming bookmarks every 2 minutes
-                whileSubscribedTickerFlow(REFRESH_PERIOD, subscriptionCount).flatMapLatest {
-                    getObservableBookmarks(Instant.now() - TIME_OFFSET, subscriptionCount)
-                }
+                rememberTickerFlow(REFRESH_PERIOD)
+                    .flowWhileShared(subscriptionCount, SharingStarted.WhileSubscribed())
+                    .flatMapLatest {
+                        getObservableBookmarks(Instant.now() - TIME_OFFSET, subscriptionCount)
+                    }
             } else {
                 getObservableBookmarks(Instant.EPOCH, subscriptionCount)
             }
