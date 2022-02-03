@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -58,4 +59,16 @@ fun <T> Flow<T>.countSubscriptionsTo(subscriptionCount: MutableStateFlow<Int>): 
             subscriptionCount.update { it - 1 }
         }
     }
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+fun <T> versionedResourceFlow(
+    version: StateFlow<Int>,
+    subscriptionCount: StateFlow<Int>,
+    producer: suspend (version: Int) -> T
+): Flow<T> {
+    return version
+        .flowWhileShared(subscriptionCount, SharingStarted.WhileSubscribed())
+        .distinctUntilChanged()
+        .mapLatest(producer)
 }

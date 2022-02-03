@@ -3,8 +3,8 @@ package be.digitalia.fosdem.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import be.digitalia.fosdem.db.ScheduleDao
-import be.digitalia.fosdem.db.observableQuery
 import be.digitalia.fosdem.flow.stateFlow
+import be.digitalia.fosdem.flow.versionedResourceFlow
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Track
 import dagger.assisted.Assisted
@@ -19,7 +19,7 @@ class TracksListViewModel @AssistedInject constructor(
 ) : ViewModel() {
 
     val tracks: Flow<List<Track>> = stateFlow(viewModelScope, null) { subscriptionCount ->
-        observableQuery(scheduleDao.version, subscriptionCount) {
+        versionedResourceFlow(scheduleDao.version, subscriptionCount) {
             scheduleDao.getTracks(day)
         }
     }.filterNotNull()

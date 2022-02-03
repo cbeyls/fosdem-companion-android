@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import be.digitalia.fosdem.alarms.AppAlarmManager
 import be.digitalia.fosdem.db.BookmarksDao
-import be.digitalia.fosdem.db.observableQuery
 import be.digitalia.fosdem.flow.stateFlow
+import be.digitalia.fosdem.flow.versionedResourceFlow
 import be.digitalia.fosdem.model.BookmarkStatus
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.utils.BackgroundWorkScope
@@ -33,7 +33,7 @@ class BookmarkStatusViewModel @Inject constructor(
                 if (event == null) {
                     flowOf(null)
                 } else {
-                    observableQuery(bookmarksDao.version, subscriptionCount) {
+                    versionedResourceFlow(bookmarksDao.version, subscriptionCount) {
                         val isBookmarked = bookmarksDao.getBookmarkStatus(event)
                         BookmarkStatus(event.id, isBookmarked)
                     }

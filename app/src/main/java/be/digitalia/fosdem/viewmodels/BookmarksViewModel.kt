@@ -8,10 +8,10 @@ import be.digitalia.fosdem.BuildConfig
 import be.digitalia.fosdem.alarms.AppAlarmManager
 import be.digitalia.fosdem.db.BookmarksDao
 import be.digitalia.fosdem.db.ScheduleDao
-import be.digitalia.fosdem.db.observableQuery
 import be.digitalia.fosdem.flow.flowWhileShared
 import be.digitalia.fosdem.flow.rememberTickerFlow
 import be.digitalia.fosdem.flow.stateFlow
+import be.digitalia.fosdem.flow.versionedResourceFlow
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.parsers.ExportedBookmarksParser
 import be.digitalia.fosdem.utils.BackgroundWorkScope
@@ -62,7 +62,7 @@ class BookmarksViewModel @Inject constructor(
     private fun getObservableBookmarks(
         minStartTime: Instant,
         subscriptionCount: StateFlow<Int>
-    ): Flow<List<Event>> = observableQuery(bookmarksDao.version, subscriptionCount) {
+    ): Flow<List<Event>> = versionedResourceFlow(bookmarksDao.version, subscriptionCount) {
         bookmarksDao.getBookmarks(minStartTime)
     }
 
