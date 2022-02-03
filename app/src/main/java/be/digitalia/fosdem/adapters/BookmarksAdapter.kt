@@ -35,10 +35,12 @@ class BookmarksAdapter(context: Context, private val multiChoiceHelper: MultiCho
     private val errorColor: Int
     private val observers = SimpleArrayMap<AdapterDataObserver, BookmarksDataObserverWrapper>()
 
-    var roomStatuses: Map<String, RoomStatus>? = null
+    var roomStatuses: Map<String, RoomStatus> = emptyMap()
         set(value) {
-            field = value
-            notifyItemRangeChanged(0, itemCount, DETAILS_PAYLOAD)
+            if (field != value) {
+                field = value
+                notifyItemRangeChanged(0, itemCount, DETAILS_PAYLOAD)
+            }
         }
 
     init {
@@ -56,16 +58,12 @@ class BookmarksAdapter(context: Context, private val multiChoiceHelper: MultiCho
         return ViewHolder(view, multiChoiceHelper, timeFormatter, errorColor)
     }
 
-    private fun getRoomStatus(event: Event): RoomStatus? {
-        return roomStatuses?.get(event.roomName)
-    }
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val event = getItem(position)
         holder.bind(event)
         val previous = if (position > 0) getItem(position - 1) else null
         val next = if (position + 1 < itemCount) getItem(position + 1) else null
-        holder.bindDetails(event, previous, next, getRoomStatus(event))
+        holder.bindDetails(event, previous, next, roomStatuses[event.roomName])
         holder.bindSelection()
     }
 
@@ -77,7 +75,7 @@ class BookmarksAdapter(context: Context, private val multiChoiceHelper: MultiCho
             if (DETAILS_PAYLOAD in payloads) {
                 val previous = if (position > 0) getItem(position - 1) else null
                 val next = if (position + 1 < itemCount) getItem(position + 1) else null
-                holder.bindDetails(event, previous, next, getRoomStatus(event))
+                holder.bindDetails(event, previous, next, roomStatuses[event.roomName])
             }
             if (MultiChoiceHelper.SELECTION_PAYLOAD in payloads) {
                 holder.bindSelection()

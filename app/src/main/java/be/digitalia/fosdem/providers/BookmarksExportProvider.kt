@@ -105,7 +105,7 @@ class BookmarksExportProvider : ContentProvider() {
         override fun run() {
             try {
                 ICalendarWriter(outputStream.sink().buffer()).use { writer ->
-                    val bookmarks = bookmarksDao.getBookmarks()
+                    val bookmarks = runBlocking { bookmarksDao.getBookmarks() }
                     writer.write("BEGIN", "VCALENDAR")
                     writer.write("VERSION", "2.0")
                     writer.write("PRODID", "-//${BuildConfig.APPLICATION_ID}//NONSGML ${BuildConfig.VERSION_NAME}//EN")

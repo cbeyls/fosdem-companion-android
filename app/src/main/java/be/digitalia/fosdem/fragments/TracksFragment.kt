@@ -16,6 +16,7 @@ import be.digitalia.fosdem.R
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.utils.enforceSingleScrollDirection
 import be.digitalia.fosdem.utils.instantiate
+import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.utils.recyclerView
 import be.digitalia.fosdem.utils.viewLifecycleLazy
 import be.digitalia.fosdem.viewmodels.TracksViewModel
@@ -57,24 +58,25 @@ class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvi
             preferences.getInt(TRACKS_CURRENT_PAGE_PREF_KEY, -1)
         } else -1
 
-        viewModel.days.observe(viewLifecycleOwner) { days ->
-            holder.run {
-                daysAdapter.days = days
+        viewLifecycleOwner.launchAndRepeatOnLifecycle {
+            viewModel.days.collect { days ->
+                holder.run {
+                    daysAdapter.days = days
 
-                val totalPages = daysAdapter.itemCount
-                if (totalPages == 0) {
-                    contentView.isVisible = false
-                    emptyView.isVisible = true
-                } else {
-                    contentView.isVisible = true
-                    emptyView.isVisible = false
-                    if (pager.adapter == null) {
-                        pager.adapter = daysAdapter
-                        TabLayoutMediator(tabs, pager) { tab, position -> tab.text = daysAdapter.getPageTitle(position) }.attach()
-                    }
-                    if (savedCurrentPage != -1) {
-                        pager.setCurrentItem(savedCurrentPage.coerceAtMost(totalPages - 1), false)
-                        savedCurrentPage = -1
+                    if (days.isEmpty()) {
+                        contentView.isVisible = false
+                        emptyView.isVisible = true
+                    } else {
+                        contentView.isVisible = true
+                        emptyView.isVisible = false
+                        if (pager.adapter == null) {
+                            pager.adapter = daysAdapter
+                            TabLayoutMediator(tabs, pager) { tab, position -> tab.text = daysAdapter.getPageTitle(position) }.attach()
+                        }
+                        if (savedCurrentPage != -1) {
+                            pager.setCurrentItem(savedCurrentPage.coerceAtMost(days.size - 1), false)
+                            savedCurrentPage = -1
+                        }
                     }
                 }
             }

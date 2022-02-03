@@ -6,19 +6,26 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.adapters.EventsAdapter
 import be.digitalia.fosdem.api.FosdemApi
+import be.digitalia.fosdem.utils.assistedViewModels
+import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.ExternalBookmarksViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -26,12 +33,15 @@ class ExternalBookmarksListFragment : Fragment(R.layout.recyclerview) {
 
     @Inject
     lateinit var api: FosdemApi
-    private val viewModel: ExternalBookmarksViewModel by viewModels()
-    private var addAllMenuItem: MenuItem? = null
+    @Inject
+    lateinit var viewModelFactory: ExternalBookmarksViewModel.Factory
+    private val viewModel: ExternalBookmarksViewModel by assistedViewModels {
+        val bookmarkIds = requireArguments().getLongArray(ARG_BOOKMARK_IDS)!!
+        viewModelFactory.create(bookmarkIds)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
         setFragmentResultListener(REQUEST_KEY_CONFIRM_ADD_ALL) { _, _ -> viewModel.addAll() }
     }
 
@@ -49,41 +59,41 @@ class ExternalBookmarksListFragment : Fragment(R.layout.recyclerview) {
             isProgressBarVisible = true
         }
 
-        val bookmarkIds = requireArguments().getLongArray(ARG_BOOKMARK_IDS)!!
+        val menuProvider = object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.external_bookmarks, menu)
+            }
 
-        api.roomStatuses.observe(viewLifecycleOwner) { statuses ->
-            adapter.roomStatuses = statuses
-        }
-        with(viewModel) {
-            setBookmarkIds(bookmarkIds)
-            bookmarks.observe(viewLifecycleOwner) { bookmarks ->
-                adapter.submitList(bookmarks)
-                addAllMenuItem?.isEnabled = bookmarks.isNotEmpty()
-                holder.isProgressBarVisible = false
+            override fun onMenuItemSelected(menuItem: MenuItem) = when (menuItem.itemId) {
+                R.id.add_all -> {
+                    ConfirmAddAllDialogFragment().show(parentFragmentManager, "confirmAddAll")
+                    true
+                }
+                else -> false
             }
         }
-    }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.external_bookmarks, menu)
-        menu.findItem(R.id.add_all)?.let { item ->
-            val bookmarks = viewModel.bookmarks.value
-            item.isEnabled = bookmarks != null && bookmarks.isNotEmpty()
-            addAllMenuItem = item
+        viewLifecycleOwner.lifecycleScope.launch {
+            adapter.loadStateFlow.first { it.refresh !is LoadState.Loading }
+            holder.isProgressBarVisible = false
+            // Only display the menu items if there is at least one item
+            if (adapter.itemCount > 0) {
+                requireActivity().addMenuProvider(menuProvider, viewLifecycleOwner)
+            }
         }
-    }
 
-    override fun onDestroyOptionsMenu() {
-        super.onDestroyOptionsMenu()
-        addAllMenuItem = null
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.add_all -> {
-            ConfirmAddAllDialogFragment().show(parentFragmentManager, "confirmAddAll")
-            true
+        viewLifecycleOwner.launchAndRepeatOnLifecycle {
+            launch {
+                api.roomStatuses.collect { statuses ->
+                    adapter.roomStatuses = statuses
+                }
+            }
+            launch {
+                viewModel.bookmarks.collectLatest { pagingData ->
+                    adapter.submitData(pagingData)
+                }
+            }
         }
-        else -> false
     }
 
     class ConfirmAddAllDialogFragment : DialogFragment() {

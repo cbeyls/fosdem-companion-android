@@ -5,22 +5,30 @@ import android.view.View
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.LiveData
-import androidx.paging.PagedList
+import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
+import androidx.paging.PagingData
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.adapters.EventsAdapter
 import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.model.StatusEvent
+import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.LiveViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-sealed class LiveListFragment(@StringRes private val emptyTextResId: Int,
-                              private val dataSourceProvider: (LiveViewModel) -> LiveData<PagedList<StatusEvent>>)
-    : Fragment(R.layout.recyclerview) {
+sealed class LiveListFragment(
+    @StringRes private val emptyTextResId: Int,
+    private val dataSourceProvider: (LiveViewModel) -> Flow<PagingData<StatusEvent>>
+) : Fragment(R.layout.recyclerview) {
 
     @Inject
     lateinit var api: FosdemApi
@@ -45,19 +53,30 @@ sealed class LiveListFragment(@StringRes private val emptyTextResId: Int,
             isProgressBarVisible = true
         }
 
-        api.roomStatuses.observe(viewLifecycleOwner) { statuses ->
-            adapter.roomStatuses = statuses
-        }
-        dataSourceProvider(viewModel).observe(viewLifecycleOwner) { events ->
-            adapter.submitList(events) {
-                // Ensure we stay at scroll position 0 so we can see the insertion animation
-                holder.recyclerView.run {
-                    if (scrollY == 0) {
-                        scrollToPosition(0)
+        viewLifecycleOwner.lifecycleScope.launch {
+            adapter.loadStateFlow
+                .distinctUntilChangedBy { it.refresh }
+                .filter { it.refresh !is LoadState.Loading }
+                .collect {
+                    holder.isProgressBarVisible = false
+                    // Ensure we stay at scroll position 0 so we can see the insertion animation
+                    with(holder.recyclerView) {
+                        if (scrollY == 0) scrollToPosition(0)
                     }
                 }
+        }
+
+        viewLifecycleOwner.launchAndRepeatOnLifecycle {
+            launch {
+                api.roomStatuses.collect { statuses ->
+                    adapter.roomStatuses = statuses
+                }
             }
-            holder.isProgressBarVisible = false
+            launch {
+                dataSourceProvider(viewModel).collectLatest { pagingData ->
+                    adapter.submitData(pagingData)
+                }
+            }
         }
     }
 }

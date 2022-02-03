@@ -38,6 +38,7 @@ import be.digitalia.fosdem.model.LoadingState
 import be.digitalia.fosdem.utils.CreateNfcAppDataCallback
 import be.digitalia.fosdem.utils.awaitCloseDrawer
 import be.digitalia.fosdem.utils.configureToolbarColors
+import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.utils.setNfcAppDataPushMessageCallbackIfAvailable
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.progressindicator.BaseProgressIndicator
@@ -107,48 +108,54 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
         val progressIndicator: BaseProgressIndicator<*> = findViewById(R.id.progress)
 
         // Monitor the schedule download
-        api.downloadScheduleState.observe(this) { state ->
-            when (state) {
-                is LoadingState.Loading -> {
-                    with(progressIndicator) {
-                        when (val progressValue = state.progress) {
-                            -1 -> if (!isIndeterminate) {
-                                isInvisible = true
-                                isIndeterminate = true
-                            }
-                            else -> setProgressCompat(progressValue, true)
-                        }
-                        show()
-                    }
-                }
-                is LoadingState.Idle -> {
-                    with(progressIndicator) {
-                        // Fix: stop transitioning to determinate when hiding
-                        isIndeterminate = false
-                        setProgressCompat(100, false)
-                        hide()
-                    }
-
-                    state.result.consume()?.let { result ->
-                        val snackbar = when (result) {
-                            is DownloadScheduleResult.Error -> {
-                                Snackbar.make(contentView, R.string.schedule_loading_error, ERROR_MESSAGE_DISPLAY_DURATION)
-                                        .setAction(R.string.schedule_loading_retry_action) { api.downloadSchedule() }
-                            }
-                            is DownloadScheduleResult.UpToDate -> {
-                                Snackbar.make(contentView, R.string.events_download_up_to_date, Snackbar.LENGTH_LONG)
-                            }
-                            is DownloadScheduleResult.Success -> {
-                                val eventsCount = result.eventsCount
-                                val message = if (eventsCount == 0) {
-                                    getString(R.string.events_download_empty)
-                                } else {
-                                    resources.getQuantityString(R.plurals.events_download_completed, eventsCount, eventsCount)
+        launchAndRepeatOnLifecycle {
+            api.downloadScheduleState.collect { state ->
+                when (state) {
+                    is LoadingState.Loading -> {
+                        with(progressIndicator) {
+                            when (val progressValue = state.progress) {
+                                -1 -> if (!isIndeterminate) {
+                                    isInvisible = true
+                                    isIndeterminate = true
                                 }
-                                Snackbar.make(contentView, message, Snackbar.LENGTH_LONG)
+                                else -> setProgressCompat(progressValue, true)
                             }
+                            show()
                         }
-                        snackbar.show()
+                    }
+                    is LoadingState.Idle -> {
+                        with(progressIndicator) {
+                            // Fix: stop transitioning to determinate when hiding
+                            isIndeterminate = false
+                            setProgressCompat(100, false)
+                            hide()
+                        }
+
+                        state.result?.let { result ->
+                            val snackbar = when (result) {
+                                is DownloadScheduleResult.Error -> {
+                                    Snackbar.make(contentView, R.string.schedule_loading_error, ERROR_MESSAGE_DISPLAY_DURATION)
+                                        .setAction(R.string.schedule_loading_retry_action) { api.downloadSchedule() }
+                                }
+                                is DownloadScheduleResult.UpToDate -> {
+                                    Snackbar.make(contentView, R.string.events_download_up_to_date, Snackbar.LENGTH_LONG)
+                                }
+                                is DownloadScheduleResult.Success -> {
+                                    val eventsCount = result.eventsCount
+                                    val message = if (eventsCount == 0) {
+                                        getString(R.string.events_download_empty)
+                                    } else {
+                                        resources.getQuantityString(R.plurals.events_download_completed, eventsCount, eventsCount)
+                                    }
+                                    Snackbar.make(contentView, message, Snackbar.LENGTH_LONG)
+                                }
+                            }
+                            snackbar.addCallback(object : Snackbar.Callback() {
+                                override fun onDismissed(transientBottomBar: Snackbar, event: Int) {
+                                    api.downloadScheduleResultConsumed()
+                                }
+                            }).show()
+                        }
                     }
                 }
             }

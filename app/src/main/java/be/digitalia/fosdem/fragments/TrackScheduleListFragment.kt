@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -15,14 +14,25 @@ import be.digitalia.fosdem.adapters.TrackScheduleAdapter
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.Track
+import be.digitalia.fosdem.utils.assistedViewModels
+import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.TrackScheduleListViewModel
 import be.digitalia.fosdem.viewmodels.TrackScheduleViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class TrackScheduleListFragment : Fragment(R.layout.recyclerview), TrackScheduleAdapter.EventClickListener {
 
-    private val viewModel: TrackScheduleListViewModel by viewModels()
+    @Inject
+    lateinit var viewModelFactory: TrackScheduleListViewModel.Factory
+    private val viewModel: TrackScheduleListViewModel by assistedViewModels {
+        val args = requireArguments()
+        val day: Day = args.getParcelable(ARG_DAY)!!
+        val track: Track = args.getParcelable(ARG_TRACK)!!
+        viewModelFactory.create(day, track)
+    }
     private val activityViewModel: TrackScheduleViewModel by activityViewModels()
     private val selectionEnabled: Boolean by lazy(LazyThreadSafetyMode.NONE) {
         resources.getBoolean(R.bool.tablet_landscape)
@@ -32,16 +42,11 @@ class TrackScheduleListFragment : Fragment(R.layout.recyclerview), TrackSchedule
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val args = requireArguments()
-        val day: Day = args.getParcelable(ARG_DAY)!!
-        val track: Track = args.getParcelable(ARG_TRACK)!!
-        viewModel.setDayAndTrack(day, track)
-
         if (savedInstanceState != null) {
             isListAlreadyShown = savedInstanceState.getBoolean(STATE_IS_LIST_ALREADY_SHOWN)
         }
         selectedId = savedInstanceState?.getLong(STATE_SELECTED_ID)
-                ?: args.getLong(ARG_FROM_EVENT_ID, RecyclerView.NO_ID)
+            ?: requireArguments().getLong(ARG_FROM_EVENT_ID, RecyclerView.NO_ID)
     }
 
     private var selectedId: Long = RecyclerView.NO_ID
@@ -66,45 +71,54 @@ class TrackScheduleListFragment : Fragment(R.layout.recyclerview), TrackSchedule
             isProgressBarVisible = true
         }
 
-        with(viewModel) {
-            currentTime.observe(viewLifecycleOwner) { now ->
-                adapter.currentTime = now
-            }
-            schedule.observe(viewLifecycleOwner) { schedule ->
-                adapter.submitList(schedule)
+        viewLifecycleOwner.launchAndRepeatOnLifecycle {
+            launch {
+                viewModel.schedule.collect { schedule ->
+                    adapter.submitList(schedule)
 
-                var selectedPosition = if (selectedId == -1L) -1 else schedule.indexOfFirst { it.event.id == selectedId }
-                if (selectedPosition == -1) {
-                    // There is no current valid selection, reset to use the first item (if any)
-                    if (schedule.isNotEmpty()) {
-                        selectedPosition = 0
-                        selectedId = schedule[0].event.id
-                    } else {
-                        selectedId = -1L
+                    var selectedPosition = if (selectedId == -1L) -1 else schedule.indexOfFirst { it.event.id == selectedId }
+                    if (selectedPosition == -1) {
+                        // There is no current valid selection, reset to use the first item (if any)
+                        if (schedule.isNotEmpty()) {
+                            selectedPosition = 0
+                            selectedId = schedule[0].event.id
+                        } else {
+                            selectedId = -1L
+                        }
+                    }
+
+                    activityViewModel.selectedEvent =
+                        if (selectedPosition == -1) null else schedule[selectedPosition].event
+
+                    // Ensure the selection is visible
+                    if ((selectionEnabled || !isListAlreadyShown) && selectedPosition != -1) {
+                        holder.recyclerView.scrollToPosition(selectedPosition)
+                    }
+                    isListAlreadyShown = true
+
+                    holder.isProgressBarVisible = false
+                }
+            }
+
+            launch {
+                viewModel.currentTime.collect { now ->
+                    adapter.currentTime = now
+                }
+            }
+
+            if (selectionEnabled) {
+                launch {
+                    activityViewModel.selectedEventFlow.collect { event ->
+                        adapter.selectedId = event?.id ?: RecyclerView.NO_ID
                     }
                 }
-
-                activityViewModel.setSelectEvent(if (selectedPosition == -1) null else schedule[selectedPosition].event)
-
-                // Ensure the selection is visible
-                if ((selectionEnabled || !isListAlreadyShown) && selectedPosition != -1) {
-                    holder.recyclerView.scrollToPosition(selectedPosition)
-                }
-                isListAlreadyShown = true
-
-                holder.isProgressBarVisible = false
-            }
-        }
-        if (selectionEnabled) {
-            activityViewModel.selectedEvent.observe(viewLifecycleOwner) { event ->
-                adapter.selectedId = event?.id ?: RecyclerView.NO_ID
             }
         }
     }
 
     override fun onEventClick(event: Event) {
         selectedId = event.id
-        activityViewModel.setSelectEvent(event)
+        activityViewModel.selectedEvent = event
 
         if (!selectionEnabled) {
             // Classic mode: Show event details in a new activity

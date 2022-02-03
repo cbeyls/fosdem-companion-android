@@ -4,9 +4,7 @@ import androidx.annotation.WorkerThread
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.liveData
-import androidx.paging.DataSource
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -26,20 +24,27 @@ import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.BackgroundWorkScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.runBlocking
 import java.time.Instant
 import java.time.LocalDate
-import java.util.HashSet
 
 @Dao
 abstract class ScheduleDao(private val appDatabase: AppDatabase) {
+    val version: StateFlow<Int> =
+        appDatabase.createVersionFlow(EventEntity.TABLE_NAME)
+    val bookmarksVersion: StateFlow<Int>
+        get() = appDatabase.bookmarksDao.version
 
     /**
      * @return The latest update time, or null if not available.
@@ -218,16 +223,17 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     protected abstract fun clearDays()
 
     // Cache days
-    val days: Flow<List<Day>> by lazy {
-        getDaysInternal().shareIn(
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val days: Flow<List<Day>> = appDatabase.createVersionFlow(Day.TABLE_NAME)
+        .mapLatest { getDaysInternal() }
+        .stateIn(
             scope = BackgroundWorkScope,
-            started = SharingStarted.Eagerly,
-            replay = 1
-        )
-    }
+            started = SharingStarted.Lazily,
+            initialValue = null
+        ).filterNotNull()
 
     @Query("SELECT `index`, date FROM days ORDER BY `index` ASC")
-    protected abstract fun getDaysInternal(): Flow<List<Day>>
+    protected abstract suspend fun getDaysInternal(): List<Day>
 
     suspend fun getYear(): Int {
         // Compute from days if available, fall back to current year
@@ -240,7 +246,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         WHERE e.day_index = :day
         GROUP BY t.id
         ORDER BY t.name ASC""")
-    abstract fun getTracks(day: Day): LiveData<List<Track>>
+    abstract suspend fun getTracks(day: Day): List<Track>
 
     /**
      * Returns the event with the specified id, or null if not found.
@@ -273,10 +279,10 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         WHERE e.id IN (:ids)
         GROUP BY e.id
         ORDER BY e.start_time ASC""")
-    abstract fun getEvents(ids: LongArray): DataSource.Factory<Int, StatusEvent>
+    abstract fun getEvents(ids: LongArray): PagingSource<Int, StatusEvent>
 
     /**
-     * Returns the events for a specified track.
+     * Returns the events for a specified track, including their bookmark status.
      */
     @Query("""SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
         GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type,
@@ -291,10 +297,10 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         WHERE e.day_index = :day AND e.track_id = :track
         GROUP BY e.id
         ORDER BY e.start_time ASC""")
-    abstract fun getEvents(day: Day, track: Track): LiveData<List<StatusEvent>>
+    abstract suspend fun getEvents(day: Day, track: Track): List<StatusEvent>
 
     /**
-     * Returns a snapshot of the events for a specified track (without the bookmark status).
+     * Returns the events for a specified track, without their bookmark status.
      */
     @Query("""SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
         GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type
@@ -307,7 +313,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         WHERE e.day_index = :day AND e.track_id = :track
         GROUP BY e.id
         ORDER BY e.start_time ASC""")
-    abstract suspend fun getEventsSnapshot(day: Day, track: Track): List<Event>
+    abstract suspend fun getEventsWithoutBookmarkStatus(day: Day, track: Track): List<Event>
 
     /**
      * Returns events starting in the specified interval, ordered by ascending start time.
@@ -326,7 +332,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         GROUP BY e.id
         ORDER BY e.start_time ASC""")
     @TypeConverters(NonNullInstantTypeConverters::class)
-    abstract fun getEventsWithStartTime(minStartTime: Instant, maxStartTime: Instant): DataSource.Factory<Int, StatusEvent>
+    abstract fun getEventsWithStartTime(minStartTime: Instant, maxStartTime: Instant): PagingSource<Int, StatusEvent>
 
     /**
      * Returns events in progress at the specified time, ordered by descending start time.
@@ -345,7 +351,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         GROUP BY e.id
         ORDER BY e.start_time DESC""")
     @TypeConverters(NonNullInstantTypeConverters::class)
-    abstract fun getEventsInProgress(time: Instant): DataSource.Factory<Int, StatusEvent>
+    abstract fun getEventsInProgress(time: Instant): PagingSource<Int, StatusEvent>
 
     /**
      * Returns the events presented by the specified person.
@@ -363,7 +369,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         WHERE ep2.person_id = :person
         GROUP BY e.id
         ORDER BY e.start_time ASC""")
-    abstract fun getEvents(person: Person): DataSource.Factory<Int, StatusEvent>
+    abstract fun getEvents(person: Person): PagingSource<Int, StatusEvent>
 
     /**
      * Search through matching titles, subtitles, track names, person names.
@@ -397,7 +403,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         )
         GROUP BY e.id
         ORDER BY e.start_time ASC""")
-    abstract fun getSearchResults(query: String): DataSource.Factory<Int, StatusEvent>
+    abstract fun getSearchResults(query: String): PagingSource<Int, StatusEvent>
 
     /**
      * Returns all persons in alphabetical order.
@@ -405,16 +411,14 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     @Query("""SELECT `rowid`, name
         FROM persons
         ORDER BY name COLLATE NOCASE""")
-    abstract fun getPersons(): DataSource.Factory<Int, Person>
+    abstract fun getPersons(): PagingSource<Int, Person>
 
-    fun getEventDetails(event: Event): LiveData<EventDetails> {
-        return liveData {
-            // Load persons and links in parallel as soon as the LiveData becomes active
-            coroutineScope {
-                val persons = async { getPersons(event) }
-                val links = async { getLinks(event) }
-                emit(EventDetails(persons.await(), links.await()))
-            }
+    suspend fun getEventDetails(event: Event): EventDetails {
+        // Load persons and links in parallel
+        return coroutineScope {
+            val persons = async { getPersons(event) }
+            val links = async { getLinks(event) }
+            EventDetails(persons.await(), links.await())
         }
     }
 

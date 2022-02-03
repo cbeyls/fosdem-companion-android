@@ -1,56 +1,63 @@
 package be.digitalia.fosdem.viewmodels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.map
-import androidx.lifecycle.switchMap
+import androidx.lifecycle.viewModelScope
 import be.digitalia.fosdem.db.ScheduleDao
-import be.digitalia.fosdem.livedata.LiveDataFactory
+import be.digitalia.fosdem.flow.schedulerFlow
+import be.digitalia.fosdem.flow.stateFlow
+import be.digitalia.fosdem.flow.tickerFlow
+import be.digitalia.fosdem.flow.versionedResourceFlow
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.DateUtils
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
-@HiltViewModel
-class TrackScheduleListViewModel @Inject constructor(scheduleDao: ScheduleDao) : ViewModel() {
+class TrackScheduleListViewModel @AssistedInject constructor(
+    scheduleDao: ScheduleDao,
+    @Assisted day: Day,
+    @Assisted track: Track
+) : ViewModel() {
 
-    private val dayTrackLiveData = MutableLiveData<Pair<Day, Track>>()
-
-    val schedule: LiveData<List<StatusEvent>> = dayTrackLiveData.switchMap { (day, track) ->
-        scheduleDao.getEvents(day, track)
-    }
+    val schedule: Flow<List<StatusEvent>> = stateFlow(viewModelScope, null) { subscriptionCount ->
+        versionedResourceFlow(scheduleDao.bookmarksVersion, subscriptionCount) {
+            scheduleDao.getEvents(day, track)
+        }
+    }.filterNotNull()
 
     /**
      * @return The current time during the target day, or null outside of the target day.
      */
-    val currentTime: LiveData<Instant?> = dayTrackLiveData
-        .switchMap { (day, _) ->
-            // Auto refresh during the day passed as argument
-            val dayStart = day.date.atStartOfDay(DateUtils.conferenceZoneId).toInstant()
-            LiveDataFactory.scheduler(
-                dayStart.toEpochMilli(),
-                (dayStart + Duration.ofDays(1L)).toEpochMilli()
-            )
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val currentTime: Flow<Instant?> = run {
+        // Auto refresh during the day passed as argument
+        val dayStart = day.date.atStartOfDay(DateUtils.conferenceZoneId).toInstant()
+        schedulerFlow(
+            dayStart.toEpochMilli(),
+            (dayStart + Duration.ofDays(1L)).toEpochMilli()
+        )
+    }.flatMapLatest { isOn ->
+        if (isOn) {
+            tickerFlow(TIME_REFRESH_PERIOD).map { Instant.now() }
+        } else {
+            flowOf(null)
         }
-        .switchMap { isOn ->
-            if (isOn) {
-                LiveDataFactory.interval(TIME_REFRESH_PERIOD).map { Instant.now() }
-            } else {
-                MutableLiveData(null)
-            }
-        }
+    }
 
-    fun setDayAndTrack(day: Day, track: Track) {
-        val dayTrack = day to track
-        if (dayTrack != dayTrackLiveData.value) {
-            dayTrackLiveData.value = dayTrack
-        }
+    @AssistedFactory
+    interface Factory {
+        fun create(day: Day, track: Track): TrackScheduleListViewModel
     }
 
     companion object {

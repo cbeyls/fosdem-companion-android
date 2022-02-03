@@ -8,7 +8,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.paging.PagedListAdapter
+import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,8 +18,12 @@ import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.PersonInfoActivity
 import be.digitalia.fosdem.adapters.createSimpleItemCallback
 import be.digitalia.fosdem.model.Person
+import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.PersonsViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PersonsListFragment : Fragment(R.layout.recyclerview_fastscroll) {
@@ -38,13 +44,19 @@ class PersonsListFragment : Fragment(R.layout.recyclerview_fastscroll) {
             isProgressBarVisible = true
         }
 
-        viewModel.persons.observe(viewLifecycleOwner) { persons ->
-            adapter.submitList(persons)
+        viewLifecycleOwner.lifecycleScope.launch {
+            adapter.loadStateFlow.first { it.refresh !is LoadState.Loading }
             holder.isProgressBarVisible = false
+        }
+
+        viewLifecycleOwner.launchAndRepeatOnLifecycle {
+            viewModel.persons.collectLatest { pagingData ->
+                adapter.submitData(pagingData)
+            }
         }
     }
 
-    private class PersonsAdapter : PagedListAdapter<Person, PersonViewHolder>(DIFF_CALLBACK) {
+    private class PersonsAdapter : PagingDataAdapter<Person, PersonViewHolder>(DIFF_CALLBACK) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PersonViewHolder {
             val view = LayoutInflater.from(parent.context).inflate(R.layout.simple_list_item_1_material, parent, false)

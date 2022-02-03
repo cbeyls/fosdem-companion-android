@@ -4,13 +4,19 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.adapters.EventsAdapter
 import be.digitalia.fosdem.api.FosdemApi
+import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.SearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -34,12 +40,22 @@ class SearchResultListFragment : Fragment(R.layout.recyclerview) {
             isProgressBarVisible = true
         }
 
-        api.roomStatuses.observe(viewLifecycleOwner) { statuses ->
-            adapter.roomStatuses = statuses
-        }
-        viewModel.results.observe(viewLifecycleOwner) { result ->
-            adapter.submitList((result as? SearchViewModel.Result.Success)?.list)
+        viewLifecycleOwner.lifecycleScope.launch {
+            adapter.loadStateFlow.first { it.refresh !is LoadState.Loading }
             holder.isProgressBarVisible = false
+        }
+
+        viewLifecycleOwner.launchAndRepeatOnLifecycle {
+            launch {
+                api.roomStatuses.collect { statuses ->
+                    adapter.roomStatuses = statuses
+                }
+            }
+            launch {
+                viewModel.results.collectLatest { pagingData ->
+                    adapter.submitData(pagingData)
+                }
+            }
         }
     }
 }

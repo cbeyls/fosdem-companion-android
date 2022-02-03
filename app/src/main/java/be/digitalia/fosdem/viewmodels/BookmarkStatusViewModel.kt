@@ -1,17 +1,20 @@
 package be.digitalia.fosdem.viewmodels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.distinctUntilChanged
-import androidx.lifecycle.map
-import androidx.lifecycle.switchMap
+import androidx.lifecycle.viewModelScope
 import be.digitalia.fosdem.alarms.AppAlarmManager
 import be.digitalia.fosdem.db.BookmarksDao
+import be.digitalia.fosdem.flow.stateFlow
+import be.digitalia.fosdem.flow.versionedResourceFlow
 import be.digitalia.fosdem.model.BookmarkStatus
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.utils.BackgroundWorkScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,37 +24,34 @@ class BookmarkStatusViewModel @Inject constructor(
     private val alarmManager: AppAlarmManager
 ) : ViewModel() {
 
-    private val eventLiveData = MutableLiveData<Event?>()
-    private var firstResultReceived = false
+    private val eventStateFlow = MutableStateFlow<Event?>(null)
 
-    val bookmarkStatus: LiveData<BookmarkStatus?> = eventLiveData.switchMap { event ->
-        if (event == null) {
-            MutableLiveData(null)
-        } else {
-            bookmarksDao.getBookmarkStatus(event)
-                .distinctUntilChanged() // Prevent updating the UI when a bookmark is added back or removed back
-                .map { isBookmarked ->
-                    val isUpdate = firstResultReceived
-                    firstResultReceived = true
-                    BookmarkStatus(isBookmarked, isUpdate)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val bookmarkStatus: StateFlow<BookmarkStatus?> =
+        stateFlow(viewModelScope, null) { subscriptionCount ->
+            eventStateFlow.flatMapLatest { event ->
+                if (event == null) {
+                    flowOf(null)
+                } else {
+                    versionedResourceFlow(bookmarksDao.version, subscriptionCount) {
+                        val isBookmarked = bookmarksDao.getBookmarkStatus(event)
+                        BookmarkStatus(event.id, isBookmarked)
+                    }
                 }
-        }
-    }
-
-    var event: Event?
-        get() = eventLiveData.value
-        set(value) {
-            if (value != eventLiveData.value) {
-                firstResultReceived = false
-                eventLiveData.value = value
             }
         }
 
+    var event: Event?
+        get() = eventStateFlow.value
+        set(value) {
+            eventStateFlow.value = value
+        }
+
     fun toggleBookmarkStatus() {
-        val event = event
+        val event = eventStateFlow.value
         val currentStatus = bookmarkStatus.value
         // Ignore the action if the status for the current event hasn't been received yet
-        if (event != null && currentStatus != null && firstResultReceived) {
+        if (event != null && currentStatus != null && event.id == currentStatus.eventId) {
             if (currentStatus.isBookmarked) {
                 removeBookmark(event)
             } else {

@@ -18,6 +18,7 @@ import be.digitalia.fosdem.api.FosdemUrls
 import be.digitalia.fosdem.utils.configureToolbarColors
 import be.digitalia.fosdem.utils.invertImageColors
 import be.digitalia.fosdem.utils.isLightTheme
+import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.utils.toSlug
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -77,14 +78,15 @@ class RoomImageDialogActivity : AppCompatActivity(R.layout.dialog_room_image) {
                     }
                 }
 
-                // Display the room status as subtitle
-                api.roomStatuses.observe(owner) { roomStatuses ->
-                    val roomStatus = roomStatuses[roomName]
-                    toolbar.subtitle = if (roomStatus != null) {
-                        SpannableString(context.getString(roomStatus.nameResId)).apply {
-                            this[0, length] = ForegroundColorSpan(ContextCompat.getColor(context, roomStatus.colorResId))
+                owner.launchAndRepeatOnLifecycle {
+                    // Display the room status as subtitle
+                    api.roomStatuses.collect { statuses ->
+                        toolbar.subtitle = statuses[roomName]?.let { roomStatus ->
+                            SpannableString(context.getString(roomStatus.nameResId)).apply {
+                                this[0, length] = ForegroundColorSpan(ContextCompat.getColor(context, roomStatus.colorResId))
+                            }
                         }
-                    } else null
+                    }
                 }
             }
         }

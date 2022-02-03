@@ -1,27 +1,31 @@
 package be.digitalia.fosdem.viewmodels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.switchMap
+import androidx.lifecycle.viewModelScope
 import be.digitalia.fosdem.db.ScheduleDao
+import be.digitalia.fosdem.flow.stateFlow
+import be.digitalia.fosdem.flow.versionedResourceFlow
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Track
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
 
-@HiltViewModel
-class TracksListViewModel @Inject constructor(scheduleDao: ScheduleDao) : ViewModel() {
+class TracksListViewModel @AssistedInject constructor(
+    scheduleDao: ScheduleDao,
+    @Assisted day: Day
+) : ViewModel() {
 
-    private val dayLiveData = MutableLiveData<Day>()
-
-    val tracks: LiveData<List<Track>> = dayLiveData.switchMap { day: Day ->
-        scheduleDao.getTracks(day)
-    }
-
-    fun setDay(day: Day) {
-        if (day != dayLiveData.value) {
-            dayLiveData.value = day
+    val tracks: Flow<List<Track>> = stateFlow(viewModelScope, null) { subscriptionCount ->
+        versionedResourceFlow(scheduleDao.version, subscriptionCount) {
+            scheduleDao.getTracks(day)
         }
+    }.filterNotNull()
+
+    @AssistedFactory
+    interface Factory {
+        fun create(day: Day): TracksListViewModel
     }
 }

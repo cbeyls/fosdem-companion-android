@@ -27,7 +27,7 @@ import androidx.core.view.plusAssign
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.PersonInfoActivity
 import be.digitalia.fosdem.api.FosdemApi
@@ -38,7 +38,9 @@ import be.digitalia.fosdem.model.Link
 import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.utils.ClickableArrowKeyMovementMethod
 import be.digitalia.fosdem.utils.DateUtils
+import be.digitalia.fosdem.utils.assistedViewModels
 import be.digitalia.fosdem.utils.configureToolbarColors
+import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.utils.parseHtml
 import be.digitalia.fosdem.utils.roomNameToResourceName
 import be.digitalia.fosdem.utils.stripHtml
@@ -59,7 +61,11 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
 
     @Inject
     lateinit var api: FosdemApi
-    private val viewModel: EventDetailsViewModel by viewModels()
+    @Inject
+    lateinit var viewModelFactory: EventDetailsViewModel.Factory
+    private val viewModel: EventDetailsViewModel by assistedViewModels {
+        viewModelFactory.create(event)
+    }
 
     val event by lazy<Event>(LazyThreadSafetyMode.NONE) {
         requireArguments().getParcelable(ARG_EVENT)!!
@@ -157,24 +163,25 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
             }
         }
 
-        with(viewModel) {
-            setEvent(event)
-            eventDetails.observe(viewLifecycleOwner) { eventDetails ->
-                showEventDetails(holder, eventDetails)
-            }
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            showEventDetails(holder, viewModel.eventDetails.await())
         }
 
         // Live room status
         val roomName = event.roomName
         if (!roomName.isNullOrEmpty()) {
-            holder.roomStatusTextView.run {
-                api.roomStatuses.observe(viewLifecycleOwner) { roomStatuses ->
-                    val roomStatus = roomStatuses[roomName]
-                    if (roomStatus == null) {
-                        text = null
-                    } else {
-                        setText(roomStatus.nameResId)
-                        setTextColor(ContextCompat.getColorStateList(context, roomStatus.colorResId))
+            viewLifecycleOwner.launchAndRepeatOnLifecycle {
+                api.roomStatuses.collect { statuses ->
+                    holder.roomStatusTextView.run {
+                        val roomStatus = statuses[roomName]
+                        if (roomStatus == null) {
+                            text = null
+                        } else {
+                            setText(roomStatus.nameResId)
+                            setTextColor(
+                                ContextCompat.getColorStateList(context, roomStatus.colorResId)
+                            )
+                        }
                     }
                 }
             }
@@ -219,9 +226,9 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
             }
             description = description.stripHtml()
             // Add speaker info if available
-            val personsCount = viewModel.eventDetails.value?.persons?.size ?: 0
-            if (personsCount > 0) {
-                val personsSummary = event.personsSummary ?: "?"
+            val personsSummary = event.personsSummary
+            if (!personsSummary.isNullOrBlank()) {
+                val personsCount = personsSummary.count { it == ',' } + 1
                 val speakersLabel = resources.getQuantityString(R.plurals.speakers, personsCount)
                 description = "$speakersLabel: $personsSummary\n\n$description"
             }

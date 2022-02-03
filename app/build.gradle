@@ -118,9 +118,9 @@ dependencies {
     implementation 'androidx.browser:browser:1.4.0'
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
-    implementation 'androidx.paging:paging-runtime-ktx:2.1.2'
+    implementation 'androidx.paging:paging-runtime:3.1.0'
     implementation "androidx.room:room-ktx:$room_version"
+    implementation "androidx.room:room-paging:$room_version"
     implementation "androidx.datastore:datastore-preferences:1.0.0"
     kapt "androidx.room:room-compiler:$room_version"
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
