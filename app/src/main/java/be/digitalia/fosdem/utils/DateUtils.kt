@@ -8,7 +8,9 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 object DateUtils {
-    val conferenceZoneId: ZoneId = ZoneOffset.ofHours(1)
+    private const val CONFERENCE_ZONE_OFFSET_HOURS = 1
+
+    val conferenceZoneId: ZoneId = ZoneOffset.ofHours(CONFERENCE_ZONE_OFFSET_HOURS)
 
     fun getTimeFormatter(context: Context): DateTimeFormatter {
         val primaryLocale = ConfigurationCompat.getLocales(context.resources.configuration)[0]

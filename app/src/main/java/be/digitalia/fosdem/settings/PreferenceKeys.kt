@@ -1,6 +1,7 @@
 package be.digitalia.fosdem.settings
 
 object PreferenceKeys {
+    const val USE_DEVICE_TIME_ZONE = "use_device_time_zone"
     const val THEME = "theme"
     const val NOTIFICATIONS_ENABLED = "notifications_enabled"
     // Android >= O only

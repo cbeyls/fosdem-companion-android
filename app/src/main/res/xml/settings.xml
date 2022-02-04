@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <PreferenceCategory app:title="@string/settings_general">
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:key="use_device_time_zone"
+            app:summaryOff="@string/settings_general_use_device_time_zone_summary_off"
+            app:summaryOn="@string/settings_general_use_device_time_zone_summary_on"
+            app:title="@string/settings_general_use_device_time_zone_title" />
+    </PreferenceCategory>
+
     <PreferenceCategory app:title="@string/settings_appearance">
         <ListPreference
             app:defaultValue="-1"
