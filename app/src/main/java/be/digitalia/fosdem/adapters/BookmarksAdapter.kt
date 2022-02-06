@@ -23,7 +23,9 @@ import be.digitalia.fosdem.activities.EventDetailsActivity
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.RoomStatus
 import be.digitalia.fosdem.utils.DateUtils
+import be.digitalia.fosdem.utils.atZoneOrNull
 import be.digitalia.fosdem.widgets.MultiChoiceHelper
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 class BookmarksAdapter(context: Context, private val multiChoiceHelper: MultiChoiceHelper) :
@@ -34,6 +36,14 @@ class BookmarksAdapter(context: Context, private val multiChoiceHelper: MultiCho
     @ColorInt
     private val errorColor: Int
     private val observers = SimpleArrayMap<AdapterDataObserver, BookmarksDataObserverWrapper>()
+
+    var zoneId: ZoneId? = null
+        set(value) {
+            if (field != value) {
+                field = value
+                notifyItemRangeChanged(0, itemCount, DETAILS_PAYLOAD)
+            }
+        }
 
     var roomStatuses: Map<String, RoomStatus> = emptyMap()
         set(value) {
@@ -63,7 +73,7 @@ class BookmarksAdapter(context: Context, private val multiChoiceHelper: MultiCho
         holder.bind(event)
         val previous = if (position > 0) getItem(position - 1) else null
         val next = if (position + 1 < itemCount) getItem(position + 1) else null
-        holder.bindDetails(event, previous, next, roomStatuses[event.roomName])
+        holder.bindDetails(event, previous, next, zoneId, roomStatuses[event.roomName])
         holder.bindSelection()
     }
 
@@ -75,7 +85,7 @@ class BookmarksAdapter(context: Context, private val multiChoiceHelper: MultiCho
             if (DETAILS_PAYLOAD in payloads) {
                 val previous = if (position > 0) getItem(position - 1) else null
                 val next = if (position + 1 < itemCount) getItem(position + 1) else null
-                holder.bindDetails(event, previous, next, roomStatuses[event.roomName])
+                holder.bindDetails(event, previous, next, zoneId, roomStatuses[event.roomName])
             }
             if (MultiChoiceHelper.SELECTION_PAYLOAD in payloads) {
                 holder.bindSelection()
@@ -126,10 +136,10 @@ class BookmarksAdapter(context: Context, private val multiChoiceHelper: MultiCho
             trackName.contentDescription = context.getString(R.string.track_content_description, track.name)
         }
 
-        fun bindDetails(event: Event, previous: Event?, next: Event?, roomStatus: RoomStatus?) {
+        fun bindDetails(event: Event, previous: Event?, next: Event?, zoneId: ZoneId?, roomStatus: RoomStatus?) {
             val context = details.context
-            val startTimeString = event.startTime?.atZone(DateUtils.conferenceZoneId)?.format(timeFormatter) ?: "?"
-            val endTimeString = event.endTime?.atZone(DateUtils.conferenceZoneId)?.format(timeFormatter) ?: "?"
+            val startTimeString = event.startTime?.atZoneOrNull(zoneId)?.format(timeFormatter) ?: "?"
+            val endTimeString = event.endTime?.atZoneOrNull(zoneId)?.format(timeFormatter) ?: "?"
             val roomName = event.roomName.orEmpty()
             val detailsText: CharSequence = "${event.day.shortName}, $startTimeString ― $endTimeString  |  $roomName"
             val detailsSpannable = SpannableString(detailsText)

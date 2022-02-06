@@ -14,6 +14,7 @@ import be.digitalia.fosdem.R
 import be.digitalia.fosdem.adapters.EventsAdapter
 import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.model.Person
+import be.digitalia.fosdem.settings.UserSettingsProvider
 import be.digitalia.fosdem.utils.assistedViewModels
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.PersonInfoViewModel
@@ -26,6 +27,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class PersonInfoListFragment : Fragment(R.layout.recyclerview) {
 
+    @Inject
+    lateinit var userSettingsProvider: UserSettingsProvider
     @Inject
     lateinit var api: FosdemApi
     @Inject
@@ -61,6 +64,11 @@ class PersonInfoListFragment : Fragment(R.layout.recyclerview) {
         }
 
         viewLifecycleOwner.launchAndRepeatOnLifecycle {
+            launch {
+                userSettingsProvider.zoneId.collect { zoneId ->
+                    adapter.zoneId = zoneId
+                }
+            }
             launch {
                 api.roomStatuses.collect { statuses ->
                     adapter.roomStatuses = statuses

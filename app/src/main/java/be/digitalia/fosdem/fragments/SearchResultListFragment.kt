@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.adapters.EventsAdapter
 import be.digitalia.fosdem.api.FosdemApi
+import be.digitalia.fosdem.settings.UserSettingsProvider
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.SearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,6 +23,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class SearchResultListFragment : Fragment(R.layout.recyclerview) {
 
+    @Inject
+    lateinit var userSettingsProvider: UserSettingsProvider
     @Inject
     lateinit var api: FosdemApi
     private val viewModel: SearchViewModel by activityViewModels()
@@ -46,6 +49,11 @@ class SearchResultListFragment : Fragment(R.layout.recyclerview) {
         }
 
         viewLifecycleOwner.launchAndRepeatOnLifecycle {
+            launch {
+                userSettingsProvider.zoneId.collect { zoneId ->
+                    adapter.zoneId = zoneId
+                }
+            }
             launch {
                 api.roomStatuses.collect { statuses ->
                     adapter.roomStatuses = statuses

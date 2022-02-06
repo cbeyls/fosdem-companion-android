@@ -1,7 +1,6 @@
 package be.digitalia.fosdem.settings
 
 import android.content.SharedPreferences
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -24,7 +23,6 @@ fun SharedPreferences.getBooleanAsFlow(key: String): Flow<Boolean> {
     }
 }
 
-@OptIn(ExperimentalCoroutinesApi::class)
 private inline fun <T> SharedPreferences.getAsFlow(
         key: String,
         crossinline valueProvider: SharedPreferences.(key: String) -> T

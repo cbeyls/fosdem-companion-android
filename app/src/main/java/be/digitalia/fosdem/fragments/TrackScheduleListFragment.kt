@@ -12,8 +12,8 @@ import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.TrackScheduleEventActivity
 import be.digitalia.fosdem.adapters.TrackScheduleAdapter
 import be.digitalia.fosdem.model.Day
-import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.Track
+import be.digitalia.fosdem.settings.UserSettingsProvider
 import be.digitalia.fosdem.utils.assistedViewModels
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.TrackScheduleListViewModel
@@ -23,8 +23,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class TrackScheduleListFragment : Fragment(R.layout.recyclerview), TrackScheduleAdapter.EventClickListener {
+class TrackScheduleListFragment : Fragment(R.layout.recyclerview) {
 
+    @Inject
+    lateinit var userSettingsProvider: UserSettingsProvider
     @Inject
     lateinit var viewModelFactory: TrackScheduleListViewModel.Factory
     private val viewModel: TrackScheduleListViewModel by assistedViewModels {
@@ -34,9 +36,6 @@ class TrackScheduleListFragment : Fragment(R.layout.recyclerview), TrackSchedule
         viewModelFactory.create(day, track)
     }
     private val activityViewModel: TrackScheduleViewModel by activityViewModels()
-    private val selectionEnabled: Boolean by lazy(LazyThreadSafetyMode.NONE) {
-        resources.getBoolean(R.bool.tablet_landscape)
-    }
     private var isListAlreadyShown = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,7 +59,21 @@ class TrackScheduleListFragment : Fragment(R.layout.recyclerview), TrackSchedule
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val adapter = TrackScheduleAdapter(view.context, this)
+        val isSelectionEnabled = resources.getBoolean(R.bool.tablet_landscape)
+
+        val adapter = TrackScheduleAdapter(view.context) { event ->
+            selectedId = event.id
+            activityViewModel.selectedEvent = event
+
+            if (!isSelectionEnabled) {
+                // Classic mode: Show event details in a new activity
+                val intent = Intent(requireContext(), TrackScheduleEventActivity::class.java)
+                    .putExtra(TrackScheduleEventActivity.EXTRA_DAY, event.day)
+                    .putExtra(TrackScheduleEventActivity.EXTRA_TRACK, event.track)
+                    .putExtra(TrackScheduleEventActivity.EXTRA_EVENT_ID, event.id)
+                startActivity(intent)
+            }
+        }
         val holder = RecyclerViewViewHolder(view).apply {
             recyclerView.apply {
                 layoutManager = LinearLayoutManager(context)
@@ -72,6 +85,12 @@ class TrackScheduleListFragment : Fragment(R.layout.recyclerview), TrackSchedule
         }
 
         viewLifecycleOwner.launchAndRepeatOnLifecycle {
+            launch {
+                userSettingsProvider.zoneId.collect { zoneId ->
+                    adapter.zoneId = zoneId
+                }
+            }
+
             launch {
                 viewModel.schedule.collect { schedule ->
                     adapter.submitList(schedule)
@@ -91,7 +110,7 @@ class TrackScheduleListFragment : Fragment(R.layout.recyclerview), TrackSchedule
                         if (selectedPosition == -1) null else schedule[selectedPosition].event
 
                     // Ensure the selection is visible
-                    if ((selectionEnabled || !isListAlreadyShown) && selectedPosition != -1) {
+                    if ((isSelectionEnabled || !isListAlreadyShown) && selectedPosition != -1) {
                         holder.recyclerView.scrollToPosition(selectedPosition)
                     }
                     isListAlreadyShown = true
@@ -106,27 +125,13 @@ class TrackScheduleListFragment : Fragment(R.layout.recyclerview), TrackSchedule
                 }
             }
 
-            if (selectionEnabled) {
+            if (isSelectionEnabled) {
                 launch {
                     activityViewModel.selectedEventFlow.collect { event ->
                         adapter.selectedId = event?.id ?: RecyclerView.NO_ID
                     }
                 }
             }
-        }
-    }
-
-    override fun onEventClick(event: Event) {
-        selectedId = event.id
-        activityViewModel.selectedEvent = event
-
-        if (!selectionEnabled) {
-            // Classic mode: Show event details in a new activity
-            val intent = Intent(requireContext(), TrackScheduleEventActivity::class.java)
-                    .putExtra(TrackScheduleEventActivity.EXTRA_DAY, event.day)
-                    .putExtra(TrackScheduleEventActivity.EXTRA_TRACK, event.track)
-                    .putExtra(TrackScheduleEventActivity.EXTRA_EVENT_ID, event.id)
-            startActivity(intent)
         }
     }
 

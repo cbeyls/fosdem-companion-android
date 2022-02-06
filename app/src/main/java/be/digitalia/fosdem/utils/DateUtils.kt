@@ -3,12 +3,16 @@ package be.digitalia.fosdem.utils
 import android.content.Context
 import android.text.format.DateFormat
 import androidx.core.os.ConfigurationCompat
+import java.time.Instant
 import java.time.ZoneId
 import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 object DateUtils {
-    val conferenceZoneId: ZoneId = ZoneOffset.ofHours(1)
+    private const val CONFERENCE_ZONE_OFFSET_HOURS = 1
+
+    val conferenceZoneId: ZoneId = ZoneOffset.ofHours(CONFERENCE_ZONE_OFFSET_HOURS)
 
     fun getTimeFormatter(context: Context): DateTimeFormatter {
         val primaryLocale = ConfigurationCompat.getLocales(context.resources.configuration)[0]
@@ -16,4 +20,8 @@ object DateUtils {
         val bestPattern = DateFormat.getBestDateTimePattern(primaryLocale, basePattern)
         return DateTimeFormatter.ofPattern(bestPattern, primaryLocale)
     }
+}
+
+fun Instant.atZoneOrNull(zoneId: ZoneId?): ZonedDateTime? {
+    return if (zoneId != null) atZone(zoneId) else null
 }
