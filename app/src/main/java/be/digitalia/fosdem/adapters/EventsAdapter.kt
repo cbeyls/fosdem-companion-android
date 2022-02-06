@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.set
 import androidx.core.view.isGone
 import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.EventDetailsActivity
@@ -150,9 +151,7 @@ class EventsAdapter constructor(context: Context, private val showDay: Boolean =
     }
 
     companion object {
-        val DIFF_CALLBACK = createSimpleItemCallback<StatusEvent> { oldItem, newItem ->
-            oldItem.event.id == newItem.event.id
-        }
+        val DIFF_CALLBACK: DiffUtil.ItemCallback<StatusEvent> = createSimpleItemCallback{ it.event.id }
         private val DETAILS_PAYLOAD = Any()
     }
 }

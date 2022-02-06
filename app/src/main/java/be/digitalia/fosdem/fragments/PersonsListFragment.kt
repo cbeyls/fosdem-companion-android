@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -73,9 +74,7 @@ class PersonsListFragment : Fragment(R.layout.recyclerview_fastscroll) {
         }
 
         companion object {
-            private val DIFF_CALLBACK = createSimpleItemCallback<Person> { oldItem, newItem ->
-                oldItem.id == newItem.id
-            }
+            private val DIFF_CALLBACK: DiffUtil.ItemCallback<Person> = createSimpleItemCallback { it.id }
         }
     }
 

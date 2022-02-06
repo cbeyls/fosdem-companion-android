@@ -15,6 +15,7 @@ import androidx.collection.SimpleArrayMap
 import androidx.core.content.ContextCompat
 import androidx.core.text.set
 import androidx.core.view.isGone
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
@@ -243,9 +244,7 @@ class BookmarksAdapter(context: Context, private val multiChoiceHelper: MultiCho
     }
 
     companion object {
-        private val DIFF_CALLBACK = createSimpleItemCallback<Event> { oldItem, newItem ->
-            oldItem.id == newItem.id
-        }
+        private val DIFF_CALLBACK: DiffUtil.ItemCallback<Event> = createSimpleItemCallback { it.id }
         private val DETAILS_PAYLOAD = Any()
     }
 }
