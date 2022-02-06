@@ -14,6 +14,7 @@ import be.digitalia.fosdem.R
 import be.digitalia.fosdem.adapters.EventsAdapter
 import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.model.StatusEvent
+import be.digitalia.fosdem.settings.UserSettingsProvider
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.LiveViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,6 +31,8 @@ sealed class LiveListFragment(
     private val dataSourceProvider: (LiveViewModel) -> Flow<PagingData<StatusEvent>>
 ) : Fragment(R.layout.recyclerview) {
 
+    @Inject
+    lateinit var userSettingsProvider: UserSettingsProvider
     @Inject
     lateinit var api: FosdemApi
     private val viewModel: LiveViewModel by viewModels({ requireParentFragment() })
@@ -67,6 +70,11 @@ sealed class LiveListFragment(
         }
 
         viewLifecycleOwner.launchAndRepeatOnLifecycle {
+            launch {
+                userSettingsProvider.zoneId.collect { zoneId ->
+                    adapter.zoneId = zoneId
+                }
+            }
             launch {
                 api.roomStatuses.collect { statuses ->
                     adapter.roomStatuses = statuses

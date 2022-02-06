@@ -38,6 +38,8 @@ import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.EventDetails
 import be.digitalia.fosdem.model.Link
 import be.digitalia.fosdem.model.Person
+import be.digitalia.fosdem.model.RoomStatus
+import be.digitalia.fosdem.settings.UserSettingsProvider
 import be.digitalia.fosdem.utils.ClickableArrowKeyMovementMethod
 import be.digitalia.fosdem.utils.DateUtils
 import be.digitalia.fosdem.utils.assistedViewModels
@@ -49,6 +51,9 @@ import be.digitalia.fosdem.utils.stripHtml
 import be.digitalia.fosdem.viewmodels.EventDetailsViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -56,11 +61,14 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
 
     private class ViewHolder(view: View) {
         val personsTextView: TextView = view.findViewById(R.id.persons)
+        val timeTextView: TextView = view.findViewById(R.id.time)
         val roomStatusTextView: TextView = view.findViewById(R.id.room_status)
         val linksHeader: View = view.findViewById(R.id.links_header)
         val linksContainer: ViewGroup = view.findViewById(R.id.links_container)
     }
 
+    @Inject
+    lateinit var userSettingsProvider: UserSettingsProvider
     @Inject
     lateinit var api: FosdemApi
     @Inject
@@ -195,24 +203,42 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
             showEventDetails(holder, viewModel.eventDetails.await())
         }
 
-        // Live room status
+        val timeFormatter = DateUtils.getTimeFormatter(view.context)
         val roomName = event.roomName
-        if (!roomName.isNullOrEmpty()) {
-            viewLifecycleOwner.launchAndRepeatOnLifecycle {
-                api.roomStatuses.collect { statuses ->
-                    holder.roomStatusTextView.run {
-                        val roomStatus = statuses[roomName]
-                        if (roomStatus == null) {
-                            text = null
-                        } else {
-                            setText(roomStatus.nameResId)
-                            setTextColor(
-                                ContextCompat.getColorStateList(context, roomStatus.colorResId)
-                            )
-                        }
+        viewLifecycleOwner.launchAndRepeatOnLifecycle {
+            launch {
+                userSettingsProvider.zoneId.collect { zoneId ->
+                    bindTime(holder.timeTextView, timeFormatter, zoneId)
+                }
+            }
+
+            // Live room status
+            if (!roomName.isNullOrEmpty()) {
+                launch {
+                    api.roomStatuses.collect { statuses ->
+                        bindRoomStatus(holder.roomStatusTextView, statuses[roomName])
                     }
                 }
             }
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun bindTime(timeTextView: TextView, timeFormatter: DateTimeFormatter, zoneId: ZoneId) {
+        val startTime = event.startTime?.atZone(zoneId)?.format(timeFormatter) ?: "?"
+        val endTime = event.endTime?.atZone(zoneId)?.format(timeFormatter) ?: "?"
+        timeTextView.text = "${event.day}, $startTime ― $endTime"
+        timeTextView.contentDescription = getString(R.string.time_content_description, timeTextView.text)
+    }
+
+    private fun bindRoomStatus(roomStatusTextView: TextView, roomStatus: RoomStatus?) {
+        if (roomStatus == null) {
+            roomStatusTextView.text = null
+        } else {
+            roomStatusTextView.setText(roomStatus.nameResId)
+            roomStatusTextView.setTextColor(
+                ContextCompat.getColorStateList(roomStatusTextView.context, roomStatus.colorResId)
+            )
         }
     }
 

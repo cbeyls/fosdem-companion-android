@@ -60,8 +60,8 @@ class UserSettingsProvider @Inject constructor(@ApplicationContext context: Cont
 
     val notificationsDelayInMillis: Flow<Long>
         get() = sharedPreferences.getStringAsFlow(PreferenceKeys.NOTIFICATIONS_DELAY)
-                .map {
-                    // Convert from minutes to milliseconds
-                    TimeUnit.MINUTES.toMillis(it?.toLong() ?: 0L)
-                }
+            .map {
+                // Convert from minutes to milliseconds
+                TimeUnit.MINUTES.toMillis(it?.toLong() ?: 0L)
+            }
 }

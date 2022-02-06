@@ -3,8 +3,10 @@ package be.digitalia.fosdem.utils
 import android.content.Context
 import android.text.format.DateFormat
 import androidx.core.os.ConfigurationCompat
+import java.time.Instant
 import java.time.ZoneId
 import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 object DateUtils {
@@ -18,4 +20,8 @@ object DateUtils {
         val bestPattern = DateFormat.getBestDateTimePattern(primaryLocale, basePattern)
         return DateTimeFormatter.ofPattern(bestPattern, primaryLocale)
     }
+}
+
+fun Instant.atZoneOrNull(zoneId: ZoneId?): ZonedDateTime? {
+    return if (zoneId != null) atZone(zoneId) else null
 }

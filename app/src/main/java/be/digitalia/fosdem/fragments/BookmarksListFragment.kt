@@ -26,6 +26,7 @@ import be.digitalia.fosdem.activities.ExternalBookmarksActivity
 import be.digitalia.fosdem.adapters.BookmarksAdapter
 import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.providers.BookmarksExportProvider
+import be.digitalia.fosdem.settings.UserSettingsProvider
 import be.digitalia.fosdem.utils.CreateNfcAppDataCallback
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.utils.toBookmarksNfcAppData
@@ -47,6 +48,8 @@ import javax.inject.Named
 @AndroidEntryPoint
 class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataCallback {
 
+    @Inject
+    lateinit var userSettingsProvider: UserSettingsProvider
     @Inject
     @Named("UIState")
     lateinit var preferences: SharedPreferences
@@ -158,6 +161,11 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
         }
 
         viewLifecycleOwner.launchAndRepeatOnLifecycle {
+            launch {
+                userSettingsProvider.zoneId.collect { zoneId ->
+                    adapter.zoneId = zoneId
+                }
+            }
             launch {
                 api.roomStatuses.collect { statuses ->
                     adapter.roomStatuses = statuses

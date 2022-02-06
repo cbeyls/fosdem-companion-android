@@ -20,12 +20,22 @@ import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.RoomStatus
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.utils.DateUtils
+import be.digitalia.fosdem.utils.atZoneOrNull
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 class EventsAdapter constructor(context: Context, private val showDay: Boolean = true) :
     PagingDataAdapter<StatusEvent, EventsAdapter.ViewHolder>(DIFF_CALLBACK) {
 
     private val timeFormatter = DateUtils.getTimeFormatter(context)
+
+    var zoneId: ZoneId? = null
+        set(value) {
+            if (field != value) {
+                field = value
+                notifyItemRangeChanged(0, itemCount, DETAILS_PAYLOAD)
+            }
+        }
 
     var roomStatuses: Map<String, RoomStatus> = emptyMap()
         set(value) {
@@ -49,7 +59,7 @@ class EventsAdapter constructor(context: Context, private val showDay: Boolean =
         } else {
             val event = statusEvent.event
             holder.bind(event, statusEvent.isBookmarked)
-            holder.bindDetails(event, showDay, roomStatuses[event.roomName])
+            holder.bindDetails(event, showDay, zoneId, roomStatuses[event.roomName])
         }
     }
 
@@ -61,7 +71,7 @@ class EventsAdapter constructor(context: Context, private val showDay: Boolean =
             if (statusEvent != null) {
                 if (DETAILS_PAYLOAD in payloads) {
                     val event = statusEvent.event
-                    holder.bindDetails(event, showDay, roomStatuses[event.roomName])
+                    holder.bindDetails(event, showDay, zoneId, roomStatuses[event.roomName])
                 }
             }
         }
@@ -107,10 +117,10 @@ class EventsAdapter constructor(context: Context, private val showDay: Boolean =
             trackName.contentDescription = context.getString(R.string.track_content_description, track.name)
         }
 
-        fun bindDetails(event: Event, showDay: Boolean, roomStatus: RoomStatus?) {
+        fun bindDetails(event: Event, showDay: Boolean, zoneId: ZoneId?, roomStatus: RoomStatus?) {
             val context = details.context
-            val startTimeString = event.startTime?.atZone(DateUtils.conferenceZoneId)?.format(timeFormatter) ?: "?"
-            val endTimeString = event.endTime?.atZone(DateUtils.conferenceZoneId)?.format(timeFormatter) ?: "?"
+            val startTimeString = event.startTime?.atZoneOrNull(zoneId)?.format(timeFormatter) ?: "?"
+            val endTimeString = event.endTime?.atZoneOrNull(zoneId)?.format(timeFormatter) ?: "?"
             val roomName = event.roomName.orEmpty()
             var detailsText: CharSequence = if (showDay) {
                 "${event.day.shortName}, $startTimeString ― $endTimeString  |  $roomName"
