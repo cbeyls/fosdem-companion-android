@@ -2,11 +2,11 @@ package be.digitalia.fosdem.adapters
 
 import android.content.Context
 import android.graphics.drawable.LayerDrawable
+import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
@@ -26,21 +26,6 @@ class TrackScheduleAdapter(context: Context, private val clickListener: (Event) 
     : ListAdapter<StatusEvent, TrackScheduleAdapter.ViewHolder>(EventsAdapter.DIFF_CALLBACK) {
 
     private val timeFormatter = DateUtils.getTimeFormatter(context)
-    private val viewHolderResources: ViewHolderResources
-
-    init {
-        setHasStableIds(true)
-
-        val typedArray = context.theme.obtainStyledAttributes(R.styleable.PrimaryTextColors)
-        viewHolderResources = ViewHolderResources(
-            activatedBackgroundResId = R.drawable.activated_background,
-            timeBackgroundColor = ContextCompat.getColor(context, R.color.schedule_time_background),
-            timeRunningBackgroundColor = ContextCompat.getColor(context, R.color.schedule_time_running_background),
-            timeForegroundColor = typedArray.getColor(R.styleable.PrimaryTextColors_android_textColorPrimary, 0),
-            timeRunningForegroundColor = typedArray.getColor(R.styleable.PrimaryTextColors_android_textColorPrimaryInverse, 0)
-        )
-        typedArray.recycle()
-    }
 
     var zoneId: ZoneId? = null
         set(value) {
@@ -52,31 +37,59 @@ class TrackScheduleAdapter(context: Context, private val clickListener: (Event) 
 
     var currentTime: Instant? = null
         set(value) {
+            val oldTime = field
             if (field != value) {
                 field = value
-                notifyItemRangeChanged(0, itemCount, TIME_COLORS_PAYLOAD)
+                val list = currentList
+                val oldIndex = getOngoingIndexForTime(list, oldTime)
+                val newIndex = getOngoingIndexForTime(list, value)
+                if (oldIndex != newIndex) {
+                    if (oldIndex >= 0) notifyItemChanged(oldIndex)
+                    if (newIndex >= 0) notifyItemChanged(newIndex)
+                }
             }
         }
+
+    private fun getOngoingIndexForTime(list: List<StatusEvent>, time: Instant?): Int {
+        if (time == null) {
+            return -1
+        }
+        var index = list.binarySearchBy(time) { it.event.startTime }
+        if (index >= 0) {
+            return index
+        }
+        // Check if the event at previous position is in progress
+        index = -index - 2
+        return if (index >= 0 && list[index].event.isRunningAtTime(time)) index else -1
+    }
 
     var selectedId: Long = RecyclerView.NO_ID
         set(value) {
             val oldId = field
             if (oldId != value) {
                 field = value
-                for (i in 0 until itemCount) {
-                    val id = getItemId(i)
+                currentList.forEachIndexed { index, statusEvent ->
+                    val id = statusEvent.event.id
                     if (id == oldId || id == value) {
-                        notifyItemChanged(i, SELECTION_PAYLOAD)
+                        notifyItemChanged(index, SELECTION_PAYLOAD)
                     }
                 }
             }
         }
 
-    override fun getItemId(position: Int) = getItem(position).event.id
+    override fun getItemViewType(position: Int): Int {
+        val time = currentTime
+        return if (time != null && getItem(position).event.isRunningAtTime(time))
+            ONGOING_VIEW_TYPE else DEFAULT_VIEW_TYPE
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_schedule_event, parent, false)
-        return ViewHolder(view, timeFormatter, viewHolderResources, clickListener)
+        val context = if (viewType == ONGOING_VIEW_TYPE)
+            ContextThemeWrapper(parent.context, R.style.ThemeOverlay_App_OngoingEvent)
+        else parent.context
+        val view =
+            LayoutInflater.from(context).inflate(R.layout.item_schedule_event, parent, false)
+        return ViewHolder(view, timeFormatter, R.drawable.activated_background, clickListener)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -84,7 +97,6 @@ class TrackScheduleAdapter(context: Context, private val clickListener: (Event) 
         val event = statusEvent.event
         holder.bind(event, statusEvent.isBookmarked)
         holder.bindTime(event, zoneId)
-        holder.bindTimeColors(event, currentTime)
         holder.bindSelection(event.id == selectedId)
     }
 
@@ -96,26 +108,15 @@ class TrackScheduleAdapter(context: Context, private val clickListener: (Event) 
             if (TIME_PAYLOAD in payloads) {
                 holder.bindTime(statusEvent.event, zoneId)
             }
-            if (TIME_COLORS_PAYLOAD in payloads) {
-                holder.bindTimeColors(statusEvent.event, currentTime)
-            }
             if (SELECTION_PAYLOAD in payloads) {
                 holder.bindSelection(statusEvent.event.id == selectedId)
             }
         }
     }
 
-    class ViewHolderResources(
-        @DrawableRes val activatedBackgroundResId: Int,
-        @ColorInt val timeBackgroundColor: Int,
-        @ColorInt val timeRunningBackgroundColor: Int,
-        @ColorInt val timeForegroundColor: Int,
-        @ColorInt val timeRunningForegroundColor: Int
-    )
-
     class ViewHolder(
         itemView: View, private val timeFormatter: DateTimeFormatter,
-        private val resources: ViewHolderResources, private val clickListener: (Event) -> Unit
+        @DrawableRes private val activatedBackgroundResId: Int, private val clickListener: (Event) -> Unit
     ) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
         private val time: TextView = itemView.findViewById(R.id.time)
         private val title: TextView = itemView.findViewById(R.id.title)
@@ -126,11 +127,11 @@ class TrackScheduleAdapter(context: Context, private val clickListener: (Event) 
 
         init {
             itemView.setOnClickListener(this)
-            if (resources.activatedBackgroundResId != 0) {
+            if (activatedBackgroundResId != 0) {
                 // Compose a new background drawable by combining the existing one with the activated background
                 val existingBackground = itemView.background
                 val activatedBackground =
-                    ContextCompat.getDrawable(itemView.context, resources.activatedBackgroundResId)
+                    ContextCompat.getDrawable(itemView.context, activatedBackgroundResId)
                 val newBackground = if (existingBackground == null) {
                     activatedBackground
                 } else {
@@ -160,21 +161,10 @@ class TrackScheduleAdapter(context: Context, private val clickListener: (Event) 
         }
 
         fun bindTime(event: Event, zoneId: ZoneId?) {
-            time.text = event.startTime?.atZoneOrNull(zoneId)?.format(timeFormatter)
-        }
-
-        fun bindTimeColors(event: Event, currentTime: Instant?) {
-            if (currentTime != null && event.isRunningAtTime(currentTime)) {
-                // Contrast colors for running event
-                time.setBackgroundColor(resources.timeRunningBackgroundColor)
-                time.setTextColor(resources.timeRunningForegroundColor)
-                time.contentDescription = time.context.getString(R.string.in_progress_content_description, time.text)
-            } else {
-                // Normal colors
-                time.setBackgroundColor(resources.timeBackgroundColor)
-                time.setTextColor(resources.timeForegroundColor)
-                // Use text as content description
-                time.contentDescription = null
+            time.text = event.startTime?.atZoneOrNull(zoneId)?.format(timeFormatter) ?: "?"
+            if (itemViewType == ONGOING_VIEW_TYPE) {
+                time.contentDescription =
+                    time.context.getString(R.string.in_progress_content_description, time.text)
             }
         }
 
@@ -188,8 +178,9 @@ class TrackScheduleAdapter(context: Context, private val clickListener: (Event) 
     }
 
     companion object {
+        private const val DEFAULT_VIEW_TYPE = 0
+        private const val ONGOING_VIEW_TYPE = 1
         private val TIME_PAYLOAD = Any()
-        private val TIME_COLORS_PAYLOAD = Any()
         private val SELECTION_PAYLOAD = Any()
     }
 }

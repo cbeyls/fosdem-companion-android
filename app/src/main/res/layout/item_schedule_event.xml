@@ -14,7 +14,7 @@
         android:layout_alignBottom="@+id/room"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:background="@color/schedule_time_background"
+        android:background="?colorScheduleTimeBackground"
         android:gravity="start"
         android:paddingStart="@dimen/list_item_padding"
         android:paddingTop="12dp"
@@ -22,6 +22,7 @@
         android:paddingBottom="@dimen/list_item_padding"
         android:textAlignment="viewStart"
         android:textAppearance="?textAppearanceBody2"
+        android:textColor="?colorScheduleTimeForeground"
         android:textStyle="bold"
         tools:text="09:30" />
 

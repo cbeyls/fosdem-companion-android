@@ -39,7 +39,7 @@ data class Event(
 ) : Parcelable {
 
     fun isRunningAtTime(time: Instant): Boolean {
-        return startTime != null && endTime != null && time in startTime..endTime
+        return startTime != null && endTime != null && time >= startTime && time < endTime
     }
 
     val duration: Duration

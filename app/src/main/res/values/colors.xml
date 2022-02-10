@@ -13,7 +13,7 @@
     <color name="color_on_secondary">#ffffff</color>
     <color name="color_activated">#663479c4</color>
     <color name="schedule_time_background">#29000000</color>
-    <color name="schedule_time_running_background">@color/color_secondary</color>
+    <color name="schedule_time_ongoing_background">@color/color_secondary</color>
     <color name="light_emphasis_background">#0d000000</color>
 
     <!-- Track types -->

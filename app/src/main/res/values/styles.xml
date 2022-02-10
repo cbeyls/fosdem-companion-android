@@ -14,6 +14,8 @@
         <item name="colorSecondary">@color/color_secondary</item>
         <item name="colorOnPrimary">@color/color_on_primary</item>
         <item name="colorOnSecondary">@color/color_on_secondary</item>
+        <item name="colorScheduleTimeBackground">@color/schedule_time_background</item>
+        <item name="colorScheduleTimeForeground">?android:textColorPrimary</item>
 
         <item name="activatedBackgroundIndicator">@drawable/activated_background</item>
         <item name="actionBarTheme">@style/ThemeOverlay.App.ActionBar</item>
@@ -40,6 +42,11 @@
         <item name="colorSecondary">@color/color_secondary</item>
         <item name="colorOnPrimary">@color/design_default_color_on_primary</item>
         <item name="colorOnSecondary">@color/design_default_color_on_primary</item>
+    </style>
+
+    <style name="ThemeOverlay.App.OngoingEvent" parent="ThemeOverlay.MaterialComponents">
+        <item name="colorScheduleTimeBackground">@color/schedule_time_ongoing_background</item>
+        <item name="colorScheduleTimeForeground">?android:textColorPrimaryInverse</item>
     </style>
 
     <style name="ThemeOverlay.App.ActionBar" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
