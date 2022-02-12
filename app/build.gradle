@@ -64,9 +64,11 @@ android {
     }
 
     packagingOptions {
-        exclude 'kotlin/**'
-        exclude 'META-INF/*.kotlin_module'
-        exclude 'META-INF/*.version'
+        resources.excludes += [
+                'kotlin/**',
+                'META-INF/*.kotlin_module',
+                'META-INF/*.version'
+        ]
     }
 }
 
