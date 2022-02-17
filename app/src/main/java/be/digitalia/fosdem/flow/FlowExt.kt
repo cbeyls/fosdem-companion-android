@@ -2,7 +2,9 @@ package be.digitalia.fosdem.flow
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingCommand
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,16 +18,18 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-fun <T> stateFlow(
+inline fun <T> stateFlow(
     scope: CoroutineScope,
     initialValue: T,
     producer: (subscriptionCount: StateFlow<Int>) -> Flow<T>
 ): StateFlow<T> {
     val state = MutableStateFlow(initialValue)
-    scope.launch {
-        producer(state.subscriptionCount).collect(state)
-    }
+    producer(state.subscriptionCount).launchIn(scope, state)
     return state.asStateFlow()
+}
+
+fun <T> Flow<T>.launchIn(scope: CoroutineScope, collector: FlowCollector<T>): Job = scope.launch {
+    collect(collector)
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
