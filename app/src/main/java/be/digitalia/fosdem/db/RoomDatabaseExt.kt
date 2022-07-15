@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.update
 fun RoomDatabase.createVersionFlow(vararg tables: String): StateFlow<Int> {
     val stateFlow = MutableStateFlow(0)
     invalidationTracker.addObserver(object : InvalidationTracker.Observer(tables) {
-        override fun onInvalidated(tables: MutableSet<String>) {
+        override fun onInvalidated(tables: Set<String>) {
             stateFlow.update { it + 1 }
         }
     })

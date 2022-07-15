@@ -43,9 +43,11 @@ android {
             }
 
             packagingOptions {
-                exclude 'androidsupportmultidexversion.txt'
-                exclude 'DebugProbesKt.bin'
-                exclude 'kotlin-tooling-metadata.json'
+                resources.excludes += [
+                        'androidsupportmultidexversion.txt',
+                        'DebugProbesKt.bin',
+                        'kotlin-tooling-metadata.json'
+                ]
             }
         }
     }
@@ -58,7 +60,7 @@ android {
 
     kotlinOptions {
         freeCompilerArgs = [
-                '-Xopt-in=kotlin.RequiresOptIn'
+                '-opt-in=kotlin.RequiresOptIn'
         ]
         jvmTarget = "1.8"
     }
@@ -97,21 +99,21 @@ afterEvaluate {
 }
 
 dependencies {
-    def lifecycle_version = "2.4.1"
+    def lifecycle_version = "2.5.0"
     def room_version = "2.4.2"
     def okhttp_version = "3.12.13"
 
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.6'
 
     implementation "androidx.multidex:multidex:2.0.1"
     implementation "com.google.dagger:hilt-android:$hilt_version"
     kapt "com.google.dagger:hilt-compiler:$hilt_version"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0'
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.activity:activity-ktx:1.4.0'
-    implementation 'androidx.fragment:fragment-ktx:1.4.1'
-    implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+    implementation 'androidx.core:core-ktx:1.8.0'
+    implementation 'androidx.activity:activity-ktx:1.5.0'
+    implementation 'androidx.fragment:fragment-ktx:1.5.0'
+    implementation 'androidx.appcompat:appcompat:1.4.2'
+    implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'androidx.viewpager2:viewpager2:1.1.0-beta01'
@@ -129,7 +131,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp-tls:$okhttp_version") {
         exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
     }
-    implementation 'com.squareup.okio:okio:3.0.0'
+    implementation 'com.squareup.okio:okio:3.2.0'
     implementation 'com.squareup.moshi:moshi:1.13.0'
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 }
