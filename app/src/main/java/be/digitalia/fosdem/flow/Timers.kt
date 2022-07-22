@@ -1,31 +1,51 @@
 package be.digitalia.fosdem.flow
 
-import android.os.SystemClock
+import be.digitalia.fosdem.utils.ElapsedRealTimeSource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import java.util.Arrays
+import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
+import kotlin.time.TimeMark
+import kotlin.time.TimeSource
 
-fun tickerFlow(periodInMillis: Long): Flow<Unit> = flow {
+fun tickerFlow(period: Duration): Flow<Unit> = flow {
     while (true) {
         emit(Unit)
-        delay(periodInMillis)
+        delay(period)
     }
 }
 
+@OptIn(ExperimentalTime::class)
+fun synchronizedTickerFlow(period: Duration, subscriptionCount: StateFlow<Int>): Flow<Unit> {
+    return synchronizedTickerFlow(period, subscriptionCount, ElapsedRealTimeSource)
+}
+
 /**
- * Creates a ticker Flow which remembers the time of the last emission of the previous collection.
- * It only supports one subscriber at a time.
+ * Creates a ticker Flow which delays emitting a value until there is at least one subscription.
+ * timeSource needs to be monotonic.
  */
-fun rememberTickerFlow(periodInMillis: Long): Flow<Unit> {
-    var nextEmissionTime = 0L
+@ExperimentalTime
+fun synchronizedTickerFlow(
+    period: Duration,
+    subscriptionCount: StateFlow<Int>,
+    timeSource: TimeSource
+): Flow<Unit> {
     return flow {
-        delay(nextEmissionTime - SystemClock.elapsedRealtime())
-        while (true) {
-            emit(Unit)
-            nextEmissionTime = SystemClock.elapsedRealtime() + periodInMillis
-            delay(periodInMillis)
+        var nextEmissionTimeMark: TimeMark? = null
+        flow {
+            nextEmissionTimeMark?.let { delay(-it.elapsedNow()) }
+            while (true) {
+                emit(Unit)
+                nextEmissionTimeMark = timeSource.markNow() + period
+                delay(period)
+            }
         }
+            .flowWhileShared(subscriptionCount, SharingStarted.WhileSubscribed())
+            .collect(this)
     }
 }
 

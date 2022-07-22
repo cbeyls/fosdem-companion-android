@@ -8,9 +8,8 @@ import be.digitalia.fosdem.BuildConfig
 import be.digitalia.fosdem.alarms.AppAlarmManager
 import be.digitalia.fosdem.db.BookmarksDao
 import be.digitalia.fosdem.db.ScheduleDao
-import be.digitalia.fosdem.flow.flowWhileShared
-import be.digitalia.fosdem.flow.rememberTickerFlow
 import be.digitalia.fosdem.flow.stateFlow
+import be.digitalia.fosdem.flow.synchronizedTickerFlow
 import be.digitalia.fosdem.flow.versionedResourceFlow
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.parsers.ExportedBookmarksParser
@@ -20,7 +19,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
@@ -30,8 +28,8 @@ import okio.buffer
 import okio.source
 import java.time.Duration
 import java.time.Instant
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.minutes
 
 @HiltViewModel
 class BookmarksViewModel @Inject constructor(
@@ -48,8 +46,7 @@ class BookmarksViewModel @Inject constructor(
         upcomingOnlyStateFlow.filterNotNull().flatMapLatest { upcomingOnly ->
             if (upcomingOnly) {
                 // Refresh upcoming bookmarks every 2 minutes
-                rememberTickerFlow(REFRESH_PERIOD)
-                    .flowWhileShared(subscriptionCount, SharingStarted.WhileSubscribed())
+                synchronizedTickerFlow(REFRESH_PERIOD, subscriptionCount)
                     .flatMapLatest {
                         getObservableBookmarks(Instant.now() - TIME_OFFSET, subscriptionCount)
                     }
@@ -89,7 +86,7 @@ class BookmarksViewModel @Inject constructor(
     }
 
     companion object {
-        private val REFRESH_PERIOD = TimeUnit.MINUTES.toMillis(2L)
+        private val REFRESH_PERIOD = 2.minutes
 
         // In upcomingOnly mode, events that just started are still shown for 5 minutes
         private val TIME_OFFSET = Duration.ofMinutes(5L)

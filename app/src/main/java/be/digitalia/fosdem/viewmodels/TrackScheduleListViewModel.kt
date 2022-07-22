@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import java.time.Duration
 import java.time.Instant
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.minutes
 
 class TrackScheduleListViewModel @AssistedInject constructor(
     scheduleDao: ScheduleDao,
@@ -61,6 +61,6 @@ class TrackScheduleListViewModel @AssistedInject constructor(
     }
 
     companion object {
-        private val TIME_REFRESH_PERIOD = TimeUnit.MINUTES.toMillis(1L)
+        private val TIME_REFRESH_PERIOD = 1.minutes
     }
 }
