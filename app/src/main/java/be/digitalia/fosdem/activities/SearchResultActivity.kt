@@ -17,7 +17,6 @@ import be.digitalia.fosdem.fragments.SearchResultListFragment
 import be.digitalia.fosdem.utils.trimNonAlpha
 import be.digitalia.fosdem.viewmodels.SearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -96,7 +95,6 @@ class SearchResultActivity : AppCompatActivity(R.layout.search_result) {
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     private val EditText.textChangeEvents: Flow<CharSequence?>
         get() = callbackFlow {
             val textWatcher = doOnTextChanged { text, _, _, _ -> trySend(text) }

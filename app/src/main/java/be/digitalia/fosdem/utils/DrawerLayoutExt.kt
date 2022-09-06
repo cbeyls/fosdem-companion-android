@@ -5,7 +5,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
-suspend fun DrawerLayout.awaitCloseDrawer(drawerView: View) = suspendCancellableCoroutine<Unit> { cont ->
+suspend fun DrawerLayout.awaitCloseDrawer(drawerView: View) = suspendCancellableCoroutine { cont ->
     val listener = object : DrawerLayout.SimpleDrawerListener() {
         override fun onDrawerStateChanged(newState: Int) {
             if (newState == DrawerLayout.STATE_DRAGGING) {

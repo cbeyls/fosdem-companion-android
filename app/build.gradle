@@ -7,13 +7,13 @@ plugins {
 }
 
 android {
-    compileSdkVersion 31
-    buildToolsVersion "31.0.0"
+    compileSdkVersion 32
+    buildToolsVersion "32.0.0"
 
     defaultConfig {
         applicationId "be.digitalia.fosdem"
         minSdkVersion 19
-        targetSdkVersion 31
+        targetSdkVersion 32
         multiDexEnabled = true
         versionCode 1900210
         versionName "2.1.0"
@@ -99,20 +99,20 @@ afterEvaluate {
 }
 
 dependencies {
-    def lifecycle_version = "2.5.0"
-    def room_version = "2.4.2"
+    def lifecycle_version = "2.5.1"
+    def room_version = "2.4.3"
     def okhttp_version = "3.12.13"
 
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.6'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.8'
 
     implementation "androidx.multidex:multidex:2.0.1"
     implementation "com.google.dagger:hilt-android:$hilt_version"
     kapt "com.google.dagger:hilt-compiler:$hilt_version"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
     implementation 'androidx.core:core-ktx:1.8.0'
-    implementation 'androidx.activity:activity-ktx:1.5.0'
-    implementation 'androidx.fragment:fragment-ktx:1.5.0'
-    implementation 'androidx.appcompat:appcompat:1.4.2'
+    implementation 'androidx.activity:activity-ktx:1.5.1'
+    implementation 'androidx.fragment:fragment-ktx:1.5.2'
+    implementation 'androidx.appcompat:appcompat:1.5.0'
     implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
