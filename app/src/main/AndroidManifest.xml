@@ -8,8 +8,9 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.NFC" />
 
-    <!-- Permission required for alarms -->
+    <!-- Permissions required for alarms -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <!-- Make touch screen optional since all screens can be used with a pad -->
     <uses-feature

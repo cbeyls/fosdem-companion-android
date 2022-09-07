@@ -4,7 +4,9 @@ import android.os.Bundle
 import androidx.fragment.app.commit
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.SettingsFragment
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SettingsActivity : SimpleToolbarActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -52,6 +52,12 @@ class UserSettingsProvider @Inject constructor(@ApplicationContext context: Cont
     val isNotificationsEnabled: Flow<Boolean>
         get() = sharedPreferences.getBooleanAsFlow(PreferenceKeys.NOTIFICATIONS_ENABLED)
 
+    fun updateNotificationsEnabled(notificationsEnabled: Boolean) {
+        sharedPreferences.edit()
+            .putBoolean(PreferenceKeys.NOTIFICATIONS_ENABLED, notificationsEnabled)
+            .apply()
+    }
+
     val isNotificationsVibrationEnabled: Flow<Boolean>
         get() = sharedPreferences.getBooleanAsFlow(PreferenceKeys.NOTIFICATIONS_VIBRATE)
 

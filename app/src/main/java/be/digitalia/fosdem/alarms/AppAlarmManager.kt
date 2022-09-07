@@ -35,6 +35,7 @@ import be.digitalia.fosdem.settings.UserSettingsProvider
 import be.digitalia.fosdem.utils.BackgroundWorkScope
 import be.digitalia.fosdem.utils.roomNameToResourceName
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -59,17 +60,29 @@ class AppAlarmManager @Inject constructor(
     }
     private val queueMutex = Mutex()
 
-    private suspend fun isNotificationsEnabled(): Boolean =
-        userSettingsProvider.isNotificationsEnabled.first()
+    private suspend fun isNotificationsEnabled(): Boolean {
+        return canScheduleExactAlarms && userSettingsProvider.isNotificationsEnabled.first()
+    }
 
     init {
-        // Skip initial values and only act on changes
         BackgroundWorkScope.launch {
-            userSettingsProvider.isNotificationsEnabled.drop(1).collect { isEnabled ->
-                onEnabledChanged(isEnabled)
+            userSettingsProvider.isNotificationsEnabled.collectIndexed { index, isEnabled ->
+                if (index == 0) {
+                    // On app launch, switch off the preference if we don't have the required permission
+                    if (isEnabled && !canScheduleExactAlarms) {
+                        userSettingsProvider.updateNotificationsEnabled(false)
+                    }
+                } else {
+                    if (isEnabled) {
+                        updateAlarms()
+                    } else {
+                        disableAlarms(true)
+                    }
+                }
             }
         }
         BackgroundWorkScope.launch {
+            // Skip initial values and only act on changes
             userSettingsProvider.notificationsDelayInMillis.drop(1).collect {
                 if (isNotificationsEnabled()) {
                     updateAlarms()
@@ -78,8 +91,15 @@ class AppAlarmManager @Inject constructor(
         }
     }
 
+    val canScheduleExactAlarms
+        get() = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms()
+
     suspend fun onBootCompleted() {
-        onEnabledChanged(isNotificationsEnabled())
+        if (isNotificationsEnabled()) {
+            updateAlarms()
+        } else {
+            disableAlarms(false)
+        }
     }
 
     suspend fun onScheduleRefreshed() {
@@ -132,14 +152,6 @@ class AppAlarmManager @Inject constructor(
         }
     }
 
-    private suspend fun onEnabledChanged(isEnabled: Boolean) {
-        return if (isEnabled) {
-            updateAlarms()
-        } else {
-            disableAlarms()
-        }
-    }
-
     private suspend fun updateAlarms() {
         queueMutex.withLock {
             // Create/update all alarms
@@ -168,11 +180,13 @@ class AppAlarmManager @Inject constructor(
         }
     }
 
-    private suspend fun disableAlarms() {
+    private suspend fun disableAlarms(cancelExistingAlarms: Boolean) {
         queueMutex.withLock {
-            // Cancel alarms of every bookmark in the future
-            for (info in bookmarksDao.getBookmarksAlarmInfo(Instant.now())) {
-                alarmManager.cancel(getAlarmPendingIntent(info.eventId))
+            if (cancelExistingAlarms) {
+                // Cancel alarms of every bookmark in the future
+                for (info in bookmarksDao.getBookmarksAlarmInfo(Instant.now())) {
+                    alarmManager.cancel(getAlarmPendingIntent(info.eventId))
+                }
             }
             setAlarmReceiverEnabled(false)
         }
