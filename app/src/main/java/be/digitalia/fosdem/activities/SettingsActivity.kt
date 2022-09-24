@@ -20,12 +20,12 @@ class SettingsActivity : SimpleToolbarActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
+        onBackPressedDispatcher.onBackPressed()
         return true
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
+    override fun finish() {
+        super.finish()
         overridePendingTransition(R.anim.partial_zoom_in, R.anim.slide_out_right)
     }
 }

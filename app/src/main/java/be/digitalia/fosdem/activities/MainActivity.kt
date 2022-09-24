@@ -8,6 +8,7 @@ import android.graphics.drawable.Animatable
 import android.net.Uri
 import android.nfc.NdefRecord
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -240,14 +241,14 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
         }
     }
 
-    override fun onBackPressed() {
-        with(holder) {
-            if (drawerLayout.isDrawerOpen(navigationView)) {
-                drawerLayout.closeDrawer(navigationView)
-            } else {
-                super.onBackPressed()
-            }
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        // Allow software back press to be properly dispatched to drawer layout
+        val handled = when (event.action) {
+            KeyEvent.ACTION_DOWN -> holder.drawerLayout.onKeyDown(event.keyCode, event)
+            KeyEvent.ACTION_UP -> holder.drawerLayout.onKeyUp(event.keyCode, event)
+            else -> false
         }
+        return handled || super.dispatchKeyEvent(event)
     }
 
     override fun onStart() {

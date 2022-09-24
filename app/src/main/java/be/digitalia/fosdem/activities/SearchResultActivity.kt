@@ -86,7 +86,7 @@ class SearchResultActivity : AppCompatActivity(R.layout.search_result) {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
+        onBackPressedDispatcher.onBackPressed()
         return true
     }
 

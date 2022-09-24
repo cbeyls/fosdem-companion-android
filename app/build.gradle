@@ -7,8 +7,9 @@ plugins {
 }
 
 android {
-    compileSdkVersion 32
-    buildToolsVersion "32.0.0"
+    namespace 'be.digitalia.fosdem'
+    compileSdkVersion 33
+    buildToolsVersion "33.0.0"
 
     defaultConfig {
         applicationId "be.digitalia.fosdem"
@@ -103,21 +104,21 @@ dependencies {
     def room_version = "2.4.3"
     def okhttp_version = "3.12.13"
 
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.8'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
 
     implementation "androidx.multidex:multidex:2.0.1"
     implementation "com.google.dagger:hilt-android:$hilt_version"
     kapt "com.google.dagger:hilt-compiler:$hilt_version"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
-    implementation 'androidx.core:core-ktx:1.8.0'
-    implementation 'androidx.activity:activity-ktx:1.5.1'
-    implementation 'androidx.fragment:fragment-ktx:1.5.2'
-    implementation 'androidx.appcompat:appcompat:1.5.0'
+    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.activity:activity-ktx:1.6.0'
+    implementation 'androidx.fragment:fragment-ktx:1.5.3'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'androidx.viewpager2:viewpager2:1.1.0-beta01'
-    implementation 'androidx.drawerlayout:drawerlayout:1.1.1'
+    implementation 'androidx.drawerlayout:drawerlayout:1.2.0-alpha01'
     implementation 'androidx.preference:preference-ktx:1.2.0'
     implementation 'androidx.browser:browser:1.4.0'
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
@@ -132,6 +133,6 @@ dependencies {
         exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
     }
     implementation 'com.squareup.okio:okio:3.2.0'
-    implementation 'com.squareup.moshi:moshi:1.13.0'
+    implementation 'com.squareup.moshi:moshi:1.14.0'
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 }
