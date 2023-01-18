@@ -3,9 +3,7 @@
 
     <!-- Main theme -->
 
-    <style name="Base.AppTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+    <style name="Base.AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Allows the action mode icons to be shown on top of the Toolbar -->
         <item name="windowActionModeOverlay">true</item>
 
@@ -57,7 +55,6 @@
 
     <style name="Widget.App.Toolbar.PrimarySurface" parent="Widget.MaterialComponents.Toolbar.PrimarySurface">
         <item name="android:elevation" tools:ignore="NewApi,PrivateResource">@dimen/design_appbar_elevation</item>
-        <item name="android:theme">?actionBarTheme</item>
     </style>
 
     <style name="Widget.App.CollapsingToolbar" parent="Widget.Design.CollapsingToolbar" />
