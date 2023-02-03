@@ -221,7 +221,7 @@ class AppAlarmManager @Inject constructor(
                 Intent(context, EventDetailsActivity::class.java)
                     .setData(event.id.toString().toUri())
             )
-            .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+            .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
         var defaultFlags = Notification.DEFAULT_SOUND
         val isVibrationEnabled = userSettingsProvider.isNotificationsVibrationEnabled.first()
