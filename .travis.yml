@@ -5,13 +5,13 @@ dist: focal
 jdk: openjdk11
 
 env:
-  - ANDROID_SDK_ROOT=$HOME/android-sdk COMMAND_LINE_TOOLS_ARCHIVE=commandlinetools-linux-9123335_latest.zip
+  - ANDROID_SDK_ROOT=$HOME/android-sdk COMMAND_LINE_TOOLS_ARCHIVE=commandlinetools-linux-9477386_latest.zip
 
 install:
   # Download latest Android command line tools if not already in cache and replace the previous ones, if any
   - if test ! -e $ANDROID_SDK_ROOT/$COMMAND_LINE_TOOLS_ARCHIVE ; then rm -rf $ANDROID_SDK_ROOT && mkdir -p $ANDROID_SDK_ROOT && curl https://dl.google.com/android/repository/$COMMAND_LINE_TOOLS_ARCHIVE -o $ANDROID_SDK_ROOT/$COMMAND_LINE_TOOLS_ARCHIVE && unzip -qq -n $ANDROID_SDK_ROOT/$COMMAND_LINE_TOOLS_ARCHIVE -d $ANDROID_SDK_ROOT ; fi
   # Install or update Android SDK components (no-op if already up-to-date and cached)
-  - echo y | $ANDROID_SDK_ROOT/cmdline-tools/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT 'platforms;android-33' 'build-tools;33.0.1' > /dev/null
+  - echo y | $ANDROID_SDK_ROOT/cmdline-tools/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT 'platforms;android-33' 'build-tools;33.0.2' > /dev/null
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock

@@ -9,12 +9,14 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.withStarted
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.fragments.PersonInfoListFragment
 import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.utils.configureToolbarColors
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -46,16 +48,18 @@ class PersonInfoActivity : AppCompatActivity(R.layout.person_info) {
 
     private fun openPersonDetails(person: Person) {
         val context = this
-        lifecycleScope.launchWhenStarted {
+        lifecycleScope.launch {
             person.getUrl(scheduleDao.getYear())?.let { url ->
-                try {
-                    CustomTabsIntent.Builder()
-                        .configureToolbarColors(context, R.color.light_color_primary)
-                        .setStartAnimations(context, R.anim.slide_in_right, R.anim.slide_out_left)
-                        .setExitAnimations(context, R.anim.slide_in_left, R.anim.slide_out_right)
-                        .build()
-                        .launchUrl(context, Uri.parse(url))
-                } catch (ignore: ActivityNotFoundException) {
+                withStarted {
+                    try {
+                        CustomTabsIntent.Builder()
+                            .configureToolbarColors(context, R.color.light_color_primary)
+                            .setStartAnimations(context, R.anim.slide_in_right, R.anim.slide_out_left)
+                            .setExitAnimations(context, R.anim.slide_in_left, R.anim.slide_out_right)
+                            .build()
+                            .launchUrl(context, Uri.parse(url))
+                    } catch (ignore: ActivityNotFoundException) {
+                    }
                 }
             }
         }

@@ -24,6 +24,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.withStarted
 import be.digitalia.fosdem.BuildConfig
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.api.FosdemApi
@@ -182,10 +183,12 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
         // Setup Main menu
         val navigationView: NavigationView = findViewById(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener { menuItem: MenuItem ->
-            lifecycleScope.launchWhenStarted {
+            lifecycleScope.launch {
                 try {
                     drawerLayout.awaitCloseDrawer(navigationView)
-                    handleNavigationMenuItem(menuItem)
+                    withStarted {
+                        handleNavigationMenuItem(menuItem)
+                    }
                 } catch (e: CancellationException) {
                     // reset the menu to the current selection
                     navigationView.setCheckedItem(currentSection.menuItemId)

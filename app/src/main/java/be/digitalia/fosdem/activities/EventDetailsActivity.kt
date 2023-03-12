@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.withStarted
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.EventDetailsFragment
 import be.digitalia.fosdem.model.Event
@@ -31,6 +32,7 @@ import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel
 import be.digitalia.fosdem.viewmodels.EventViewModel
 import be.digitalia.fosdem.widgets.setupBookmarkStatus
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -75,20 +77,22 @@ class EventDetailsActivity : AppCompatActivity(R.layout.single_event), CreateNfc
                 }
             }
         } else {
-            lifecycleScope.launchWhenStarted {
+            lifecycleScope.launch {
                 val event = viewModel.event.await()
-                if (event == null) {
-                    // Event not found, quit
-                    Toast.makeText(this@EventDetailsActivity, getString(R.string.event_not_found_error), Toast.LENGTH_LONG).show()
-                    finish()
-                } else {
-                    initEvent(event)
+                withStarted {
+                    if (event == null) {
+                        // Event not found, quit
+                        Toast.makeText(this@EventDetailsActivity, getString(R.string.event_not_found_error), Toast.LENGTH_LONG).show()
+                        finish()
+                    } else {
+                        initEvent(event)
 
-                    val fm = supportFragmentManager
-                    if (fm.findFragmentById(R.id.content) == null) {
-                        fm.commit(allowStateLoss = true) {
-                            add<EventDetailsFragment>(R.id.content,
-                                args = EventDetailsFragment.createArguments(event))
+                        val fm = supportFragmentManager
+                        if (fm.findFragmentById(R.id.content) == null) {
+                            fm.commit(allowStateLoss = true) {
+                                add<EventDetailsFragment>(R.id.content,
+                                    args = EventDetailsFragment.createArguments(event))
+                            }
                         }
                     }
                 }

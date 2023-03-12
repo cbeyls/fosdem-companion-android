@@ -13,6 +13,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.withStarted
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import be.digitalia.fosdem.R
@@ -36,6 +37,7 @@ import be.digitalia.fosdem.viewmodels.TrackScheduleEventViewModel
 import be.digitalia.fosdem.widgets.ContentLoadingViewMediator
 import be.digitalia.fosdem.widgets.setupBookmarkStatus
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -102,25 +104,27 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
 
         progress.isVisible = true
 
-        lifecycleScope.launchWhenStarted {
+        lifecycleScope.launch {
             val events = viewModel.scheduleSnapshot.await()
-            progress.isVisible = false
+            withStarted {
+                progress.isVisible = false
 
-            pager.isVisible = true
-            adapter.events = events
+                pager.isVisible = true
+                adapter.events = events
 
-            // Delay setting the adapter to ensure the current position is restored properly
-            if (pager.adapter == null) {
-                pager.adapter = adapter
+                // Delay setting the adapter to ensure the current position is restored properly
+                if (pager.adapter == null) {
+                    pager.adapter = adapter
 
-                if (initialEventId != -1L) {
-                    val position = events.indexOfFirst { it.id == initialEventId }
-                    if (position != -1) {
-                        pager.setCurrentItem(position, false)
+                    if (initialEventId != -1L) {
+                        val position = events.indexOfFirst { it.id == initialEventId }
+                        if (position != -1) {
+                            pager.setCurrentItem(position, false)
+                        }
                     }
-                }
 
-                bookmarkStatusViewModel.event = adapter.events.getOrNull(pager.currentItem)
+                    bookmarkStatusViewModel.event = adapter.events.getOrNull(pager.currentItem)
+                }
             }
         }
 

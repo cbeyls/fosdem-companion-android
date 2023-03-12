@@ -19,6 +19,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.withStarted
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import be.digitalia.fosdem.R
@@ -34,6 +35,7 @@ import be.digitalia.fosdem.viewmodels.BookmarksViewModel
 import be.digitalia.fosdem.widgets.MultiChoiceHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import java.util.concurrent.CancellationException
@@ -167,6 +169,7 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
                 }
             }
             launch {
+                coroutineContext.cancel()
                 api.roomStatuses.collect { statuses ->
                     adapter.roomStatuses = statuses
                 }
@@ -182,12 +185,14 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
     }
 
     private fun importBookmarks(uri: Uri) {
-        lifecycleScope.launchWhenStarted {
+        lifecycleScope.launch {
             try {
                 val bookmarkIds = viewModel.readBookmarkIds(uri)
-                val intent = Intent(requireContext(), ExternalBookmarksActivity::class.java)
+                withStarted {
+                    val intent = Intent(requireContext(), ExternalBookmarksActivity::class.java)
                         .putExtra(ExternalBookmarksActivity.EXTRA_BOOKMARK_IDS, bookmarkIds)
-                startActivity(intent)
+                    startActivity(intent)
+                }
             } catch (e: Exception) {
                 if (e is CancellationException) {
                     throw e

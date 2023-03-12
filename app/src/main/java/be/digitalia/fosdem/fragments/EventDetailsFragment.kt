@@ -30,6 +30,7 @@ import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.withStarted
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.PersonInfoActivity
 import be.digitalia.fosdem.api.FosdemApi
@@ -199,8 +200,11 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
             }
         }
 
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            showEventDetails(holder, viewModel.eventDetails.await())
+        viewLifecycleOwner.lifecycleScope.launch {
+            val eventDetails = viewModel.eventDetails.await()
+            viewLifecycleOwner.withStarted {
+                showEventDetails(holder, eventDetails)
+            }
         }
 
         val timeFormatter = DateUtils.getTimeFormatter(view.context)
@@ -287,7 +291,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
                         if (name.isNullOrEmpty()) {
                             continue
                         }
-                        if (length != 0) {
+                        if (isNotEmpty()) {
                             append(", ")
                         }
                         inSpans(PersonClickableSpan(person)) {

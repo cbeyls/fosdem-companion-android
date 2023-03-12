@@ -9,7 +9,7 @@ plugins {
 android {
     namespace 'be.digitalia.fosdem'
     compileSdkVersion 33
-    buildToolsVersion "33.0.1"
+    buildToolsVersion "33.0.2"
 
     defaultConfig {
         applicationId "be.digitalia.fosdem"
@@ -100,11 +100,11 @@ afterEvaluate {
 }
 
 dependencies {
-    def lifecycle_version = "2.5.1"
+    def lifecycle_version = "2.6.0"
     def room_version = "2.5.0"
     def okhttp_version = "3.12.13"
 
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.0'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.2'
 
     implementation "androidx.multidex:multidex:2.0.1"
     implementation "com.google.dagger:hilt-android:$hilt_version"
@@ -113,14 +113,14 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.activity:activity-ktx:1.6.1'
     implementation 'androidx.fragment:fragment-ktx:1.5.5'
-    implementation 'androidx.appcompat:appcompat:1.6.0'
-    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
-    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'androidx.recyclerview:recyclerview:1.3.0'
     implementation 'androidx.viewpager2:viewpager2:1.1.0-beta01'
-    implementation 'androidx.drawerlayout:drawerlayout:1.2.0-alpha01'
+    implementation 'androidx.drawerlayout:drawerlayout:1.2.0-rc01'
     implementation 'androidx.preference:preference-ktx:1.2.0'
-    implementation 'androidx.browser:browser:1.4.0'
+    implementation 'androidx.browser:browser:1.5.0'
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation 'androidx.paging:paging-runtime-ktx:3.1.1'
@@ -132,7 +132,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp-tls:$okhttp_version") {
         exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
     }
-    implementation 'com.squareup.okio:okio:3.2.0'
+    implementation 'com.squareup.okio:okio:3.3.0'
     implementation 'com.squareup.moshi:moshi:1.14.0'
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 }
