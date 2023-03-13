@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/cbeyls/fosdem-companion-android.svg?branch=master)](https://app.travis-ci.com/github/cbeyls/fosdem-companion-android)
+[![Android CI](https://github.com/cbeyls/fosdem-companion-android/actions/workflows/android.yml/badge.svg)](https://github.com/cbeyls/fosdem-companion-android/actions/workflows/android.yml)
 
 # FOSDEM Companion
 
