@@ -1,5 +1,6 @@
 package be.digitalia.fosdem.alarms
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.Notification
@@ -61,15 +62,15 @@ class AppAlarmManager @Inject constructor(
     private val queueMutex = Mutex()
 
     private suspend fun isNotificationsEnabled(): Boolean {
-        return canScheduleExactAlarms && userSettingsProvider.isNotificationsEnabled.first()
+        return hasNotificationsPermission && canScheduleExactAlarms && userSettingsProvider.isNotificationsEnabled.first()
     }
 
     init {
         BackgroundWorkScope.launch {
             userSettingsProvider.isNotificationsEnabled.collectIndexed { index, isEnabled ->
                 if (index == 0) {
-                    // On app launch, switch off the preference if we don't have the required permission
-                    if (isEnabled && !canScheduleExactAlarms) {
+                    // On app launch, switch off the preference if we don't have the required permissions
+                    if (isEnabled && (!hasNotificationsPermission || !canScheduleExactAlarms)) {
                         userSettingsProvider.updateNotificationsEnabled(false)
                     }
                 } else {
@@ -90,6 +91,11 @@ class AppAlarmManager @Inject constructor(
             }
         }
     }
+
+    val hasNotificationsPermission
+        get() = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || context.checkSelfPermission(
+            Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
 
     val canScheduleExactAlarms
         get() = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms()
@@ -145,6 +151,7 @@ class AppAlarmManager @Inject constructor(
         }
     }
 
+    @SuppressLint("MissingPermission")
     suspend fun notifyEvent(eventId: Long) {
         scheduleDao.getEvent(eventId)?.let { event ->
             NotificationManagerCompat.from(context)
