@@ -55,6 +55,8 @@
 
     <style name="Widget.App.Toolbar.PrimarySurface" parent="Widget.MaterialComponents.Toolbar.PrimarySurface">
         <item name="android:elevation" tools:ignore="NewApi,PrivateResource">@dimen/design_appbar_elevation</item>
+        <item name="android:theme">?actionBarTheme</item>
+        <item name="popupTheme">?actionBarPopupTheme</item>
     </style>
 
     <style name="Widget.App.CollapsingToolbar" parent="Widget.Design.CollapsingToolbar" />
