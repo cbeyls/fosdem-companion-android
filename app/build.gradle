@@ -3,23 +3,22 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-parcelize'
     id 'kotlin-kapt'
-    id 'dagger.hilt.android.plugin'
+    id 'com.google.dagger.hilt.android'
 }
 
 android {
     namespace 'be.digitalia.fosdem'
-    compileSdkVersion 33
-    buildToolsVersion "33.0.2"
+    compileSdk 33
 
     defaultConfig {
         applicationId "be.digitalia.fosdem"
-        minSdkVersion 19
-        targetSdkVersion 33
-        multiDexEnabled = true
+        minSdk 19
+        targetSdk 33
+        multiDexEnabled true
         versionCode 1900213
         versionName "2.1.3"
         // Supported languages
-        resConfigs "en"
+        resourceConfigurations ['en']
         vectorDrawables.useSupportLibrary = true
     }
 
@@ -60,9 +59,6 @@ android {
     }
 
     kotlinOptions {
-        freeCompilerArgs = [
-                '-opt-in=kotlin.RequiresOptIn'
-        ]
         jvmTarget = "1.8"
     }
 
@@ -72,6 +68,13 @@ android {
                 'META-INF/*.kotlin_module',
                 'META-INF/*.version'
         ]
+    }
+}
+
+// Workaround for AGP not setting jvmTarget properly for the kapt task
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KaptGenerateStubs).configureEach {
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
 }
 
@@ -104,7 +107,7 @@ dependencies {
     def room_version = "2.5.1"
     def okhttp_version = "3.12.13"
 
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.2'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
 
     implementation "androidx.multidex:multidex:2.0.1"
     implementation "com.google.dagger:hilt-android:$hilt_version"
