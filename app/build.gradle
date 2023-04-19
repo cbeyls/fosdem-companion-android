@@ -78,27 +78,22 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KaptGenerateStubs).configureEac
     }
 }
 
+// Update configuration of the R8 tasks to optimize desugaring shrinker
+static def patchDesugarConfig(Property<String> config) {
+    def patchedDesugarConfig = config.getProvider().map {
+        it.replace(
+                "\"support_all_callbacks_from_library\":true",
+                "\"support_all_callbacks_from_library\":false"
+        )
+    }
+    config.set(patchedDesugarConfig)
+}
 afterEvaluate {
-    // Update configuration of the R8 tasks to optimize desugaring shrinker
-    def originalSetting = "\"support_all_callbacks_from_library\":true"
-    def replacementSetting = "\"support_all_callbacks_from_library\":false"
-    tasks.forEach { task ->
-        def taskSimpleName = task.getClass().getSimpleName()
-        if (taskSimpleName.startsWith("R8Task")) {
-            task.configure {
-                def patchedDesugarConfig = coreLibDesugarConfig.getProvider().map {
-                    it.replace(originalSetting, replacementSetting)
-                }
-                coreLibDesugarConfig.set(patchedDesugarConfig)
-            }
-        } else if (taskSimpleName.startsWith("L8DexDesugarLibTask")) {
-            task.configure {
-                def patchedDesugarConfig = libConfiguration.getProvider().map {
-                    it.replace(originalSetting, replacementSetting)
-                }
-                libConfiguration.set(patchedDesugarConfig)
-            }
-        }
+    tasks.withType(com.android.build.gradle.internal.tasks.R8Task).configureEach {
+        patchDesugarConfig(coreLibDesugarConfig)
+    }
+    tasks.withType(com.android.build.gradle.internal.tasks.L8DexDesugarLibTask).configureEach {
+        patchDesugarConfig(libConfiguration)
     }
 }
 
