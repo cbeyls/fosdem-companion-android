@@ -20,6 +20,7 @@ import be.digitalia.fosdem.fragments.TrackScheduleListFragment
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.CreateNfcAppDataCallback
+import be.digitalia.fosdem.utils.getParcelableExtraCompat
 import be.digitalia.fosdem.utils.isLightTheme
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.utils.setNfcAppDataPushMessageCallbackIfAvailable
@@ -48,8 +49,8 @@ class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule), Create
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-        val day: Day = intent.getParcelableExtra(EXTRA_DAY)!!
-        val track: Track = intent.getParcelableExtra(EXTRA_TRACK)!!
+        val day: Day = intent.getParcelableExtraCompat(EXTRA_DAY)!!
+        val track: Track = intent.getParcelableExtraCompat(EXTRA_TRACK)!!
 
         supportActionBar?.run {
             setDisplayHomeAsUpEnabled(true)

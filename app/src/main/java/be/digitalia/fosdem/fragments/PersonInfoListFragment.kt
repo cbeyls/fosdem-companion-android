@@ -16,6 +16,7 @@ import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.settings.UserSettingsProvider
 import be.digitalia.fosdem.utils.assistedViewModels
+import be.digitalia.fosdem.utils.getParcelableCompat
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.PersonInfoViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,7 +35,7 @@ class PersonInfoListFragment : Fragment(R.layout.recyclerview) {
     @Inject
     lateinit var viewModelFactory: PersonInfoViewModel.Factory
     private val viewModel: PersonInfoViewModel by assistedViewModels {
-        val person: Person = requireArguments().getParcelable(ARG_PERSON)!!
+        val person: Person = requireArguments().getParcelableCompat(ARG_PERSON)!!
         viewModelFactory.create(person)
     }
 

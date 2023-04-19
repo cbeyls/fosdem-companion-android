@@ -15,6 +15,7 @@ import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.fragments.PersonInfoListFragment
 import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.utils.configureToolbarColors
+import be.digitalia.fosdem.utils.getParcelableExtraCompat
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -29,7 +30,7 @@ class PersonInfoActivity : AppCompatActivity(R.layout.person_info) {
         super.onCreate(savedInstanceState)
         setSupportActionBar(findViewById(R.id.toolbar))
 
-        val person: Person = intent.getParcelableExtra(EXTRA_PERSON)!!
+        val person: Person = intent.getParcelableExtraCompat(EXTRA_PERSON)!!
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         title = person.name

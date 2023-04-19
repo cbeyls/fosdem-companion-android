@@ -15,6 +15,7 @@ import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.settings.UserSettingsProvider
 import be.digitalia.fosdem.utils.assistedViewModels
+import be.digitalia.fosdem.utils.getParcelableCompat
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.TrackScheduleListViewModel
 import be.digitalia.fosdem.viewmodels.TrackScheduleViewModel
@@ -31,8 +32,8 @@ class TrackScheduleListFragment : Fragment(R.layout.recyclerview) {
     lateinit var viewModelFactory: TrackScheduleListViewModel.Factory
     private val viewModel: TrackScheduleListViewModel by assistedViewModels {
         val args = requireArguments()
-        val day: Day = args.getParcelable(ARG_DAY)!!
-        val track: Track = args.getParcelable(ARG_TRACK)!!
+        val day: Day = args.getParcelableCompat(ARG_DAY)!!
+        val track: Track = args.getParcelableCompat(ARG_TRACK)!!
         viewModelFactory.create(day, track)
     }
     private val activityViewModel: TrackScheduleViewModel by activityViewModels()

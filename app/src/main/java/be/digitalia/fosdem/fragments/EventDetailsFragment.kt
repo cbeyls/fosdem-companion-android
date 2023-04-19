@@ -45,6 +45,7 @@ import be.digitalia.fosdem.utils.ClickableArrowKeyMovementMethod
 import be.digitalia.fosdem.utils.DateUtils
 import be.digitalia.fosdem.utils.assistedViewModels
 import be.digitalia.fosdem.utils.configureToolbarColors
+import be.digitalia.fosdem.utils.getParcelableCompat
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.utils.parseHtml
 import be.digitalia.fosdem.utils.roomNameToResourceName
@@ -79,7 +80,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
     }
 
     val event by lazy<Event>(LazyThreadSafetyMode.NONE) {
-        requireArguments().getParcelable(ARG_EVENT)!!
+        requireArguments().getParcelableCompat(ARG_EVENT)!!
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -24,6 +24,7 @@ import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.CreateNfcAppDataCallback
 import be.digitalia.fosdem.utils.assistedViewModels
 import be.digitalia.fosdem.utils.enforceSingleScrollDirection
+import be.digitalia.fosdem.utils.getParcelableExtraCompat
 import be.digitalia.fosdem.utils.instantiate
 import be.digitalia.fosdem.utils.isLightTheme
 import be.digitalia.fosdem.utils.recyclerView
@@ -56,10 +57,10 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
     }
 
     private val day: Day by lazy(LazyThreadSafetyMode.NONE) {
-        intent.getParcelableExtra(EXTRA_DAY)!!
+        intent.getParcelableExtraCompat(EXTRA_DAY)!!
     }
     private val track: Track by lazy(LazyThreadSafetyMode.NONE) {
-        intent.getParcelableExtra(EXTRA_TRACK)!!
+        intent.getParcelableExtraCompat(EXTRA_TRACK)!!
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -20,6 +20,7 @@ import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.utils.CreateNfcAppDataCallback
 import be.digitalia.fosdem.utils.assistedViewModels
 import be.digitalia.fosdem.utils.extractNfcAppData
+import be.digitalia.fosdem.utils.getParcelableExtraCompat
 import be.digitalia.fosdem.utils.hasNfcAppData
 import be.digitalia.fosdem.utils.isLightTheme
 import be.digitalia.fosdem.utils.setNfcAppDataPushMessageCallbackIfAvailable
@@ -65,7 +66,7 @@ class EventDetailsActivity : AppCompatActivity(R.layout.single_event), CreateNfc
 
         findViewById<ImageButton>(R.id.fab).setupBookmarkStatus(bookmarkStatusViewModel, this)
 
-        val intentEvent: Event? = intent.getParcelableExtra(EXTRA_EVENT)
+        val intentEvent: Event? = intent.getParcelableExtraCompat(EXTRA_EVENT)
 
         if (intentEvent != null) {
             // The event has been passed as parameter, it can be displayed immediately

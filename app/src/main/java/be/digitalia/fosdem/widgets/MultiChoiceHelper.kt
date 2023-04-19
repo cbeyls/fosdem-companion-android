@@ -18,6 +18,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import androidx.savedstate.SavedStateRegistryOwner
+import be.digitalia.fosdem.utils.getParcelableCompat
 
 /**
  * Helper class to reproduce ListView's modal MultiChoice mode with a RecyclerView.
@@ -112,7 +113,7 @@ class MultiChoiceHelper(private val activity: AppCompatActivity, owner: SavedSta
             checkedItemPositions = SparseBooleanArray(0)
             checkedIdStates = LongSparseArray(0)
         } else {
-            val savedState: SavedState = restoreBundle.getParcelable(PARCELABLE_KEY)!!
+            val savedState: SavedState = restoreBundle.getParcelableCompat(PARCELABLE_KEY)!!
             checkedItemCount = savedState.checkedItemCount
             checkedItemPositions = savedState.checkedItemPositions
             checkedIdStates = savedState.checkedIdStates

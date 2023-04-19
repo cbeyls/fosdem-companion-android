@@ -80,7 +80,7 @@ fun Intent.hasNfcAppData(): Boolean {
  * @return The extracted app data as an NdefRecord
  */
 fun Intent.extractNfcAppData(): NdefRecord {
-    val rawMsgs = getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)!!
+    val rawMsgs = getParcelableArrayExtraCompat<NdefMessage>(NfcAdapter.EXTRA_NDEF_MESSAGES)!!
     val msg = rawMsgs[0] as NdefMessage
     return msg.records[0]
 }

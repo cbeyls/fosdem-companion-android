@@ -18,6 +18,7 @@ import be.digitalia.fosdem.activities.TrackScheduleActivity
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.assistedViewModels
+import be.digitalia.fosdem.utils.getParcelableCompat
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.TracksListViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -32,8 +33,8 @@ class TracksListFragment : Fragment(R.layout.recyclerview) {
         viewModelFactory.create(day)
     }
 
-    private val day by lazy<Day>(LazyThreadSafetyMode.NONE) {
-        requireArguments().getParcelable(ARG_DAY)!!
+    private val day: Day by lazy(LazyThreadSafetyMode.NONE) {
+        requireArguments().getParcelableCompat(ARG_DAY)!!
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
