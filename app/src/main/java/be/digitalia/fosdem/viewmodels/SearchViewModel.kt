@@ -2,6 +2,8 @@ package be.digitalia.fosdem.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -34,7 +36,7 @@ class SearchViewModel @Inject constructor(scheduleDao: ScheduleDao) : ViewModel(
                 scheduleDao.getSearchResults(queryState.query)
             }.flow
         } else {
-            flowOf(PagingData.empty())
+            flowOf(PagingData.empty(EMPTY_REFRESH_LOAD_STATES))
         }
     }.cachedIn(viewModelScope)
 
@@ -45,5 +47,11 @@ class SearchViewModel @Inject constructor(scheduleDao: ScheduleDao) : ViewModel(
 
     companion object {
         const val SEARCH_QUERY_MIN_LENGTH = 3
+
+        private val EMPTY_REFRESH_LOAD_STATES = LoadStates(
+            refresh = LoadState.NotLoading(endOfPaginationReached = false),
+            prepend = LoadState.NotLoading(endOfPaginationReached = true),
+            append = LoadState.NotLoading(endOfPaginationReached = true)
+        )
     }
 }
