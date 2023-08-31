@@ -76,7 +76,7 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
 
         companion object {
             fun fromMenuItemId(@IdRes menuItemId: Int): Section? {
-                return values().firstOrNull { it.menuItemId == menuItemId }
+                return entries.firstOrNull { it.menuItemId == menuItemId }
             }
         }
     }

@@ -77,7 +77,6 @@ class BookmarksViewModel @Inject constructor(
         }
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun readBookmarkIds(uri: Uri): LongArray = withContext(Dispatchers.IO) {
         val parser = ExportedBookmarksParser(BuildConfig.APPLICATION_ID, scheduleDao.getYear())
         checkNotNull(application.contentResolver.openInputStream(uri)).source().buffer().use {
