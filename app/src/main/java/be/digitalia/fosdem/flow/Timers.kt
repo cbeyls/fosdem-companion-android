@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import java.util.Arrays
 import kotlin.time.Duration
-import kotlin.time.ExperimentalTime
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource
 
@@ -19,7 +18,6 @@ fun tickerFlow(period: Duration): Flow<Unit> = flow {
     }
 }
 
-@OptIn(ExperimentalTime::class)
 fun synchronizedTickerFlow(period: Duration, subscriptionCount: StateFlow<Int>): Flow<Unit> {
     return synchronizedTickerFlow(period, subscriptionCount, ElapsedRealTimeSource)
 }
@@ -28,7 +26,6 @@ fun synchronizedTickerFlow(period: Duration, subscriptionCount: StateFlow<Int>):
  * Creates a ticker Flow which delays emitting a value until there is at least one subscription.
  * timeSource needs to be monotonic.
  */
-@ExperimentalTime
 fun synchronizedTickerFlow(
     period: Duration,
     subscriptionCount: StateFlow<Int>,

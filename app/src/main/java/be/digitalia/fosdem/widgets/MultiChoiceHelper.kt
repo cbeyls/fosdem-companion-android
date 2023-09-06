@@ -269,7 +269,7 @@ class MultiChoiceHelper(private val activity: AppCompatActivity, owner: SavedSta
                     val start = (lastPos - CHECK_POSITION_SEARCH_DISTANCE).coerceAtLeast(0)
                     val end = (lastPos + CHECK_POSITION_SEARCH_DISTANCE).coerceAtMost(itemCount)
                     var found = false
-                    for (searchPos in start until end) {
+                    for (searchPos in start..<end) {
                         val searchId = adapter.getItemId(searchPos)
                         if (id == searchId) {
                             found = true
@@ -340,7 +340,7 @@ class MultiChoiceHelper(private val activity: AppCompatActivity, owner: SavedSta
                     val checkedItemPositions = readSparseBooleanArray()!!
                     val size = readInt()
                     val checkedIdStates = LongSparseArray<Int>(size).apply {
-                        for (i in 0 until size) {
+                        for (i in 0..<size) {
                             val key = readLong()
                             val value = readInt()
                             append(key, value)
