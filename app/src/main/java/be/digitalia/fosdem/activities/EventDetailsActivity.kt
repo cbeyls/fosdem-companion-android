@@ -1,7 +1,6 @@
 package be.digitalia.fosdem.activities
 
 import android.content.Intent
-import android.nfc.NdefRecord
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
@@ -17,18 +16,12 @@ import androidx.lifecycle.withStarted
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.EventDetailsFragment
 import be.digitalia.fosdem.model.Event
-import be.digitalia.fosdem.utils.CreateNfcAppDataCallback
 import be.digitalia.fosdem.utils.assistedViewModels
-import be.digitalia.fosdem.utils.extractNfcAppData
 import be.digitalia.fosdem.utils.getParcelableExtraCompat
-import be.digitalia.fosdem.utils.hasNfcAppData
 import be.digitalia.fosdem.utils.isLightTheme
-import be.digitalia.fosdem.utils.setNfcAppDataPushMessageCallbackIfAvailable
 import be.digitalia.fosdem.utils.setTaskColorPrimary
 import be.digitalia.fosdem.utils.statusBarColorCompat
 import be.digitalia.fosdem.utils.tintBackground
-import be.digitalia.fosdem.utils.toEventIdString
-import be.digitalia.fosdem.utils.toNfcAppData
 import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel
 import be.digitalia.fosdem.viewmodels.EventViewModel
 import be.digitalia.fosdem.widgets.setupBookmarkStatus
@@ -42,21 +35,14 @@ import javax.inject.Inject
  * @author Christophe Beyls
  */
 @AndroidEntryPoint
-class EventDetailsActivity : AppCompatActivity(R.layout.single_event), CreateNfcAppDataCallback {
+class EventDetailsActivity : AppCompatActivity(R.layout.single_event) {
 
     private val bookmarkStatusViewModel: BookmarkStatusViewModel by viewModels()
     @Inject
     lateinit var viewModelFactory: EventViewModel.Factory
     private val viewModel: EventViewModel by assistedViewModels {
         // Load the event from the DB using its id
-        val intent = intent
-        val eventIdString = if (intent.hasNfcAppData()) {
-            // NFC intent
-            intent.extractNfcAppData().toEventIdString()
-        } else {
-            // Normal in-app intent
-            intent.dataString!!
-        }
+        val eventIdString = intent.dataString!!
         viewModelFactory.create(eventIdString.toLong())
     }
 
@@ -125,9 +111,6 @@ class EventDetailsActivity : AppCompatActivity(R.layout.single_event), CreateNfc
         }
 
         bookmarkStatusViewModel.event = event
-
-        // Enable Android Beam
-        setNfcAppDataPushMessageCallbackIfAvailable(this)
     }
 
     override fun getSupportParentActivityIntent(): Intent? {
@@ -146,12 +129,6 @@ class EventDetailsActivity : AppCompatActivity(R.layout.single_event), CreateNfc
         upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         startActivity(upIntent)
         finish()
-    }
-
-    // CreateNfcAppDataCallback
-
-    override fun createNfcAppData(): NdefRecord? {
-        return bookmarkStatusViewModel.event?.toNfcAppData(this)
     }
 
     companion object {

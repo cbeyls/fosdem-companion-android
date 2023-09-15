@@ -1,7 +1,6 @@
 package be.digitalia.fosdem.activities
 
 import android.content.Intent
-import android.nfc.NdefRecord
 import android.os.Bundle
 import android.widget.ImageButton
 import androidx.activity.viewModels
@@ -19,15 +18,12 @@ import be.digitalia.fosdem.fragments.RoomImageDialogFragment
 import be.digitalia.fosdem.fragments.TrackScheduleListFragment
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Track
-import be.digitalia.fosdem.utils.CreateNfcAppDataCallback
 import be.digitalia.fosdem.utils.getParcelableExtraCompat
 import be.digitalia.fosdem.utils.isLightTheme
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
-import be.digitalia.fosdem.utils.setNfcAppDataPushMessageCallbackIfAvailable
 import be.digitalia.fosdem.utils.setTaskColorPrimary
 import be.digitalia.fosdem.utils.statusBarColorCompat
 import be.digitalia.fosdem.utils.tintBackground
-import be.digitalia.fosdem.utils.toNfcAppData
 import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel
 import be.digitalia.fosdem.viewmodels.TrackScheduleViewModel
 import be.digitalia.fosdem.widgets.setupBookmarkStatus
@@ -39,7 +35,7 @@ import dagger.hilt.android.AndroidEntryPoint
  * @author Christophe Beyls
  */
 @AndroidEntryPoint
-class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule), CreateNfcAppDataCallback {
+class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule) {
 
     private val viewModel: TrackScheduleViewModel by viewModels()
     private val bookmarkStatusViewModel: BookmarkStatusViewModel by viewModels()
@@ -125,9 +121,6 @@ class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule), Create
             }
 
             findViewById<ImageButton?>(R.id.fab)?.setupBookmarkStatus(bookmarkStatusViewModel, this)
-
-            // Enable Android Beam
-            setNfcAppDataPushMessageCallbackIfAvailable(this)
         }
     }
 
@@ -136,12 +129,6 @@ class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule), Create
             // Add FLAG_ACTIVITY_SINGLE_TOP to ensure the Main activity in the back stack is not re-created
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         }
-    }
-
-    // CreateNfcAppDataCallback
-
-    override fun createNfcAppData(): NdefRecord? {
-        return viewModel.selectedEvent?.toNfcAppData(this)
     }
 
     companion object {

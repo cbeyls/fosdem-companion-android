@@ -5,7 +5,6 @@
     tools:ignore="GoogleAppIndexingWarning">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.NFC" />
 
     <!-- Permissions required for alarms -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -53,15 +52,7 @@
             android:name=".activities.EventDetailsActivity"
             android:exported="true"
             android:label="@string/event_details"
-            android:parentActivityName=".activities.TrackScheduleActivity">
-            <intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="application/${applicationId}" />
-            </intent-filter>
-        </activity>
+            android:parentActivityName=".activities.TrackScheduleActivity" />
         <activity
             android:name=".activities.PersonInfoActivity"
             android:exported="false"
@@ -83,15 +74,7 @@
             android:name=".activities.ExternalBookmarksActivity"
             android:exported="true"
             android:label="@string/external_bookmarks_title"
-            android:parentActivityName=".activities.MainActivity">
-            <intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="application/${applicationId}-bookmarks" />
-            </intent-filter>
-        </activity>
+            android:parentActivityName=".activities.MainActivity" />
         <!-- Clearing the Task Affinity allows this dialog activity to be displayed without bringing to front the main application with it. -->
         <activity
             android:name=".activities.RoomImageDialogActivity"

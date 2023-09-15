@@ -4,7 +4,6 @@ import android.app.Dialog
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
-import android.nfc.NdefRecord
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -28,9 +27,7 @@ import be.digitalia.fosdem.adapters.BookmarksAdapter
 import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.providers.BookmarksExportProvider
 import be.digitalia.fosdem.settings.UserSettingsProvider
-import be.digitalia.fosdem.utils.CreateNfcAppDataCallback
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
-import be.digitalia.fosdem.utils.toBookmarksNfcAppData
 import be.digitalia.fosdem.viewmodels.BookmarksViewModel
 import be.digitalia.fosdem.widgets.MultiChoiceHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -48,7 +45,7 @@ import javax.inject.Named
  * @author Christophe Beyls
  */
 @AndroidEntryPoint
-class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataCallback {
+class BookmarksListFragment : Fragment(R.layout.recyclerview) {
 
     @Inject
     lateinit var userSettingsProvider: UserSettingsProvider
@@ -210,12 +207,6 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview), CreateNfcAppDataC
                     .setPositiveButton(android.R.string.ok, null)
                     .create()
         }
-    }
-
-    override fun createNfcAppData(): NdefRecord? {
-        val context = context ?: return null
-        val bookmarks = viewModel.bookmarks.value
-        return if (bookmarks.isNullOrEmpty()) null else bookmarks.toBookmarksNfcAppData(context)
     }
 
     companion object {

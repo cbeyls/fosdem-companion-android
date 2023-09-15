@@ -5,9 +5,6 @@ import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.ExternalBookmarksListFragment
-import be.digitalia.fosdem.utils.extractNfcAppData
-import be.digitalia.fosdem.utils.hasNfcAppData
-import be.digitalia.fosdem.utils.toBookmarks
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -20,11 +17,7 @@ class ExternalBookmarksActivity : SimpleToolbarActivity() {
 
         if (savedInstanceState == null) {
             val intent = intent
-            val bookmarkIds = when {
-                intent.hasExtra(EXTRA_BOOKMARK_IDS) -> intent.getLongArrayExtra(EXTRA_BOOKMARK_IDS)
-                intent.hasNfcAppData() -> intent.extractNfcAppData().toBookmarks()
-                else -> null
-            }
+            val bookmarkIds = intent.getLongArrayExtra(EXTRA_BOOKMARK_IDS)
             if (bookmarkIds == null) {
                 // Invalid data format, exit
                 finish()

@@ -1,7 +1,6 @@
 package be.digitalia.fosdem.activities
 
 import android.content.Intent
-import android.nfc.NdefRecord
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
@@ -21,18 +20,15 @@ import be.digitalia.fosdem.fragments.EventDetailsFragment
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.Track
-import be.digitalia.fosdem.utils.CreateNfcAppDataCallback
 import be.digitalia.fosdem.utils.assistedViewModels
 import be.digitalia.fosdem.utils.enforceSingleScrollDirection
 import be.digitalia.fosdem.utils.getParcelableExtraCompat
 import be.digitalia.fosdem.utils.instantiate
 import be.digitalia.fosdem.utils.isLightTheme
 import be.digitalia.fosdem.utils.recyclerView
-import be.digitalia.fosdem.utils.setNfcAppDataPushMessageCallbackIfAvailable
 import be.digitalia.fosdem.utils.setTaskColorPrimary
 import be.digitalia.fosdem.utils.statusBarColorCompat
 import be.digitalia.fosdem.utils.tintBackground
-import be.digitalia.fosdem.utils.toNfcAppData
 import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel
 import be.digitalia.fosdem.viewmodels.TrackScheduleEventViewModel
 import be.digitalia.fosdem.widgets.ContentLoadingViewMediator
@@ -47,7 +43,7 @@ import javax.inject.Inject
  * @author Christophe Beyls
  */
 @AndroidEntryPoint
-class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_event), CreateNfcAppDataCallback {
+class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_event) {
 
     private val bookmarkStatusViewModel: BookmarkStatusViewModel by viewModels()
     @Inject
@@ -128,9 +124,6 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
                 }
             }
         }
-
-        // Enable Android Beam
-        setNfcAppDataPushMessageCallbackIfAvailable(this)
     }
 
     override fun getSupportParentActivityIntent(): Intent? {
@@ -140,10 +133,6 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
                 .putExtra(TrackScheduleActivity.EXTRA_DAY, event.day)
                 .putExtra(TrackScheduleActivity.EXTRA_TRACK, event.track)
                 .putExtra(TrackScheduleActivity.EXTRA_FROM_EVENT_ID, event.id)
-    }
-
-    override fun createNfcAppData(): NdefRecord? {
-        return bookmarkStatusViewModel.event?.toNfcAppData(this)
     }
 
     class TrackScheduleEventAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fragmentActivity) {

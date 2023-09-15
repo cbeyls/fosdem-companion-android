@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.drawable.Animatable
 import android.net.Uri
-import android.nfc.NdefRecord
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.Menu
@@ -37,11 +36,9 @@ import be.digitalia.fosdem.fragments.PersonsListFragment
 import be.digitalia.fosdem.fragments.TracksFragment
 import be.digitalia.fosdem.model.DownloadScheduleResult
 import be.digitalia.fosdem.model.LoadingState
-import be.digitalia.fosdem.utils.CreateNfcAppDataCallback
 import be.digitalia.fosdem.utils.awaitCloseDrawer
 import be.digitalia.fosdem.utils.configureToolbarColors
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
-import be.digitalia.fosdem.utils.setNfcAppDataPushMessageCallbackIfAvailable
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.progressindicator.BaseProgressIndicator
 import com.google.android.material.snackbar.Snackbar
@@ -62,7 +59,7 @@ import javax.inject.Named
  * @author Christophe Beyls
  */
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback {
+class MainActivity : AppCompatActivity(R.layout.main) {
 
     private enum class Section(val fragmentClass: Class<out Fragment>,
                                @IdRes @get:IdRes val menuItemId: Int,
@@ -220,8 +217,6 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
                 supportFragmentManager.commit { add(R.id.content, section.fragmentClass, null, section.name) }
             }
         }
-
-        setNfcAppDataPushMessageCallbackIfAvailable(this)
     }
 
     @SuppressLint("PrivateResource")
@@ -357,11 +352,6 @@ class MainActivity : AppCompatActivity(R.layout.main), CreateNfcAppDataCallback 
             currentSection = section
             updateActionBar(section, menuItem)
         }
-    }
-
-    override fun createNfcAppData(): NdefRecord? {
-        // Delegate to the currently displayed fragment if it provides NFC data
-        return (supportFragmentManager.findFragmentById(R.id.content) as? CreateNfcAppDataCallback)?.createNfcAppData()
     }
 
     companion object {
