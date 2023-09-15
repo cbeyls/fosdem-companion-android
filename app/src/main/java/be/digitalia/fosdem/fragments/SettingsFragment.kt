@@ -8,12 +8,12 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.text.method.LinkMovementMethod
 import android.widget.TextView
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
+import androidx.core.text.method.LinkMovementMethodCompat
 import androidx.fragment.app.DialogFragment
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -125,7 +125,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             super.onStart()
             // Make links clickable; must be called after the dialog is shown
             requireDialog().findViewById<TextView>(android.R.id.message).movementMethod =
-                LinkMovementMethod.getInstance()
+                LinkMovementMethodCompat.getInstance()
         }
     }
 

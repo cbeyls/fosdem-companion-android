@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.provider.CalendarContract
 import android.text.SpannableString
 import android.text.TextPaint
-import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.view.Menu
 import android.view.MenuInflater
@@ -21,6 +20,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
+import androidx.core.text.method.LinkMovementMethodCompat
 import androidx.core.text.set
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
@@ -137,7 +137,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
                     isVisible = false
                 } else {
                     text = personsSummary
-                    movementMethod = LinkMovementMethod.getInstance()
+                    movementMethod = LinkMovementMethodCompat.getInstance()
                     isVisible = true
                 }
             }
@@ -173,7 +173,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
                                 ds.isUnderlineText = false
                             }
                         }
-                        movementMethod = LinkMovementMethod.getInstance()
+                        movementMethod = LinkMovementMethodCompat.getInstance()
                     }
                     text = roomText
                     contentDescription = getString(R.string.room_content_description, roomText)

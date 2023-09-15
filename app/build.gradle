@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace 'be.digitalia.fosdem'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "be.digitalia.fosdem"
@@ -96,7 +96,7 @@ dependencies {
     implementation "com.google.dagger:hilt-android:$hilt_version"
     ksp "com.google.dagger:hilt-compiler:$hilt_version"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
-    implementation 'androidx.core:core-ktx:1.10.1'
+    implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.activity:activity-ktx:1.7.2'
     implementation 'androidx.fragment:fragment-ktx:1.6.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
@@ -106,7 +106,7 @@ dependencies {
     implementation 'androidx.viewpager2:viewpager2:1.1.0-beta02'
     implementation 'androidx.drawerlayout:drawerlayout:1.2.0'
     implementation 'androidx.preference:preference-ktx:1.2.1'
-    implementation 'androidx.browser:browser:1.5.0'
+    implementation 'androidx.browser:browser:1.6.0'
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation 'androidx.paging:paging-runtime-ktx:3.2.1'
