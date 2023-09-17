@@ -22,8 +22,8 @@ import javax.inject.Inject
 class SearchViewModel @Inject constructor(scheduleDao: ScheduleDao) : ViewModel() {
 
     sealed class QueryState {
-        object Idle : QueryState()
-        object TooShort : QueryState()
+        data object Idle : QueryState()
+        data object TooShort : QueryState()
         data class Valid(val query: String) : QueryState()
     }
 

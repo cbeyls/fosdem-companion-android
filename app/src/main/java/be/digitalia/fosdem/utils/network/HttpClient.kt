@@ -73,7 +73,7 @@ class HttpClient @Inject constructor(private val deferredCallFactory: @JvmSuppre
     }
 
     sealed class Response<out T> {
-        object NotModified : Response<Nothing>()
+        data object NotModified : Response<Nothing>()
         class Success<T>(val body: T, val raw: okhttp3.Response) : Response<T>()
     }
 
