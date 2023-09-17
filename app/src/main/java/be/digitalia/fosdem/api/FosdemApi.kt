@@ -87,7 +87,7 @@ class FosdemApi @Inject constructor(
                 }
 
                 val events = EventsParser().parse(source)
-                scheduleDao.storeSchedule(events, headers.get(HttpClient.LAST_MODIFIED_HEADER_NAME))
+                scheduleDao.storeSchedule(events, headers[HttpClient.LAST_MODIFIED_HEADER_NAME])
             }
             when (response) {
                 is HttpClient.Response.NotModified -> DownloadScheduleResult.UpToDate    // Nothing parsed, the result is up-to-date
