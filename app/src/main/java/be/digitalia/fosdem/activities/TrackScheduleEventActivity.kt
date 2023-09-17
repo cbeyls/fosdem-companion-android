@@ -2,12 +2,12 @@ package be.digitalia.fosdem.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.widget.ImageButton
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -27,8 +27,6 @@ import be.digitalia.fosdem.utils.instantiate
 import be.digitalia.fosdem.utils.isLightTheme
 import be.digitalia.fosdem.utils.recyclerView
 import be.digitalia.fosdem.utils.setTaskColorPrimary
-import be.digitalia.fosdem.utils.statusBarColorCompat
-import be.digitalia.fosdem.utils.tintBackground
 import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel
 import be.digitalia.fosdem.viewmodels.TrackScheduleEventViewModel
 import be.digitalia.fosdem.widgets.ContentLoadingViewMediator
@@ -82,10 +80,10 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
         title = "$track, $day"
         val trackType = track.type
         if (isLightTheme) {
-            window.statusBarColorCompat = ContextCompat.getColor(this, trackType.statusBarColorResId)
+            window.statusBarColor = ContextCompat.getColor(this, trackType.statusBarColorResId)
             val trackAppBarColor = ContextCompat.getColorStateList(this, trackType.appBarColorResId)!!
             setTaskColorPrimary(trackAppBarColor.defaultColor)
-            findViewById<View>(R.id.appbar).tintBackground(trackAppBarColor)
+            ViewCompat.setBackgroundTintList(findViewById(R.id.appbar), trackAppBarColor)
         } else {
             val trackTextColor = ContextCompat.getColorStateList(this, trackType.textColorResId)!!
             toolbar.setTitleTextColor(trackTextColor)

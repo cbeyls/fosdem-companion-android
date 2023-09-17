@@ -49,18 +49,18 @@ class HttpClient @Inject constructor(private val deferredCallFactory: @JvmSuppre
 
                 override fun onResponse(call: Call, response: okhttp3.Response) {
                     // This block is invoked on OkHttp's network thread
-                    val body = response.body()
+                    val body = response.body
                     if (!response.isSuccessful) {
                         body?.close()
-                        if (lastModified != null && response.code() == HttpURLConnection.HTTP_NOT_MODIFIED) {
+                        if (lastModified != null && response.code == HttpURLConnection.HTTP_NOT_MODIFIED) {
                             // Cached result is still valid; return an empty response
                             continuation.resume(Response.NotModified)
                         } else {
-                            continuation.resumeWithException(IOException("Server returned response code: " + response.code()))
+                            continuation.resumeWithException(IOException("Server returned response code: " + response.code))
                         }
                     } else {
                         try {
-                            val parsedBody = checkNotNull(body).use { bodyParser(it, response.headers()) }
+                            val parsedBody = checkNotNull(body).use { bodyParser(it, response.headers) }
                             continuation.resume(Response.Success(parsedBody, response))
                         } catch (e: Exception) {
                             continuation.resumeWithException(e)

@@ -3,46 +3,21 @@ package be.digitalia.fosdem.utils
 import android.app.Activity
 import android.app.ActivityManager.TaskDescription
 import android.content.Context
-import android.content.res.ColorStateList
-import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.ColorMatrixColorFilter
 import android.os.Build
 import android.util.TypedValue
-import android.view.View
-import android.view.Window
 import android.widget.ImageView
 import androidx.annotation.ColorInt
-import androidx.core.graphics.drawable.DrawableCompat
-
-var Window.statusBarColorCompat: Int
-    @ColorInt
-    get() {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) statusBarColor else Color.BLACK
-    }
-    set(@ColorInt color) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            statusBarColor = color
-        }
-    }
 
 @Suppress("DEPRECATION")
 fun Activity.setTaskColorPrimary(@ColorInt colorPrimary: Int) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        val taskDescription = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            TaskDescription(null, 0, colorPrimary or -0x1000000)
-        } else {
-            TaskDescription(null, null, colorPrimary or -0x1000000)
-        }
-        setTaskDescription(taskDescription)
+    val taskDescription = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        TaskDescription(null, 0, colorPrimary or -0x1000000)
+    } else {
+        TaskDescription(null, null, colorPrimary or -0x1000000)
     }
-}
-
-fun View.tintBackground(backgroundColor: ColorStateList?) {
-    background?.let {
-        it.mutate()
-        DrawableCompat.setTintList(it, backgroundColor)
-    }
+    setTaskDescription(taskDescription)
 }
 
 val Context.isLightTheme: Boolean

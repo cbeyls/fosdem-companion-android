@@ -10,13 +10,11 @@
     <!-- Bottom app bar size + 12dp for the top part of the FAB -->
     <dimen name="detail_bottom_padding">68dp</dimen>
     <dimen name="detail_card_view_elevation">6dp</dimen>
-    <!-- Enlarge the card view by 6dp left & right and 9dp top & bottom
-         to compensate for the compatibility padding of the elevation -->
-    <dimen name="detail_card_view_margin_start">354dp</dimen>
-    <dimen name="detail_card_view_margin_end">90dp</dimen>
-    <dimen name="detail_card_view_margin_top">55dp</dimen>
-    <dimen name="detail_card_view_margin_bottom">-9dp</dimen>
-    <dimen name="detail_fab_margin_end">8dp</dimen>
-    <dimen name="person_info_fab_margin_end">4dp</dimen>
+    <dimen name="detail_card_view_margin_start">@dimen/schedule_column_width</dimen>
+    <dimen name="detail_card_view_margin_end">96dp</dimen>
+    <dimen name="detail_card_view_margin_top">64dp</dimen>
+    <dimen name="detail_card_view_margin_bottom">0dp</dimen>
+    <dimen name="detail_fab_margin_end">20dp</dimen>
+    <dimen name="person_info_fab_margin_end">16dp</dimen>
 
 </resources>

@@ -1,9 +1,7 @@
 package be.digitalia.fosdem
 
 import android.app.Application
-import android.content.Context
 import android.content.SharedPreferences
-import androidx.multidex.MultiDex
 import be.digitalia.fosdem.alarms.AppAlarmManager
 import be.digitalia.fosdem.utils.ThemeManager
 import dagger.hilt.android.HiltAndroidApp
@@ -25,9 +23,4 @@ class FosdemApplication : Application() {
     @Inject
     @Named("UIState")
     lateinit var preferences: SharedPreferences
-
-    override fun attachBaseContext(base: Context?) {
-        super.attachBaseContext(base)
-        MultiDex.install(this)
-    }
 }

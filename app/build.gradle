@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId "be.digitalia.fosdem"
-        minSdk 19
+        minSdk 21
         targetSdk 33
         multiDexEnabled true
         versionCode 1900213
@@ -44,7 +44,6 @@ android {
 
             packagingOptions {
                 resources.excludes += [
-                        'androidsupportmultidexversion.txt',
                         'DebugProbesKt.bin',
                         'kotlin-tooling-metadata.json',
                         'kotlin/**',
@@ -88,11 +87,9 @@ afterEvaluate {
 dependencies {
     def lifecycle_version = "2.6.2"
     def room_version = "2.5.2"
-    def okhttp_version = "3.12.13"
 
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
 
-    implementation "androidx.multidex:multidex:2.0.1"
     implementation "com.google.dagger:hilt-android:$hilt_version"
     ksp "com.google.dagger:hilt-compiler:$hilt_version"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
@@ -114,10 +111,7 @@ dependencies {
     implementation "androidx.room:room-paging:$room_version"
     implementation "androidx.datastore:datastore-preferences:1.0.0"
     ksp "androidx.room:room-compiler:$room_version"
-    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
-    implementation("com.squareup.okhttp3:okhttp-tls:$okhttp_version") {
-        exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
-    }
+    implementation 'com.squareup.okhttp3:okhttp:4.11.0'
     implementation 'com.squareup.okio:okio:3.5.0'
     implementation 'com.squareup.moshi:moshi:1.15.0'
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'

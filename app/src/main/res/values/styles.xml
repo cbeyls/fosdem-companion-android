@@ -15,21 +15,18 @@
         <item name="colorScheduleTimeBackground">@color/schedule_time_background</item>
         <item name="colorScheduleTimeForeground">?android:textColorPrimary</item>
 
-        <item name="activatedBackgroundIndicator">@drawable/activated_background</item>
         <item name="actionBarTheme">@style/ThemeOverlay.App.ActionBar</item>
         <item name="toolbarStyle">@style/Widget.App.Toolbar</item>
         <item name="tabStyle">@style/Widget.MaterialComponents.TabLayout.PrimarySurface</item>
         <item name="recyclerViewStyle">@style/RecyclerView</item>
-        <item name="materialHorizontalProgressBarStyle">@style/Widget.MaterialHorizontalProgressBar</item>
     </style>
 
-    <style name="AppTheme" parent="Base.AppTheme">
-        <item name="android:windowBackground">?android:colorBackground</item>
-        <item name="android:selectableItemBackground">?selectableItemBackground</item>
-        <item name="android:listChoiceBackgroundIndicator">?listChoiceBackgroundIndicator</item>
-    </style>
+    <style name="AppTheme" parent="Base.AppTheme" />
 
-    <style name="AppTheme.TranslucentStatusBar" />
+    <style name="AppTheme.TranslucentStatusBar">
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
 
     <style name="AlertDialogTheme" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
         <item name="windowActionBar">false</item>
@@ -61,12 +58,6 @@
 
     <style name="Widget.App.CollapsingToolbar" parent="Widget.Design.CollapsingToolbar" />
 
-    <style name="Widget.MaterialHorizontalProgressBar" parent="Widget.AppCompat.ProgressBar.Horizontal">
-        <!-- Will be set in code -->
-        <item name="android:progressDrawable">@null</item>
-        <item name="android:indeterminateDrawable">@null</item>
-    </style>
-
     <!-- Styles -->
 
     <style name="RecyclerView" parent="android:Widget">
@@ -78,7 +69,6 @@
         <item name="android:enabled">false</item>
         <item name="fabSize">normal</item>
         <item name="srcCompat">@drawable/asld_bookmark_24dp</item>
-        <item name="tint">?attr/colorOnSecondary</item><!-- Workaround for bug on API < 21 -->
     </style>
 
     <style name="SeparatorLine">
