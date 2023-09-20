@@ -18,10 +18,6 @@ fun tickerFlow(period: Duration): Flow<Unit> = flow {
     }
 }
 
-fun synchronizedTickerFlow(period: Duration, subscriptionCount: StateFlow<Int>): Flow<Unit> {
-    return synchronizedTickerFlow(period, subscriptionCount, ElapsedRealTimeSource)
-}
-
 /**
  * Creates a ticker Flow which delays emitting a value until there is at least one subscription.
  * timeSource needs to be monotonic.
@@ -29,7 +25,7 @@ fun synchronizedTickerFlow(period: Duration, subscriptionCount: StateFlow<Int>):
 fun synchronizedTickerFlow(
     period: Duration,
     subscriptionCount: StateFlow<Int>,
-    timeSource: TimeSource
+    timeSource: TimeSource = ElapsedRealTimeSource
 ): Flow<Unit> {
     return flow {
         var nextEmissionTimeMark: TimeMark? = null
