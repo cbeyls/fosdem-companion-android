@@ -18,13 +18,29 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+@JvmInline
+value class SharedFlowContext(private val subscriptionCount: StateFlow<Int>) {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun <T> Flow<T>.flowWhileShared(started: SharingStarted): Flow<T> {
+        return started.command(subscriptionCount)
+            .distinctUntilChanged()
+            .flatMapLatest {
+                when (it) {
+                    SharingCommand.START -> this
+                    SharingCommand.STOP,
+                    SharingCommand.STOP_AND_RESET_REPLAY_CACHE -> emptyFlow()
+                }
+            }
+    }
+}
+
 inline fun <T> stateFlow(
     scope: CoroutineScope,
     initialValue: T,
-    producer: (subscriptionCount: StateFlow<Int>) -> Flow<T>
+    producer: SharedFlowContext.() -> Flow<T>
 ): StateFlow<T> {
     val state = MutableStateFlow(initialValue)
-    producer(state.subscriptionCount).launchIn(scope, state)
+    producer(SharedFlowContext(state.subscriptionCount)).launchIn(scope, state)
     return state.asStateFlow()
 }
 
@@ -32,25 +48,9 @@ fun <T> Flow<T>.launchIn(scope: CoroutineScope, collector: FlowCollector<T>): Jo
     collect(collector)
 }
 
-@OptIn(ExperimentalCoroutinesApi::class)
-fun <T> Flow<T>.flowWhileShared(
-    subscriptionCount: StateFlow<Int>,
-    started: SharingStarted
-): Flow<T> {
-    return started.command(subscriptionCount)
-        .distinctUntilChanged()
-        .flatMapLatest {
-            when (it) {
-                SharingCommand.START -> this
-                SharingCommand.STOP,
-                SharingCommand.STOP_AND_RESET_REPLAY_CACHE -> emptyFlow()
-            }
-        }
-}
-
-inline fun <T> countSubscriptionsFlow(producer: (subscriptionCount: StateFlow<Int>) -> Flow<T>): Flow<T> {
+inline fun <T> countSubscriptionsFlow(producer: SharedFlowContext.() -> Flow<T>): Flow<T> {
     val subscriptionCount = MutableStateFlow(0)
-    return producer(subscriptionCount.asStateFlow())
+    return producer(SharedFlowContext(subscriptionCount.asStateFlow()))
         .countSubscriptionsTo(subscriptionCount)
 }
 
@@ -66,13 +66,12 @@ fun <T> Flow<T>.countSubscriptionsTo(subscriptionCount: MutableStateFlow<Int>): 
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-fun <T> versionedResourceFlow(
+fun <T> SharedFlowContext.versionedResourceFlow(
     version: StateFlow<Int>,
-    subscriptionCount: StateFlow<Int>,
     producer: suspend (version: Int) -> T
 ): Flow<T> {
     return version
-        .flowWhileShared(subscriptionCount, SharingStarted.WhileSubscribed())
+        .flowWhileShared(SharingStarted.WhileSubscribed())
         .distinctUntilChanged()
         .mapLatest(producer)
 }

@@ -4,7 +4,6 @@ import android.os.SystemClock
 import androidx.annotation.MainThread
 import be.digitalia.fosdem.alarms.AppAlarmManager
 import be.digitalia.fosdem.db.ScheduleDao
-import be.digitalia.fosdem.flow.flowWhileShared
 import be.digitalia.fosdem.flow.schedulerFlow
 import be.digitalia.fosdem.flow.stateFlow
 import be.digitalia.fosdem.model.DownloadScheduleResult
@@ -113,7 +112,7 @@ class FosdemApi @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val roomStatuses: Flow<Map<String, RoomStatus>> by lazy(LazyThreadSafetyMode.NONE) {
-        stateFlow(BackgroundWorkScope, emptyMap()) { subscriptionCount ->
+        stateFlow(BackgroundWorkScope, emptyMap()) {
             // The room statuses will only be loaded when the event is live.
             // Use the days from the database to determine it.
             val scheduler = scheduleDao.days.flatMapLatest { days ->
@@ -128,12 +127,12 @@ class FosdemApi @Inject constructor(
                         .toEpochSecond() * 1000L
                 }
                 schedulerFlow(*startEndTimestamps)
-                    .flowWhileShared(subscriptionCount, SharingStarted.WhileSubscribed())
+                    .flowWhileShared(SharingStarted.WhileSubscribed())
             }
             scheduler.distinctUntilChanged().flatMapLatest { isLive ->
                 if (isLive) {
                     buildLiveRoomStatusesFlow()
-                        .flowWhileShared(subscriptionCount, SharingStarted.WhileSubscribed(5000L))
+                        .flowWhileShared(SharingStarted.WhileSubscribed(5000L))
                 }
                 else flowOf(emptyMap())
             }

@@ -4,7 +4,6 @@ import be.digitalia.fosdem.utils.ElapsedRealTimeSource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import java.util.Arrays
 import kotlin.time.Duration
@@ -22,9 +21,8 @@ fun tickerFlow(period: Duration): Flow<Unit> = flow {
  * Creates a ticker Flow which delays emitting a value until there is at least one subscription.
  * timeSource needs to be monotonic.
  */
-fun synchronizedTickerFlow(
+fun SharedFlowContext.synchronizedTickerFlow(
     period: Duration,
-    subscriptionCount: StateFlow<Int>,
     timeSource: TimeSource = ElapsedRealTimeSource
 ): Flow<Unit> {
     return flow {
@@ -37,7 +35,7 @@ fun synchronizedTickerFlow(
                 delay(period)
             }
         }
-            .flowWhileShared(subscriptionCount, SharingStarted.WhileSubscribed())
+            .flowWhileShared(SharingStarted.WhileSubscribed())
             .collect(this)
     }
 }

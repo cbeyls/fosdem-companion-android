@@ -9,7 +9,6 @@ import androidx.paging.PagingSource
 import androidx.paging.cachedIn
 import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.flow.countSubscriptionsFlow
-import be.digitalia.fosdem.flow.flowWhileShared
 import be.digitalia.fosdem.flow.stateFlow
 import be.digitalia.fosdem.flow.synchronizedTickerFlow
 import be.digitalia.fosdem.model.StatusEvent
@@ -30,8 +29,8 @@ import kotlin.time.Duration.Companion.minutes
 class LiveViewModel @Inject constructor(scheduleDao: ScheduleDao) : ViewModel() {
 
     // Share a single ticker providing the time to ensure both lists are synchronized
-    private val ticker: Flow<Instant> = stateFlow(viewModelScope, null) { subscriptionCount ->
-        synchronizedTickerFlow(REFRESH_PERIOD, subscriptionCount)
+    private val ticker: Flow<Instant> = stateFlow(viewModelScope, null) {
+        synchronizedTickerFlow(REFRESH_PERIOD)
             .map { Instant.now() }
     }.filterNotNull()
 
@@ -39,9 +38,9 @@ class LiveViewModel @Inject constructor(scheduleDao: ScheduleDao) : ViewModel() 
     private fun createLiveEventsHotFlow(
         pagingSourceFactory: (now: Instant) -> PagingSource<Int, StatusEvent>
     ): Flow<PagingData<StatusEvent>> {
-        return countSubscriptionsFlow { subscriptionCount ->
+        return countSubscriptionsFlow {
             ticker
-                .flowWhileShared(subscriptionCount, SharingStarted.WhileSubscribed())
+                .flowWhileShared(SharingStarted.WhileSubscribed())
                 .distinctUntilChanged()
                 .flatMapLatest { now ->
                     Pager(PagingConfig(20)) { pagingSourceFactory(now) }.flow

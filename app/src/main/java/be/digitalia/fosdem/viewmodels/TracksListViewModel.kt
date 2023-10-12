@@ -18,8 +18,8 @@ class TracksListViewModel @AssistedInject constructor(
     @Assisted day: Day
 ) : ViewModel() {
 
-    val tracks: Flow<List<Track>> = stateFlow(viewModelScope, null) { subscriptionCount ->
-        versionedResourceFlow(scheduleDao.version, subscriptionCount) {
+    val tracks: Flow<List<Track>> = stateFlow(viewModelScope, null) {
+        versionedResourceFlow(scheduleDao.version) {
             scheduleDao.getTracks(day)
         }
     }.filterNotNull()

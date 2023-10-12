@@ -28,12 +28,12 @@ class BookmarkStatusViewModel @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val bookmarkStatus: StateFlow<BookmarkStatus?> =
-        stateFlow(viewModelScope, null) { subscriptionCount ->
+        stateFlow(viewModelScope, null) {
             eventStateFlow.flatMapLatest { event ->
                 if (event == null) {
                     flowOf(null)
                 } else {
-                    versionedResourceFlow(bookmarksDao.version, subscriptionCount) {
+                    versionedResourceFlow(bookmarksDao.version) {
                         val isBookmarked = bookmarksDao.getBookmarkStatus(event)
                         BookmarkStatus(event.id, isBookmarked)
                     }
