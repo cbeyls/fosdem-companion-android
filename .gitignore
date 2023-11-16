@@ -3,7 +3,7 @@
 
 # generated files
 build/
-output.json
+output-metadata.json
 
 # Local configuration file (sdk path, etc)
 local.properties
