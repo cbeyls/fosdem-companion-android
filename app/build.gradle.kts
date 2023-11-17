@@ -25,8 +25,8 @@ android {
     }
 
     sourceSets {
-        named("main") {
-            resources.srcDir("src/main/res-override")
+        getByName("main") {
+            res.srcDir("src/main/res-override")
         }
     }
 
