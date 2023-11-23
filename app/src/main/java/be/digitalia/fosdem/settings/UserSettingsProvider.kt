@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import androidx.preference.PreferenceManager
 import be.digitalia.fosdem.R
-import be.digitalia.fosdem.utils.DateUtils
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -19,17 +18,21 @@ import kotlinx.coroutines.flow.map
 import java.time.ZoneId
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Singleton
-class UserSettingsProvider @Inject constructor(@ApplicationContext context: Context) {
+class UserSettingsProvider @Inject constructor(
+    @ApplicationContext context: Context,
+    @Named("Conference") conferenceZoneId: ZoneId
+) {
     private val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
     init {
         PreferenceManager.setDefaultValues(context, R.xml.settings, false)
     }
 
-    private val conferenceZoneIdFlow: Flow<ZoneId> = flowOf(DateUtils.conferenceZoneId)
+    private val conferenceZoneIdFlow: Flow<ZoneId> = flowOf(conferenceZoneId)
     private val deviceZoneIdFlow: StateFlow<ZoneId> by lazy(LazyThreadSafetyMode.NONE) {
         val zoneIdFlow = MutableStateFlow(ZoneId.systemDefault())
         context.registerReceiver(object : BroadcastReceiver() {

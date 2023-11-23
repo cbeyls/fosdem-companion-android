@@ -7,7 +7,6 @@ import be.digitalia.fosdem.model.EventDetails
 import be.digitalia.fosdem.model.Link
 import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.model.Track
-import be.digitalia.fosdem.utils.DateUtils
 import be.digitalia.fosdem.utils.isEndDocument
 import be.digitalia.fosdem.utils.isNextEndTag
 import be.digitalia.fosdem.utils.isStartTag
@@ -18,13 +17,18 @@ import org.xmlpull.v1.XmlPullParser
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
+import javax.inject.Inject
+import javax.inject.Named
 
 /**
  * Main parser for FOSDEM schedule data in pentabarf XML format.
  *
  * @author Christophe Beyls
  */
-class EventsParser : Parser<Sequence<DetailedEvent>> {
+class EventsParser @Inject constructor(
+    @Named("Conference") private val conferenceZoneId: ZoneId
+) : Parser<Sequence<DetailedEvent>> {
 
     override fun parse(source: BufferedSource): Sequence<DetailedEvent> {
         val parser: XmlPullParser = xmlPullParserFactory.newPullParser().apply {
@@ -79,7 +83,7 @@ class EventsParser : Parser<Sequence<DetailedEvent>> {
                         if (!timeString.isNullOrEmpty()) {
                             startTime = day.date
                                 .atTime(getHours(timeString), getMinutes(timeString))
-                                .atZone(DateUtils.conferenceZoneId)
+                                .atZone(conferenceZoneId)
                                 .toInstant()
                         }
                     }

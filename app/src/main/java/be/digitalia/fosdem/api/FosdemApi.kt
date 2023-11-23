@@ -13,7 +13,6 @@ import be.digitalia.fosdem.parsers.EventsParser
 import be.digitalia.fosdem.parsers.RoomStatusesParser
 import be.digitalia.fosdem.utils.BackgroundWorkScope
 import be.digitalia.fosdem.utils.ByteCountSource
-import be.digitalia.fosdem.utils.DateUtils
 import be.digitalia.fosdem.utils.network.HttpClient
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -33,8 +32,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.buffer
 import java.time.LocalTime
+import java.time.ZoneId
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Named
+import javax.inject.Provider
 import javax.inject.Singleton
 import kotlin.math.pow
 
@@ -46,8 +48,10 @@ import kotlin.math.pow
 @Singleton
 class FosdemApi @Inject constructor(
     private val httpClient: HttpClient,
+    private val eventsParserProvider: Provider<EventsParser>,
     private val scheduleDao: ScheduleDao,
-    private val alarmManager: AppAlarmManager
+    private val alarmManager: AppAlarmManager,
+    @Named("Conference") private val conferenceZoneId: ZoneId,
 ) {
     private var downloadJob: Job? = null
     private val _downloadScheduleState =
@@ -85,7 +89,7 @@ class FosdemApi @Inject constructor(
                     body.source()
                 }
 
-                val events = EventsParser().parse(source)
+                val events = eventsParserProvider.get().parse(source)
                 scheduleDao.storeSchedule(events, headers[HttpClient.LAST_MODIFIED_HEADER_NAME])
             }
             when (response) {
@@ -120,10 +124,10 @@ class FosdemApi @Inject constructor(
                 var index = 0
                 for (day in days) {
                     startEndTimestamps[index++] = day.date.atTime(DAY_START_TIME)
-                        .atZone(DateUtils.conferenceZoneId)
+                        .atZone(conferenceZoneId)
                         .toEpochSecond() * 1000L
                     startEndTimestamps[index++] = day.date.atTime(DAY_END_TIME)
-                        .atZone(DateUtils.conferenceZoneId)
+                        .atZone(conferenceZoneId)
                         .toEpochSecond() * 1000L
                 }
                 schedulerFlow(*startEndTimestamps)

@@ -57,6 +57,7 @@ import kotlinx.coroutines.launch
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
+import javax.inject.Named
 
 @AndroidEntryPoint
 class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
@@ -73,6 +74,9 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
     lateinit var userSettingsProvider: UserSettingsProvider
     @Inject
     lateinit var api: FosdemApi
+    @Inject
+    @Named("Conference")
+    lateinit var conferenceZoneId: ZoneId
     @Inject
     lateinit var viewModelFactory: EventDetailsViewModel.Factory
     private val viewModel: EventDetailsViewModel by assistedViewModels {
@@ -144,8 +148,8 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
 
             view.findViewById<TextView>(R.id.time).apply {
                 val timeFormatter = DateUtils.getTimeFormatter(context)
-                val startTime = event.startTime?.atZone(DateUtils.conferenceZoneId)?.format(timeFormatter) ?: "?"
-                val endTime = event.endTime?.atZone(DateUtils.conferenceZoneId)?.format(timeFormatter) ?: "?"
+                val startTime = event.startTime?.atZone(conferenceZoneId)?.format(timeFormatter) ?: "?"
+                val endTime = event.endTime?.atZone(conferenceZoneId)?.format(timeFormatter) ?: "?"
                 text = "${event.day}, $startTime ― $endTime"
                 contentDescription = getString(R.string.time_content_description, text)
             }
