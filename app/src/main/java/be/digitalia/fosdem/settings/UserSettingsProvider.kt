@@ -4,8 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import androidx.preference.PreferenceManager
-import be.digitalia.fosdem.R
+import android.content.SharedPreferences
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -24,14 +23,9 @@ import javax.inject.Singleton
 @Singleton
 class UserSettingsProvider @Inject constructor(
     @ApplicationContext context: Context,
+    @Named("UserSettings") private val sharedPreferences: SharedPreferences,
     @Named("Conference") conferenceZoneId: ZoneId
 ) {
-    private val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-
-    init {
-        PreferenceManager.setDefaultValues(context, R.xml.settings, false)
-    }
-
     private val conferenceZoneIdFlow: Flow<ZoneId> = flowOf(conferenceZoneId)
     private val deviceZoneIdFlow: StateFlow<ZoneId> by lazy(LazyThreadSafetyMode.NONE) {
         val zoneIdFlow = MutableStateFlow(ZoneId.systemDefault())
