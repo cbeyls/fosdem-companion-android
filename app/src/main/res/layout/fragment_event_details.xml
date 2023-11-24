@@ -109,12 +109,32 @@
             tools:text="Welcome to FOSDEM 2015!" />
 
         <TextView
+            android:id="@+id/attachments_header"
+            style="@style/Header"
+            android:layout_marginStart="@dimen/content_margin"
+            android:layout_marginTop="@dimen/content_margin"
+            android:layout_marginEnd="@dimen/content_margin"
+            android:text="@string/attachments_header"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/attachments_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:divider="?android:listDivider"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/content_margin"
+            android:paddingEnd="@dimen/content_margin"
+            android:showDividers="middle"
+            android:visibility="gone" />
+
+        <TextView
             android:id="@+id/links_header"
             style="@style/Header"
             android:layout_marginStart="@dimen/content_margin"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/content_margin"
             android:layout_marginEnd="@dimen/content_margin"
-            android:text="@string/related_links_header"
+            android:text="@string/links_header"
             android:visibility="gone" />
 
         <LinearLayout
@@ -125,8 +145,13 @@
             android:orientation="vertical"
             android:paddingStart="@dimen/content_margin"
             android:paddingEnd="@dimen/content_margin"
-            android:paddingBottom="@dimen/content_margin"
             android:showDividers="middle"
+            android:visibility="gone" />
+
+        <Space
+            android:id="@+id/resources_footer"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/content_margin"
             android:visibility="gone" />
     </LinearLayout>
 

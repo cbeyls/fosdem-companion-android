@@ -1,5 +1,6 @@
 package be.digitalia.fosdem.parsers
 
+import be.digitalia.fosdem.model.Attachment
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.DetailedEvent
 import be.digitalia.fosdem.model.Event
@@ -73,6 +74,7 @@ class EventsParser @Inject constructor(
         var abstractText: String? = null
         var description: String? = null
         val persons = mutableListOf<Person>()
+        val attachments = mutableListOf<Attachment>()
         val links = mutableListOf<Link>()
 
         while (!parser.isNextEndTag("event")) {
@@ -106,6 +108,24 @@ class EventsParser @Inject constructor(
                                     name = parser.nextText()!!
                             )
                             persons += person
+                        }
+                    }
+                    "attachments" -> while (!parser.isNextEndTag("attachments")) {
+                        if (parser.isStartTag("attachment")) {
+                            val attachmentType = parser.getAttributeValue(null, "type")
+                            val attachment = Attachment(
+                                eventId = id,
+                                url = parser.getAttributeValue(null, "href")!!,
+                                description = parser.nextText().let { attachmentDescription ->
+                                    // Use the type to replace the description if absent
+                                    if (attachmentDescription.isNullOrBlank() && attachmentType != null) {
+                                        attachmentType.replaceFirstChar { it.uppercaseChar() }
+                                    } else {
+                                        attachmentDescription
+                                    }
+                                }
+                            )
+                            attachments += attachment
                         }
                     }
                     "links" -> while (!parser.isNextEndTag("links")) {
@@ -143,6 +163,7 @@ class EventsParser @Inject constructor(
         )
         val details = EventDetails(
                 persons = persons,
+                attachments = attachments,
                 links = links
         )
         return DetailedEvent(event, details)

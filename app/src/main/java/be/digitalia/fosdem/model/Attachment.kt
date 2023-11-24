@@ -6,9 +6,9 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 
-@Entity(tableName = "links", indices = [Index(value = ["event_id"], name = "link_event_id_idx")])
+@Entity(tableName = "attachments", indices = [Index(value = ["event_id"], name = "attachment_event_id_idx")])
 @Parcelize
-data class Link(
+data class Attachment(
         @PrimaryKey(autoGenerate = true)
         val id: Long = 0L,
         @ColumnInfo(name = "event_id")
@@ -18,6 +18,6 @@ data class Link(
 ) : Resource {
 
     companion object {
-        const val TABLE_NAME = "links"
+        const val TABLE_NAME = "attachments"
     }
 }

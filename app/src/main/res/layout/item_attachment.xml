@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/description"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:drawablePadding="8dp"
+    android:focusable="true"
+    android:gravity="start|center_vertical"
+    android:minHeight="48dp"
+    android:padding="@dimen/list_item_padding"
+    android:textAlignment="viewStart"
+    android:textAppearance="?textAppearanceSubtitle1"
+    app:drawableStartCompat="@drawable/ic_file_download_white_24dp"
+    app:drawableTint="?colorControlNormal" />

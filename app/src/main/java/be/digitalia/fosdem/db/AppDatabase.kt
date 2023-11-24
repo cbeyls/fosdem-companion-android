@@ -10,6 +10,7 @@ import be.digitalia.fosdem.db.entities.Bookmark
 import be.digitalia.fosdem.db.entities.EventEntity
 import be.digitalia.fosdem.db.entities.EventTitles
 import be.digitalia.fosdem.db.entities.EventToPerson
+import be.digitalia.fosdem.model.Attachment
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Link
 import be.digitalia.fosdem.model.Person
@@ -17,7 +18,9 @@ import be.digitalia.fosdem.model.Track
 
 @Database(
     entities = [EventEntity::class, EventTitles::class, Person::class, EventToPerson::class,
-        Link::class, Track::class, Day::class, Bookmark::class], version = 3, exportSchema = false
+        Attachment::class, Link::class, Track::class, Day::class, Bookmark::class],
+    version = 4,
+    exportSchema = false
 )
 @TypeConverters(GlobalTypeConverters::class)
 abstract class AppDatabase : RoomDatabase() {

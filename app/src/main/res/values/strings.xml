@@ -132,7 +132,8 @@
     <string name="room_content_description">Room: %1$s</string>
     <string name="details_content_description">Details: %1$s</string>
     <string name="in_bookmarks_content_description">In bookmarks: %1$s</string>
-    <string name="related_links_header">Related Links</string>
+    <string name="attachments_header">Attachments</string>
+    <string name="links_header">Links</string>
     <string name="add_bookmark">Add to bookmarks</string>
     <string name="remove_bookmark">Remove from bookmarks</string>
     <string name="share">Share</string>

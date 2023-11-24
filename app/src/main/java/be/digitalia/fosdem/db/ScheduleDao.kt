@@ -15,6 +15,7 @@ import be.digitalia.fosdem.db.converters.NonNullInstantTypeConverters
 import be.digitalia.fosdem.db.entities.EventEntity
 import be.digitalia.fosdem.db.entities.EventTitles
 import be.digitalia.fosdem.db.entities.EventToPerson
+import be.digitalia.fosdem.model.Attachment
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.DetailedEvent
 import be.digitalia.fosdem.model.Event
@@ -149,6 +150,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
             val eventsToPersons = persons.map { EventToPerson(eventId, it.id) }
             insertEventsToPersons(eventsToPersons)
 
+            insertAttachments(details.attachments)
             insertLinks(details.links)
 
             totalEvents++
@@ -179,6 +181,9 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     protected abstract fun insertEventsToPersons(eventsToPersons: List<EventToPerson>)
+
+    @Insert
+    protected abstract fun insertAttachments(attachments: List<Attachment>)
 
     @Insert
     protected abstract fun insertLinks(links: List<Link>)
@@ -417,8 +422,13 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         // Load persons and links in parallel
         return coroutineScope {
             val persons = async { getPersons(event) }
+            val attachments = async { getAttachments(event) }
             val links = async { getLinks(event) }
-            EventDetails(persons.await(), links.await())
+            EventDetails(
+                persons = persons.await(),
+                attachments = attachments.await(),
+                links = links.await()
+            )
         }
     }
 
@@ -427,6 +437,9 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         JOIN events_persons ep ON p.`rowid` = ep.person_id
         WHERE ep.event_id = :event""")
     protected abstract suspend fun getPersons(event: Event): List<Person>
+
+    @Query("SELECT * FROM attachments WHERE event_id = :event ORDER BY id ASC")
+    protected abstract suspend fun getAttachments(event: Event?): List<Attachment>
 
     @Query("SELECT * FROM links WHERE event_id = :event ORDER BY id ASC")
     protected abstract suspend fun getLinks(event: Event?): List<Link>

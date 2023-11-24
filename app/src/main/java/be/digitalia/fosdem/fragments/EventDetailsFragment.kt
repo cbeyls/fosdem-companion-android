@@ -14,6 +14,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.annotation.LayoutRes
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.ShareCompat
 import androidx.core.content.ContextCompat
@@ -37,8 +38,8 @@ import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.model.Building
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.EventDetails
-import be.digitalia.fosdem.model.Link
 import be.digitalia.fosdem.model.Person
+import be.digitalia.fosdem.model.Resource
 import be.digitalia.fosdem.model.RoomStatus
 import be.digitalia.fosdem.settings.UserSettingsProvider
 import be.digitalia.fosdem.utils.ClickableArrowKeyMovementMethod
@@ -66,8 +67,11 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
         val personsTextView: TextView = view.findViewById(R.id.persons)
         val timeTextView: TextView = view.findViewById(R.id.time)
         val roomStatusTextView: TextView = view.findViewById(R.id.room_status)
+        val attachmentsHeader: View = view.findViewById(R.id.attachments_header)
+        val attachmentsContainer: ViewGroup = view.findViewById(R.id.attachments_container)
         val linksHeader: View = view.findViewById(R.id.links_header)
         val linksContainer: ViewGroup = view.findViewById(R.id.links_container)
+        val resourcesFooter: View = view.findViewById(R.id.resources_footer)
     }
 
     @Inject
@@ -285,7 +289,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
 
     private fun showEventDetails(holder: ViewHolder, eventDetails: EventDetails) {
         holder.run {
-            val (persons, links) = eventDetails
+            val (persons, attachments, links) = eventDetails
 
             // 1. Persons
             if (persons.isNotEmpty()) {
@@ -308,24 +312,38 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
                 personsTextView.isVisible = true
             }
 
-            // 2. Links
-            linksContainer.removeAllViews()
-            if (links.isNotEmpty()) {
-                linksHeader.isVisible = true
-                linksContainer.isVisible = true
-                val inflater = layoutInflater
-                for (link in links) {
-                    val view = inflater.inflate(R.layout.item_link, linksContainer, false)
-                    view.findViewById<TextView>(R.id.description).apply {
-                        text = link.description
-                    }
-                    view.setOnClickListener(LinkClickListener(event, link))
-                    linksContainer += view
+            // 2. Attachments
+            populateResources(attachments, R.layout.item_attachment, attachmentsHeader, attachmentsContainer)
+
+            // 3. Links
+            populateResources(links, R.layout.item_link, linksHeader, linksContainer)
+
+            resourcesFooter.isVisible = attachments.isNotEmpty() || links.isNotEmpty()
+        }
+    }
+
+    private fun populateResources(
+        resources: List<Resource>,
+        @LayoutRes layoutResId: Int,
+        header: View,
+        container: ViewGroup
+    ) {
+        container.removeAllViews()
+        if (resources.isNotEmpty()) {
+            header.isVisible = true
+            container.isVisible = true
+            val inflater = layoutInflater
+            for (resource in resources) {
+                val view = inflater.inflate(layoutResId, container, false)
+                view.findViewById<TextView>(R.id.description).apply {
+                    text = resource.description
                 }
-            } else {
-                linksHeader.isVisible = false
-                linksContainer.isVisible = false
+                view.setOnClickListener(ResourceClickListener(event, resource))
+                container += view
             }
+        } else {
+            header.isVisible = false
+            container.isVisible = false
         }
     }
 
@@ -343,7 +361,10 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
         }
     }
 
-    private class LinkClickListener(private val event: Event, private val link: Link) : View.OnClickListener {
+    private class ResourceClickListener(
+        private val event: Event,
+        private val resource: Resource
+    ) : View.OnClickListener {
         override fun onClick(v: View) {
             try {
                 val context = v.context
@@ -353,7 +374,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
                         .setStartAnimations(context, R.anim.slide_in_right, R.anim.slide_out_left)
                         .setExitAnimations(context, R.anim.slide_in_left, R.anim.slide_out_right)
                         .build()
-                        .launchUrl(context, link.url.toUri())
+                        .launchUrl(context, resource.url.toUri())
             } catch (ignore: ActivityNotFoundException) {
             }
         }
