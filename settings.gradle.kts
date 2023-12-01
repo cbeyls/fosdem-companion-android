@@ -26,7 +26,7 @@ dependencyResolutionManagement {
         val hiltVersion: String by settings
         create("libs") {
             version("hilt", hiltVersion)
-            version("room", "2.6.0")
+            version("room", "2.6.1")
             version("lifecycle", "2.6.2")
             library("hilt-android", "com.google.dagger", "hilt-android").versionRef("hilt")
             library("hilt-compiler", "com.google.dagger", "hilt-compiler").versionRef("hilt")
