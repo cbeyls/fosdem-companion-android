@@ -16,7 +16,6 @@ import androidx.lifecycle.withStarted
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.EventDetailsFragment
 import be.digitalia.fosdem.model.Event
-import be.digitalia.fosdem.utils.assistedViewModels
 import be.digitalia.fosdem.utils.getParcelableExtraCompat
 import be.digitalia.fosdem.utils.isLightTheme
 import be.digitalia.fosdem.utils.setTaskColorPrimary
@@ -24,8 +23,8 @@ import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel
 import be.digitalia.fosdem.viewmodels.EventViewModel
 import be.digitalia.fosdem.widgets.setupBookmarkStatus
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.lifecycle.withCreationCallback
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * Displays a single event passed either as a complete Parcelable object in extras or as an id in data.
@@ -36,13 +35,13 @@ import javax.inject.Inject
 class EventDetailsActivity : AppCompatActivity(R.layout.single_event) {
 
     private val bookmarkStatusViewModel: BookmarkStatusViewModel by viewModels()
-    @Inject
-    lateinit var viewModelFactory: EventViewModel.Factory
-    private val viewModel: EventViewModel by assistedViewModels {
-        // Load the event from the DB using its id
-        val eventIdString = intent.dataString!!
-        viewModelFactory.create(eventIdString.toLong())
-    }
+    private val viewModel: EventViewModel by viewModels(extrasProducer = {
+        defaultViewModelCreationExtras.withCreationCallback<EventViewModel.Factory> { factory ->
+            // Load the event from the DB using its id
+            val eventIdString = intent.dataString!!
+            factory.create(eventIdString.toLong())
+        }
+    })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

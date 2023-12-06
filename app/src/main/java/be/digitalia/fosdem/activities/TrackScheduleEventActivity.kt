@@ -20,7 +20,6 @@ import be.digitalia.fosdem.fragments.EventDetailsFragment
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.Track
-import be.digitalia.fosdem.utils.assistedViewModels
 import be.digitalia.fosdem.utils.enforceSingleScrollDirection
 import be.digitalia.fosdem.utils.getParcelableExtraCompat
 import be.digitalia.fosdem.utils.instantiate
@@ -32,8 +31,8 @@ import be.digitalia.fosdem.viewmodels.TrackScheduleEventViewModel
 import be.digitalia.fosdem.widgets.ContentLoadingViewMediator
 import be.digitalia.fosdem.widgets.setupBookmarkStatus
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.lifecycle.withCreationCallback
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * Event view of the track schedule; allows to slide between events of the same track using a ViewPager.
@@ -44,11 +43,11 @@ import javax.inject.Inject
 class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_event) {
 
     private val bookmarkStatusViewModel: BookmarkStatusViewModel by viewModels()
-    @Inject
-    lateinit var viewModelFactory: TrackScheduleEventViewModel.Factory
-    private val viewModel: TrackScheduleEventViewModel by assistedViewModels {
-        viewModelFactory.create(day, track)
-    }
+    private val viewModel: TrackScheduleEventViewModel by viewModels(extrasProducer = {
+        defaultViewModelCreationExtras.withCreationCallback<TrackScheduleEventViewModel.Factory> { factory ->
+            factory.create(day, track)
+        }
+    })
 
     private val day: Day by lazy(LazyThreadSafetyMode.NONE) {
         intent.getParcelableExtraCompat(EXTRA_DAY)!!

@@ -10,9 +10,11 @@ import be.digitalia.fosdem.model.Track
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 
+@HiltViewModel(assistedFactory = TracksListViewModel.Factory::class)
 class TracksListViewModel @AssistedInject constructor(
     scheduleDao: ScheduleDao,
     @Assisted day: Day

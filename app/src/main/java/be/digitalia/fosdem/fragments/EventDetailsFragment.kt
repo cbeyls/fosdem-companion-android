@@ -29,6 +29,7 @@ import androidx.core.view.plusAssign
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.withStarted
@@ -44,7 +45,6 @@ import be.digitalia.fosdem.model.RoomStatus
 import be.digitalia.fosdem.settings.UserSettingsProvider
 import be.digitalia.fosdem.utils.ClickableArrowKeyMovementMethod
 import be.digitalia.fosdem.utils.DateUtils
-import be.digitalia.fosdem.utils.assistedViewModels
 import be.digitalia.fosdem.utils.configureToolbarColors
 import be.digitalia.fosdem.utils.getParcelableCompat
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
@@ -54,6 +54,7 @@ import be.digitalia.fosdem.utils.stripHtml
 import be.digitalia.fosdem.viewmodels.EventDetailsViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.lifecycle.withCreationCallback
 import kotlinx.coroutines.launch
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -81,11 +82,11 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
     @Inject
     @Named("Conference")
     lateinit var conferenceZoneId: ZoneId
-    @Inject
-    lateinit var viewModelFactory: EventDetailsViewModel.Factory
-    private val viewModel: EventDetailsViewModel by assistedViewModels {
-        viewModelFactory.create(event)
-    }
+    private val viewModel: EventDetailsViewModel by viewModels(extrasProducer = {
+        defaultViewModelCreationExtras.withCreationCallback<EventDetailsViewModel.Factory> { factory ->
+            factory.create(event)
+        }
+    })
 
     val event by lazy<Event>(LazyThreadSafetyMode.NONE) {
         requireArguments().getParcelableCompat(ARG_EVENT)!!

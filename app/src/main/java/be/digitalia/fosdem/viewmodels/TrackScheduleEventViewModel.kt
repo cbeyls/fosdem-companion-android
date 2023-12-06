@@ -9,9 +9,11 @@ import be.digitalia.fosdem.model.Track
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 
+@HiltViewModel(assistedFactory = TrackScheduleEventViewModel.Factory::class)
 class TrackScheduleEventViewModel @AssistedInject constructor(
     scheduleDao: ScheduleDao,
     @Assisted day: Day,

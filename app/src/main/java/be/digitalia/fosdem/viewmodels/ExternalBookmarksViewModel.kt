@@ -14,9 +14,11 @@ import be.digitalia.fosdem.utils.BackgroundWorkScope
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
+@HiltViewModel(assistedFactory = ExternalBookmarksViewModel.Factory::class)
 class ExternalBookmarksViewModel @AssistedInject constructor(
     scheduleDao: ScheduleDao,
     private val bookmarksDao: BookmarksDao,

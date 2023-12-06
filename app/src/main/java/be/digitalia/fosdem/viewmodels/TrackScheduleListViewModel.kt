@@ -13,6 +13,7 @@ import be.digitalia.fosdem.model.Track
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
@@ -25,6 +26,7 @@ import java.time.ZoneId
 import javax.inject.Named
 import kotlin.time.Duration.Companion.minutes
 
+@HiltViewModel(assistedFactory = TrackScheduleListViewModel.Factory::class)
 class TrackScheduleListViewModel @AssistedInject constructor(
     scheduleDao: ScheduleDao,
     @Named("Conference") conferenceZoneId: ZoneId,

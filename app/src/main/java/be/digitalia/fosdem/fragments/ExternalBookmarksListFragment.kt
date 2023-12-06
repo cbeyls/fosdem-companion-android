@@ -11,6 +11,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -19,11 +20,11 @@ import be.digitalia.fosdem.R
 import be.digitalia.fosdem.adapters.EventsAdapter
 import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.settings.UserSettingsProvider
-import be.digitalia.fosdem.utils.assistedViewModels
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.ExternalBookmarksViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.lifecycle.withCreationCallback
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -36,12 +37,12 @@ class ExternalBookmarksListFragment : Fragment(R.layout.recyclerview) {
     lateinit var userSettingsProvider: UserSettingsProvider
     @Inject
     lateinit var api: FosdemApi
-    @Inject
-    lateinit var viewModelFactory: ExternalBookmarksViewModel.Factory
-    private val viewModel: ExternalBookmarksViewModel by assistedViewModels {
-        val bookmarkIds = requireArguments().getLongArray(ARG_BOOKMARK_IDS)!!
-        viewModelFactory.create(bookmarkIds)
-    }
+    private val viewModel: ExternalBookmarksViewModel by viewModels(extrasProducer = {
+        defaultViewModelCreationExtras.withCreationCallback<ExternalBookmarksViewModel.Factory> { factory ->
+            val bookmarkIds = requireArguments().getLongArray(ARG_BOOKMARK_IDS)!!
+            factory.create(bookmarkIds)
+        }
+    })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

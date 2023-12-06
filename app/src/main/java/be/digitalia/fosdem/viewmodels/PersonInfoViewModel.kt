@@ -12,8 +12,10 @@ import be.digitalia.fosdem.model.StatusEvent
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 
+@HiltViewModel(assistedFactory = PersonInfoViewModel.Factory::class)
 class PersonInfoViewModel @AssistedInject constructor(
     scheduleDao: ScheduleDao,
     @Assisted person: Person

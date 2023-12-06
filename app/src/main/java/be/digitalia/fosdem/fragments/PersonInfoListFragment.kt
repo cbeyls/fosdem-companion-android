@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.ConcatAdapter
@@ -15,11 +16,11 @@ import be.digitalia.fosdem.adapters.EventsAdapter
 import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.settings.UserSettingsProvider
-import be.digitalia.fosdem.utils.assistedViewModels
 import be.digitalia.fosdem.utils.getParcelableCompat
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.PersonInfoViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.lifecycle.withCreationCallback
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -32,12 +33,12 @@ class PersonInfoListFragment : Fragment(R.layout.recyclerview) {
     lateinit var userSettingsProvider: UserSettingsProvider
     @Inject
     lateinit var api: FosdemApi
-    @Inject
-    lateinit var viewModelFactory: PersonInfoViewModel.Factory
-    private val viewModel: PersonInfoViewModel by assistedViewModels {
-        val person: Person = requireArguments().getParcelableCompat(ARG_PERSON)!!
-        viewModelFactory.create(person)
-    }
+    private val viewModel: PersonInfoViewModel by viewModels(extrasProducer = {
+        defaultViewModelCreationExtras.withCreationCallback<PersonInfoViewModel.Factory> { factory ->
+            val person: Person = requireArguments().getParcelableCompat(ARG_PERSON)!!
+            factory.create(person)
+        }
+    })
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

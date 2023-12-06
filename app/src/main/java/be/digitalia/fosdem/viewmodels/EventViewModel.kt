@@ -7,9 +7,11 @@ import be.digitalia.fosdem.model.Event
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 
+@HiltViewModel(assistedFactory = EventViewModel.Factory::class)
 class EventViewModel @AssistedInject constructor(
     scheduleDao: ScheduleDao,
     @Assisted eventId: Long
