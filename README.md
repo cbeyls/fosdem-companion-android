@@ -1,4 +1,4 @@
-[![Android CI](https://github.com/cbeyls/fosdem-companion-android/actions/workflows/android.yml/badge.svg)](https://github.com/cbeyls/fosdem-companion-android/actions/workflows/android.yml)
+[![Android CI](https://github.com/cbeyls/fosdem-companion-android/actions/workflows/android.yml/badge.svg)](https://github.com/cbeyls/fosdem-companion-android/actions/workflows/android.yml) [![F-Droid](https://img.shields.io/f-droid/v/be.digitalia.fosdem)](https://f-droid.org/packages/be.digitalia.fosdem/)
 
 # FOSDEM Companion
 
