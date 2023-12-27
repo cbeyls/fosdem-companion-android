@@ -38,20 +38,31 @@ class EventsParser @Inject constructor(
         return sequence {
             while (!parser.isEndDocument) {
                 if (parser.isStartTag("schedule")) {
-                    var currentDay: Day? = null
-                    var currentRoomName: String? = null
-
                     while (!parser.isNextEndTag("schedule")) {
                         if (parser.isStartTag) {
                             when (parser.name) {
                                 "day" -> {
-                                    currentDay = Day(
-                                            index = parser.getAttributeValue(null, "index")!!.toInt(),
-                                            date = LocalDate.parse(parser.getAttributeValue(null, "date"))
+                                    val day = Day(
+                                        index = parser.getAttributeValue(null, "index")!!.toInt(),
+                                        date = LocalDate.parse(
+                                            parser.getAttributeValue(null, "date")
+                                        )
                                     )
+
+                                    while (!parser.isNextEndTag("day")) {
+                                        if (parser.isStartTag("room")) {
+                                            val roomName: String? =
+                                                parser.getAttributeValue(null, "name")
+
+                                            while (!parser.isNextEndTag("room")) {
+                                                if (parser.isStartTag("event")) {
+                                                    yield(parseEvent(parser, day, roomName))
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
-                                "room" -> currentRoomName = parser.getAttributeValue(null, "name")
-                                "event" -> yield(parseEvent(parser, currentDay!!, currentRoomName))
+
                                 else -> parser.skipToEndTag()
                             }
                         }
