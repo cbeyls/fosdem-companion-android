@@ -101,9 +101,18 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         val tracks = mutableMapOf<Track, Long>()
         var nextTrackId = 0L
         var minEventId = Long.MAX_VALUE
-        val days: MutableSet<Day> = HashSet(2)
+
+        val days: MutableList<Day> = ArrayList(2)
+        var currentDayIndex = -1
 
         for ((event, details) in events) {
+            // Collect Day if new
+            val day = event.day
+            if (currentDayIndex != day.index) {
+                days += day
+                currentDayIndex = day.index
+            }
+
             // Retrieve or insert Track
             val track = event.track
             var trackId = tracks[track]
@@ -120,7 +129,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
                 // Insert main event and fulltext fields
                 val eventEntity = EventEntity(
                         eventId,
-                        event.day.index,
+                        currentDayIndex,
                         event.startTime,
                         event.endTime,
                         event.roomName,
@@ -140,7 +149,6 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
                 continue
             }
 
-            days += event.day
             if (eventId < minEventId) {
                 minEventId = eventId
             }
@@ -189,7 +197,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     protected abstract fun insertLinks(links: List<Link>)
 
     @Insert
-    protected abstract fun insertDays(days: Set<Day>)
+    protected abstract fun insertDays(days: Collection<Day>)
 
     @Query("DELETE FROM bookmarks WHERE event_id < :minEventId")
     protected abstract fun purgeOutdatedBookmarks(minEventId: Long)
@@ -237,7 +245,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
             initialValue = null
         ).filterNotNull()
 
-    @Query("SELECT `index`, date FROM days ORDER BY `index` ASC")
+    @Query("SELECT `index`, date, start_time, end_time FROM days ORDER BY `index` ASC")
     protected abstract suspend fun getDaysInternal(): List<Day>
 
     suspend fun getYear(): Int {
@@ -257,7 +265,8 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
      * Returns the event with the specified id, or null if not found.
      */
     @Query("""SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
-        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type
+        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
+        e.track_id, t.name AS track_name, t.type AS track_type
         FROM events e
         JOIN events_titles et ON e.id = et.`rowid`
         JOIN days d ON e.day_index = d.`index`
@@ -272,8 +281,8 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
      * Returns all found events whose id is part of the given list.
      */
     @Query("""SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
-        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type,
-        b.event_id IS NOT NULL AS is_bookmarked
+        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
+        e.track_id, t.name AS track_name, t.type AS track_type, b.event_id IS NOT NULL AS is_bookmarked
         FROM events e
         JOIN events_titles et ON e.id = et.`rowid`
         JOIN days d ON e.day_index = d.`index`
@@ -290,8 +299,8 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
      * Returns the events for a specified track, including their bookmark status.
      */
     @Query("""SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
-        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type,
-        b.event_id IS NOT NULL AS is_bookmarked
+        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
+        e.track_id, t.name AS track_name, t.type AS track_type, b.event_id IS NOT NULL AS is_bookmarked
         FROM events e
         JOIN events_titles et ON e.id = et.`rowid`
         JOIN days d ON e.day_index = d.`index`
@@ -308,7 +317,8 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
      * Returns the events for a specified track, without their bookmark status.
      */
     @Query("""SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
-        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type
+        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
+        e.track_id, t.name AS track_name, t.type AS track_type
         FROM events e
         JOIN events_titles et ON e.id = et.`rowid`
         JOIN days d ON e.day_index = d.`index`
@@ -324,8 +334,8 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
      * Returns events starting in the specified interval, ordered by ascending start time.
      */
     @Query("""SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
-        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type,
-        b.event_id IS NOT NULL AS is_bookmarked
+        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
+        e.track_id, t.name AS track_name, t.type AS track_type, b.event_id IS NOT NULL AS is_bookmarked
         FROM events e
         JOIN events_titles et ON e.id = et.`rowid`
         JOIN days d ON e.day_index = d.`index`
@@ -343,8 +353,8 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
      * Returns events in progress at the specified time, ordered by descending start time.
      */
     @Query("""SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
-        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type,
-        b.event_id IS NOT NULL AS is_bookmarked
+        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
+        e.track_id, t.name AS track_name, t.type AS track_type, b.event_id IS NOT NULL AS is_bookmarked
         FROM events e
         JOIN events_titles et ON e.id = et.`rowid`
         JOIN days d ON e.day_index = d.`index`
@@ -362,8 +372,8 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
      * Returns the events presented by the specified person.
      */
     @Query("""SELECT e.id , e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
-        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type,
-        b.event_id IS NOT NULL AS is_bookmarked
+        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
+        e.track_id, t.name AS track_name, t.type AS track_type, b.event_id IS NOT NULL AS is_bookmarked
         FROM events e JOIN events_titles et ON e.id = et.`rowid`
         JOIN days d ON e.day_index = d.`index`
         JOIN tracks t ON e.track_id = t.id
@@ -382,8 +392,8 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
      * accompanied by other conditions in a "where" statement.
      */
     @Query("""SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
-        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type,
-        b.event_id IS NOT NULL AS is_bookmarked
+        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
+        e.track_id, t.name AS track_name, t.type AS track_type, b.event_id IS NOT NULL AS is_bookmarked
         FROM events e
         JOIN events_titles et ON e.id = et.`rowid`
         JOIN days d ON e.day_index = d.`index`

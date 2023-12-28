@@ -25,7 +25,8 @@ abstract class BookmarksDao(appDatabase: AppDatabase) {
      * @param minStartTime Only return the events starting after this time.
      */
     @Query("""SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
-        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, e.track_id, t.name AS track_name, t.type AS track_type
+        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
+        e.track_id, t.name AS track_name, t.type AS track_type
         FROM bookmarks b
         JOIN events e ON b.event_id = e.id
         JOIN events_titles et ON e.id = et.`rowid`

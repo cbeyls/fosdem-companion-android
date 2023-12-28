@@ -43,11 +43,20 @@ class EventsParser @Inject constructor(
                         if (parser.isStartTag) {
                             when (parser.name) {
                                 "day" -> {
+                                    val date = LocalDate.parse(
+                                        parser.getAttributeValue(null, "date")
+                                    )
                                     val day = Day(
                                         index = parser.getAttributeValue(null, "index")!!.toInt(),
-                                        date = LocalDate.parse(
-                                            parser.getAttributeValue(null, "date")
-                                        )
+                                        date = date,
+                                        startTime = date
+                                            .atTime(DAY_START_TIME)
+                                            .atZone(conferenceZoneId)
+                                            .toInstant(),
+                                        endTime = date
+                                            .atTime(DAY_END_TIME)
+                                            .atZone(conferenceZoneId)
+                                            .toInstant()
                                     )
 
                                     while (!parser.isNextEndTag("day")) {
@@ -198,5 +207,10 @@ class EventsParser @Inject constructor(
             result += time[6].digitToInt() * 10 + time[7].digitToInt()
         }
         return result.toLong()
+    }
+
+    companion object {
+        private val DAY_START_TIME = LocalTime.of(8, 30)
+        private val DAY_END_TIME = LocalTime.of(19, 0)
     }
 }

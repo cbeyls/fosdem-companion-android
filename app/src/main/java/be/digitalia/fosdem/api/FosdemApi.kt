@@ -31,11 +31,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.buffer
-import java.time.LocalTime
-import java.time.ZoneId
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import javax.inject.Named
 import javax.inject.Provider
 import javax.inject.Singleton
 import kotlin.math.pow
@@ -50,8 +47,7 @@ class FosdemApi @Inject constructor(
     private val httpClient: HttpClient,
     private val eventsParserProvider: Provider<EventsParser>,
     private val scheduleDao: ScheduleDao,
-    private val alarmManager: AppAlarmManager,
-    @Named("Conference") private val conferenceZoneId: ZoneId,
+    private val alarmManager: AppAlarmManager
 ) {
     private var downloadJob: Job? = null
     private val _downloadScheduleState =
@@ -123,12 +119,8 @@ class FosdemApi @Inject constructor(
                 val startEndTimestamps = LongArray(days.size * 2)
                 var index = 0
                 for (day in days) {
-                    startEndTimestamps[index++] = day.date.atTime(DAY_START_TIME)
-                        .atZone(conferenceZoneId)
-                        .toEpochSecond() * 1000L
-                    startEndTimestamps[index++] = day.date.atTime(DAY_END_TIME)
-                        .atZone(conferenceZoneId)
-                        .toEpochSecond() * 1000L
+                    startEndTimestamps[index++] = day.startTime.toEpochMilli()
+                    startEndTimestamps[index++] = day.endTime.toEpochMilli()
                 }
                 schedulerFlow(*startEndTimestamps)
                     .flowWhileShared(SharingStarted.WhileSubscribed())
@@ -197,8 +189,6 @@ class FosdemApi @Inject constructor(
     }
 
     companion object {
-        private val DAY_START_TIME = LocalTime.of(8, 30)
-        private val DAY_END_TIME = LocalTime.of(19, 0)
         private val ROOM_STATUS_REFRESH_DELAY = TimeUnit.SECONDS.toMillis(90L)
         private val ROOM_STATUS_FIRST_RETRY_DELAY = TimeUnit.SECONDS.toMillis(30L)
         private val ROOM_STATUS_EXPIRATION_DELAY = TimeUnit.MINUTES.toMillis(6L)
