@@ -18,6 +18,7 @@ import org.xmlpull.v1.XmlPullParser
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.ZoneId
 import javax.inject.Inject
 import javax.inject.Named
@@ -95,7 +96,7 @@ class EventsParser @Inject constructor(
                         val timeString = parser.nextText()
                         if (!timeString.isNullOrEmpty()) {
                             startTime = day.date
-                                .atTime(getHours(timeString), getMinutes(timeString))
+                                .atTime(LocalTime.ofSecondOfDay(parseTimeAsSeconds(timeString)))
                                 .atZone(conferenceZoneId)
                                 .toInstant()
                         }
@@ -155,7 +156,7 @@ class EventsParser @Inject constructor(
         }
 
         val endTime = if (startTime != null && !duration.isNullOrEmpty()) {
-            startTime + Duration.ofMinutes(getHours(duration) * 60L + getMinutes(duration))
+            startTime + Duration.ofSeconds(parseTimeAsSeconds(duration))
         } else null
 
         val event = Event(
@@ -181,22 +182,21 @@ class EventsParser @Inject constructor(
     }
 
     /**
-     * Returns the hours portion of a time string in the "hh:mm" format, without allocating objects.
+     * Return the total number of seconds of a string in the "hh:mm" or "hh:mm:ss" format,
+     * without allocating heap memory.
      *
-     * @param time string in the "hh:mm" format
-     * @return hours
+     * @param time string in the "hh:mm" or "hh:mm:ss" format
      */
-    private fun getHours(time: String): Int {
-        return Character.getNumericValue(time[0]) * 10 + Character.getNumericValue(time[1])
-    }
-
-    /**
-     * Returns the minutes portion of a time string in the "hh:mm" format, without allocating objects.
-     *
-     * @param time string in the "hh:mm" format
-     * @return minutes
-     */
-    private fun getMinutes(time: String): Int {
-        return Character.getNumericValue(time[3]) * 10 + Character.getNumericValue(time[4])
+    private fun parseTimeAsSeconds(time: String): Long {
+        // hours
+        var result = time[0].digitToInt() * 10 + time[1].digitToInt()
+        // minutes
+        result = result * 60 + time[3].digitToInt() * 10 + time[4].digitToInt()
+        // seconds
+        result *= 60
+        if (time.length >= 8) {
+            result += time[6].digitToInt() * 10 + time[7].digitToInt()
+        }
+        return result.toLong()
     }
 }
