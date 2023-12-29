@@ -20,16 +20,12 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import java.time.Duration
 import java.time.Instant
-import java.time.ZoneId
-import javax.inject.Named
 import kotlin.time.Duration.Companion.minutes
 
 @HiltViewModel(assistedFactory = TrackScheduleListViewModel.Factory::class)
 class TrackScheduleListViewModel @AssistedInject constructor(
     scheduleDao: ScheduleDao,
-    @Named("Conference") conferenceZoneId: ZoneId,
     @Assisted day: Day,
     @Assisted track: Track
 ) : ViewModel() {
@@ -44,20 +40,17 @@ class TrackScheduleListViewModel @AssistedInject constructor(
      * @return The current time during the target day, or null outside of the target day.
      */
     @OptIn(ExperimentalCoroutinesApi::class)
-    val currentTime: Flow<Instant?> = run {
+    val currentTime: Flow<Instant?> =
         // Auto refresh during the day passed as argument
-        val dayStart = day.date.atStartOfDay(conferenceZoneId).toInstant()
         schedulerFlow(
-            dayStart.toEpochMilli(),
-            (dayStart + Duration.ofDays(1L)).toEpochMilli()
-        )
-    }.flatMapLatest { isOn ->
-        if (isOn) {
-            tickerFlow(TIME_REFRESH_PERIOD).map { Instant.now() }
-        } else {
-            flowOf(null)
+            day.startTime.toEpochMilli(), day.endTime.toEpochMilli()
+        ).flatMapLatest { isOn ->
+            if (isOn) {
+                tickerFlow(TIME_REFRESH_PERIOD).map { Instant.now() }
+            } else {
+                flowOf(null)
+            }
         }
-    }
 
     @AssistedFactory
     interface Factory {
