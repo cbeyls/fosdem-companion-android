@@ -51,7 +51,7 @@ import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.utils.parseHtml
 import be.digitalia.fosdem.utils.roomNameToResourceName
 import be.digitalia.fosdem.utils.stripHtml
-import be.digitalia.fosdem.utils.toLocalDateTime
+import be.digitalia.fosdem.utils.toLocalDateTimeOrNull
 import be.digitalia.fosdem.viewmodels.EventDetailsViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -60,7 +60,6 @@ import kotlinx.coroutines.launch
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
-import javax.inject.Named
 
 @AndroidEntryPoint
 class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
@@ -80,9 +79,6 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
     lateinit var userSettingsProvider: UserSettingsProvider
     @Inject
     lateinit var api: FosdemApi
-    @Inject
-    @Named("Conference")
-    lateinit var conferenceZoneId: ZoneId
     private val viewModel: EventDetailsViewModel by viewModels(extrasProducer = {
         defaultViewModelCreationExtras.withCreationCallback<EventDetailsViewModel.Factory> { factory ->
             factory.create(event)
@@ -128,6 +124,8 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val timeFormatter = DateUtils.getTimeFormatter(view.context)
+
         val holder = ViewHolder(view).apply {
             view.findViewById<TextView>(R.id.title).text = event.title
             view.findViewById<TextView>(R.id.subtitle).apply {
@@ -152,13 +150,8 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
                 }
             }
 
-            view.findViewById<TextView>(R.id.time).apply {
-                val timeFormatter = DateUtils.getTimeFormatter(context)
-                val startTime = event.startTime?.toLocalDateTime(conferenceZoneId)?.format(timeFormatter) ?: "?"
-                val endTime = event.endTime?.toLocalDateTime(conferenceZoneId)?.format(timeFormatter) ?: "?"
-                text = "${event.day}, $startTime ― $endTime"
-                contentDescription = getString(R.string.time_content_description, text)
-            }
+            // Display time placeholder until the ZoneId is loaded from user preferences
+            bindTime(timeTextView, timeFormatter, null)
 
             view.findViewById<TextView>(R.id.room).apply {
                 val roomName = event.roomName
@@ -218,7 +211,6 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
             }
         }
 
-        val timeFormatter = DateUtils.getTimeFormatter(view.context)
         val roomName = event.roomName
         viewLifecycleOwner.launchAndRepeatOnLifecycle {
             launch {
@@ -239,9 +231,9 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
     }
 
     @SuppressLint("SetTextI18n")
-    private fun bindTime(timeTextView: TextView, timeFormatter: DateTimeFormatter, zoneId: ZoneId) {
-        val startTime = event.startTime?.toLocalDateTime(zoneId)?.format(timeFormatter) ?: "?"
-        val endTime = event.endTime?.toLocalDateTime(zoneId)?.format(timeFormatter) ?: "?"
+    private fun bindTime(timeTextView: TextView, timeFormatter: DateTimeFormatter, zoneId: ZoneId?) {
+        val startTime = event.startTime?.toLocalDateTimeOrNull(zoneId)?.format(timeFormatter) ?: "?"
+        val endTime = event.endTime?.toLocalDateTimeOrNull(zoneId)?.format(timeFormatter) ?: "?"
         timeTextView.text = "${event.day}, $startTime ― $endTime"
         timeTextView.contentDescription = getString(R.string.time_content_description, timeTextView.text)
     }
