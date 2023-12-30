@@ -21,7 +21,7 @@ import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.RoomStatus
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.utils.DateUtils
-import be.digitalia.fosdem.utils.atZoneOrNull
+import be.digitalia.fosdem.utils.toLocalDateTimeOrNull
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -120,8 +120,8 @@ class EventsAdapter constructor(context: Context, private val showDay: Boolean =
 
         fun bindDetails(event: Event, showDay: Boolean, zoneId: ZoneId?, roomStatus: RoomStatus?) {
             val context = details.context
-            val startTimeString = event.startTime?.atZoneOrNull(zoneId)?.format(timeFormatter) ?: "?"
-            val endTimeString = event.endTime?.atZoneOrNull(zoneId)?.format(timeFormatter) ?: "?"
+            val startTimeString = event.startTime?.toLocalDateTimeOrNull(zoneId)?.format(timeFormatter) ?: "?"
+            val endTimeString = event.endTime?.toLocalDateTimeOrNull(zoneId)?.format(timeFormatter) ?: "?"
             val roomName = event.roomName.orEmpty()
             var detailsText: CharSequence = if (showDay) {
                 "${event.day.shortName}, $startTimeString ― $endTimeString  |  $roomName"

@@ -12,6 +12,7 @@ import be.digitalia.fosdem.utils.isEndDocument
 import be.digitalia.fosdem.utils.isNextEndTag
 import be.digitalia.fosdem.utils.isStartTag
 import be.digitalia.fosdem.utils.skipToEndTag
+import be.digitalia.fosdem.utils.toInstant
 import be.digitalia.fosdem.utils.xmlPullParserFactory
 import okio.BufferedSource
 import org.xmlpull.v1.XmlPullParser
@@ -51,12 +52,10 @@ class EventsParser @Inject constructor(
                                         date = date,
                                         startTime = date
                                             .atTime(DAY_START_TIME)
-                                            .atZone(conferenceZoneId)
-                                            .toInstant(),
+                                            .toInstant(conferenceZoneId),
                                         endTime = date
                                             .atTime(DAY_END_TIME)
-                                            .atZone(conferenceZoneId)
-                                            .toInstant()
+                                            .toInstant(conferenceZoneId)
                                     )
 
                                     while (!parser.isNextEndTag("day")) {
@@ -106,8 +105,7 @@ class EventsParser @Inject constructor(
                         if (!timeString.isNullOrEmpty()) {
                             startTime = day.date
                                 .atTime(LocalTime.ofSecondOfDay(parseTimeAsSeconds(timeString)))
-                                .atZone(conferenceZoneId)
-                                .toInstant()
+                                .toInstant(conferenceZoneId)
                         }
                     }
                     "duration" -> duration = parser.nextText()

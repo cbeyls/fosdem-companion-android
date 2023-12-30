@@ -39,6 +39,7 @@ import be.digitalia.fosdem.model.LoadingState
 import be.digitalia.fosdem.utils.awaitCloseDrawer
 import be.digitalia.fosdem.utils.configureToolbarColors
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
+import be.digitalia.fosdem.utils.toLocalDateTime
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.progressindicator.BaseProgressIndicator
 import com.google.android.material.snackbar.Snackbar
@@ -198,7 +199,7 @@ class MainActivity : AppCompatActivity(R.layout.main) {
         val latestUpdateTextView: TextView = navigationView.findViewById(R.id.latest_update)
         lifecycleScope.launch {
             scheduleDao.latestUpdateTime.collect { time ->
-                val timeString = time?.atZone(ZoneId.systemDefault())?.format(latestUpdateDateTimeFormatter)
+                val timeString = time?.toLocalDateTime(ZoneId.systemDefault())?.format(latestUpdateDateTimeFormatter)
                         ?: getString(R.string.never)
                 latestUpdateTextView.text = getString(R.string.last_update, timeString)
             }

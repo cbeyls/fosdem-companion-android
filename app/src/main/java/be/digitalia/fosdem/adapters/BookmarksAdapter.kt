@@ -24,7 +24,7 @@ import be.digitalia.fosdem.activities.EventDetailsActivity
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.RoomStatus
 import be.digitalia.fosdem.utils.DateUtils
-import be.digitalia.fosdem.utils.atZoneOrNull
+import be.digitalia.fosdem.utils.toLocalDateTimeOrNull
 import be.digitalia.fosdem.widgets.MultiChoiceHelper
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -139,8 +139,8 @@ class BookmarksAdapter(context: Context, private val multiChoiceHelper: MultiCho
 
         fun bindDetails(event: Event, previous: Event?, next: Event?, zoneId: ZoneId?, roomStatus: RoomStatus?) {
             val context = details.context
-            val startTimeString = event.startTime?.atZoneOrNull(zoneId)?.format(timeFormatter) ?: "?"
-            val endTimeString = event.endTime?.atZoneOrNull(zoneId)?.format(timeFormatter) ?: "?"
+            val startTimeString = event.startTime?.toLocalDateTimeOrNull(zoneId)?.format(timeFormatter) ?: "?"
+            val endTimeString = event.endTime?.toLocalDateTimeOrNull(zoneId)?.format(timeFormatter) ?: "?"
             val roomName = event.roomName.orEmpty()
             val detailsText: CharSequence = "${event.day.shortName}, $startTimeString ― $endTimeString  |  $roomName"
             val detailsSpannable = SpannableString(detailsText)

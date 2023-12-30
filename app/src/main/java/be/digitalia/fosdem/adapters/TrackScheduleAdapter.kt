@@ -17,7 +17,7 @@ import be.digitalia.fosdem.R
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.utils.DateUtils
-import be.digitalia.fosdem.utils.atZoneOrNull
+import be.digitalia.fosdem.utils.toLocalDateTimeOrNull
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -161,7 +161,7 @@ class TrackScheduleAdapter(context: Context, private val clickListener: (Event) 
         }
 
         fun bindTime(event: Event, zoneId: ZoneId?) {
-            time.text = event.startTime?.atZoneOrNull(zoneId)?.format(timeFormatter) ?: "?"
+            time.text = event.startTime?.toLocalDateTimeOrNull(zoneId)?.format(timeFormatter) ?: "?"
             if (itemViewType == ONGOING_VIEW_TYPE) {
                 time.contentDescription =
                     time.context.getString(R.string.in_progress_content_description, time.text)

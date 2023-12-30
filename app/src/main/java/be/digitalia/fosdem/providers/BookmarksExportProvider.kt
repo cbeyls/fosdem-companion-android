@@ -19,6 +19,7 @@ import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.ical.ICalendarWriter
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.utils.stripHtml
+import be.digitalia.fosdem.utils.toLocalDateTime
 import be.digitalia.fosdem.utils.toSlug
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -100,7 +101,7 @@ class BookmarksExportProvider : ContentProvider() {
     }
 
     private class DownloadThread(private val outputStream: OutputStream, private val bookmarksDao: BookmarksDao) : Thread() {
-        private val dtStamp = LocalDateTime.now(ZoneOffset.UTC).format(DATE_TIME_FORMAT)
+        private val dtStamp = LocalDateTime.now(ZoneOffset.UTC).format(UTC_DATE_TIME_FORMAT)
 
         override fun run() {
             try {
@@ -127,8 +128,8 @@ class BookmarksExportProvider : ContentProvider() {
             val year = event.day.date.year
             write("UID", "${event.id}@$year@${BuildConfig.APPLICATION_ID}")
             write("DTSTAMP", dtStamp)
-            event.startTime?.let { write("DTSTART", it.atOffset(ZoneOffset.UTC).format(DATE_TIME_FORMAT)) }
-            event.endTime?.let { write("DTEND", it.atOffset(ZoneOffset.UTC).format(DATE_TIME_FORMAT)) }
+            event.startTime?.let { write("DTSTART", it.toLocalDateTime(ZoneOffset.UTC).format(UTC_DATE_TIME_FORMAT)) }
+            event.endTime?.let { write("DTEND", it.toLocalDateTime(ZoneOffset.UTC).format(UTC_DATE_TIME_FORMAT)) }
             write("SUMMARY", event.title)
             var description = event.abstractText
             if (description.isNullOrEmpty()) {
@@ -170,7 +171,7 @@ class BookmarksExportProvider : ContentProvider() {
                 .appendPath("bookmarks.ics")
                 .build()
         private val COLUMNS = arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE)
-        private val DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'", Locale.US)
+        private val UTC_DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'", Locale.US)
 
         fun getIntent(activity: Activity): Intent {
             // Supports granting read permission for the attached shared file
