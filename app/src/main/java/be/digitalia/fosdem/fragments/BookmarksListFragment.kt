@@ -32,7 +32,6 @@ import be.digitalia.fosdem.viewmodels.BookmarksViewModel
 import be.digitalia.fosdem.widgets.MultiChoiceHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import java.util.concurrent.CancellationException
@@ -166,7 +165,6 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview) {
                 }
             }
             launch {
-                coroutineContext.cancel()
                 api.roomStatuses.collect { statuses ->
                     adapter.roomStatuses = statuses
                 }
