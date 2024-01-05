@@ -99,29 +99,29 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel.upcomingOnly = preferences.getBoolean(UPCOMING_ONLY_PREF_KEY, false)
+        viewModel.hidePastEvents = preferences.getBoolean(HIDE_PAST_EVENTS_PREF_KEY, false)
 
         requireActivity().addMenuProvider(BookmarksMenuProvider(), this)
     }
 
     private inner class BookmarksMenuProvider : MenuProvider {
         private var filterMenuItem: MenuItem? = null
-        private var upcomingOnlyMenuItem: MenuItem? = null
+        private var hidePastEventsMenuItem: MenuItem? = null
 
         override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
             menuInflater.inflate(R.menu.bookmarks, menu)
             filterMenuItem = menu.findItem(R.id.filter)
-            upcomingOnlyMenuItem = menu.findItem(R.id.upcoming_only)
+            hidePastEventsMenuItem = menu.findItem(R.id.hide_past_events)
             updateMenuItems()
         }
 
         override fun onMenuItemSelected(menuItem: MenuItem) = when (menuItem.itemId) {
-            R.id.upcoming_only -> {
-                val upcomingOnly = !viewModel.upcomingOnly
-                viewModel.upcomingOnly = upcomingOnly
+            R.id.hide_past_events -> {
+                val hidePastEvents = !viewModel.hidePastEvents
+                viewModel.hidePastEvents = hidePastEvents
                 updateMenuItems()
                 preferences.edit {
-                    putBoolean(UPCOMING_ONLY_PREF_KEY, upcomingOnly)
+                    putBoolean(HIDE_PAST_EVENTS_PREF_KEY, hidePastEvents)
                 }
                 true
             }
@@ -138,9 +138,9 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview) {
         }
 
         private fun updateMenuItems() {
-            val upcomingOnly = viewModel.upcomingOnly
-            filterMenuItem?.setIcon(if (upcomingOnly) R.drawable.ic_filter_list_selected_white_24dp else R.drawable.ic_filter_list_white_24dp)
-            upcomingOnlyMenuItem?.isChecked = upcomingOnly
+            val hidePastEvents = viewModel.hidePastEvents
+            filterMenuItem?.setIcon(if (hidePastEvents) R.drawable.ic_filter_list_selected_white_24dp else R.drawable.ic_filter_list_white_24dp)
+            hidePastEventsMenuItem?.isChecked = hidePastEvents
         }
     }
 
@@ -208,6 +208,6 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview) {
     }
 
     companion object {
-        private const val UPCOMING_ONLY_PREF_KEY = "bookmarks_upcoming_only"
+        private const val HIDE_PAST_EVENTS_PREF_KEY = "bookmarks_upcoming_only"
     }
 }

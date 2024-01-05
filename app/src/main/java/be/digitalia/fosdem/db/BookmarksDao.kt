@@ -22,7 +22,7 @@ abstract class BookmarksDao(appDatabase: AppDatabase) {
     /**
      * Returns the bookmarks.
      *
-     * @param minStartTime Only return the events starting after this time.
+     * @param minEndTime Only return the events ending after this time.
      */
     @Query("""SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
         GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
@@ -34,11 +34,11 @@ abstract class BookmarksDao(appDatabase: AppDatabase) {
         JOIN tracks t ON e.track_id = t.id
         LEFT JOIN events_persons ep ON e.id = ep.event_id
         LEFT JOIN persons p ON ep.person_id = p.`rowid`
-        WHERE e.start_time > :minStartTime
+        WHERE e.end_time > :minEndTime
         GROUP BY e.id
         ORDER BY e.start_time ASC""")
     @TypeConverters(NonNullInstantTypeConverters::class)
-    abstract suspend fun getBookmarks(minStartTime: Instant = Instant.EPOCH): List<Event>
+    abstract suspend fun getBookmarks(minEndTime: Instant = Instant.EPOCH): List<Event>
 
     @Query("""SELECT b.event_id, e.start_time
         FROM bookmarks b

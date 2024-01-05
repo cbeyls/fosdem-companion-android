@@ -26,7 +26,7 @@
 
     <!-- Bookmarks -->
     <string name="filter">Filter</string>
-    <string name="upcoming_only">Upcoming only</string>
+    <string name="hide_past_events">Hide past sessions</string>
     <string name="export_bookmarks">Export bookmarks</string>
     <string name="export_bookmarks_file_name">FOSDEM %1$d bookmarks.ics</string>
     <string name="import_bookmarks">Import bookmarks</string>

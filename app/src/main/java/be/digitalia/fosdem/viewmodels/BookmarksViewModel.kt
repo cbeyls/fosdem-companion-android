@@ -27,7 +27,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.buffer
 import okio.source
-import java.time.Duration
 import java.time.Instant
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.minutes
@@ -40,16 +39,16 @@ class BookmarksViewModel @Inject constructor(
     private val application: Application
 ) : ViewModel() {
 
-    private val upcomingOnlyStateFlow = MutableStateFlow<Boolean?>(null)
+    private val hidePastEventsStateFlow = MutableStateFlow<Boolean?>(null)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val bookmarks: StateFlow<List<Event>?> = stateFlow(viewModelScope, null) {
-        upcomingOnlyStateFlow.filterNotNull().flatMapLatest { upcomingOnly ->
-            if (upcomingOnly) {
+        hidePastEventsStateFlow.filterNotNull().flatMapLatest { hidePastEvents ->
+            if (hidePastEvents) {
                 // Refresh upcoming bookmarks every 2 minutes
                 synchronizedTickerFlow(REFRESH_PERIOD)
                     .flatMapLatest {
-                        getObservableBookmarks(Instant.now() - TIME_OFFSET)
+                        getObservableBookmarks(Instant.now())
                     }
             } else {
                 getObservableBookmarks(Instant.EPOCH)
@@ -57,15 +56,15 @@ class BookmarksViewModel @Inject constructor(
         }
     }
 
-    private fun SharedFlowContext.getObservableBookmarks(minStartTime: Instant): Flow<List<Event>> =
+    private fun SharedFlowContext.getObservableBookmarks(minEndTime: Instant): Flow<List<Event>> =
         versionedResourceFlow(bookmarksDao.version) {
-            bookmarksDao.getBookmarks(minStartTime)
+            bookmarksDao.getBookmarks(minEndTime)
         }
 
-    var upcomingOnly: Boolean
-        get() = upcomingOnlyStateFlow.value == true
+    var hidePastEvents: Boolean
+        get() = hidePastEventsStateFlow.value == true
         set(value) {
-            upcomingOnlyStateFlow.value = value
+            hidePastEventsStateFlow.value = value
         }
 
     fun removeBookmarks(eventIds: LongArray) {
@@ -85,8 +84,5 @@ class BookmarksViewModel @Inject constructor(
 
     companion object {
         private val REFRESH_PERIOD = 2.minutes
-
-        // In upcomingOnly mode, events that just started are still shown for 5 minutes
-        private val TIME_OFFSET = Duration.ofMinutes(5L)
     }
 }

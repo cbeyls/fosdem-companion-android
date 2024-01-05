@@ -9,9 +9,9 @@
         app:showAsAction="ifRoom">
         <menu>
             <item
-                android:id="@+id/upcoming_only"
+                android:id="@+id/hide_past_events"
                 android:checkable="true"
-                android:title="@string/upcoming_only" />
+                android:title="@string/hide_past_events" />
         </menu>
     </item>
     <item
