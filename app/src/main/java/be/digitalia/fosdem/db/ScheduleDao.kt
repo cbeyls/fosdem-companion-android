@@ -205,35 +205,17 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     @WorkerThread
     @Transaction
     open fun clearSchedule() {
-        clearEvents()
-        clearEventTitles()
-        clearPersons()
-        clearEventToPersons()
-        clearLinks()
-        clearTracks()
-        clearDays()
+        with(appDatabase.openHelper.writableDatabase) {
+            execSQL("DELETE FROM events")
+            execSQL("DELETE FROM events_titles")
+            execSQL("DELETE FROM persons")
+            execSQL("DELETE FROM events_persons")
+            execSQL("DELETE FROM attachments")
+            execSQL("DELETE FROM links")
+            execSQL("DELETE FROM tracks")
+            execSQL("DELETE FROM days")
+        }
     }
-
-    @Query("DELETE FROM events")
-    protected abstract fun clearEvents()
-
-    @Query("DELETE FROM events_titles")
-    protected abstract fun clearEventTitles()
-
-    @Query("DELETE FROM persons")
-    protected abstract fun clearPersons()
-
-    @Query("DELETE FROM events_persons")
-    protected abstract fun clearEventToPersons()
-
-    @Query("DELETE FROM links")
-    protected abstract fun clearLinks()
-
-    @Query("DELETE FROM tracks")
-    protected abstract fun clearTracks()
-
-    @Query("DELETE FROM days")
-    protected abstract fun clearDays()
 
     // Cache days
     @OptIn(ExperimentalCoroutinesApi::class)
