@@ -58,6 +58,6 @@ class LiveViewModel @Inject constructor(scheduleDao: ScheduleDao) : ViewModel() 
 
     companion object {
         private val REFRESH_PERIOD = 1.minutes
-        private val NEXT_EVENTS_INTERVAL = Duration.ofMinutes(30L)
+        private val NEXT_EVENTS_INTERVAL = Duration.ofHours(1L)
     }
 }

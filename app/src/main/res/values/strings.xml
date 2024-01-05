@@ -41,9 +41,9 @@
 
     <!-- Live -->
     <string name="next">Next</string>
-    <string name="next_empty">During FOSDEM, the events to come in the next 30 minutes will be shown here.</string>
+    <string name="next_empty">During FOSDEM, the sessions to come in the next hour will be shown here.</string>
     <string name="now">Now</string>
-    <string name="now_empty">During FOSDEM, the events in progress will be shown here.</string>
+    <string name="now_empty">During FOSDEM, the sessions in progress will be shown here.</string>
 
     <!-- Track types -->
     <string name="other">Other</string>
