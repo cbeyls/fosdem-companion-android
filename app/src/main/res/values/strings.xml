@@ -22,6 +22,7 @@
     <string name="menu_live">Live</string>
     <string name="menu_speakers">Speakers</string>
     <string name="menu_map">Map</string>
+    <string name="menu_stands">Stands</string>
 
     <!-- Bookmarks -->
     <string name="filter">Filter</string>

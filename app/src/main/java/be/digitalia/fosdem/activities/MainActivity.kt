@@ -307,6 +307,17 @@ class MainActivity : AppCompatActivity(R.layout.main) {
 
     // MAIN MENU
 
+    private fun launchUrl(url: String) {
+        try {
+            CustomTabsIntent.Builder()
+                .configureToolbarColors(this, R.color.light_color_primary)
+                .setShowTitle(true)
+                .build()
+                .launchUrl(this, Uri.parse(url))
+        } catch (ignore: ActivityNotFoundException) {
+        }
+    }
+
     private fun handleNavigationMenuItem(menuItem: MenuItem) {
         val menuItemId = menuItem.itemId
         val section = Section.fromMenuItemId(menuItemId)
@@ -314,18 +325,12 @@ class MainActivity : AppCompatActivity(R.layout.main) {
             selectMenuSection(section, menuItem)
         } else {
             when (menuItemId) {
+                R.id.menu_stands -> launchUrl(FosdemUrls.stands)
                 R.id.menu_settings -> {
                     startActivity(Intent(this, SettingsActivity::class.java))
                     overridePendingTransition(R.anim.slide_in_right, R.anim.partial_zoom_out)
                 }
-                R.id.menu_volunteer -> try {
-                    CustomTabsIntent.Builder()
-                            .configureToolbarColors(this, R.color.light_color_primary)
-                            .setShowTitle(true)
-                            .build()
-                            .launchUrl(this, Uri.parse(FosdemUrls.volunteer))
-                } catch (ignore: ActivityNotFoundException) {
-                }
+                R.id.menu_volunteer -> launchUrl(FosdemUrls.volunteer)
             }
         }
     }

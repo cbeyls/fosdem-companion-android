@@ -25,6 +25,14 @@
             android:title="@string/menu_map" />
     </group>
     <group
+        android:id="@+id/menu_group_external"
+        android:checkableBehavior="none">
+        <item
+            android:id="@+id/menu_stands"
+            android:icon="@drawable/ic_stands_white_24dp"
+            android:title="@string/menu_stands" />
+    </group>
+    <group
         android:id="@+id/menu_group_extras"
         android:checkableBehavior="none">
         <item

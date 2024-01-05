@@ -7,14 +7,11 @@ package be.digitalia.fosdem.api
  */
 object FosdemUrls {
 
-    val schedule
-        get() = "https://fosdem.org/schedule/xml"
-    val rooms
-        get() = "https://api.fosdem.org/roomstatus/v1/listrooms"
-    val localNavigation
-        get() = "https://nav.fosdem.org/"
-    val volunteer
-        get() = "https://fosdem.org/volunteer/"
+    const val schedule = "https://fosdem.org/schedule/xml"
+    const val rooms = "https://api.fosdem.org/roomstatus/v1/listrooms"
+    const val localNavigation = "https://nav.fosdem.org/"
+    const val stands = "https://fosdem.org/stands/"
+    const val volunteer = "https://fosdem.org/volunteer/"
 
     fun getEvent(slug: String, year: Int): String {
         return "https://fosdem.org/$year/schedule/event/$slug/"
