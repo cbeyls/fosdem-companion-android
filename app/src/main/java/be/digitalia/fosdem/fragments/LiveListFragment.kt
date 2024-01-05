@@ -64,7 +64,9 @@ sealed class LiveListFragment(
                     holder.isProgressBarVisible = false
                     // Ensure we stay at scroll position 0 so we can see the insertion animation
                     with(holder.recyclerView) {
-                        if (scrollY == 0) scrollToPosition(0)
+                        if ((layoutManager as LinearLayoutManager).findFirstVisibleItemPosition() == 0) {
+                            scrollToPosition(0)
+                        }
                     }
                 }
         }
