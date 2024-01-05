@@ -3,6 +3,7 @@ package be.digitalia.fosdem.adapters
 import android.content.Context
 import android.content.Intent
 import android.graphics.Typeface
+import android.graphics.drawable.Drawable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
@@ -11,10 +12,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.ColorInt
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.collection.SimpleArrayMap
 import androidx.core.content.ContextCompat
 import androidx.core.text.set
 import androidx.core.view.isGone
+import androidx.core.widget.TextViewCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -142,22 +145,36 @@ class BookmarksAdapter(context: Context, private val multiChoiceHelper: MultiCho
             val startTimeString = event.startTime?.toLocalDateTimeOrNull(zoneId)?.format(timeFormatter) ?: "?"
             val endTimeString = event.endTime?.toLocalDateTimeOrNull(zoneId)?.format(timeFormatter) ?: "?"
             val roomName = event.roomName.orEmpty()
-            val detailsText: CharSequence = "${event.day.shortName}, $startTimeString ― $endTimeString  |  $roomName"
-            val detailsSpannable = SpannableString(detailsText)
+            var detailsText: CharSequence = "${event.day.shortName}, $startTimeString ― $endTimeString  |  $roomName"
             var detailsDescription = detailsText
 
             // Highlight the date and time with error color in case of conflicting schedules
             if (isOverlapping(event, previous, next)) {
                 val endPosition = detailsText.indexOf(" | ")
-                detailsSpannable[0, endPosition] = ForegroundColorSpan(errorColor)
-                detailsSpannable[0, endPosition] = StyleSpan(Typeface.BOLD)
+                detailsText = SpannableString(detailsText)
+                detailsText[0, endPosition] = ForegroundColorSpan(errorColor)
+                detailsText[0, endPosition] = StyleSpan(Typeface.BOLD)
                 detailsDescription = context.getString(R.string.bookmark_conflict_content_description, detailsDescription)
             }
+
+            val roomStatusDrawable: Drawable?
             if (roomStatus != null) {
-                val color = ContextCompat.getColor(context, roomStatus.colorResId)
-                detailsSpannable[detailsText.length - roomName.length, detailsText.length] = ForegroundColorSpan(color)
+                val color = ContextCompat.getColorStateList(context, roomStatus.colorResId)!!
+                if (detailsText !is SpannableString) {
+                    detailsText = SpannableString(detailsText)
+                }
+                detailsText[detailsText.length - roomName.length, detailsText.length] =
+                    ForegroundColorSpan(color.defaultColor)
+                detailsDescription = "$detailsDescription (${context.getString(roomStatus.nameResId)})"
+                TextViewCompat.setCompoundDrawableTintList(details, color)
+                roomStatusDrawable = roomStatus.iconResId.let {
+                    if (it != 0) AppCompatResources.getDrawable(context, it) else null
+                }
+            } else {
+                roomStatusDrawable = null
             }
-            details.text = detailsSpannable
+            details.text = detailsText
+            details.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, roomStatusDrawable, null)
             details.contentDescription = context.getString(R.string.details_content_description, detailsDescription)
         }
 

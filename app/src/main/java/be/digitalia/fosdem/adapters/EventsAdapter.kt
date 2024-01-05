@@ -2,6 +2,7 @@ package be.digitalia.fosdem.adapters
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
@@ -12,6 +13,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.text.set
 import androidx.core.view.isGone
+import androidx.core.widget.TextViewCompat
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -25,7 +27,7 @@ import be.digitalia.fosdem.utils.toLocalDateTimeOrNull
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-class EventsAdapter constructor(context: Context, private val showDay: Boolean = true) :
+class EventsAdapter(context: Context, private val showDay: Boolean = true) :
     PagingDataAdapter<StatusEvent, EventsAdapter.ViewHolder>(DIFF_CALLBACK) {
 
     private val timeFormatter = DateUtils.getTimeFormatter(context)
@@ -129,14 +131,23 @@ class EventsAdapter constructor(context: Context, private val showDay: Boolean =
                 "$startTimeString ― $endTimeString  |  $roomName"
             }
             var detailsDescription = detailsText
+
+            val roomStatusDrawable: Drawable?
             if (roomStatus != null) {
-                val color = ContextCompat.getColor(context, roomStatus.colorResId)
-                detailsText = SpannableString(detailsText).apply {
-                    this[detailsText.length - roomName.length, detailsText.length] = ForegroundColorSpan(color)
-                }
+                val color = ContextCompat.getColorStateList(context, roomStatus.colorResId)!!
+                detailsText = SpannableString(detailsText)
+                detailsText[detailsText.length - roomName.length, detailsText.length] =
+                    ForegroundColorSpan(color.defaultColor)
                 detailsDescription = "$detailsDescription (${context.getString(roomStatus.nameResId)})"
+                TextViewCompat.setCompoundDrawableTintList(details, color)
+                roomStatusDrawable = roomStatus.iconResId.let {
+                    if (it != 0) AppCompatResources.getDrawable(context, it) else null
+                }
+            } else {
+                roomStatusDrawable = null
             }
             details.text = detailsText
+            details.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, roomStatusDrawable, null)
             details.contentDescription = context.getString(R.string.details_content_description, detailsDescription)
         }
 
