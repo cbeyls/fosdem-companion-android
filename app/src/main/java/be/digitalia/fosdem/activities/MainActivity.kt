@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity(R.layout.main) {
                                val extendsAppBar: Boolean,
                                val keep: Boolean) {
         TRACKS(TracksFragment::class.java, R.id.menu_tracks, true, true),
-        BOOKMARKS(BookmarksListFragment::class.java, R.id.menu_bookmarks, false, false),
+        BOOKMARKS(BookmarksListFragment::class.java, R.id.menu_bookmarks, false, true),
         LIVE(LiveFragment::class.java, R.id.menu_live, true, false),
         SPEAKERS(PersonsListFragment::class.java, R.id.menu_speakers, false, false),
         MAP(MapFragment::class.java, R.id.menu_map, false, false);
