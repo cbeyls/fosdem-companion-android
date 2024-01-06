@@ -7,13 +7,13 @@
     <string name="close_menu">Close menu</string>
     <string name="last_update">DB last updated: %1$s</string>
     <string name="never">Never</string>
-    <string name="update_events_db">Update events database</string>
+    <string name="update_events_db">Update sessions database</string>
     <string name="events_download_up_to_date">Database is already up-to-date</string>
-    <string name="events_download_empty">No new events found</string>
+    <string name="events_download_empty">No new sessions found</string>
 
     <plurals name="events_download_completed">
-        <item quantity="one">Completed downloading %1$d event</item>
-        <item quantity="other">Completed downloading %1$d events</item>
+        <item quantity="one">Completed downloading %1$d session</item>
+        <item quantity="other">Completed downloading %1$d sessions</item>
     </plurals>
 
     <!-- Main menu -->
@@ -59,8 +59,8 @@
     <string name="room_status_emergency_evacuation">Emergency evacuation</string>
 
     <!-- Search -->
-    <string name="search_events">Search events</string>
-    <string name="search_hint">Event, track, person</string>
+    <string name="search_events">Search sessions</string>
+    <string name="search_hint">Session, track, person</string>
     <string name="search_clear">Clear text</string>
     <string name="no_search_result">No result.</string>
 
@@ -68,7 +68,7 @@
     <string name="external_bookmarks_title">External bookmarks</string>
     <string name="external_bookmarks_add_all">Add all</string>
     <string name="external_bookmarks_add_all_confirmation_title">Confirmation</string>
-    <string name="external_bookmarks_add_all_confirmation_text">Add all events to your local bookmarks?</string>
+    <string name="external_bookmarks_add_all_confirmation_text">Add all sessions to your local bookmarks?</string>
 
     <!-- Errors -->
     <string name="event_not_found_error">Unable to load the session details.\nMake sure the database has been updated to the latest version.</string>
@@ -95,7 +95,7 @@
     </string-array>
     <string name="settings_notifications">Notifications</string>
     <string name="settings_notifications_enabled_title">Enable notifications</string>
-    <string name="settings_notifications_enabled_summary">If checked, this will notify you of upcoming bookmarked events</string>
+    <string name="settings_notifications_enabled_summary">If checked, this will notify you of upcoming bookmarked sessions</string>
     <string name="settings_notifications_channel_title">Customize</string>
     <string name="settings_notifications_vibrate_title">Vibrate</string>
     <string name="settings_notifications_vibrate_summary">Vibrate on notification</string>
@@ -120,13 +120,13 @@
     <string name="settings_info_about_title">About</string>
     <string name="settings_info_version_title">Version</string>
 
-    <string name="notification_events_channel_name">Upcoming event alarms</string>
+    <string name="notification_events_channel_name">Upcoming session alarms</string>
 
     <!-- Track schedule -->
     <string name="in_progress_content_description">%1$s (in progress)</string>
 
     <!-- Event details -->
-    <string name="event_details">Event details</string>
+    <string name="event_details">Session details</string>
     <string name="room_building">%1$s (Building %2$s)</string>
     <string name="track_content_description">Track: %1$s</string>
     <string name="time_content_description">Time: %1$s</string>
