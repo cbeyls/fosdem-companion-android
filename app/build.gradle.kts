@@ -15,10 +15,10 @@ android {
         minSdk = 21
         targetSdk = 33
         multiDexEnabled = true
-        versionCode = 1900213
-        versionName = "2.1.3"
+        versionCode = 2100219
+        versionName = "2.1.9"
         // Supported languages
-        resourceConfigurations += listOf("en")
+        resourceConfigurations += "en"
         vectorDrawables {
             useSupportLibrary = true
         }
