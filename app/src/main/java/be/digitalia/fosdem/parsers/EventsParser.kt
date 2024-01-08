@@ -20,6 +20,7 @@ import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.OffsetDateTime
 import java.time.ZoneId
 import javax.inject.Inject
 import javax.inject.Named
@@ -44,18 +45,17 @@ class EventsParser @Inject constructor(
                         if (parser.isStartTag) {
                             when (parser.name) {
                                 "day" -> {
-                                    val date = LocalDate.parse(
-                                        parser.getAttributeValue(null, "date")
-                                    )
                                     val day = Day(
                                         index = parser.getAttributeValue(null, "index")!!.toInt(),
-                                        date = date,
-                                        startTime = date
-                                            .atTime(DAY_START_TIME)
-                                            .toInstant(conferenceZoneId),
-                                        endTime = date
-                                            .atTime(DAY_END_TIME)
-                                            .toInstant(conferenceZoneId)
+                                        date = LocalDate.parse(
+                                            parser.getAttributeValue(null, "date")
+                                        ),
+                                        startTime = OffsetDateTime.parse(
+                                            parser.getAttributeValue(null, "start")
+                                        ).toInstant(),
+                                        endTime = OffsetDateTime.parse(
+                                            parser.getAttributeValue(null, "end")
+                                        ).toInstant()
                                     )
 
                                     while (!parser.isNextEndTag("day")) {
@@ -205,10 +205,5 @@ class EventsParser @Inject constructor(
             result += time[6].digitToInt() * 10 + time[7].digitToInt()
         }
         return result.toLong()
-    }
-
-    companion object {
-        private val DAY_START_TIME = LocalTime.of(8, 30)
-        private val DAY_END_TIME = LocalTime.of(19, 0)
     }
 }
