@@ -21,8 +21,8 @@ import be.digitalia.fosdem.utils.isLightTheme
 
 class MapFragment : Fragment(R.layout.fragment_map) {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -40,11 +40,7 @@ class MapFragment : Fragment(R.layout.fragment_map) {
                 }
                 else -> false
             }
-        }, this)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+        }, viewLifecycleOwner)
 
         view.findViewById<ImageView>(R.id.map).apply {
             if (!context.isLightTheme) {

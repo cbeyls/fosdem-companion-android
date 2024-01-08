@@ -30,7 +30,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.withStarted
 import be.digitalia.fosdem.R
@@ -89,11 +88,6 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
         requireArguments().getParcelableCompat(ARG_EVENT)!!
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        requireActivity().addMenuProvider(EventDetailsMenuProvider(), this, Lifecycle.State.RESUMED)
-    }
-
     private inner class EventDetailsMenuProvider : MenuProvider {
         override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
             menuInflater.inflate(R.menu.event, menu)
@@ -123,6 +117,8 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(EventDetailsMenuProvider(), viewLifecycleOwner)
 
         val timeFormatter = DateUtils.getTimeFormatter(view.context)
 

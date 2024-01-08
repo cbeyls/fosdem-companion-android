@@ -100,8 +100,6 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview) {
         super.onCreate(savedInstanceState)
 
         viewModel.hidePastEvents = preferences.getBoolean(HIDE_PAST_EVENTS_PREF_KEY, false)
-
-        requireActivity().addMenuProvider(BookmarksMenuProvider(), this)
     }
 
     private inner class BookmarksMenuProvider : MenuProvider {
@@ -146,6 +144,8 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(BookmarksMenuProvider(), viewLifecycleOwner)
 
         val adapter = BookmarksAdapter(view.context, multiChoiceHelper)
         val holder = RecyclerViewViewHolder(view).apply {
