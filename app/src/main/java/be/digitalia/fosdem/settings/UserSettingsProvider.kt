@@ -23,10 +23,8 @@ import javax.inject.Singleton
 @Singleton
 class UserSettingsProvider @Inject constructor(
     @ApplicationContext context: Context,
-    @Named("UserSettings") private val sharedPreferences: SharedPreferences,
-    @Named("Conference") conferenceZoneId: ZoneId
+    @Named("UserSettings") private val sharedPreferences: SharedPreferences
 ) {
-    private val conferenceZoneIdFlow: Flow<ZoneId> = flowOf(conferenceZoneId)
     private val deviceZoneIdFlow: StateFlow<ZoneId> by lazy(LazyThreadSafetyMode.NONE) {
         val zoneIdFlow = MutableStateFlow(ZoneId.systemDefault())
         context.registerReceiver(object : BroadcastReceiver() {
@@ -38,9 +36,12 @@ class UserSettingsProvider @Inject constructor(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val zoneId: Flow<ZoneId>
+    val timeZoneMode: Flow<TimeZoneMode>
         get() = sharedPreferences.getBooleanAsFlow(PreferenceKeys.USE_DEVICE_TIME_ZONE)
-            .flatMapLatest { if (it) deviceZoneIdFlow else conferenceZoneIdFlow }
+            .flatMapLatest {
+                if (it) deviceZoneIdFlow.map { zoneId -> TimeZoneMode.Device(zoneId) }
+                else flowOf(TimeZoneMode.Default)
+            }
 
     val theme: Flow<Int?>
         get() = sharedPreferences.getStringAsFlow(PreferenceKeys.THEME)

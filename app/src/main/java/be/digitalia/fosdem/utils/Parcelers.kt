@@ -4,6 +4,7 @@ import android.os.Parcel
 import kotlinx.parcelize.Parceler
 import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneOffset
 
 object InstantParceler : Parceler<Instant?> {
 
@@ -23,6 +24,18 @@ object InstantParceler : Parceler<Instant?> {
             parcel.writeInt(nano)
             parcel.writeLong(epochSecond)
         }
+    }
+}
+
+object ZoneOffsetParceler : Parceler<ZoneOffset?> {
+
+    override fun create(parcel: Parcel): ZoneOffset? {
+        val totalSeconds = parcel.readInt()
+        return if (totalSeconds == Int.MIN_VALUE) null else ZoneOffset.ofTotalSeconds(totalSeconds)
+    }
+
+    override fun ZoneOffset?.write(parcel: Parcel, flags: Int) {
+        parcel.writeInt(this?.totalSeconds ?: Int.MIN_VALUE)
     }
 }
 

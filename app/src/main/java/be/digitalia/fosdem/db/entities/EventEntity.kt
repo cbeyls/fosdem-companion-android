@@ -6,7 +6,9 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import be.digitalia.fosdem.db.converters.NullableInstantTypeConverters
+import be.digitalia.fosdem.db.converters.NullableZoneOffsetTypeConverters
 import java.time.Instant
+import java.time.ZoneOffset
 
 @Entity(tableName = EventEntity.TABLE_NAME, indices = [
     Index(value = ["day_index"], name = "event_day_index_idx"),
@@ -22,6 +24,9 @@ class EventEntity(
         @ColumnInfo(name = "start_time")
         @field:TypeConverters(NullableInstantTypeConverters::class)
         val startTime: Instant?,
+        @ColumnInfo(name = "start_time_offset")
+        @field:TypeConverters(NullableZoneOffsetTypeConverters::class)
+        val startTimeOffset: ZoneOffset?,
         @ColumnInfo(name = "end_time")
         @field:TypeConverters(NullableInstantTypeConverters::class)
         val endTime: Instant?,

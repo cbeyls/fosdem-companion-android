@@ -12,27 +12,22 @@ import be.digitalia.fosdem.utils.isEndDocument
 import be.digitalia.fosdem.utils.isNextEndTag
 import be.digitalia.fosdem.utils.isStartTag
 import be.digitalia.fosdem.utils.skipToEndTag
-import be.digitalia.fosdem.utils.toInstant
 import be.digitalia.fosdem.utils.xmlPullParserFactory
 import okio.BufferedSource
 import org.xmlpull.v1.XmlPullParser
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalTime
 import java.time.OffsetDateTime
-import java.time.ZoneId
+import java.time.ZoneOffset
 import javax.inject.Inject
-import javax.inject.Named
 
 /**
- * Main parser for FOSDEM schedule data in pentabarf XML format.
+ * Main parser for FOSDEM schedule data in pretalx XML format.
  *
  * @author Christophe Beyls
  */
-class EventsParser @Inject constructor(
-    @Named("Conference") private val conferenceZoneId: ZoneId
-) : Parser<Sequence<DetailedEvent>> {
+class EventsParser @Inject constructor() : Parser<Sequence<DetailedEvent>> {
 
     override fun parse(source: BufferedSource): Sequence<DetailedEvent> {
         val parser: XmlPullParser = xmlPullParserFactory.newPullParser().apply {
@@ -85,6 +80,7 @@ class EventsParser @Inject constructor(
     private fun parseEvent(parser: XmlPullParser, day: Day, roomName: String?): DetailedEvent {
         val id = parser.getAttributeValue(null, "id")!!.toLong()
         var startTime: Instant? = null
+        var startTimeOffset: ZoneOffset? = null
         var duration: String? = null
         var slug: String? = null
         var title: String? = null
@@ -100,12 +96,12 @@ class EventsParser @Inject constructor(
         while (!parser.isNextEndTag("event")) {
             if (parser.isStartTag) {
                 when (parser.name) {
-                    "start" -> {
-                        val timeString = parser.nextText()
-                        if (!timeString.isNullOrEmpty()) {
-                            startTime = day.date
-                                .atTime(LocalTime.ofSecondOfDay(parseTimeAsSeconds(timeString)))
-                                .toInstant(conferenceZoneId)
+                    "date" -> {
+                        val dateTimeString = parser.nextText()
+                        if (!dateTimeString.isNullOrEmpty()) {
+                            val dateTime = OffsetDateTime.parse(dateTimeString)
+                            startTime = dateTime.toInstant()
+                            startTimeOffset = dateTime.offset
                         }
                     }
                     "duration" -> duration = parser.nextText()
@@ -167,23 +163,24 @@ class EventsParser @Inject constructor(
         } else null
 
         val event = Event(
-                id = id,
-                day = day,
-                roomName = roomName,
-                startTime = startTime,
-                endTime = endTime,
-                slug = slug,
-                title = title,
-                subTitle = subTitle,
-                track = Track(name = trackName, type = trackType),
-                abstractText = abstractText,
-                description = description,
-                personsSummary = null
+            id = id,
+            day = day,
+            roomName = roomName,
+            startTime = startTime,
+            startTimeOffset = startTimeOffset,
+            endTime = endTime,
+            slug = slug,
+            title = title,
+            subTitle = subTitle,
+            track = Track(name = trackName, type = trackType),
+            abstractText = abstractText,
+            description = description,
+            personsSummary = null
         )
         val details = EventDetails(
-                persons = persons,
-                attachments = attachments,
-                links = links
+            persons = persons,
+            attachments = attachments,
+            links = links
         )
         return DetailedEvent(event, details)
     }
