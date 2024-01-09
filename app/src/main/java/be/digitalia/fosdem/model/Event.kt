@@ -4,7 +4,6 @@ import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.TypeConverters
-import be.digitalia.fosdem.api.FosdemUrls
 import be.digitalia.fosdem.db.converters.NullableInstantTypeConverters
 import be.digitalia.fosdem.db.converters.NullableZoneOffsetTypeConverters
 import be.digitalia.fosdem.utils.InstantParceler
@@ -33,7 +32,7 @@ data class Event(
         val endTime: @WriteWith<InstantParceler> Instant? = null,
         @ColumnInfo(name = "room_name")
         val roomName: String?,
-        val slug: String?,
+        val url: String?,
         val title: String?,
         @ColumnInfo(name = "subtitle")
         val subTitle: String?,
@@ -69,12 +68,6 @@ data class Event(
             Duration.ZERO
         } else {
             Duration.between(startTime, endTime)
-        }
-
-    val url: String?
-        get() {
-            val s = slug ?: return null
-            return FosdemUrls.getEvent(s, day.date.year)
         }
 
     override fun toString(): String = title.orEmpty()

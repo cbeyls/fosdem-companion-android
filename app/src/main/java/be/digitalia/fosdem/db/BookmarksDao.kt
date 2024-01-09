@@ -24,7 +24,7 @@ abstract class BookmarksDao(appDatabase: AppDatabase) {
      *
      * @param minEndTime Only return the events ending after this time.
      */
-    @Query("""SELECT e.id, e.start_time, e.start_time_offset, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
+    @Query("""SELECT e.id, e.start_time, e.start_time_offset, e.end_time, e.room_name, e.url, et.title, et.subtitle, e.abstract, e.description,
         GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
         e.track_id, t.name AS track_name, t.type AS track_type
         FROM bookmarks b

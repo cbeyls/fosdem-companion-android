@@ -13,10 +13,6 @@ object FosdemUrls {
     const val stands = "https://fosdem.org/stands/"
     const val volunteer = "https://fosdem.org/volunteer/"
 
-    fun getEvent(slug: String, year: Int): String {
-        return "https://fosdem.org/$year/schedule/event/$slug/"
-    }
-
     fun getPerson(slug: String, year: Int): String {
         return "https://fosdem.org/$year/schedule/speaker/$slug/"
     }
