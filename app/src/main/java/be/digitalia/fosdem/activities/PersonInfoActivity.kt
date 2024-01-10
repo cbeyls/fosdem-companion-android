@@ -17,6 +17,7 @@ import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.utils.configureToolbarColors
 import be.digitalia.fosdem.utils.getParcelableExtraCompat
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -50,7 +51,8 @@ class PersonInfoActivity : AppCompatActivity(R.layout.person_info) {
     private fun openPersonDetails(person: Person) {
         val context = this
         lifecycleScope.launch {
-            person.getUrl(scheduleDao.getYear())?.let { url ->
+            val baseUrl = scheduleDao.baseUrl.first() ?: return@launch
+            person.getUrl(baseUrl)?.let { url ->
                 withStarted {
                     try {
                         CustomTabsIntent.Builder()

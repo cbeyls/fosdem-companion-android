@@ -28,7 +28,7 @@
     <string name="filter">Filter</string>
     <string name="hide_past_events">Hide past sessions</string>
     <string name="export_bookmarks">Export bookmarks</string>
-    <string name="export_bookmarks_file_name">FOSDEM %1$d bookmarks.ics</string>
+    <string name="export_bookmarks_file_name">%1$s bookmarks.ics</string>
     <string name="import_bookmarks">Import bookmarks</string>
     <string name="import_bookmarks_error">Unable to import bookmarks from the selected file.\n\nMake sure the file was created using this application and the conference year is matching.</string>
     <string name="no_bookmark">No bookmark.</string>

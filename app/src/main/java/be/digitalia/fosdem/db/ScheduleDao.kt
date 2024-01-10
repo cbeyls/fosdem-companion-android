@@ -22,6 +22,7 @@ import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.EventDetails
 import be.digitalia.fosdem.model.Link
 import be.digitalia.fosdem.model.Person
+import be.digitalia.fosdem.model.Schedule
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.BackgroundWorkScope
@@ -48,6 +49,27 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         get() = appDatabase.bookmarksDao.version
 
     /**
+     * @return The conference id, or null if not available.
+     */
+    val conferenceId: Flow<String?> = appDatabase.dataStore.data.map { prefs ->
+        prefs[CONFERENCE_ID_PREF_KEY]
+    }
+
+    /**
+     * @return The conference title, or null if not available.
+     */
+    val conferenceTitle: Flow<String?> = appDatabase.dataStore.data.map { prefs ->
+        prefs[CONFERENCE_TITLE_PREF_KEY]
+    }
+
+    /**
+     * @return The base URL for the schedule website, or null if not available.
+     */
+    val baseUrl: Flow<String?> = appDatabase.dataStore.data.map { prefs ->
+        prefs[BASE_URL_PREF_KEY]
+    }
+
+    /**
      * @return The latest update time, or null if not available.
      */
     val latestUpdateTime: Flow<Instant?> = appDatabase.dataStore.data.map { prefs ->
@@ -58,7 +80,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
      * @return The time identifier of the current version of the database.
      */
     val lastModifiedTag: Flow<String?> = appDatabase.dataStore.data.map { prefs ->
-        prefs[LAST_MODIFIED_TAG_PREF]
+        prefs[LAST_MODIFIED_TAG_PREF_KEY]
     }
 
     private class EmptyScheduleException : Exception()
@@ -66,13 +88,13 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     /**
      * Stores the schedule in the database.
      *
-     * @param events The events stream.
+     * @param schedule The schedule data, including the events stream.
      * @return The number of events processed.
      */
     @WorkerThread
-    fun storeSchedule(events: Sequence<DetailedEvent>, lastModifiedTag: String?): Int {
+    fun storeSchedule(schedule: Schedule, lastModifiedTag: String?): Int {
         val totalEvents = try {
-            storeScheduleInternal(events, lastModifiedTag)
+            storeScheduleInternal(schedule.events, lastModifiedTag)
         } catch (ese: EmptyScheduleException) {
             0
         }
@@ -81,9 +103,12 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
             runBlocking {
                 appDatabase.dataStore.edit { prefs ->
                     prefs.clear()
+                    prefs[CONFERENCE_ID_PREF_KEY] = schedule.conferenceId
+                    prefs[CONFERENCE_TITLE_PREF_KEY] = schedule.conferenceTitle
+                    prefs[BASE_URL_PREF_KEY] = schedule.baseUrl
                     prefs[LATEST_UPDATE_TIME_PREF_KEY] = now.toEpochMilli()
                     if (lastModifiedTag != null) {
-                        prefs[LAST_MODIFIED_TAG_PREF] = lastModifiedTag
+                        prefs[LAST_MODIFIED_TAG_PREF_KEY] = lastModifiedTag
                     }
                 }
             }
@@ -438,7 +463,10 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     protected abstract suspend fun getLinks(event: Event?): List<Link>
 
     companion object {
+        private val CONFERENCE_ID_PREF_KEY = stringPreferencesKey("conference_id")
+        private val CONFERENCE_TITLE_PREF_KEY = stringPreferencesKey("conference_title")
+        private val BASE_URL_PREF_KEY = stringPreferencesKey("base_url")
         private val LATEST_UPDATE_TIME_PREF_KEY = longPreferencesKey("latest_update_time")
-        private val LAST_MODIFIED_TAG_PREF = stringPreferencesKey("last_modified_tag")
+        private val LAST_MODIFIED_TAG_PREF_KEY = stringPreferencesKey("last_modified_tag")
     }
 }

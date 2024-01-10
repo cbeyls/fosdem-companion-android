@@ -29,6 +29,7 @@ import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import okio.BufferedSink
@@ -81,8 +82,10 @@ class BookmarksExportProvider : ContentProvider() {
             when (col) {
                 OpenableColumns.DISPLAY_NAME -> {
                     cols[columnCount] = OpenableColumns.DISPLAY_NAME
-                    val year = runBlocking { scheduleDao.getYear() }
-                    values[columnCount++] = ctx.getString(R.string.export_bookmarks_file_name, year)
+                    val conferenceTitle = runBlocking { scheduleDao.conferenceTitle.first() }
+                        ?: ctx.getString(R.string.app_name)
+                    values[columnCount++] =
+                        ctx.getString(R.string.export_bookmarks_file_name, conferenceTitle)
                 }
                 OpenableColumns.SIZE -> {
                     cols[columnCount] = OpenableColumns.SIZE
@@ -103,16 +106,13 @@ class BookmarksExportProvider : ContentProvider() {
             val bufferedSink = ParcelFileDescriptor.AutoCloseOutputStream(pipe[1]).sink().buffer()
             BackgroundWorkScope.launch(Dispatchers.IO) {
                 try {
-                    val year = scheduleDao.getYear()
-                    val conferenceId = year.toString()
-
                     writeBookmarks(
                         bufferedSink = bufferedSink,
                         bookmarks = bookmarksDao.getBookmarks(),
                         applicationId = BuildConfig.APPLICATION_ID,
                         applicationVersion = BuildConfig.VERSION_NAME,
-                        conferenceId = conferenceId,
-                        year = year,
+                        conferenceId = scheduleDao.getYear().toString(),
+                        baseUrl = scheduleDao.baseUrl.first(),
                         dtStamp = LocalDateTime.now(ZoneOffset.UTC).format(UTC_DATE_TIME_FORMAT)
                     )
                 } catch (e: Exception) {
@@ -135,7 +135,7 @@ class BookmarksExportProvider : ContentProvider() {
         applicationId: String,
         applicationVersion: String,
         conferenceId: String,
-        year: Int,
+        baseUrl: String?,
         dtStamp: String
     ) {
         ICalendarWriter(bufferedSink).use { writer ->
@@ -144,7 +144,7 @@ class BookmarksExportProvider : ContentProvider() {
             writer.write("PRODID", "-//$applicationId//NONSGML $applicationVersion//EN")
 
             for (event in bookmarks) {
-                writeEvent(writer, event, applicationId, conferenceId, year, dtStamp)
+                writeEvent(writer, event, applicationId, conferenceId, baseUrl, dtStamp)
             }
 
             writer.write("END", "VCALENDAR")
@@ -158,7 +158,7 @@ class BookmarksExportProvider : ContentProvider() {
         event: Event,
         applicationId: String,
         conferenceId: String,
-        year: Int,
+        baseUrl: String?,
         dtStamp: String
     ) = with(writer) {
         write("BEGIN", "VEVENT")
@@ -181,10 +181,10 @@ class BookmarksExportProvider : ContentProvider() {
         write("URL", event.url)
         write("LOCATION", event.roomName)
 
-        if (event.personsSummary != null) {
+        if (event.personsSummary != null && baseUrl != null) {
             for (name in event.personsSummary.split(", ")) {
                 val key = "ATTENDEE;ROLE=REQ-PARTICIPANT;CUTYPE=INDIVIDUAL;CN=\"$name\""
-                val url = FosdemUrls.getPerson(name.toSlug(), year)
+                val url = FosdemUrls.getPerson(baseUrl, name.toSlug())
                 write(key, url)
             }
         }

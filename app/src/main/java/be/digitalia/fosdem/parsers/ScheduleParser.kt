@@ -7,6 +7,7 @@ import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.EventDetails
 import be.digitalia.fosdem.model.Link
 import be.digitalia.fosdem.model.Person
+import be.digitalia.fosdem.model.Schedule
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.isEndDocument
 import be.digitalia.fosdem.utils.isNextEndTag
@@ -27,53 +28,87 @@ import javax.inject.Inject
  *
  * @author Christophe Beyls
  */
-class EventsParser @Inject constructor() : Parser<Sequence<DetailedEvent>> {
+class ScheduleParser @Inject constructor() : Parser<Schedule> {
 
-    override fun parse(source: BufferedSource): Sequence<DetailedEvent> {
+    override fun parse(source: BufferedSource): Schedule {
         val parser: XmlPullParser = xmlPullParserFactory.newPullParser().apply {
             setInput(source.inputStream(), null)
         }
-        return sequence {
-            while (!parser.isEndDocument) {
-                if (parser.isStartTag("schedule")) {
-                    while (!parser.isNextEndTag("schedule")) {
-                        if (parser.isStartTag) {
-                            when (parser.name) {
-                                "day" -> {
-                                    val day = Day(
-                                        index = parser.getAttributeValue(null, "index")!!.toInt(),
-                                        date = LocalDate.parse(
-                                            parser.getAttributeValue(null, "date")
-                                        ),
-                                        startTime = OffsetDateTime.parse(
-                                            parser.getAttributeValue(null, "start")
-                                        ).toInstant(),
-                                        endTime = OffsetDateTime.parse(
-                                            parser.getAttributeValue(null, "end")
-                                        ).toInstant()
-                                    )
 
-                                    while (!parser.isNextEndTag("day")) {
-                                        if (parser.isStartTag("room")) {
-                                            val roomName: String? =
-                                                parser.getAttributeValue(null, "name")
+        while (!parser.isEndDocument) {
+            if (parser.isStartTag("schedule")) {
+                while (!parser.isNextEndTag("schedule")) {
+                    if (parser.isStartTag) {
+                        if (parser.name == "conference") {
+                            var conferenceId: String? = null
+                            var conferenceTitle: String? = null
+                            var baseUrl: String? = null
 
-                                            while (!parser.isNextEndTag("room")) {
-                                                if (parser.isStartTag("event")) {
-                                                    yield(parseEvent(parser, day, roomName))
-                                                }
-                                            }
-                                        }
+                            while (!parser.isNextEndTag("conference")) {
+                                if (parser.isStartTag) {
+                                    when (parser.name) {
+                                        "acronym" -> conferenceId = parser.nextText()
+                                        "title" -> conferenceTitle = parser.nextText()
+                                        "base_url" -> baseUrl = parser.nextText()
+                                        else -> parser.skipToEndTag()
                                     }
                                 }
-
-                                else -> parser.skipToEndTag()
                             }
+
+                            return Schedule(
+                                conferenceId = checkNotNull(conferenceId) { "Missing conference acronym" },
+                                conferenceTitle = checkNotNull(conferenceTitle) { "Missing conference title" },
+                                baseUrl = checkNotNull(baseUrl) { "Missing conference base_url" },
+                                events = parseEvents(parser)
+                            )
+                        } else {
+                            parser.skipToEndTag()
                         }
                     }
                 }
-                parser.next()
             }
+            parser.next()
+        }
+
+        throw IllegalStateException("Missing conference node")
+    }
+
+    private fun parseEvents(parser: XmlPullParser): Sequence<DetailedEvent> = sequence {
+        while (!parser.isEndDocument) {
+            while (!parser.isNextEndTag("schedule")) {
+                if (parser.isStartTag) {
+                    if (parser.name == "day") {
+                        val day = Day(
+                            index = parser.getAttributeValue(null, "index")!!.toInt(),
+                            date = LocalDate.parse(
+                                parser.getAttributeValue(null, "date")
+                            ),
+                            startTime = OffsetDateTime.parse(
+                                parser.getAttributeValue(null, "start")
+                            ).toInstant(),
+                            endTime = OffsetDateTime.parse(
+                                parser.getAttributeValue(null, "end")
+                            ).toInstant()
+                        )
+
+                        while (!parser.isNextEndTag("day")) {
+                            if (parser.isStartTag("room")) {
+                                val roomName: String? =
+                                    parser.getAttributeValue(null, "name")
+
+                                while (!parser.isNextEndTag("room")) {
+                                    if (parser.isStartTag("event")) {
+                                        yield(parseEvent(parser, day, roomName))
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        parser.skipToEndTag()
+                    }
+                }
+            }
+            parser.next()
         }
     }
 
