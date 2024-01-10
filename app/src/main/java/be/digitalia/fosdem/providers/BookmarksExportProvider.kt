@@ -9,6 +9,7 @@ import android.database.MatrixCursor
 import android.net.Uri
 import android.os.ParcelFileDescriptor
 import android.provider.OpenableColumns
+import androidx.annotation.WorkerThread
 import androidx.core.app.ShareCompat
 import androidx.core.content.ContentProviderCompat
 import be.digitalia.fosdem.BuildConfig
@@ -18,6 +19,7 @@ import be.digitalia.fosdem.db.BookmarksDao
 import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.ical.ICalendarWriter
 import be.digitalia.fosdem.model.Event
+import be.digitalia.fosdem.utils.BackgroundWorkScope
 import be.digitalia.fosdem.utils.stripHtml
 import be.digitalia.fosdem.utils.toLocalDateTime
 import be.digitalia.fosdem.utils.toSlug
@@ -25,12 +27,15 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import okio.BufferedSink
 import okio.buffer
 import okio.sink
 import java.io.FileNotFoundException
 import java.io.IOException
-import java.io.OutputStream
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -40,6 +45,8 @@ import java.util.Locale
  * Content Provider generating the current bookmarks list in iCalendar format.
  */
 class BookmarksExportProvider : ContentProvider() {
+
+    // Manual dependency injection
 
     private val scheduleDao: ScheduleDao by lazy {
         EntryPointAccessors.fromApplication(
@@ -93,67 +100,96 @@ class BookmarksExportProvider : ContentProvider() {
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
         return try {
             val pipe = ParcelFileDescriptor.createPipe()
-            DownloadThread(ParcelFileDescriptor.AutoCloseOutputStream(pipe[1]), bookmarksDao).start()
+            val bufferedSink = ParcelFileDescriptor.AutoCloseOutputStream(pipe[1]).sink().buffer()
+            BackgroundWorkScope.launch(Dispatchers.IO) {
+                try {
+                    val year = scheduleDao.getYear()
+                    val conferenceId = year.toString()
+
+                    writeBookmarks(
+                        bufferedSink = bufferedSink,
+                        bookmarks = bookmarksDao.getBookmarks(),
+                        applicationId = BuildConfig.APPLICATION_ID,
+                        applicationVersion = BuildConfig.VERSION_NAME,
+                        conferenceId = conferenceId,
+                        year = year,
+                        dtStamp = LocalDateTime.now(ZoneOffset.UTC).format(UTC_DATE_TIME_FORMAT)
+                    )
+                } catch (e: Exception) {
+                    if (e is CancellationException) {
+                        throw e
+                    }
+                }
+            }
             pipe[0]
         } catch (e: IOException) {
             throw FileNotFoundException("Could not open pipe")
         }
     }
 
-    private class DownloadThread(private val outputStream: OutputStream, private val bookmarksDao: BookmarksDao) : Thread() {
-        private val dtStamp = LocalDateTime.now(ZoneOffset.UTC).format(UTC_DATE_TIME_FORMAT)
+    @WorkerThread
+    @Throws(IOException::class)
+    private fun writeBookmarks(
+        bufferedSink: BufferedSink,
+        bookmarks: List<Event>,
+        applicationId: String,
+        applicationVersion: String,
+        conferenceId: String,
+        year: Int,
+        dtStamp: String
+    ) {
+        ICalendarWriter(bufferedSink).use { writer ->
+            writer.write("BEGIN", "VCALENDAR")
+            writer.write("VERSION", "2.0")
+            writer.write("PRODID", "-//$applicationId//NONSGML $applicationVersion//EN")
 
-        override fun run() {
-            try {
-                ICalendarWriter(outputStream.sink().buffer()).use { writer ->
-                    val bookmarks = runBlocking { bookmarksDao.getBookmarks() }
-                    writer.write("BEGIN", "VCALENDAR")
-                    writer.write("VERSION", "2.0")
-                    writer.write("PRODID", "-//${BuildConfig.APPLICATION_ID}//NONSGML ${BuildConfig.VERSION_NAME}//EN")
+            for (event in bookmarks) {
+                writeEvent(writer, event, applicationId, conferenceId, year, dtStamp)
+            }
 
-                    for (event in bookmarks) {
-                        writeEvent(writer, event)
-                    }
+            writer.write("END", "VCALENDAR")
+        }
+    }
 
-                    writer.write("END", "VCALENDAR")
-                }
-            } catch (ignore: Exception) {
+    @WorkerThread
+    @Throws(IOException::class)
+    private fun writeEvent(
+        writer: ICalendarWriter,
+        event: Event,
+        applicationId: String,
+        conferenceId: String,
+        year: Int,
+        dtStamp: String
+    ) = with(writer) {
+        write("BEGIN", "VEVENT")
+
+        write("UID", "${event.id}@$conferenceId@$applicationId")
+        write("DTSTAMP", dtStamp)
+        event.startTime?.let { write("DTSTART", it.toLocalDateTime(ZoneOffset.UTC).format(UTC_DATE_TIME_FORMAT)) }
+        event.endTime?.let { write("DTEND", it.toLocalDateTime(ZoneOffset.UTC).format(UTC_DATE_TIME_FORMAT)) }
+        write("SUMMARY", event.title)
+        var description = event.abstractText
+        if (description.isNullOrEmpty()) {
+            description = event.description
+        }
+        if (!description.isNullOrEmpty()) {
+            write("DESCRIPTION", description.stripHtml())
+            write("X-ALT-DESC", description)
+        }
+        write("CLASS", "PUBLIC")
+        write("CATEGORIES", event.track.name)
+        write("URL", event.url)
+        write("LOCATION", event.roomName)
+
+        if (event.personsSummary != null) {
+            for (name in event.personsSummary.split(", ")) {
+                val key = "ATTENDEE;ROLE=REQ-PARTICIPANT;CUTYPE=INDIVIDUAL;CN=\"$name\""
+                val url = FosdemUrls.getPerson(name.toSlug(), year)
+                write(key, url)
             }
         }
 
-        @Throws(IOException::class)
-        private fun writeEvent(writer: ICalendarWriter, event: Event) = with(writer) {
-            write("BEGIN", "VEVENT")
-
-            val year = event.day.date.year
-            write("UID", "${event.id}@$year@${BuildConfig.APPLICATION_ID}")
-            write("DTSTAMP", dtStamp)
-            event.startTime?.let { write("DTSTART", it.toLocalDateTime(ZoneOffset.UTC).format(UTC_DATE_TIME_FORMAT)) }
-            event.endTime?.let { write("DTEND", it.toLocalDateTime(ZoneOffset.UTC).format(UTC_DATE_TIME_FORMAT)) }
-            write("SUMMARY", event.title)
-            var description = event.abstractText
-            if (description.isNullOrEmpty()) {
-                description = event.description
-            }
-            if (!description.isNullOrEmpty()) {
-                write("DESCRIPTION", description.stripHtml())
-                write("X-ALT-DESC", description)
-            }
-            write("CLASS", "PUBLIC")
-            write("CATEGORIES", event.track.name)
-            write("URL", event.url)
-            write("LOCATION", event.roomName)
-
-            if (event.personsSummary != null) {
-                for (name in event.personsSummary.split(", ")) {
-                    val key = "ATTENDEE;ROLE=REQ-PARTICIPANT;CUTYPE=INDIVIDUAL;CN=\"$name\""
-                    val url = FosdemUrls.getPerson(name.toSlug(), year)
-                    write(key, url)
-                }
-            }
-
-            write("END", "VEVENT")
-        }
+        write("END", "VEVENT")
     }
 
     @EntryPoint

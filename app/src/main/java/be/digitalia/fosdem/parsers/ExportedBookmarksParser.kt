@@ -6,8 +6,10 @@ import okio.BufferedSource
 /**
  * Extract event ids from an exported bookmarks file and validate that events match the given application id and year.
  */
-class ExportedBookmarksParser(private val applicationId: String, year: Int) : Parser<LongArray> {
-    private val yearString = year.toString()
+class ExportedBookmarksParser(
+    private val applicationId: String,
+    private val conferenceId: String
+) : Parser<LongArray> {
 
     override fun parse(source: BufferedSource): LongArray {
         val reader = ICalendarReader(source)
@@ -27,8 +29,8 @@ class ExportedBookmarksParser(private val applicationId: String, year: Int) : Pa
                 if (parts[2] != applicationId) {
                     throw DataException("Invalid application id. Expected: $applicationId, actual: ${parts[2]}")
                 }
-                if (parts[1] != yearString) {
-                    throw DataException("Invalid conference year. Expected: $yearString, actual: ${parts[1]}")
+                if (parts[1] != conferenceId) {
+                    throw DataException("Invalid conference id. Expected: $conferenceId, actual: ${parts[1]}")
                 }
                 eventIdList += parts[0]
             }
