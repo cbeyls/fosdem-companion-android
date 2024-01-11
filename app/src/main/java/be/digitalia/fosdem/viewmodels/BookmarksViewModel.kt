@@ -20,9 +20,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.buffer
@@ -60,6 +63,13 @@ class BookmarksViewModel @Inject constructor(
         versionedResourceFlow(bookmarksDao.version) {
             bookmarksDao.getBookmarks(minEndTime)
         }
+
+    val isImportExportEnabled: StateFlow<Boolean?> =
+        scheduleDao.latestUpdateTime.map { it != null }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Lazily,
+            initialValue = null
+        )
 
     var hidePastEvents: Boolean
         get() = hidePastEventsStateFlow.value == true

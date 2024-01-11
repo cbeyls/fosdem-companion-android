@@ -27,7 +27,7 @@ dependencyResolutionManagement {
         create("libs") {
             version("hilt", hiltVersion)
             version("room", "2.6.1")
-            version("lifecycle", "2.6.2")
+            version("lifecycle", "2.7.0")
             library("hilt-android", "com.google.dagger", "hilt-android").versionRef("hilt")
             library("hilt-compiler", "com.google.dagger", "hilt-compiler").versionRef("hilt")
             library("room-runtime", "androidx.room", "room-ktx").versionRef("room")

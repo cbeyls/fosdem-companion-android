@@ -105,11 +105,21 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview) {
     private inner class BookmarksMenuProvider : MenuProvider {
         private var filterMenuItem: MenuItem? = null
         private var hidePastEventsMenuItem: MenuItem? = null
+        private var exportMenuItem: MenuItem? = null
+        private var importMenuItem: MenuItem? = null
+
+        var isImportExportEnabled: Boolean = true
+            set(value) {
+                field = value
+                updateMenuItems()
+            }
 
         override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
             menuInflater.inflate(R.menu.bookmarks, menu)
             filterMenuItem = menu.findItem(R.id.filter)
             hidePastEventsMenuItem = menu.findItem(R.id.hide_past_events)
+            exportMenuItem = menu.findItem(R.id.export_bookmarks)
+            importMenuItem = menu.findItem(R.id.import_bookmarks)
             updateMenuItems()
         }
 
@@ -139,13 +149,16 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview) {
             val hidePastEvents = viewModel.hidePastEvents
             filterMenuItem?.setIcon(if (hidePastEvents) R.drawable.ic_filter_list_selected_white_24dp else R.drawable.ic_filter_list_white_24dp)
             hidePastEventsMenuItem?.isChecked = hidePastEvents
+            exportMenuItem?.isEnabled = isImportExportEnabled
+            importMenuItem?.isEnabled = isImportExportEnabled
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        requireActivity().addMenuProvider(BookmarksMenuProvider(), viewLifecycleOwner)
+        val menuProvider = BookmarksMenuProvider()
+        requireActivity().addMenuProvider(menuProvider, viewLifecycleOwner)
 
         val adapter = BookmarksAdapter(view.context, multiChoiceHelper)
         val holder = RecyclerViewViewHolder(view).apply {
@@ -167,6 +180,11 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview) {
             launch {
                 api.roomStatuses.collect { statuses ->
                     adapter.roomStatuses = statuses
+                }
+            }
+            launch {
+                viewModel.isImportExportEnabled.filterNotNull().collect { isEnabled ->
+                    menuProvider.isImportExportEnabled = isEnabled
                 }
             }
             launch {
