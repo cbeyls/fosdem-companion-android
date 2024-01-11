@@ -19,7 +19,7 @@ import be.digitalia.fosdem.model.Track
 @Database(
     entities = [EventEntity::class, EventTitles::class, Person::class, EventToPerson::class,
         Attachment::class, Link::class, Track::class, Day::class, Bookmark::class],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 @TypeConverters(GlobalTypeConverters::class)
