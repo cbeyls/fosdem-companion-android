@@ -145,7 +145,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
                 }
             }
 
-            // Display time placeholder until the ZoneId is loaded from user preferences
+            // Display the default time until the TimeZoneMode is loaded from user settings
             bindTime(timeTextView, timeFormatter, null)
 
             view.findViewById<TextView>(R.id.room).apply {
