@@ -157,23 +157,23 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
                     val building = Building.fromRoomName(roomName)
                     val roomText = SpannableString(if (building == null) roomName else getString(R.string.room_building, roomName, building))
                     val roomImageResId = resources.getIdentifier(roomNameToResourceName(roomName), "drawable", requireActivity().packageName)
-                    // If the room image exists, make the room text clickable to display it
-                    if (roomImageResId != 0) {
-                        roomText[0, roomText.length] = object : ClickableSpan() {
-                            override fun onClick(view: View) {
-                                parentFragmentManager.commit(allowStateLoss = true) {
-                                    add<RoomImageDialogFragment>(RoomImageDialogFragment.TAG,
-                                            args = RoomImageDialogFragment.createArguments(roomName, roomImageResId))
-                                }
-                            }
 
-                            override fun updateDrawState(ds: TextPaint) {
-                                super.updateDrawState(ds)
-                                ds.isUnderlineText = false
+                    // Make the room text clickable to display the room image, even if it doesn't exist
+                    roomText[0, roomText.length] = object : ClickableSpan() {
+                        override fun onClick(view: View) {
+                            parentFragmentManager.commit(allowStateLoss = true) {
+                                add<RoomImageDialogFragment>(RoomImageDialogFragment.TAG,
+                                        args = RoomImageDialogFragment.createArguments(roomName, roomImageResId))
                             }
                         }
-                        movementMethod = LinkMovementMethodCompat.getInstance()
+
+                        override fun updateDrawState(ds: TextPaint) {
+                            super.updateDrawState(ds)
+                            ds.isUnderlineText = false
+                        }
                     }
+                    movementMethod = LinkMovementMethodCompat.getInstance()
+
                     text = roomText
                     contentDescription = getString(R.string.room_content_description, roomText)
                 }

@@ -23,4 +23,17 @@
         android:paddingEnd="@dimen/content_margin"
         android:paddingBottom="@dimen/content_margin" />
 
+    <TextView
+        android:id="@+id/room_image_placeholder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:minHeight="128dp"
+        android:paddingStart="@dimen/content_margin"
+        android:paddingEnd="@dimen/content_margin"
+        android:paddingBottom="@dimen/content_margin"
+        android:text="@string/room_image_placeholder"
+        android:textAppearance="?textAppearanceCaption"
+        android:visibility="gone" />
+
 </LinearLayout>

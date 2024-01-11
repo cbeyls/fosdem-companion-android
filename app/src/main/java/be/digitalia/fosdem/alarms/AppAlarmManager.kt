@@ -283,13 +283,10 @@ class AppAlarmManager @Inject constructor(
         val wearableExtender = NotificationCompat.WearableExtender()
 
         // Add an optional action button to show the room map image
-        val roomName = event.roomName
-        val roomImageResId = roomName?.let {
-            context.resources.getIdentifier(
-                roomNameToResourceName(it), "drawable", context.packageName
+        event.roomName?.let { roomName ->
+            val roomImageResId = context.resources.getIdentifier(
+                roomNameToResourceName(roomName), "drawable", context.packageName
             )
-        } ?: 0
-        if (roomName != null && roomImageResId != 0) {
             // The room name is the unique Id of a RoomImageDialogActivity
             val mapIntent = Intent(context, RoomImageDialogActivity::class.java)
                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

@@ -156,6 +156,7 @@
     <string name="directions">Directions to ULB</string>
     <string name="navigation">On-site navigation</string>
     <string name="no_data">No data available.</string>
+    <string name="room_image_placeholder">No room image available.</string>
     <string name="volunteer">Volunteer</string>
     <string name="about_text">Programmed by <a href="https://www.digitalia.be/">Christophe Beyls</a>.
 \n

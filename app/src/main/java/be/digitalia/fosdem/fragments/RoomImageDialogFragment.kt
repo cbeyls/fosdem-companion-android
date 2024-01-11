@@ -4,9 +4,11 @@ import android.annotation.SuppressLint
 import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.RoomImageDialogActivity
@@ -26,16 +28,25 @@ class RoomImageDialogFragment : DialogFragment() {
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val args = requireArguments()
+        val imageResId = args.getInt(ARG_ROOM_IMAGE_RESOURCE_ID)
 
         val dialogBuilder: AlertDialog.Builder = MaterialAlertDialogBuilder(requireContext())
 
         val contentView = LayoutInflater.from(dialogBuilder.context).inflate(R.layout.dialog_room_image, null)
-        contentView.findViewById<ImageView>(R.id.room_image).apply {
-            if (!context.isLightTheme) {
-                invertImageColors()
+        val roomImageView: ImageView = contentView.findViewById(R.id.room_image)
+
+        if (imageResId != 0) {
+            roomImageView.apply {
+                if (!context.isLightTheme) {
+                    invertImageColors()
+                }
+                setImageResource(imageResId)
             }
-            setImageResource(args.getInt(ARG_ROOM_IMAGE_RESOURCE_ID))
+        } else {
+            roomImageView.isVisible = false
+            contentView.findViewById<View>(R.id.room_image_placeholder).isVisible = true
         }
+
         RoomImageDialogActivity.configureToolbar(
             api,
             this,
