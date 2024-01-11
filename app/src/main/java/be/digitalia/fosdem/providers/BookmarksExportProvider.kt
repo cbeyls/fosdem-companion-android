@@ -82,7 +82,11 @@ class BookmarksExportProvider : ContentProvider() {
                 OpenableColumns.DISPLAY_NAME -> {
                     cols[columnCount] = OpenableColumns.DISPLAY_NAME
                     val year = runBlocking { scheduleDao.getYear() }
-                    values[columnCount++] = ctx.getString(R.string.export_bookmarks_file_name, year)
+                    values[columnCount++] = if (year == null) {
+                        ctx.getString(R.string.export_bookmarks_default_file_name)
+                    } else {
+                        ctx.getString(R.string.export_bookmarks_file_name, year)
+                    }
                 }
                 OpenableColumns.SIZE -> {
                     cols[columnCount] = OpenableColumns.SIZE
@@ -104,8 +108,8 @@ class BookmarksExportProvider : ContentProvider() {
             BackgroundWorkScope.launch(Dispatchers.IO) {
                 try {
                     val year = scheduleDao.getYear()
-                    val conferenceId = year.toString()
-
+                    val conferenceId = year?.toString().orEmpty()
+                    // If the database is empty, the bookmarks list will be empty as well
                     writeBookmarks(
                         bufferedSink = bufferedSink,
                         bookmarks = bookmarksDao.getBookmarks(),
@@ -135,7 +139,7 @@ class BookmarksExportProvider : ContentProvider() {
         applicationId: String,
         applicationVersion: String,
         conferenceId: String,
-        year: Int,
+        year: Int?,
         dtStamp: String
     ) {
         ICalendarWriter(bufferedSink).use { writer ->
@@ -158,7 +162,7 @@ class BookmarksExportProvider : ContentProvider() {
         event: Event,
         applicationId: String,
         conferenceId: String,
-        year: Int,
+        year: Int?,
         dtStamp: String
     ) = with(writer) {
         write("BEGIN", "VEVENT")
@@ -181,7 +185,7 @@ class BookmarksExportProvider : ContentProvider() {
         write("URL", event.url)
         write("LOCATION", event.roomName)
 
-        if (event.personsSummary != null) {
+        if (event.personsSummary != null && year != null) {
             for (name in event.personsSummary.split(", ")) {
                 val key = "ATTENDEE;ROLE=REQ-PARTICIPANT;CUTYPE=INDIVIDUAL;CN=\"$name\""
                 val url = FosdemUrls.getPerson(name.toSlug(), year)

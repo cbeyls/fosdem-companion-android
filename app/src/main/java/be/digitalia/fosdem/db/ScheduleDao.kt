@@ -38,7 +38,6 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.runBlocking
 import java.time.Instant
-import java.time.LocalDate
 
 @Dao
 abstract class ScheduleDao(private val appDatabase: AppDatabase) {
@@ -230,10 +229,9 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     @Query("SELECT `index`, date, start_time, end_time FROM days ORDER BY `index` ASC")
     protected abstract suspend fun getDaysInternal(): List<Day>
 
-    suspend fun getYear(): Int {
-        // Compute from days if available, fall back to current year
-        val date = days.first().firstOrNull()?.date ?: LocalDate.now()
-        return date.year
+    suspend fun getYear(): Int? {
+        // Compute from days if available
+        return days.first().firstOrNull()?.date?.year
     }
 
     @Query("""SELECT t.id, t.name, t.type FROM tracks t

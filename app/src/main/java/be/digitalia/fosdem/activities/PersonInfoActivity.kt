@@ -50,7 +50,8 @@ class PersonInfoActivity : AppCompatActivity(R.layout.person_info) {
     private fun openPersonDetails(person: Person) {
         val context = this
         lifecycleScope.launch {
-            person.getUrl(scheduleDao.getYear())?.let { url ->
+            val year = scheduleDao.getYear() ?: return@launch
+            person.getUrl(year)?.let { url ->
                 withStarted {
                     try {
                         CustomTabsIntent.Builder()
