@@ -76,9 +76,10 @@ class BookmarksViewModel @Inject constructor(
     }
 
     suspend fun readBookmarkIds(uri: Uri): LongArray = withContext(Dispatchers.IO) {
+        val conferenceId = scheduleDao.getYear()?.toString() ?: throw IllegalStateException("Empty database")
         val parser = ExportedBookmarksParser(
             applicationId = BuildConfig.APPLICATION_ID,
-            conferenceId = scheduleDao.getYear().toString()
+            conferenceId = conferenceId
         )
         checkNotNull(application.contentResolver.openInputStream(uri)).source().buffer().use {
             parser.parse(it)

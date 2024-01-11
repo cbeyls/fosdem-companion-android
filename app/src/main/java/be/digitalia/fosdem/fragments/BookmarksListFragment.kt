@@ -192,7 +192,12 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview) {
                 if (e is CancellationException) {
                     throw e
                 }
-                ImportBookmarksErrorDialogFragment().show(parentFragmentManager, "importBookmarksError")
+                withStarted {
+                    ImportBookmarksErrorDialogFragment().show(
+                        parentFragmentManager,
+                        "importBookmarksError"
+                    )
+                }
             }
         }
     }

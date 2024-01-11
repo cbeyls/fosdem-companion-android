@@ -106,12 +106,13 @@ class BookmarksExportProvider : ContentProvider() {
             val bufferedSink = ParcelFileDescriptor.AutoCloseOutputStream(pipe[1]).sink().buffer()
             BackgroundWorkScope.launch(Dispatchers.IO) {
                 try {
+                    // If the database is empty, the bookmarks list will be empty as well
                     writeBookmarks(
                         bufferedSink = bufferedSink,
                         bookmarks = bookmarksDao.getBookmarks(),
                         applicationId = BuildConfig.APPLICATION_ID,
                         applicationVersion = BuildConfig.VERSION_NAME,
-                        conferenceId = scheduleDao.getYear().toString(),
+                        conferenceId = scheduleDao.getYear()?.toString().orEmpty(),
                         baseUrl = scheduleDao.baseUrl.first(),
                         dtStamp = LocalDateTime.now(ZoneOffset.UTC).format(UTC_DATE_TIME_FORMAT)
                     )
