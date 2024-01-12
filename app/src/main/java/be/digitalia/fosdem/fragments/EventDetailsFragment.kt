@@ -30,6 +30,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.withStarted
 import be.digitalia.fosdem.R
@@ -118,7 +119,12 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        requireActivity().addMenuProvider(EventDetailsMenuProvider(), viewLifecycleOwner)
+        // Show the menu in resumed (interactive) state only because the view is preloaded in a pager
+        requireActivity().addMenuProvider(
+            EventDetailsMenuProvider(),
+            viewLifecycleOwner,
+            Lifecycle.State.RESUMED
+        )
 
         val timeFormatter = DateUtils.getTimeFormatter(view.context)
 
