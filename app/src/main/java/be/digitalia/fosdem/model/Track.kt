@@ -42,20 +42,6 @@ data class Track(
 
     override fun toString() = name
 
-    override fun hashCode(): Int {
-        val prime = 31
-        var result = 1
-        result = prime * result + name.hashCode()
-        result = prime * result + type.hashCode()
-        return result
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is Track) return false
-        return name == other.name && type == other.type
-    }
-
     companion object {
         const val TABLE_NAME = "tracks"
     }

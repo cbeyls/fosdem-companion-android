@@ -97,7 +97,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
 
         // 2: Insert the events
         var totalEvents = 0
-        val tracks = mutableMapOf<Track, Long>()
+        val trackIds = mutableMapOf<String, Long>()
         var nextTrackId = 0L
         var minEventId = Long.MAX_VALUE
 
@@ -114,13 +114,11 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
 
             // Retrieve or insert Track
             val track = event.track
-            var trackId = tracks[track]
-            if (trackId == null) {
+            val trackId = trackIds.getOrPut(track.name) {
                 // New track
-                trackId = ++nextTrackId
-                val newTrack = Track(trackId, track.name, track.type)
-                insertTrack(newTrack)
-                tracks[newTrack] = trackId
+                nextTrackId++
+                insertTrack(track.copy(id = nextTrackId))
+                nextTrackId
             }
 
             val eventId = event.id
