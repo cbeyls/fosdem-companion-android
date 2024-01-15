@@ -258,11 +258,13 @@ class MainActivity : AppCompatActivity(R.layout.main) {
             val now = Instant.now()
             val latestUpdateTime = scheduleDao.latestUpdateTime.first()
             if (latestUpdateTime == null || latestUpdateTime < now - DATABASE_VALIDITY_DURATION) {
+                val latestAttemptVersion = preferences.getInt(LATEST_UPDATE_ATTEMPT_VERSION_PREF_KEY, 0)
                 val latestAttemptTime = Instant.ofEpochMilli(
                     preferences.getLong(LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY, 0L)
                 )
-                if (latestAttemptTime == Instant.EPOCH || latestAttemptTime < now - AUTO_UPDATE_SNOOZE_DURATION) {
+                if (latestAttemptVersion != scheduleDao.databaseVersion || latestAttemptTime < now - AUTO_UPDATE_SNOOZE_DURATION) {
                     preferences.edit {
+                        putInt(LATEST_UPDATE_ATTEMPT_VERSION_PREF_KEY, scheduleDao.databaseVersion)
                         putLong(LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY, now.toEpochMilli())
                     }
                     // Try to update immediately. If it fails, the user gets a message and a retry button.
@@ -367,6 +369,7 @@ class MainActivity : AppCompatActivity(R.layout.main) {
         private const val ERROR_MESSAGE_DISPLAY_DURATION = 5000
         private val DATABASE_VALIDITY_DURATION = Duration.ofDays(1L)
         private val AUTO_UPDATE_SNOOZE_DURATION = Duration.ofDays(1L)
+        private const val LATEST_UPDATE_ATTEMPT_VERSION_PREF_KEY = "latest_update_attempt_version"
         private const val LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY = "latest_update_attempt_time"
         private const val LATEST_UPDATE_DATE_TIME_FORMAT = "d MMM yyyy kk:mm:ss"
     }

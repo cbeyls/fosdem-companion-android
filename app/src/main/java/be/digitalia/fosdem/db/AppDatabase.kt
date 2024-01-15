@@ -19,7 +19,7 @@ import be.digitalia.fosdem.model.Track
 @Database(
     entities = [EventEntity::class, EventTitles::class, Person::class, EventToPerson::class,
         Attachment::class, Link::class, Track::class, Day::class, Bookmark::class],
-    version = 6,
+    version = AppDatabase.VERSION,
     exportSchema = false
 )
 @TypeConverters(GlobalTypeConverters::class)
@@ -30,4 +30,9 @@ abstract class AppDatabase : RoomDatabase() {
 
     // Manually injected fields, used by Daos
     lateinit var dataStore: DataStore<Preferences>
+
+    companion object {
+        // Expose the database version to allow detecting migrations
+        const val VERSION = 6
+    }
 }

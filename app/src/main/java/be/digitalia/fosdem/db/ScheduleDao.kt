@@ -46,6 +46,8 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         appDatabase.createVersionFlow(EventEntity.TABLE_NAME)
     val bookmarksVersion: StateFlow<Int>
         get() = appDatabase.bookmarksDao.version
+    val databaseVersion
+        get() = AppDatabase.VERSION
 
     /**
      * @return The conference id, or null if not available.

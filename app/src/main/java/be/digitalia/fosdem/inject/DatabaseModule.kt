@@ -17,6 +17,7 @@ import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.db.entities.EventEntity
 import be.digitalia.fosdem.db.entities.EventTitles
 import be.digitalia.fosdem.db.entities.EventToPerson
+import be.digitalia.fosdem.flow.DeferredReadDataStore
 import be.digitalia.fosdem.model.Attachment
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Link
@@ -27,6 +28,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
 import javax.inject.Named
 import javax.inject.Singleton
@@ -86,11 +88,17 @@ object DatabaseModule {
             }
         }
 
+        val onDatabaseOpen = CompletableDeferred<Unit>()
+
         return Room.databaseBuilder(context, AppDatabase::class.java, DB_FILE)
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .addMigrations(migration3to5, migration5to6)
             .fallbackToDestructiveMigration()
             .addCallback(object : RoomDatabase.Callback() {
+                override fun onOpen(db: SupportSQLiteDatabase) {
+                    onDatabaseOpen.complete(Unit)
+                }
+
                 @WorkerThread
                 override fun onDestructiveMigration(db: SupportSQLiteDatabase) {
                     runBlocking {
@@ -101,7 +109,7 @@ object DatabaseModule {
             .build()
             .also {
                 // Manual dependency injection
-                it.dataStore = dataStore
+                it.dataStore = DeferredReadDataStore(dataStore, onDatabaseOpen)
             }
     }
 
