@@ -47,12 +47,13 @@
     <string name="now_empty">During FOSDEM, the sessions in progress will be shown here.</string>
 
     <!-- Track types -->
-    <string name="other">Other</string>
-    <string name="keynote">Keynote</string>
-    <string name="main_track">Main track</string>
-    <string name="developer_room">Developer room</string>
-    <string name="lightning_talk">Lightning talk</string>
-    <string name="certification_exam">Certification Exam</string>
+    <string name="track_type_other">Other</string>
+    <string name="track_type_keynote">Keynote</string>
+    <string name="track_type_main_track">Main track</string>
+    <string name="track_type_developer_room">Developer room</string>
+    <string name="track_type_lightning_talk">Lightning talk</string>
+    <string name="track_type_certification_exam">Certification Exam</string>
+    <string name="track_type_junior">Junior</string>
 
     <!-- Room statuses -->
     <string name="room_status_open">Open</string>

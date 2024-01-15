@@ -23,18 +23,20 @@ data class Track(
                     @ColorRes @get:ColorRes val statusBarColorResId: Int,
                     @ColorRes @get:ColorRes val textColorResId: Int) {
 
-        other(R.string.other,
+        other(R.string.track_type_other,
                 R.color.track_type_other, R.color.track_type_other_dark, R.color.track_type_other_text),
-        keynote(R.string.keynote,
+        keynote(R.string.track_type_keynote,
                 R.color.track_type_keynote, R.color.track_type_keynote_dark, R.color.track_type_keynote_text),
-        maintrack(R.string.main_track,
+        maintrack(R.string.track_type_main_track,
                 R.color.track_type_main, R.color.track_type_main_dark, R.color.track_type_main_text),
-        devroom(R.string.developer_room,
+        devroom(R.string.track_type_developer_room,
                 R.color.track_type_developer_room, R.color.track_type_developer_room_dark, R.color.track_type_developer_room_text),
-        lightningtalk(R.string.lightning_talk,
+        lightningtalk(R.string.track_type_lightning_talk,
                 R.color.track_type_lightning_talk, R.color.track_type_lightning_talk_dark, R.color.track_type_lightning_talk_text),
-        certification(R.string.certification_exam,
-                R.color.track_type_certification_exam, R.color.track_type_certification_exam_dark, R.color.track_type_certification_exam_text);
+        certification(R.string.track_type_certification_exam,
+                R.color.track_type_certification_exam, R.color.track_type_certification_exam_dark, R.color.track_type_certification_exam_text),
+        junior(R.string.track_type_junior,
+            R.color.track_type_junior, R.color.track_type_junior_dark, R.color.track_type_junior_text)
 
     }
 
