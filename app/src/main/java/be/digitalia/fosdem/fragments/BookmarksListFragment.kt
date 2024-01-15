@@ -173,8 +173,8 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview) {
 
         viewLifecycleOwner.launchAndRepeatOnLifecycle {
             launch {
-                userSettingsProvider.zoneId.collect { zoneId ->
-                    adapter.zoneId = zoneId
+                userSettingsProvider.timeZoneMode.collect { mode ->
+                    adapter.timeZoneOverride = mode.override
                 }
             }
             launch {

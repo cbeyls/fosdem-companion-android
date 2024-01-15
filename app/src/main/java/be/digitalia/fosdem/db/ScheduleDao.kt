@@ -22,6 +22,7 @@ import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.EventDetails
 import be.digitalia.fosdem.model.Link
 import be.digitalia.fosdem.model.Person
+import be.digitalia.fosdem.model.Schedule
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.BackgroundWorkScope
@@ -47,6 +48,27 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         get() = appDatabase.bookmarksDao.version
 
     /**
+     * @return The conference id, or null if not available.
+     */
+    val conferenceId: Flow<String?> = appDatabase.dataStore.data.map { prefs ->
+        prefs[CONFERENCE_ID_PREF_KEY]
+    }
+
+    /**
+     * @return The conference title, or null if not available.
+     */
+    val conferenceTitle: Flow<String?> = appDatabase.dataStore.data.map { prefs ->
+        prefs[CONFERENCE_TITLE_PREF_KEY]
+    }
+
+    /**
+     * @return The base URL for the schedule website, or null if not available.
+     */
+    val baseUrl: Flow<String?> = appDatabase.dataStore.data.map { prefs ->
+        prefs[BASE_URL_PREF_KEY]
+    }
+
+    /**
      * @return The latest update time, or null if not available.
      */
     val latestUpdateTime: Flow<Instant?> = appDatabase.dataStore.data.map { prefs ->
@@ -57,7 +79,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
      * @return The time identifier of the current version of the database.
      */
     val lastModifiedTag: Flow<String?> = appDatabase.dataStore.data.map { prefs ->
-        prefs[LAST_MODIFIED_TAG_PREF]
+        prefs[LAST_MODIFIED_TAG_PREF_KEY]
     }
 
     private class EmptyScheduleException : Exception()
@@ -65,13 +87,13 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     /**
      * Stores the schedule in the database.
      *
-     * @param events The events stream.
+     * @param schedule The schedule data, including the events stream.
      * @return The number of events processed.
      */
     @WorkerThread
-    fun storeSchedule(events: Sequence<DetailedEvent>, lastModifiedTag: String?): Int {
+    fun storeSchedule(schedule: Schedule, lastModifiedTag: String?): Int {
         val totalEvents = try {
-            storeScheduleInternal(events, lastModifiedTag)
+            storeScheduleInternal(schedule.events, lastModifiedTag)
         } catch (ese: EmptyScheduleException) {
             0
         }
@@ -80,9 +102,12 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
             runBlocking {
                 appDatabase.dataStore.edit { prefs ->
                     prefs.clear()
+                    prefs[CONFERENCE_ID_PREF_KEY] = schedule.conferenceId
+                    prefs[CONFERENCE_TITLE_PREF_KEY] = schedule.conferenceTitle
+                    prefs[BASE_URL_PREF_KEY] = schedule.baseUrl
                     prefs[LATEST_UPDATE_TIME_PREF_KEY] = now.toEpochMilli()
                     if (lastModifiedTag != null) {
-                        prefs[LAST_MODIFIED_TAG_PREF] = lastModifiedTag
+                        prefs[LAST_MODIFIED_TAG_PREF_KEY] = lastModifiedTag
                     }
                 }
             }
@@ -125,20 +150,21 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
             try {
                 // Insert main event and fulltext fields
                 val eventEntity = EventEntity(
-                        eventId,
-                        currentDayIndex,
-                        event.startTime,
-                        event.endTime,
-                        event.roomName,
-                        event.slug,
-                        trackId,
-                        event.abstractText,
-                        event.description
+                    id = eventId,
+                    dayIndex = currentDayIndex,
+                    startTime = event.startTime,
+                    startTimeOffset = event.startTimeOffset,
+                    endTime = event.endTime,
+                    roomName = event.roomName,
+                    url = event.url,
+                    trackId = trackId,
+                    abstractText = event.abstractText,
+                    description = event.description
                 )
                 val eventTitles = EventTitles(
-                        eventId,
-                        event.title,
-                        event.subTitle
+                    id = eventId,
+                    title = event.title,
+                    subTitle = event.subTitle
                 )
                 insertEvent(eventEntity, eventTitles)
             } catch (e: Exception) {
@@ -242,7 +268,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     /**
      * Returns the event with the specified id, or null if not found.
      */
-    @Query("""SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
+    @Query("""SELECT e.id, e.start_time, e.start_time_offset, e.end_time, e.room_name, e.url, et.title, et.subtitle, e.abstract, e.description,
         GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
         e.track_id, t.name AS track_name, t.type AS track_type
         FROM events e
@@ -258,7 +284,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     /**
      * Returns all found events whose id is part of the given list.
      */
-    @Query("""SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
+    @Query("""SELECT e.id, e.start_time, e.start_time_offset, e.end_time, e.room_name, e.url, et.title, et.subtitle, e.abstract, e.description,
         GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
         e.track_id, t.name AS track_name, t.type AS track_type, b.event_id IS NOT NULL AS is_bookmarked
         FROM events e
@@ -276,7 +302,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     /**
      * Returns the events for a specified track, including their bookmark status.
      */
-    @Query("""SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
+    @Query("""SELECT e.id, e.start_time, e.start_time_offset, e.end_time, e.room_name, e.url, et.title, et.subtitle, e.abstract, e.description,
         GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
         e.track_id, t.name AS track_name, t.type AS track_type, b.event_id IS NOT NULL AS is_bookmarked
         FROM events e
@@ -294,7 +320,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     /**
      * Returns the events for a specified track, without their bookmark status.
      */
-    @Query("""SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
+    @Query("""SELECT e.id, e.start_time, e.start_time_offset, e.end_time, e.room_name, e.url, et.title, et.subtitle, e.abstract, e.description,
         GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
         e.track_id, t.name AS track_name, t.type AS track_type
         FROM events e
@@ -311,7 +337,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     /**
      * Returns events starting in the specified interval, ordered by ascending start time.
      */
-    @Query("""SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
+    @Query("""SELECT e.id, e.start_time, e.start_time_offset, e.end_time, e.room_name, e.url, et.title, et.subtitle, e.abstract, e.description,
         GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
         e.track_id, t.name AS track_name, t.type AS track_type, b.event_id IS NOT NULL AS is_bookmarked
         FROM events e
@@ -330,7 +356,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     /**
      * Returns events in progress at the specified time, ordered by descending start time.
      */
-    @Query("""SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
+    @Query("""SELECT e.id, e.start_time, e.start_time_offset, e.end_time, e.room_name, e.url, et.title, et.subtitle, e.abstract, e.description,
         GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
         e.track_id, t.name AS track_name, t.type AS track_type, b.event_id IS NOT NULL AS is_bookmarked
         FROM events e
@@ -349,7 +375,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     /**
      * Returns the events presented by the specified person.
      */
-    @Query("""SELECT e.id , e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
+    @Query("""SELECT e.id , e.start_time, e.start_time_offset, e.end_time, e.room_name, e.url, et.title, et.subtitle, e.abstract, e.description,
         GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
         e.track_id, t.name AS track_name, t.type AS track_type, b.event_id IS NOT NULL AS is_bookmarked
         FROM events e JOIN events_titles et ON e.id = et.`rowid`
@@ -369,7 +395,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
      * We need to use an union of 3 sub-queries because a "match" condition can not be
      * accompanied by other conditions in a "where" statement.
      */
-    @Query("""SELECT e.id, e.start_time, e.end_time, e.room_name, e.slug, et.title, et.subtitle, e.abstract, e.description,
+    @Query("""SELECT e.id, e.start_time, e.start_time_offset, e.end_time, e.room_name, e.url, et.title, et.subtitle, e.abstract, e.description,
         GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
         e.track_id, t.name AS track_name, t.type AS track_type, b.event_id IS NOT NULL AS is_bookmarked
         FROM events e
@@ -433,7 +459,10 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     protected abstract suspend fun getLinks(event: Event?): List<Link>
 
     companion object {
+        private val CONFERENCE_ID_PREF_KEY = stringPreferencesKey("conference_id")
+        private val CONFERENCE_TITLE_PREF_KEY = stringPreferencesKey("conference_title")
+        private val BASE_URL_PREF_KEY = stringPreferencesKey("base_url")
         private val LATEST_UPDATE_TIME_PREF_KEY = longPreferencesKey("latest_update_time")
-        private val LAST_MODIFIED_TAG_PREF = stringPreferencesKey("last_modified_tag")
+        private val LAST_MODIFIED_TAG_PREF_KEY = stringPreferencesKey("last_modified_tag")
     }
 }

@@ -14,8 +14,14 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import be.digitalia.fosdem.db.AppDatabase
 import be.digitalia.fosdem.db.BookmarksDao
 import be.digitalia.fosdem.db.ScheduleDao
+import be.digitalia.fosdem.db.entities.EventEntity
+import be.digitalia.fosdem.db.entities.EventTitles
+import be.digitalia.fosdem.db.entities.EventToPerson
 import be.digitalia.fosdem.model.Attachment
 import be.digitalia.fosdem.model.Day
+import be.digitalia.fosdem.model.Link
+import be.digitalia.fosdem.model.Person
+import be.digitalia.fosdem.model.Track
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -47,14 +53,6 @@ object DatabaseModule {
     ): AppDatabase {
         val migration3to5 = Migration(3, 5) { db ->
             with(db) {
-                // Clear schedule (but keep bookmarks)
-                execSQL("DELETE FROM events")
-                execSQL("DELETE FROM events_titles")
-                execSQL("DELETE FROM persons")
-                execSQL("DELETE FROM events_persons")
-                execSQL("DELETE FROM links")
-                execSQL("DELETE FROM tracks")
-
                 // Create table attachments
                 execSQL("CREATE TABLE IF NOT EXISTS ${Attachment.TABLE_NAME} (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `event_id` INTEGER NOT NULL, `url` TEXT NOT NULL, `description` TEXT)")
                 execSQL("CREATE INDEX IF NOT EXISTS `attachment_event_id_idx` ON ${Attachment.TABLE_NAME} (`event_id`)")
@@ -63,6 +61,26 @@ object DatabaseModule {
                 execSQL("DROP TABLE IF EXISTS ${Day.TABLE_NAME}")
                 execSQL("CREATE TABLE IF NOT EXISTS ${Day.TABLE_NAME} (`index` INTEGER NOT NULL, `date` INTEGER NOT NULL, `start_time` INTEGER NOT NULL, `end_time` INTEGER NOT NULL, PRIMARY KEY(`index`))")
             }
+        }
+        val migration5to6 = Migration(5, 6) { db ->
+            with(db) {
+                // Clear schedule (but keep bookmarks)
+                execSQL("DELETE FROM ${EventTitles.TABLE_NAME}")
+                execSQL("DELETE FROM ${Person.TABLE_NAME}")
+                execSQL("DELETE FROM ${EventToPerson.TABLE_NAME}")
+                execSQL("DELETE FROM ${Attachment.TABLE_NAME}")
+                execSQL("DELETE FROM ${Link.TABLE_NAME}")
+                execSQL("DELETE FROM ${Track.TABLE_NAME}")
+                execSQL("DELETE FROM ${Day.TABLE_NAME}")
+
+                // Recreate table events with new columns
+                execSQL("DROP TABLE IF EXISTS ${EventEntity.TABLE_NAME}")
+                execSQL("CREATE TABLE IF NOT EXISTS ${EventEntity.TABLE_NAME} (`id` INTEGER NOT NULL, `day_index` INTEGER NOT NULL, `start_time` INTEGER, `start_time_offset` INTEGER, `end_time` INTEGER, `room_name` TEXT, `url` TEXT, `track_id` INTEGER NOT NULL, `abstract` TEXT, `description` TEXT, PRIMARY KEY(`id`))")
+                execSQL("CREATE INDEX IF NOT EXISTS `event_day_index_idx` ON ${EventEntity.TABLE_NAME} (`day_index`)")
+                execSQL("CREATE INDEX IF NOT EXISTS `event_start_time_idx` ON ${EventEntity.TABLE_NAME} (`start_time`)")
+                execSQL("CREATE INDEX IF NOT EXISTS `event_end_time_idx` ON ${EventEntity.TABLE_NAME} (`end_time`)")
+                execSQL("CREATE INDEX IF NOT EXISTS `event_track_id_idx` ON ${EventEntity.TABLE_NAME} (`track_id`)")
+            }
             runBlocking {
                 dataStore.edit { it.clear() }
             }
@@ -70,7 +88,7 @@ object DatabaseModule {
 
         return Room.databaseBuilder(context, AppDatabase::class.java, DB_FILE)
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-            .addMigrations(migration3to5)
+            .addMigrations(migration3to5, migration5to6)
             .fallbackToDestructiveMigration()
             .addCallback(object : RoomDatabase.Callback() {
                 @WorkerThread

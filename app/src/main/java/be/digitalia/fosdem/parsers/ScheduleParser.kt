@@ -7,86 +7,117 @@ import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.EventDetails
 import be.digitalia.fosdem.model.Link
 import be.digitalia.fosdem.model.Person
+import be.digitalia.fosdem.model.Schedule
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.isEndDocument
 import be.digitalia.fosdem.utils.isNextEndTag
 import be.digitalia.fosdem.utils.isStartTag
 import be.digitalia.fosdem.utils.skipToEndTag
-import be.digitalia.fosdem.utils.toInstant
 import be.digitalia.fosdem.utils.xmlPullParserFactory
 import okio.BufferedSource
 import org.xmlpull.v1.XmlPullParser
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalTime
-import java.time.ZoneId
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import javax.inject.Inject
-import javax.inject.Named
 
 /**
- * Main parser for FOSDEM schedule data in pentabarf XML format.
+ * Main parser for FOSDEM schedule data in pretalx XML format.
  *
  * @author Christophe Beyls
  */
-class EventsParser @Inject constructor(
-    @Named("Conference") private val conferenceZoneId: ZoneId
-) : Parser<Sequence<DetailedEvent>> {
+class ScheduleParser @Inject constructor() : Parser<Schedule> {
 
-    override fun parse(source: BufferedSource): Sequence<DetailedEvent> {
+    override fun parse(source: BufferedSource): Schedule {
         val parser: XmlPullParser = xmlPullParserFactory.newPullParser().apply {
             setInput(source.inputStream(), null)
         }
-        return sequence {
-            while (!parser.isEndDocument) {
-                if (parser.isStartTag("schedule")) {
-                    while (!parser.isNextEndTag("schedule")) {
-                        if (parser.isStartTag) {
-                            when (parser.name) {
-                                "day" -> {
-                                    val date = LocalDate.parse(
-                                        parser.getAttributeValue(null, "date")
-                                    )
-                                    val day = Day(
-                                        index = parser.getAttributeValue(null, "index")!!.toInt(),
-                                        date = date,
-                                        startTime = date
-                                            .atTime(DAY_START_TIME)
-                                            .toInstant(conferenceZoneId),
-                                        endTime = date
-                                            .atTime(DAY_END_TIME)
-                                            .toInstant(conferenceZoneId)
-                                    )
 
-                                    while (!parser.isNextEndTag("day")) {
-                                        if (parser.isStartTag("room")) {
-                                            val roomName: String? =
-                                                parser.getAttributeValue(null, "name")
+        while (!parser.isEndDocument) {
+            if (parser.isStartTag("schedule")) {
+                while (!parser.isNextEndTag("schedule")) {
+                    if (parser.isStartTag) {
+                        if (parser.name == "conference") {
+                            var conferenceId: String? = null
+                            var conferenceTitle: String? = null
+                            var baseUrl: String? = null
 
-                                            while (!parser.isNextEndTag("room")) {
-                                                if (parser.isStartTag("event")) {
-                                                    yield(parseEvent(parser, day, roomName))
-                                                }
-                                            }
-                                        }
+                            while (!parser.isNextEndTag("conference")) {
+                                if (parser.isStartTag) {
+                                    when (parser.name) {
+                                        "acronym" -> conferenceId = parser.nextText()
+                                        "title" -> conferenceTitle = parser.nextText()
+                                        "base_url" -> baseUrl = parser.nextText()
+                                        else -> parser.skipToEndTag()
                                     }
                                 }
-
-                                else -> parser.skipToEndTag()
                             }
+
+                            return Schedule(
+                                conferenceId = checkNotNull(conferenceId) { "Missing conference acronym" },
+                                conferenceTitle = checkNotNull(conferenceTitle) { "Missing conference title" },
+                                baseUrl = checkNotNull(baseUrl) { "Missing conference base_url" },
+                                events = parseEvents(parser)
+                            )
+                        } else {
+                            parser.skipToEndTag()
                         }
                     }
                 }
-                parser.next()
             }
+            parser.next()
+        }
+
+        throw IllegalStateException("Missing conference node")
+    }
+
+    private fun parseEvents(parser: XmlPullParser): Sequence<DetailedEvent> = sequence {
+        while (!parser.isEndDocument) {
+            while (!parser.isNextEndTag("schedule")) {
+                if (parser.isStartTag) {
+                    if (parser.name == "day") {
+                        val day = Day(
+                            index = parser.getAttributeValue(null, "index")!!.toInt(),
+                            date = LocalDate.parse(
+                                parser.getAttributeValue(null, "date")
+                            ),
+                            startTime = OffsetDateTime.parse(
+                                parser.getAttributeValue(null, "start")
+                            ).toInstant(),
+                            endTime = OffsetDateTime.parse(
+                                parser.getAttributeValue(null, "end")
+                            ).toInstant()
+                        )
+
+                        while (!parser.isNextEndTag("day")) {
+                            if (parser.isStartTag("room")) {
+                                val roomName: String? =
+                                    parser.getAttributeValue(null, "name")
+
+                                while (!parser.isNextEndTag("room")) {
+                                    if (parser.isStartTag("event")) {
+                                        yield(parseEvent(parser, day, roomName))
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        parser.skipToEndTag()
+                    }
+                }
+            }
+            parser.next()
         }
     }
 
     private fun parseEvent(parser: XmlPullParser, day: Day, roomName: String?): DetailedEvent {
         val id = parser.getAttributeValue(null, "id")!!.toLong()
         var startTime: Instant? = null
+        var startTimeOffset: ZoneOffset? = null
         var duration: String? = null
-        var slug: String? = null
+        var url: String? = null
         var title: String? = null
         var subTitle: String? = null
         var trackName = ""
@@ -100,16 +131,16 @@ class EventsParser @Inject constructor(
         while (!parser.isNextEndTag("event")) {
             if (parser.isStartTag) {
                 when (parser.name) {
-                    "start" -> {
-                        val timeString = parser.nextText()
-                        if (!timeString.isNullOrEmpty()) {
-                            startTime = day.date
-                                .atTime(LocalTime.ofSecondOfDay(parseTimeAsSeconds(timeString)))
-                                .toInstant(conferenceZoneId)
+                    "date" -> {
+                        val dateTimeString = parser.nextText()
+                        if (!dateTimeString.isNullOrEmpty()) {
+                            val dateTime = OffsetDateTime.parse(dateTimeString)
+                            startTime = dateTime.toInstant()
+                            startTimeOffset = dateTime.offset
                         }
                     }
                     "duration" -> duration = parser.nextText()
-                    "slug" -> slug = parser.nextText()
+                    "url" -> url = parser.nextText()
                     "title" -> title = parser.nextText()
                     "subtitle" -> subTitle = parser.nextText()
                     "track" -> trackName = parser.nextText()
@@ -167,23 +198,24 @@ class EventsParser @Inject constructor(
         } else null
 
         val event = Event(
-                id = id,
-                day = day,
-                roomName = roomName,
-                startTime = startTime,
-                endTime = endTime,
-                slug = slug,
-                title = title,
-                subTitle = subTitle,
-                track = Track(name = trackName, type = trackType),
-                abstractText = abstractText,
-                description = description,
-                personsSummary = null
+            id = id,
+            day = day,
+            roomName = roomName,
+            startTime = startTime,
+            startTimeOffset = startTimeOffset,
+            endTime = endTime,
+            url = url,
+            title = title,
+            subTitle = subTitle,
+            track = Track(name = trackName, type = trackType),
+            abstractText = abstractText,
+            description = description,
+            personsSummary = null
         )
         val details = EventDetails(
-                persons = persons,
-                attachments = attachments,
-                links = links
+            persons = persons,
+            attachments = attachments,
+            links = links
         )
         return DetailedEvent(event, details)
     }
@@ -205,10 +237,5 @@ class EventsParser @Inject constructor(
             result += time[6].digitToInt() * 10 + time[7].digitToInt()
         }
         return result.toLong()
-    }
-
-    companion object {
-        private val DAY_START_TIME = LocalTime.of(8, 30)
-        private val DAY_END_TIME = LocalTime.of(19, 0)
     }
 }

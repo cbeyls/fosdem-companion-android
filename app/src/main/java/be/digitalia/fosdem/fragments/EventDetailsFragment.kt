@@ -51,7 +51,6 @@ import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.utils.parseHtml
 import be.digitalia.fosdem.utils.roomNameToResourceName
 import be.digitalia.fosdem.utils.stripHtml
-import be.digitalia.fosdem.utils.toLocalDateTimeOrNull
 import be.digitalia.fosdem.viewmodels.EventDetailsViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -152,7 +151,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
                 }
             }
 
-            // Display time placeholder until the ZoneId is loaded from user preferences
+            // Display the default time until the TimeZoneMode is loaded from user settings
             bindTime(timeTextView, timeFormatter, null)
 
             view.findViewById<TextView>(R.id.room).apply {
@@ -216,8 +215,8 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
         val roomName = event.roomName
         viewLifecycleOwner.launchAndRepeatOnLifecycle {
             launch {
-                userSettingsProvider.zoneId.collect { zoneId ->
-                    bindTime(holder.timeTextView, timeFormatter, zoneId)
+                userSettingsProvider.timeZoneMode.collect { mode ->
+                    bindTime(holder.timeTextView, timeFormatter, mode.override)
                 }
             }
 
@@ -233,9 +232,9 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
     }
 
     @SuppressLint("SetTextI18n")
-    private fun bindTime(timeTextView: TextView, timeFormatter: DateTimeFormatter, zoneId: ZoneId?) {
-        val startTime = event.startTime?.toLocalDateTimeOrNull(zoneId)?.format(timeFormatter) ?: "?"
-        val endTime = event.endTime?.toLocalDateTimeOrNull(zoneId)?.format(timeFormatter) ?: "?"
+    private fun bindTime(timeTextView: TextView, timeFormatter: DateTimeFormatter, timeZoneOverride: ZoneId?) {
+        val startTime = event.startTime(timeZoneOverride)?.format(timeFormatter) ?: "?"
+        val endTime = event.endTime(timeZoneOverride)?.format(timeFormatter) ?: "?"
         timeTextView.text = "${event.day}, $startTime ― $endTime"
         timeTextView.contentDescription = getString(R.string.time_content_description, timeTextView.text)
     }

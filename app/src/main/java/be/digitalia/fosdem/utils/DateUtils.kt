@@ -22,10 +22,6 @@ fun Instant.toLocalDateTime(zoneId: ZoneId): LocalDateTime {
     return LocalDateTime.ofInstant(this, zoneId)
 }
 
-fun Instant.toLocalDateTimeOrNull(zoneId: ZoneId?): LocalDateTime? {
-    return if (zoneId != null) LocalDateTime.ofInstant(this, zoneId) else null
-}
-
 /**
  * Convert to Instant without allocating intermediate objects if possible.
  */

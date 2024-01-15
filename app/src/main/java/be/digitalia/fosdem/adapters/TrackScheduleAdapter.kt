@@ -17,7 +17,6 @@ import be.digitalia.fosdem.R
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.utils.DateUtils
-import be.digitalia.fosdem.utils.toLocalDateTimeOrNull
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -27,7 +26,7 @@ class TrackScheduleAdapter(context: Context, private val clickListener: (Event) 
 
     private val timeFormatter = DateUtils.getTimeFormatter(context)
 
-    var zoneId: ZoneId? = null
+    var timeZoneOverride: ZoneId? = null
         set(value) {
             if (field != value) {
                 field = value
@@ -96,7 +95,7 @@ class TrackScheduleAdapter(context: Context, private val clickListener: (Event) 
         val statusEvent = getItem(position)
         val event = statusEvent.event
         holder.bind(event, statusEvent.isBookmarked)
-        holder.bindTime(event, zoneId)
+        holder.bindTime(event, timeZoneOverride)
         holder.bindSelection(event.id == selectedId)
     }
 
@@ -106,7 +105,7 @@ class TrackScheduleAdapter(context: Context, private val clickListener: (Event) 
         } else {
             val statusEvent = getItem(position)
             if (TIME_PAYLOAD in payloads) {
-                holder.bindTime(statusEvent.event, zoneId)
+                holder.bindTime(statusEvent.event, timeZoneOverride)
             }
             if (SELECTION_PAYLOAD in payloads) {
                 holder.bindSelection(statusEvent.event.id == selectedId)
@@ -160,8 +159,8 @@ class TrackScheduleAdapter(context: Context, private val clickListener: (Event) 
             room.contentDescription = context.getString(R.string.room_content_description, event.roomName.orEmpty())
         }
 
-        fun bindTime(event: Event, zoneId: ZoneId?) {
-            time.text = event.startTime?.toLocalDateTimeOrNull(zoneId)?.format(timeFormatter) ?: "?"
+        fun bindTime(event: Event, timeZoneOverride: ZoneId?) {
+            time.text = event.startTime(timeZoneOverride)?.format(timeFormatter) ?: "?"
             if (itemViewType == ONGOING_VIEW_TYPE) {
                 time.contentDescription =
                     time.context.getString(R.string.in_progress_content_description, time.text)

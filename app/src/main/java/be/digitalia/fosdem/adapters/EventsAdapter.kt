@@ -23,7 +23,6 @@ import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.RoomStatus
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.utils.DateUtils
-import be.digitalia.fosdem.utils.toLocalDateTimeOrNull
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -32,7 +31,7 @@ class EventsAdapter(context: Context, private val showDay: Boolean = true) :
 
     private val timeFormatter = DateUtils.getTimeFormatter(context)
 
-    var zoneId: ZoneId? = null
+    var timeZoneOverride: ZoneId? = null
         set(value) {
             if (field != value) {
                 field = value
@@ -62,7 +61,7 @@ class EventsAdapter(context: Context, private val showDay: Boolean = true) :
         } else {
             val event = statusEvent.event
             holder.bind(event, statusEvent.isBookmarked)
-            holder.bindDetails(event, showDay, zoneId, roomStatuses[event.roomName])
+            holder.bindDetails(event, showDay, timeZoneOverride, roomStatuses[event.roomName])
         }
     }
 
@@ -74,7 +73,7 @@ class EventsAdapter(context: Context, private val showDay: Boolean = true) :
             if (statusEvent != null) {
                 if (DETAILS_PAYLOAD in payloads) {
                     val event = statusEvent.event
-                    holder.bindDetails(event, showDay, zoneId, roomStatuses[event.roomName])
+                    holder.bindDetails(event, showDay, timeZoneOverride, roomStatuses[event.roomName])
                 }
             }
         }
@@ -120,10 +119,10 @@ class EventsAdapter(context: Context, private val showDay: Boolean = true) :
             trackName.contentDescription = context.getString(R.string.track_content_description, track.name)
         }
 
-        fun bindDetails(event: Event, showDay: Boolean, zoneId: ZoneId?, roomStatus: RoomStatus?) {
+        fun bindDetails(event: Event, showDay: Boolean, timeZoneOverride: ZoneId?, roomStatus: RoomStatus?) {
             val context = details.context
-            val startTimeString = event.startTime?.toLocalDateTimeOrNull(zoneId)?.format(timeFormatter) ?: "?"
-            val endTimeString = event.endTime?.toLocalDateTimeOrNull(zoneId)?.format(timeFormatter) ?: "?"
+            val startTimeString = event.startTime(timeZoneOverride)?.format(timeFormatter) ?: "?"
+            val endTimeString = event.endTime(timeZoneOverride)?.format(timeFormatter) ?: "?"
             val roomName = event.roomName.orEmpty()
             var detailsText: CharSequence = if (showDay) {
                 "${event.day.shortName}, $startTimeString ― $endTimeString  |  $roomName"

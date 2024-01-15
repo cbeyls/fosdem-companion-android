@@ -9,8 +9,8 @@ import be.digitalia.fosdem.flow.stateFlow
 import be.digitalia.fosdem.model.DownloadScheduleResult
 import be.digitalia.fosdem.model.LoadingState
 import be.digitalia.fosdem.model.RoomStatus
-import be.digitalia.fosdem.parsers.EventsParser
 import be.digitalia.fosdem.parsers.RoomStatusesParser
+import be.digitalia.fosdem.parsers.ScheduleParser
 import be.digitalia.fosdem.utils.BackgroundWorkScope
 import be.digitalia.fosdem.utils.ByteCountSource
 import be.digitalia.fosdem.utils.network.HttpClient
@@ -45,7 +45,7 @@ import kotlin.math.pow
 @Singleton
 class FosdemApi @Inject constructor(
     private val httpClient: HttpClient,
-    private val eventsParserProvider: Provider<EventsParser>,
+    private val scheduleParserProvider: Provider<ScheduleParser>,
     private val scheduleDao: ScheduleDao,
     private val alarmManager: AppAlarmManager
 ) {
@@ -85,8 +85,8 @@ class FosdemApi @Inject constructor(
                     body.source()
                 }
 
-                val events = eventsParserProvider.get().parse(source)
-                scheduleDao.storeSchedule(events, headers[HttpClient.LAST_MODIFIED_HEADER_NAME])
+                val schedule = scheduleParserProvider.get().parse(source)
+                scheduleDao.storeSchedule(schedule, headers[HttpClient.LAST_MODIFIED_HEADER_NAME])
             }
             when (response) {
                 is HttpClient.Response.NotModified -> DownloadScheduleResult.UpToDate    // Nothing parsed, the result is up-to-date
