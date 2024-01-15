@@ -11,12 +11,12 @@ import be.digitalia.fosdem.db.entities.Bookmark
 import be.digitalia.fosdem.db.entities.EventEntity
 import be.digitalia.fosdem.model.AlarmInfo
 import be.digitalia.fosdem.model.Event
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.Flow
 import java.time.Instant
 
 @Dao
 abstract class BookmarksDao(appDatabase: AppDatabase) {
-    val version: StateFlow<Int> =
+    val version: Flow<Int> =
         appDatabase.createVersionFlow(EventEntity.TABLE_NAME, Bookmark.TABLE_NAME)
 
     /**

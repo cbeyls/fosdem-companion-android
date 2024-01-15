@@ -1,18 +1,23 @@
 package be.digitalia.fosdem.db
 
-import androidx.room.InvalidationTracker
 import androidx.room.RoomDatabase
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import androidx.room.invalidationTrackerFlow
+import be.digitalia.fosdem.utils.BackgroundWorkScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.stateIn
 
-fun RoomDatabase.createVersionFlow(vararg tables: String): StateFlow<Int> {
-    val stateFlow = MutableStateFlow(0)
-    invalidationTracker.addObserver(object : InvalidationTracker.Observer(tables) {
-        override fun onInvalidated(tables: Set<String>) {
-            stateFlow.update { it + 1 }
+fun RoomDatabase.createVersionFlow(vararg tables: String): Flow<Int> {
+    return flow {
+        var version = 0
+        invalidationTrackerFlow(*tables).collect {
+            emit(version++)
         }
-    })
-    return stateFlow.asStateFlow()
+    }.stateIn(
+        scope = BackgroundWorkScope,
+        started = SharingStarted.Eagerly,
+        initialValue = null
+    ).filterNotNull()
 }

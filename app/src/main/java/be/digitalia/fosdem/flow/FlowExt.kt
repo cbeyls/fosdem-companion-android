@@ -67,7 +67,7 @@ fun <T> Flow<T>.countSubscriptionsTo(subscriptionCount: MutableStateFlow<Int>): 
 
 @OptIn(ExperimentalCoroutinesApi::class)
 fun <T> SharedFlowContext.versionedResourceFlow(
-    version: StateFlow<Int>,
+    version: Flow<Int>,
     producer: suspend (version: Int) -> T
 ): Flow<T> {
     return version

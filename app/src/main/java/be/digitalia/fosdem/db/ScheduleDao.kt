@@ -11,6 +11,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.TypeConverters
+import androidx.room.invalidationTrackerFlow
 import be.digitalia.fosdem.db.converters.NonNullInstantTypeConverters
 import be.digitalia.fosdem.db.entities.EventEntity
 import be.digitalia.fosdem.db.entities.EventTitles
@@ -31,7 +32,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -42,9 +42,9 @@ import java.time.Instant
 
 @Dao
 abstract class ScheduleDao(private val appDatabase: AppDatabase) {
-    val version: StateFlow<Int> =
+    val version: Flow<Int> =
         appDatabase.createVersionFlow(EventEntity.TABLE_NAME)
-    val bookmarksVersion: StateFlow<Int>
+    val bookmarksVersion: Flow<Int>
         get() = appDatabase.bookmarksDao.version
     val databaseVersion
         get() = AppDatabase.VERSION
@@ -244,7 +244,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
 
     // Cache days
     @OptIn(ExperimentalCoroutinesApi::class)
-    val days: Flow<List<Day>> = appDatabase.createVersionFlow(Day.TABLE_NAME)
+    val days: Flow<List<Day>> = appDatabase.invalidationTrackerFlow(Day.TABLE_NAME)
         .mapLatest { getDaysInternal() }
         .stateIn(
             scope = BackgroundWorkScope,
