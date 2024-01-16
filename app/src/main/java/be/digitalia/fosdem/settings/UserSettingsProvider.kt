@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.SharedPreferences
+import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -27,11 +28,11 @@ class UserSettingsProvider @Inject constructor(
 ) {
     private val deviceZoneIdFlow: StateFlow<ZoneId> by lazy(LazyThreadSafetyMode.NONE) {
         val zoneIdFlow = MutableStateFlow(ZoneId.systemDefault())
-        context.registerReceiver(object : BroadcastReceiver() {
+        ContextCompat.registerReceiver(context, object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 zoneIdFlow.value = ZoneId.systemDefault()
             }
-        }, IntentFilter(Intent.ACTION_TIMEZONE_CHANGED))
+        }, IntentFilter(Intent.ACTION_TIMEZONE_CHANGED), ContextCompat.RECEIVER_EXPORTED)
         zoneIdFlow.asStateFlow()
     }
 
