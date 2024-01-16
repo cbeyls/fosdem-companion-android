@@ -1,6 +1,16 @@
 Change Log
 ==========
 
+## Version 2.2.4
+
+_2024-01-16_
+
+- Enhancement: make use of new fields in the XML schedule file format (based on PretalX), allowing the removal of some hardcoded values
+- Enhancement: add support for the "Junior" track type
+- Enhancement: trigger an automatic download on app startup after clearing the schedule during a database schema upgrade
+- Enhancement: use `ContextCompat.registerReceiver()` API to ensure the time zone change broadcast will be received on API 33+
+- Reimplement database tables version tracking using `invalidationTrackerFlow()` to avoid blocking the main thread during initialization.
+
 ## Version 2.2.1
 
 _2024-01-12_

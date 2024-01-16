@@ -15,8 +15,8 @@ android {
         minSdk = 21
         targetSdk = 33
         multiDexEnabled = true
-        versionCode = 2100221
-        versionName = "2.2.1"
+        versionCode = 2100224
+        versionName = "2.2.4"
         // Supported languages
         resourceConfigurations += "en"
         vectorDrawables {
