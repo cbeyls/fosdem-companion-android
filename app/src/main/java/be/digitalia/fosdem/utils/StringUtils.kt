@@ -1,7 +1,11 @@
 package be.digitalia.fosdem.utils
 
 import android.content.res.Resources
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.text.Editable
+import android.text.Html.ImageGetter
 import android.text.Html.TagHandler
 import android.text.style.BulletSpan
 import android.text.style.LeadingMarginSpan
@@ -104,7 +108,11 @@ fun String.stripHtml(): String {
 }
 
 fun String.parseHtml(res: Resources): CharSequence {
-    return parseAsHtml(flags = HtmlCompat.FROM_HTML_SEPARATOR_LINE_BREAK_LIST_ITEM, tagHandler = ListsTagHandler(res)).trimEnd()
+    return parseAsHtml(
+        flags = HtmlCompat.FROM_HTML_SEPARATOR_LINE_BREAK_LIST_ITEM,
+        imageGetter = EmptyImageGetter,
+        tagHandler = ListsTagHandler(res)
+    ).trimEnd()
 }
 
 /**
@@ -127,6 +135,14 @@ fun roomNameToResourceName(roomName: String): String {
         }
     }
     return builder.toString()
+}
+
+object EmptyImageGetter : ImageGetter {
+    override fun getDrawable(source: String?): Drawable {
+        return ColorDrawable(Color.TRANSPARENT).apply {
+            setBounds(0, 0, 0, 0)
+        }
+    }
 }
 
 private class ListsTagHandler(res: Resources) : TagHandler {
