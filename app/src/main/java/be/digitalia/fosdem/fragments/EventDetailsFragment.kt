@@ -161,11 +161,11 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
                 } else {
                     val building = Building.fromRoomName(roomName)
                     val roomText = SpannableString(if (building == null) roomName else getString(R.string.room_building, roomName, building))
-                    val roomImageResId = resources.getIdentifier(roomNameToResourceName(roomName), "drawable", requireActivity().packageName)
 
                     // Make the room text clickable to display the room image, even if it doesn't exist
                     roomText[0, roomText.length] = object : ClickableSpan() {
                         override fun onClick(view: View) {
+                            val roomImageResId = resources.getIdentifier(roomNameToResourceName(roomName), "drawable", view.context.packageName)
                             parentFragmentManager.commit(allowStateLoss = true) {
                                 add<RoomImageDialogFragment>(RoomImageDialogFragment.TAG,
                                         args = RoomImageDialogFragment.createArguments(roomName, roomImageResId))

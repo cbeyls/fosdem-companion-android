@@ -5,12 +5,14 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
+import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.core.text.set
+import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.api.FosdemApi
@@ -39,14 +41,23 @@ class RoomImageDialogActivity : AppCompatActivity(R.layout.dialog_room_image) {
         super.onCreate(savedInstanceState)
         val intent = intent
         val roomName = intent.getStringExtra(EXTRA_ROOM_NAME)!!
-        title = roomName
+        val imageResId = intent.getIntExtra(EXTRA_ROOM_IMAGE_RESOURCE_ID, 0)
 
-        findViewById<ImageView>(R.id.room_image).apply {
-            if (!context.isLightTheme) {
-                invertImageColors()
+        title = roomName
+        val roomImageView: ImageView = findViewById(R.id.room_image)
+
+        if (imageResId != 0) {
+            roomImageView.apply {
+                if (!context.isLightTheme) {
+                    invertImageColors()
+                }
+                setImageResource(imageResId)
             }
-            setImageResource(intent.getIntExtra(EXTRA_ROOM_IMAGE_RESOURCE_ID, 0))
+        } else {
+            roomImageView.isVisible = false
+            findViewById<View>(R.id.room_image_placeholder).isVisible = true
         }
+
         configureToolbar(api, this, findViewById(R.id.toolbar), roomName)
     }
 
