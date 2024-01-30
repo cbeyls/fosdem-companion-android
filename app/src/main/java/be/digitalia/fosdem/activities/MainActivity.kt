@@ -295,7 +295,6 @@ class MainActivity : AppCompatActivity(R.layout.main) {
             R.id.search -> {
                 val intent = Intent(this, SearchResultActivity::class.java)
                 startActivity(intent)
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
                 true
             }
             R.id.refresh -> {
@@ -335,7 +334,6 @@ class MainActivity : AppCompatActivity(R.layout.main) {
                 R.id.menu_stands -> launchUrl(FosdemUrls.stands)
                 R.id.menu_settings -> {
                     startActivity(Intent(this, SettingsActivity::class.java))
-                    overridePendingTransition(R.anim.slide_in_right, R.anim.partial_zoom_out)
                 }
                 R.id.menu_volunteer -> launchUrl(FosdemUrls.volunteer)
             }
