@@ -135,7 +135,7 @@ class MainActivity : AppCompatActivity(R.layout.main) {
                             val snackbar = when (result) {
                                 is DownloadScheduleResult.Error -> {
                                     Snackbar.make(contentView, R.string.schedule_loading_error, ERROR_MESSAGE_DISPLAY_DURATION)
-                                        .setAction(R.string.schedule_loading_retry_action) { api.downloadSchedule() }
+                                        .setAction(R.string.schedule_loading_retry_action) { downloadSchedule() }
                                 }
                                 is DownloadScheduleResult.UpToDate -> {
                                     Snackbar.make(contentView, R.string.events_download_up_to_date, Snackbar.LENGTH_LONG)
@@ -220,6 +220,15 @@ class MainActivity : AppCompatActivity(R.layout.main) {
         }
     }
 
+    private fun downloadSchedule(now: Instant = Instant.now()) {
+        preferences.edit {
+            putInt(LATEST_UPDATE_ATTEMPT_VERSION_PREF_KEY, scheduleDao.databaseVersion)
+            putLong(LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY, now.toEpochMilli())
+        }
+
+        api.downloadSchedule()
+    }
+
     @SuppressLint("PrivateResource")
     private fun updateActionBar(section: Section, menuItem: MenuItem) {
         title = menuItem.title
@@ -257,18 +266,14 @@ class MainActivity : AppCompatActivity(R.layout.main) {
         lifecycleScope.launch {
             val now = Instant.now()
             val latestUpdateTime = scheduleDao.latestUpdateTime.first()
-            if (latestUpdateTime == null || latestUpdateTime < now - DATABASE_VALIDITY_DURATION) {
+            if (latestUpdateTime == null || now > latestUpdateTime + DATABASE_VALIDITY_DURATION) {
                 val latestAttemptVersion = preferences.getInt(LATEST_UPDATE_ATTEMPT_VERSION_PREF_KEY, 0)
                 val latestAttemptTime = Instant.ofEpochMilli(
                     preferences.getLong(LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY, 0L)
                 )
-                if (latestAttemptVersion != scheduleDao.databaseVersion || latestAttemptTime < now - AUTO_UPDATE_SNOOZE_DURATION) {
-                    preferences.edit {
-                        putInt(LATEST_UPDATE_ATTEMPT_VERSION_PREF_KEY, scheduleDao.databaseVersion)
-                        putLong(LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY, now.toEpochMilli())
-                    }
+                if (latestAttemptVersion != scheduleDao.databaseVersion || now > latestAttemptTime + AUTO_UPDATE_SNOOZE_DURATION) {
                     // Try to update immediately. If it fails, the user gets a message and a retry button.
-                    api.downloadSchedule()
+                    downloadSchedule(now)
                 }
             }
         }
@@ -300,7 +305,7 @@ class MainActivity : AppCompatActivity(R.layout.main) {
                     item.icon = icon
                     icon.start()
                 }
-                api.downloadSchedule()
+                downloadSchedule()
                 true
             }
             else -> false
