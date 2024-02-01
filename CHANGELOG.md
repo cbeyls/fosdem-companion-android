@@ -1,6 +1,15 @@
 Change Log
 ==========
 
+## Version 2.2.5
+
+_2024-02-01_
+
+- Feature: add "Submit feedback" button in event details screen
+- Fix: no image placeholder shown in room image dialog launched from notification
+- Enhancement: don't display blue image square in place of `<img>` tags in HTML descriptions
+- Enhancement: take manual database updates into account when scheduling the next automatic update.
+
 ## Version 2.2.4
 
 _2024-01-16_
