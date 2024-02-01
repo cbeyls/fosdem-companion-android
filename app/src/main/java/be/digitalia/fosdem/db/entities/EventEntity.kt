@@ -37,7 +37,9 @@ class EventEntity(
         val trackId: Long,
         @ColumnInfo(name = "abstract")
         val abstractText: String?,
-        val description: String?
+        val description: String?,
+        @ColumnInfo(name = "feedback_url")
+        val feedbackUrl: String?
 ) {
     companion object {
         const val TABLE_NAME = "events"

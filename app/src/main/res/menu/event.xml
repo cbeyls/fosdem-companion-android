@@ -14,5 +14,11 @@
         android:title="@string/add_to_agenda"
         app:iconTint="?colorControlNormal"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/submit_feedback"
+        android:icon="@drawable/ic_rate_review_white_24dp"
+        android:title="@string/submit_feedback"
+        app:iconTint="?colorControlNormal"
+        app:showAsAction="ifRoom" />
 
 </menu>

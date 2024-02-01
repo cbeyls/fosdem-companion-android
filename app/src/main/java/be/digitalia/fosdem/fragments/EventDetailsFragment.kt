@@ -2,6 +2,7 @@ package be.digitalia.fosdem.fragments
 
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.provider.CalendarContract
@@ -91,12 +92,15 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
     private inner class EventDetailsMenuProvider : MenuProvider {
         override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
             menuInflater.inflate(R.menu.event, menu)
-            menu.findItem(R.id.share)?.intent = createShareChooserIntent()
+            menu.findItem(R.id.share)?.apply {
+                val url = event.url
+                isVisible = url != null
+                intent = url?.let { createShareChooserIntent(event.title.orEmpty(), url) }
+            }
+            menu.findItem(R.id.submit_feedback)?.setVisible(event.feedbackUrl != null)
         }
 
-        private fun createShareChooserIntent(): Intent {
-            val title = event.title.orEmpty()
-            val url = event.url.orEmpty()
+        private fun createShareChooserIntent(title: String, url: String): Intent {
             return ShareCompat.IntentBuilder(requireContext())
                 .setSubject("$title ($CONFERENCE_NAME)")
                 .setType("text/plain")
@@ -108,6 +112,12 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
         override fun onMenuItemSelected(menuItem: MenuItem) = when (menuItem.itemId) {
             R.id.add_to_agenda -> {
                 addToAgenda()
+                true
+            }
+            R.id.submit_feedback -> {
+                event.feedbackUrl?.let { url ->
+                    openEventUrl(requireContext(), event, url)
+                }
                 true
             }
             else -> false
@@ -361,17 +371,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
         private val resource: Resource
     ) : View.OnClickListener {
         override fun onClick(v: View) {
-            try {
-                val context = v.context
-                CustomTabsIntent.Builder()
-                        .configureToolbarColors(context, event.track.type.appBarColorResId)
-                        .setShowTitle(true)
-                        .setStartAnimations(context, R.anim.slide_in_right, R.anim.slide_out_left)
-                        .setExitAnimations(context, R.anim.slide_in_left, R.anim.slide_out_right)
-                        .build()
-                        .launchUrl(context, resource.url.toUri())
-            } catch (ignore: ActivityNotFoundException) {
-            }
+            openEventUrl(v.context, event, resource.url)
         }
     }
 
@@ -383,6 +383,19 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
 
         fun createArguments(event: Event) = Bundle(1).apply {
             putParcelable(ARG_EVENT, event)
+        }
+
+        private fun openEventUrl(context: Context, event: Event, url: String) {
+            try {
+                CustomTabsIntent.Builder()
+                    .configureToolbarColors(context, event.track.type.appBarColorResId)
+                    .setShowTitle(true)
+                    .setStartAnimations(context, R.anim.slide_in_right, R.anim.slide_out_left)
+                    .setExitAnimations(context, R.anim.slide_in_left, R.anim.slide_out_right)
+                    .build()
+                    .launchUrl(context, url.toUri())
+            } catch (ignore: ActivityNotFoundException) {
+            }
         }
     }
 }

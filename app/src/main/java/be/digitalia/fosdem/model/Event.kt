@@ -41,6 +41,8 @@ data class Event(
         @ColumnInfo(name = "abstract")
         val abstractText: String?,
         val description: String?,
+        @ColumnInfo(name = "feedback_url")
+        val feedbackUrl: String?,
         @ColumnInfo(name = "persons")
         val personsSummary: String?
 ) : Parcelable {

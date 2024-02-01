@@ -64,7 +64,10 @@ object DatabaseModule {
                 execSQL("CREATE TABLE IF NOT EXISTS ${Day.TABLE_NAME} (`index` INTEGER NOT NULL, `date` INTEGER NOT NULL, `start_time` INTEGER NOT NULL, `end_time` INTEGER NOT NULL, PRIMARY KEY(`index`))")
             }
         }
-        val migration5to6 = Migration(5, 6) { db ->
+        val migration5to6 = Migration(5, 6) {
+            // empty because it's identical to migration6to7
+        }
+        val migration6to7 = Migration(6, 7) { db ->
             with(db) {
                 // Clear schedule (but keep bookmarks)
                 execSQL("DELETE FROM ${EventTitles.TABLE_NAME}")
@@ -77,7 +80,7 @@ object DatabaseModule {
 
                 // Recreate table events with new columns
                 execSQL("DROP TABLE IF EXISTS ${EventEntity.TABLE_NAME}")
-                execSQL("CREATE TABLE IF NOT EXISTS ${EventEntity.TABLE_NAME} (`id` INTEGER NOT NULL, `day_index` INTEGER NOT NULL, `start_time` INTEGER, `start_time_offset` INTEGER, `end_time` INTEGER, `room_name` TEXT, `url` TEXT, `track_id` INTEGER NOT NULL, `abstract` TEXT, `description` TEXT, PRIMARY KEY(`id`))")
+                execSQL("CREATE TABLE IF NOT EXISTS ${EventEntity.TABLE_NAME} (`id` INTEGER NOT NULL, `day_index` INTEGER NOT NULL, `start_time` INTEGER, `start_time_offset` INTEGER, `end_time` INTEGER, `room_name` TEXT, `url` TEXT, `track_id` INTEGER NOT NULL, `abstract` TEXT, `description` TEXT, `feedback_url` TEXT, PRIMARY KEY(`id`))")
                 execSQL("CREATE INDEX IF NOT EXISTS `event_day_index_idx` ON ${EventEntity.TABLE_NAME} (`day_index`)")
                 execSQL("CREATE INDEX IF NOT EXISTS `event_start_time_idx` ON ${EventEntity.TABLE_NAME} (`start_time`)")
                 execSQL("CREATE INDEX IF NOT EXISTS `event_end_time_idx` ON ${EventEntity.TABLE_NAME} (`end_time`)")
@@ -92,7 +95,7 @@ object DatabaseModule {
 
         return Room.databaseBuilder(context, AppDatabase::class.java, DB_FILE)
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-            .addMigrations(migration3to5, migration5to6)
+            .addMigrations(migration3to5, migration5to6, migration6to7)
             .fallbackToDestructiveMigration()
             .addCallback(object : RoomDatabase.Callback() {
                 override fun onOpen(db: SupportSQLiteDatabase) {

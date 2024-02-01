@@ -33,6 +33,6 @@ abstract class AppDatabase : RoomDatabase() {
 
     companion object {
         // Expose the database version to allow detecting migrations
-        const val VERSION = 6
+        const val VERSION = 7
     }
 }

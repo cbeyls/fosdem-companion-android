@@ -124,6 +124,7 @@ class ScheduleParser @Inject constructor() : Parser<Schedule> {
         var trackType = Track.Type.other
         var abstractText: String? = null
         var description: String? = null
+        var feedbackUrl: String? = null
         val persons = mutableListOf<Person>()
         val attachments = mutableListOf<Attachment>()
         val links = mutableListOf<Link>()
@@ -151,6 +152,7 @@ class ScheduleParser @Inject constructor() : Parser<Schedule> {
                     }
                     "abstract" -> abstractText = parser.nextText()
                     "description" -> description = parser.nextText()
+                    "feedback_url" -> feedbackUrl = parser.nextText()
                     "persons" -> while (!parser.isNextEndTag("persons")) {
                         if (parser.isStartTag("person")) {
                             val person = Person(
@@ -163,7 +165,7 @@ class ScheduleParser @Inject constructor() : Parser<Schedule> {
                     "attachments" -> while (!parser.isNextEndTag("attachments")) {
                         if (parser.isStartTag("attachment")) {
                             val attachmentType = parser.getAttributeValue(null, "type")
-                            val attachment = Attachment(
+                            attachments += Attachment(
                                 eventId = id,
                                 url = parser.getAttributeValue(null, "href")!!,
                                 description = parser.nextText().let { attachmentDescription ->
@@ -175,17 +177,20 @@ class ScheduleParser @Inject constructor() : Parser<Schedule> {
                                     }
                                 }
                             )
-                            attachments += attachment
                         }
                     }
                     "links" -> while (!parser.isNextEndTag("links")) {
                         if (parser.isStartTag("link")) {
-                            val link = Link(
+                            val linkUrl = parser.getAttributeValue(null, "href")!!
+                            val linkDescription = parser.nextText()
+                            // Feedback URL is already handled using its dedicated field
+                            if (url != feedbackUrl) {
+                                links += Link(
                                     eventId = id,
-                                    url = parser.getAttributeValue(null, "href")!!,
-                                    description = parser.nextText()
-                            )
-                            links += link
+                                    url = linkUrl,
+                                    description = linkDescription
+                                )
+                            }
                         }
                     }
                     else -> parser.skipToEndTag()
@@ -210,6 +215,7 @@ class ScheduleParser @Inject constructor() : Parser<Schedule> {
             track = Track(name = trackName, type = trackType),
             abstractText = abstractText,
             description = description,
+            feedbackUrl = feedbackUrl,
             personsSummary = null
         )
         val details = EventDetails(
