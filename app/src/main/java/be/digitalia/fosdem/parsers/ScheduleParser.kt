@@ -184,7 +184,7 @@ class ScheduleParser @Inject constructor() : Parser<Schedule> {
                             val linkUrl = parser.getAttributeValue(null, "href")!!
                             val linkDescription = parser.nextText()
                             // Feedback URL is already handled using its dedicated field
-                            if (url != feedbackUrl) {
+                            if (linkUrl != feedbackUrl) {
                                 links += Link(
                                     eventId = id,
                                     url = linkUrl,
