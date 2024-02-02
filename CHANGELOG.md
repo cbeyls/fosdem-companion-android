@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+## Version 2.2.6
+
+_2024-02-02_
+
+- Fix: speaker info button not visible on tablets
+- Fix: feedback link not properly removed when a feedback button is available.
+
 ## Version 2.2.5
 
 _2024-02-01_
