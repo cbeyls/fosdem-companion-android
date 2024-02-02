@@ -11,7 +11,7 @@
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="160dp"
         android:fitsSystemWindows="true"
         android:theme="?actionBarTheme">
 
@@ -19,16 +19,12 @@
             android:id="@+id/collapsing_toolbar"
             style="@style/Widget.App.CollapsingToolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:fitsSystemWindows="true"
             app:expandedTitleMarginBottom="40dp"
             app:expandedTitleMarginEnd="16dp"
             app:expandedTitleMarginStart="16dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
-
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="128dp" />
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
