@@ -7,7 +7,8 @@
         android:icon="@drawable/ic_search_white_24dp"
         android:menuCategory="secondary"
         android:title="@string/search_events"
-        app:iconTint="?colorControlNormal" />
+        app:iconTint="?colorControlNormal"
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/refresh"
         android:icon="@drawable/avd_sync_white_24dp"
