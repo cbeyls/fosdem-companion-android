@@ -20,6 +20,7 @@ import be.digitalia.fosdem.fragments.EventDetailsFragment
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.Track
+import be.digitalia.fosdem.utils.MenuHostMediator
 import be.digitalia.fosdem.utils.enforceSingleScrollDirection
 import be.digitalia.fosdem.utils.getParcelableExtraCompat
 import be.digitalia.fosdem.utils.instantiate
@@ -40,7 +41,7 @@ import kotlinx.coroutines.launch
  * @author Christophe Beyls
  */
 @AndroidEntryPoint
-class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_event) {
+class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_event), MenuHostMediatorOwner {
 
     private val bookmarkStatusViewModel: BookmarkStatusViewModel by viewModels()
     private val viewModel: TrackScheduleEventViewModel by viewModels(extrasProducer = {
@@ -55,6 +56,8 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
     private val track: Track by lazy(LazyThreadSafetyMode.NONE) {
         intent.getParcelableExtraCompat(EXTRA_TRACK)!!
     }
+
+    override val menuHostMediator = MenuHostMediator(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

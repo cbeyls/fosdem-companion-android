@@ -19,6 +19,7 @@ import be.digitalia.fosdem.fragments.RoomImageDialogFragment
 import be.digitalia.fosdem.fragments.TrackScheduleListFragment
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Track
+import be.digitalia.fosdem.utils.MenuHostMediator
 import be.digitalia.fosdem.utils.getParcelableExtraCompat
 import be.digitalia.fosdem.utils.isLightTheme
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
@@ -34,10 +35,12 @@ import dagger.hilt.android.AndroidEntryPoint
  * @author Christophe Beyls
  */
 @AndroidEntryPoint
-class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule) {
+class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule), MenuHostMediatorOwner {
 
     private val viewModel: TrackScheduleViewModel by viewModels()
     private val bookmarkStatusViewModel: BookmarkStatusViewModel by viewModels()
+
+    override val menuHostMediator = MenuHostMediator(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

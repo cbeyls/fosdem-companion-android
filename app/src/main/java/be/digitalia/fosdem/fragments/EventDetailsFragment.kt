@@ -35,6 +35,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.withStarted
 import be.digitalia.fosdem.R
+import be.digitalia.fosdem.activities.MenuHostMediatorOwner
 import be.digitalia.fosdem.activities.PersonInfoActivity
 import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.model.Building
@@ -129,11 +130,19 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
         super.onViewCreated(view, savedInstanceState)
 
         // Show the menu in resumed (interactive) state only because the view is preloaded in a pager
-        requireActivity().addMenuProvider(
-            EventDetailsMenuProvider(),
-            viewLifecycleOwner,
-            Lifecycle.State.RESUMED
-        )
+        val activity = requireActivity()
+        if (activity is MenuHostMediatorOwner) {
+            activity.menuHostMediator.addResumedMenuProvider(
+                EventDetailsMenuProvider(),
+                viewLifecycleOwner
+            )
+        } else {
+            activity.addMenuProvider(
+                EventDetailsMenuProvider(),
+                viewLifecycleOwner,
+                Lifecycle.State.RESUMED
+            )
+        }
 
         val timeFormatter = DateUtils.getTimeFormatter(view.context)
 
