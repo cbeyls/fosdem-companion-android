@@ -27,22 +27,5 @@
 # This class is deprecated, but remains for backward compatibility.
 -dontwarn android.util.FloatMath
 
-# Understand the @Keep support annotation.
--keep class androidx.annotation.Keep
-
--keep @androidx.annotation.Keep class * {*;}
-
--keepclasseswithmembers class * {
-    @androidx.annotation.Keep <methods>;
-}
-
--keepclasseswithmembers class * {
-    @androidx.annotation.Keep <fields>;
-}
-
--keepclasseswithmembers class * {
-    @androidx.annotation.Keep <init>(...);
-}
-
 # These classes are duplicated between android.jar and core-lambda-stubs.jar.
 -dontnote java.lang.invoke.**
