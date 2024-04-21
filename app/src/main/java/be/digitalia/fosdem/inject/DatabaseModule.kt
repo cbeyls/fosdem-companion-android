@@ -42,9 +42,9 @@ object DatabaseModule {
     @Provides
     @Named("Database")
     fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
-        return PreferenceDataStoreFactory.create(
-                produceFile = { context.preferencesDataStoreFile(DB_DATASTORE_FILE) }
-        )
+        return PreferenceDataStoreFactory.create {
+            context.preferencesDataStoreFile(DB_DATASTORE_FILE)
+        }
     }
 
     @Provides

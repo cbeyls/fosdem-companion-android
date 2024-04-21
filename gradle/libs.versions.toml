@@ -1,11 +1,11 @@
 [versions]
-androidGradlePlugin = "8.3.1"
-androidx-activity = "1.8.2"
+androidGradlePlugin = "8.3.2"
+androidx-activity = "1.9.0"
 androidx-appcompat = "1.6.1"
 androidx-browser = "1.8.0"
 androidx-coordinatorlayout = "1.2.0"
-androidx-core = "1.12.0"
-androidx-datastore = "1.0.0"
+androidx-core = "1.13.0"
+androidx-datastore = "1.1.0"
 androidx-drawerlayout = "1.2.0"
 androidx-fragment = "1.6.2"
 androidx-lifecycle = "2.7.0"
@@ -18,7 +18,7 @@ desugarJdkLibs = "2.0.4"
 hilt = "2.51.1"
 kotlin = "1.9.23"
 kotlinx-coroutines = "1.8.0"
-ksp = "1.9.23-1.0.19"
+ksp = "1.9.23-1.0.20"
 material = "1.11.0"
 moshi = "1.15.1"
 okhttp = "4.12.0"
@@ -33,7 +33,7 @@ kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref =
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 [libraries]
-androidx-activity = { group = "androidx.activity", name = "activity-ktx", version.ref = "androidx-activity" }
+androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "androidx-activity" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidx-appcompat" }
 androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "androidx-browser" }
 androidx-coordinatorlayout = { group = "androidx.coordinatorlayout", name = "coordinatorlayout", version.ref = "androidx-coordinatorlayout" }

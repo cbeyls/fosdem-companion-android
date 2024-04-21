@@ -50,9 +50,11 @@ android {
                         "DebugProbesKt.bin",
                         "kotlin-tooling-metadata.json",
                         "kotlin/**",
-                        "META-INF/*.kotlin_module",
                         "META-INF/*.version"
                     )
+                }
+                jniLibs {
+                    excludes += "**/libdatastore_shared_counter.so"
                 }
             }
         }
