@@ -13,8 +13,7 @@ android {
     defaultConfig {
         applicationId = "be.digitalia.fosdem"
         minSdk = 21
-        targetSdk = 33
-        multiDexEnabled = true
+        targetSdk = 34
         versionCode = 2100226
         versionName = "2.2.6"
         // Supported languages
