@@ -18,6 +18,12 @@ class SettingsActivity : SimpleToolbarActivity() {
             R.anim.slide_in_right,
             R.anim.partial_zoom_out
         )
+        ActivityUtils.overrideActivityTransition(
+            this,
+            ActivityUtils.OVERRIDE_TRANSITION_CLOSE,
+            R.anim.partial_zoom_in,
+            R.anim.slide_out_right
+        )
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -29,15 +35,5 @@ class SettingsActivity : SimpleToolbarActivity() {
     override fun onSupportNavigateUp(): Boolean {
         onBackPressedDispatcher.onBackPressed()
         return true
-    }
-
-    override fun finish() {
-        super.finish()
-        ActivityUtils.overrideActivityTransition(
-            this,
-            ActivityUtils.OVERRIDE_TRANSITION_CLOSE,
-            R.anim.partial_zoom_in,
-            R.anim.slide_out_right
-        )
     }
 }

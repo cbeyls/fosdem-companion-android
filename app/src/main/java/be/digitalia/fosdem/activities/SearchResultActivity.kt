@@ -40,6 +40,12 @@ class SearchResultActivity : AppCompatActivity(R.layout.search_result) {
             R.anim.fade_in,
             R.anim.fade_out
         )
+        ActivityUtils.overrideActivityTransition(
+            this,
+            ActivityUtils.OVERRIDE_TRANSITION_CLOSE,
+            R.anim.fade_in,
+            R.anim.fade_out
+        )
         setSupportActionBar(findViewById(R.id.toolbar))
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -95,16 +101,6 @@ class SearchResultActivity : AppCompatActivity(R.layout.search_result) {
     override fun onSupportNavigateUp(): Boolean {
         onBackPressedDispatcher.onBackPressed()
         return true
-    }
-
-    override fun finish() {
-        super.finish()
-        ActivityUtils.overrideActivityTransition(
-            this,
-            ActivityUtils.OVERRIDE_TRANSITION_CLOSE,
-            R.anim.fade_in,
-            R.anim.fade_out
-        )
     }
 
     private val EditText.textChangeEvents: Flow<CharSequence?>
