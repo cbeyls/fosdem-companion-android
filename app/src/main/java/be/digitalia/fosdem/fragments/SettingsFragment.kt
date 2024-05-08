@@ -41,7 +41,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private val requestExactAlarmsLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-            if (result.resultCode == Activity.RESULT_OK) {
+            // The activity result does not always reflect if scheduling was allowed or not
+            if (result.resultCode == Activity.RESULT_OK || alarmManager.canScheduleExactAlarms) {
                 checkNotificationsEnabledPreference()
             }
         }
