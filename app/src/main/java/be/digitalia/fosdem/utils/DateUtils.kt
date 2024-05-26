@@ -6,7 +6,6 @@ import androidx.core.os.ConfigurationCompat
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 object DateUtils {
@@ -20,12 +19,4 @@ object DateUtils {
 
 fun Instant.toLocalDateTime(zoneId: ZoneId): LocalDateTime {
     return LocalDateTime.ofInstant(this, zoneId)
-}
-
-/**
- * Convert to Instant without allocating intermediate objects if possible.
- */
-fun LocalDateTime.toInstant(zoneId: ZoneId): Instant {
-    val zoneOffset = if (zoneId is ZoneOffset) zoneId else zoneId.rules.getOffset(this)
-    return toInstant(zoneOffset)
 }
