@@ -35,14 +35,6 @@ android {
             isShrinkResources = true
             proguardFiles("proguard-defaults.txt", "proguard-rules.pro")
 
-            kotlinOptions {
-                freeCompilerArgs = listOf(
-                        "-Xno-param-assertions",
-                        "-Xno-call-assertions",
-                        "-Xno-receiver-assertions"
-                )
-            }
-
             packaging {
                 resources {
                     excludes += listOf(
@@ -55,6 +47,7 @@ android {
                 jniLibs {
                     excludes += "**/libdatastore_shared_counter.so"
                 }
+                vcsInfo.include = false
             }
         }
     }
