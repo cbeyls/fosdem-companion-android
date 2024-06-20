@@ -47,10 +47,15 @@ android {
                 jniLibs {
                     excludes += "**/libdatastore_shared_counter.so"
                 }
-                vcsInfo.include = false
             }
+            vcsInfo.include = false
         }
     }
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
+
     buildFeatures {
         buildConfig = true
     }
