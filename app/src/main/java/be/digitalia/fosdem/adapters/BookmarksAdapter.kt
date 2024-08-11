@@ -27,12 +27,13 @@ import be.digitalia.fosdem.activities.EventDetailsActivity
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.RoomStatus
 import be.digitalia.fosdem.utils.DateUtils
+import be.digitalia.fosdem.utils.asyncDifferConfig
 import be.digitalia.fosdem.widgets.MultiChoiceHelper
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 class BookmarksAdapter(context: Context, private val multiChoiceHelper: MultiChoiceHelper) :
-    ListAdapter<Event, BookmarksAdapter.ViewHolder>(DIFF_CALLBACK) {
+    ListAdapter<Event, BookmarksAdapter.ViewHolder>(asyncDifferConfig(DIFF_CALLBACK)) {
 
     private val timeFormatter = DateUtils.getTimeFormatter(context)
 

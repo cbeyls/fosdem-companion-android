@@ -2,9 +2,13 @@ package be.digitalia.fosdem.utils
 
 import android.view.MotionEvent
 import androidx.core.view.get
+import androidx.recyclerview.widget.AsyncDifferConfig
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener
 import androidx.viewpager2.widget.ViewPager2
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 import kotlin.math.abs
 
 val ViewPager2.recyclerView: RecyclerView
@@ -73,4 +77,12 @@ private class SingleScrollDirectionEnforcer : RecyclerView.OnScrollListener(), O
             }
         }
     }
+}
+
+private val backgroundDifferExecutor = Dispatchers.Default.asExecutor()
+
+fun <T> asyncDifferConfig(diffCallback: DiffUtil.ItemCallback<T>): AsyncDifferConfig<T> {
+    return AsyncDifferConfig.Builder(diffCallback)
+        .setBackgroundThreadExecutor(backgroundDifferExecutor)
+        .build()
 }

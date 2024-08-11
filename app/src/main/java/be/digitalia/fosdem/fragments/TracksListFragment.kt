@@ -18,6 +18,7 @@ import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.TrackScheduleActivity
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Track
+import be.digitalia.fosdem.utils.asyncDifferConfig
 import be.digitalia.fosdem.utils.getParcelableCompat
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.TracksListViewModel
@@ -64,7 +65,8 @@ class TracksListFragment : Fragment(R.layout.recyclerview) {
         }
     }
 
-    private class TracksAdapter(private val day: Day) : ListAdapter<Track, TrackViewHolder>(DIFF_CALLBACK) {
+    private class TracksAdapter(private val day: Day) :
+        ListAdapter<Track, TrackViewHolder>(asyncDifferConfig(DIFF_CALLBACK)) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackViewHolder {
             val view = LayoutInflater.from(parent.context).inflate(R.layout.simple_list_item_2_material, parent, false)

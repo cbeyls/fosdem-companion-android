@@ -17,12 +17,13 @@ import be.digitalia.fosdem.R
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.utils.DateUtils
+import be.digitalia.fosdem.utils.asyncDifferConfig
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-class TrackScheduleAdapter(context: Context, private val clickListener: (Event) -> Unit)
-    : ListAdapter<StatusEvent, TrackScheduleAdapter.ViewHolder>(EventsAdapter.DIFF_CALLBACK) {
+class TrackScheduleAdapter(context: Context, private val clickListener: (Event) -> Unit) :
+    ListAdapter<StatusEvent, TrackScheduleAdapter.ViewHolder>(asyncDifferConfig(EventsAdapter.DIFF_CALLBACK)) {
 
     private val timeFormatter = DateUtils.getTimeFormatter(context)
 
