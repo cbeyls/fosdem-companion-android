@@ -186,7 +186,7 @@ private class ListsTagHandler(res: Resources) : TagHandler {
             // Unfortunately the following code will be ignored in API 24+ and the native rendering is inferior
             "li", "LI" -> if (opening) {
                 liStarts.addLast(ensureParagraphBoundary(output))
-            } else if (!liStarts.isEmpty) {
+            } else if (!liStarts.isEmpty()) {
                 val start = liStarts.popLast()
                 trimStart(output, start)
                 val end = ensureParagraphBoundary(output)
