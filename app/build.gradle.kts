@@ -41,7 +41,9 @@ android {
                         "DebugProbesKt.bin",
                         "kotlin-tooling-metadata.json",
                         "kotlin/**",
-                        "META-INF/*.version"
+                        "META-INF/*.version",
+                        "META-INF/versions/**",
+                        "META-INF/NOTICE.md"
                     )
                 }
                 jniLibs {
