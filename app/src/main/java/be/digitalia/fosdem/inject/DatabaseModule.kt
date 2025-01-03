@@ -29,6 +29,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
 import javax.inject.Named
 import javax.inject.Singleton
@@ -94,6 +96,7 @@ object DatabaseModule {
         val onDatabaseOpen = CompletableDeferred<Unit>()
 
         return Room.databaseBuilder(context, AppDatabase::class.java, DB_FILE)
+            .setQueryExecutor(Dispatchers.IO.asExecutor())
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .addMigrations(migration3to5, migration5to6, migration6to7)
             .fallbackToDestructiveMigration()
