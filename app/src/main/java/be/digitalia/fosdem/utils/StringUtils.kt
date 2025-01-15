@@ -46,7 +46,7 @@ fun String.removeDiacritics(): String {
         }
         c
     }
-    return String(result)
+    return result.concatToString()
 }
 
 fun String.remove(remove: Char): String {
@@ -76,7 +76,7 @@ private fun String.replaceNonAlphaGroups(replacement: Char): String {
             replaced = false
         }
     }
-    return String(result, 0, size)
+    return result.concatToString(0, size)
 }
 
 /**
@@ -88,19 +88,20 @@ fun String.trimNonAlpha(): String {
 
 private val Char.isRemovable: Boolean
     get() {
-        return !isLetterOrDigit() && this != '_' && this != '@'
+        return !isLetterOrDigit() && this != '_' && this != '-'
     }
 
 /**
  * Transforms a name to a slug identifier to be used in a FOSDEM URL.
  */
 fun String.toSlug(): String {
-    return remove('.')
+    return remove('\'')
             .removeDiacritics()
             .replace("ß", "ss")
+            .replace('ð', 'd')
             .trimNonAlpha()
             .replaceNonAlphaGroups('_')
-            .lowercase(Locale.US)
+            .lowercase(Locale.ROOT)
 }
 
 fun String.stripHtml(): String {
@@ -128,7 +129,7 @@ fun roomNameToResourceName(roomName: String): String {
             if (lastDigit) {
                 break
             }
-            builder.append(c.lowercase(Locale.US))
+            builder.append(c.lowercase(Locale.ROOT))
         } else if (c.isDigit()) {
             builder.append(c)
             lastDigit = true
