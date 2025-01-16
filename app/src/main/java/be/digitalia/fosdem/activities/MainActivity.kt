@@ -331,10 +331,18 @@ class MainActivity : AppCompatActivity(R.layout.main) {
             selectMenuSection(section, menuItem)
         } else {
             when (menuItemId) {
-                R.id.menu_stands -> launchUrl(FosdemUrls.stands)
+                R.id.menu_stands -> {
+                    lifecycleScope.launch {
+                        val year = scheduleDao.getYear()
+                        val url = if (year != null) FosdemUrls.getStands(year) else FosdemUrls.stands
+                        launchUrl(url)
+                    }
+                }
+
                 R.id.menu_settings -> {
                     startActivity(Intent(this, SettingsActivity::class.java))
                 }
+
                 R.id.menu_volunteer -> launchUrl(FosdemUrls.volunteer)
             }
         }

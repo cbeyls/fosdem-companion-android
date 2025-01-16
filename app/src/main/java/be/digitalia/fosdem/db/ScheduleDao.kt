@@ -436,7 +436,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     abstract fun getPersons(): PagingSource<Int, Person>
 
     suspend fun getEventDetails(event: Event): EventDetails {
-        // Load persons and links in parallel
+        // Load persons, attachments and links in parallel
         return coroutineScope {
             val persons = async { getPersons(event) }
             val attachments = async { getAttachments(event) }

@@ -20,4 +20,8 @@ object FosdemUrls {
     fun getLocalNavigationToLocation(locationSlug: String): String {
         return "https://nav.fosdem.org/d/$locationSlug/"
     }
+
+    fun getStands(year: Int): String {
+        return "https://fosdem.org/$year/stands/"
+    }
 }
