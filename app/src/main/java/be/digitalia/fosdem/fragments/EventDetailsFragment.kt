@@ -105,7 +105,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
             return ShareCompat.IntentBuilder(requireContext())
                 .setSubject("$title ($CONFERENCE_NAME)")
                 .setType("text/plain")
-                .setText("$title $url $CONFERENCE_HASHTAG")
+                .setText("$url $CONFERENCE_HASHTAG")
                 .setChooserTitle(R.string.share)
                 .createChooserIntent()
         }
