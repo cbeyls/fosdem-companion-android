@@ -14,8 +14,8 @@ android {
         applicationId = "be.digitalia.fosdem"
         minSdk = 21
         targetSdk = 34
-        versionCode = 2100227
-        versionName = "2.2.7"
+        versionCode = 2100228
+        versionName = "2.2.8"
         // Supported languages
         resourceConfigurations += "en"
         vectorDrawables {

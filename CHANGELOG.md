@@ -1,6 +1,15 @@
 Change Log
 ==========
 
+## Version 2.2.8
+
+_2025-01-16_
+
+- Fix: some links to speaker info web pages
+- Fix: link to stands web page
+- Enhancement: remove event title from sharing text body
+- Upgrade libraries and small performance improvements.
+
 ## Version 2.2.7
 
 _2024-06-28_
@@ -9,7 +18,7 @@ _2024-06-28_
 - Fix: restored the ability to connect to FOSDEM servers on Android < 7.1 by including a root certificate
 - Fix: proper detection of granting the schedule alarms permission on Android 14+
 - Fix: search menu item always showing in the overflow menu instead of the main toolbar when possible
-- Fix: blinking menu items when swapping between event details.
+- Fix: blinking menu items when swapping between event details
 - Upgrade libraries, Kotlin, Gradle plugin and build tools to their latest versions.
 
 ## Version 2.2.6
