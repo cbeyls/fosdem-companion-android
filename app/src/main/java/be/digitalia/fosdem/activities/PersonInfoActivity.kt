@@ -1,11 +1,11 @@
 package be.digitalia.fosdem.activities
 
 import android.content.ActivityNotFoundException
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.core.net.toUri
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
@@ -60,7 +60,7 @@ class PersonInfoActivity : AppCompatActivity(R.layout.person_info) {
                             .setStartAnimations(context, R.anim.slide_in_right, R.anim.slide_out_left)
                             .setExitAnimations(context, R.anim.slide_in_left, R.anim.slide_out_right)
                             .build()
-                            .launchUrl(context, Uri.parse(url))
+                            .launchUrl(context, url.toUri())
                     } catch (ignore: ActivityNotFoundException) {
                     }
                 }

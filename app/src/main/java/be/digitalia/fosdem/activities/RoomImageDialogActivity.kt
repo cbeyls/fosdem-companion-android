@@ -1,7 +1,6 @@
 package be.digitalia.fosdem.activities
 
 import android.content.ActivityNotFoundException
-import android.net.Uri
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
@@ -11,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.core.text.set
 import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
@@ -80,7 +80,7 @@ class RoomImageDialogActivity : AppCompatActivity(R.layout.dialog_room_image) {
                                         .configureToolbarColors(context, R.color.light_color_primary)
                                         .setShowTitle(true)
                                         .build()
-                                        .launchUrl(context, Uri.parse(localNavigationUrl))
+                                        .launchUrl(context, localNavigationUrl.toUri())
                             } catch (ignore: ActivityNotFoundException) {
                             }
                             true
