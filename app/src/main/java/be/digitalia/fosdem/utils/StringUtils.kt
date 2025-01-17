@@ -98,6 +98,7 @@ fun String.toSlug(): String {
     return remove('\'')
             .removeDiacritics()
             .replace("ß", "ss")
+            .replace('ø', 'o')
             .replace('ð', 'd')
             .trimNonAlpha()
             .replaceNonAlphaGroups('_')
