@@ -116,10 +116,10 @@ class BookmarksExportProvider : ContentProvider() {
                         baseUrl = scheduleDao.baseUrl.first(),
                         dtStamp = LocalDateTime.now(ZoneOffset.UTC).format(UTC_DATE_TIME_FORMAT)
                     )
-                } catch (e: Exception) {
-                    if (e is CancellationException) {
-                        throw e
-                    }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (ignore: Exception) {
+                    // Swallow exception
                 }
             }
             pipe[0]

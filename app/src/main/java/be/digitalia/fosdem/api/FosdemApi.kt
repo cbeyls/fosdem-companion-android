@@ -167,10 +167,9 @@ class FosdemApi @Inject constructor(
                     expirationTime = now + ROOM_STATUS_EXPIRATION_DELAY
                     emit(response.body)
                     ROOM_STATUS_REFRESH_DELAY
-                } catch (e: Exception) {
-                    if (e is CancellationException) {
-                        throw e
-                    }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (ignore: Exception) {
                     now = SystemClock.elapsedRealtime()
 
                     if (now > expirationTime) {

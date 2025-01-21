@@ -32,9 +32,9 @@ import be.digitalia.fosdem.viewmodels.BookmarksViewModel
 import be.digitalia.fosdem.widgets.MultiChoiceHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
-import java.util.concurrent.CancellationException
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -206,10 +206,9 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview) {
                         .putExtra(ExternalBookmarksActivity.EXTRA_BOOKMARK_IDS, bookmarkIds)
                     startActivity(intent)
                 }
-            } catch (e: Exception) {
-                if (e is CancellationException) {
-                    throw e
-                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (ignore: Exception) {
                 withStarted {
                     ImportBookmarksErrorDialogFragment().show(
                         parentFragmentManager,
