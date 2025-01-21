@@ -105,6 +105,17 @@ fun String.toSlug(): String {
             .lowercase(Locale.ROOT)
 }
 
+/**
+ * Generates a slug from a FOSDEM room name.
+ */
+fun String.toRoomSlug(): String {
+    return remove('.')
+        .removeDiacritics()
+        .trimNonAlpha()
+        .replaceNonAlphaGroups('_')
+        .lowercase(Locale.ROOT)
+}
+
 fun String.stripHtml(): String {
     return parseAsHtml(flags = HtmlCompat.FROM_HTML_SEPARATOR_LINE_BREAK_LIST_ITEM).trimEnd().toString()
 }

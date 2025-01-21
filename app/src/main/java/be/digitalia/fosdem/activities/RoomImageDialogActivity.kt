@@ -21,7 +21,7 @@ import be.digitalia.fosdem.utils.configureToolbarColors
 import be.digitalia.fosdem.utils.invertImageColors
 import be.digitalia.fosdem.utils.isLightTheme
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
-import be.digitalia.fosdem.utils.toSlug
+import be.digitalia.fosdem.utils.toRoomSlug
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -74,7 +74,7 @@ class RoomImageDialogActivity : AppCompatActivity(R.layout.dialog_room_image) {
                 toolbar.setOnMenuItemClickListener { item ->
                     when (item.itemId) {
                         R.id.navigation -> {
-                            val localNavigationUrl = FosdemUrls.getLocalNavigationToLocation(roomName.toSlug())
+                            val localNavigationUrl = FosdemUrls.getLocalNavigationToLocation(roomName.toRoomSlug())
                             try {
                                 CustomTabsIntent.Builder()
                                         .configureToolbarColors(context, R.color.light_color_primary)
