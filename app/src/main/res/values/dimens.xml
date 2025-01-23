@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <dimen name="main_menu_header_height">128dp</dimen>
+    <dimen name="main_menu_header_margin_vertical">24dp</dimen>
     <dimen name="main_menu_padding">16dp</dimen>
     <dimen name="main_menu_footer_height">32dp</dimen>
     <dimen name="list_item_padding">8dp</dimen>
