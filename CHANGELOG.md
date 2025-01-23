@@ -1,6 +1,14 @@
 Change Log
 ==========
 
+## Version 2.2.9
+
+_2025-01-23_
+
+- Fix: FOSDEM logo padding and alignment
+- Fix: more links to speaker info web pages
+- Fix: on-site navigation room links (regression introduced in 2.2.8).
+
 ## Version 2.2.8
 
 _2025-01-16_
