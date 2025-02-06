@@ -10,12 +10,15 @@ import be.digitalia.fosdem.db.converters.NullableZoneOffsetTypeConverters
 import java.time.Instant
 import java.time.ZoneOffset
 
-@Entity(tableName = EventEntity.TABLE_NAME, indices = [
-    Index(value = ["day_index"], name = "event_day_index_idx"),
-    Index(value = ["start_time"], name = "event_start_time_idx"),
-    Index(value = ["end_time"], name = "event_end_time_idx"),
-    Index(value = ["track_id"], name = "event_track_id_idx")
-])
+@Entity(
+    tableName = EventEntity.TABLE_NAME,
+    indices = [
+        Index(value = ["day_index"], name = "event_day_index_idx"),
+        Index(value = ["start_time"], name = "event_start_time_idx"),
+        Index(value = ["end_time"], name = "event_end_time_idx"),
+        Index(value = ["track_id"], name = "event_track_id_idx")
+    ]
+)
 class EventEntity(
         @PrimaryKey
         val id: Long,

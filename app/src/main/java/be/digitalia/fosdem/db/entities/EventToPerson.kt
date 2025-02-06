@@ -4,8 +4,13 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 
-@Entity(tableName = EventToPerson.TABLE_NAME, primaryKeys = ["event_id", "person_id"],
-        indices = [Index(value = ["person_id"], name = "event_person_person_id_idx")])
+@Entity(
+    tableName = EventToPerson.TABLE_NAME,
+    primaryKeys = ["event_id", "person_id"],
+    indices = [
+        Index(value = ["person_id"], name = "event_person_person_id_idx")
+    ]
+)
 class EventToPerson(
         @ColumnInfo(name = "event_id")
         val eventId: Long,

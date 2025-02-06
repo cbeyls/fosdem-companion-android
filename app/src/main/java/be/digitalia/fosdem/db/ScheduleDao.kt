@@ -271,126 +271,66 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     /**
      * Returns the event with the specified id, or null if not found.
      */
-    @Query("""SELECT e.id, e.start_time, e.start_time_offset, e.end_time, e.room_name, e.url, et.title, et.subtitle, e.abstract, e.description, e.feedback_url,
-        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
-        e.track_id, t.name AS track_name, t.type AS track_type
-        FROM events e
-        JOIN events_titles et ON e.id = et.`rowid`
-        JOIN days d ON e.day_index = d.`index`
-        JOIN tracks t ON e.track_id = t.id
-        LEFT JOIN events_persons ep ON e.id = ep.event_id
-        LEFT JOIN persons p ON ep.person_id = p.`rowid`
-        WHERE e.id = :id
-        GROUP BY e.id""")
+    @Query("SELECT * FROM events_view WHERE id = :id")
     abstract suspend fun getEvent(id: Long): Event?
 
     /**
      * Returns all found events whose id is part of the given list.
      */
-    @Query("""SELECT e.id, e.start_time, e.start_time_offset, e.end_time, e.room_name, e.url, et.title, et.subtitle, e.abstract, e.description, e.feedback_url,
-        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
-        e.track_id, t.name AS track_name, t.type AS track_type, b.event_id IS NOT NULL AS is_bookmarked
-        FROM events e
-        JOIN events_titles et ON e.id = et.`rowid`
-        JOIN days d ON e.day_index = d.`index`
-        JOIN tracks t ON e.track_id = t.id
-        LEFT JOIN events_persons ep ON e.id = ep.event_id
-        LEFT JOIN persons p ON ep.person_id = p.`rowid`
-        LEFT JOIN bookmarks b ON e.id = b.event_id
-        WHERE e.id IN (:ids)
-        GROUP BY e.id
-        ORDER BY e.start_time ASC""")
+    @Query("""SELECT ev.*, b.event_id IS NOT NULL AS is_bookmarked
+        FROM events_view ev
+        LEFT JOIN bookmarks b ON ev.id = b.event_id
+        WHERE ev.id IN (:ids)
+        ORDER BY ev.start_time ASC""")
     abstract fun getEvents(ids: LongArray): PagingSource<Int, StatusEvent>
 
     /**
      * Returns the events for a specified track, including their bookmark status.
      */
-    @Query("""SELECT e.id, e.start_time, e.start_time_offset, e.end_time, e.room_name, e.url, et.title, et.subtitle, e.abstract, e.description, e.feedback_url,
-        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
-        e.track_id, t.name AS track_name, t.type AS track_type, b.event_id IS NOT NULL AS is_bookmarked
-        FROM events e
-        JOIN events_titles et ON e.id = et.`rowid`
-        JOIN days d ON e.day_index = d.`index`
-        JOIN tracks t ON e.track_id = t.id
-        LEFT JOIN events_persons ep ON e.id = ep.event_id
-        LEFT JOIN persons p ON ep.person_id = p.`rowid`
-        LEFT JOIN bookmarks b ON e.id = b.event_id
-        WHERE e.day_index = :day AND e.track_id = :track
-        GROUP BY e.id
-        ORDER BY e.start_time ASC""")
+    @Query("""SELECT ev.*, b.event_id IS NOT NULL AS is_bookmarked
+        FROM events_view ev
+        LEFT JOIN bookmarks b ON ev.id = b.event_id
+        WHERE ev.day_index = :day AND ev.track_id = :track
+        ORDER BY ev.start_time ASC""")
     abstract suspend fun getEvents(day: Day, track: Track): List<StatusEvent>
 
     /**
      * Returns the events for a specified track, without their bookmark status.
      */
-    @Query("""SELECT e.id, e.start_time, e.start_time_offset, e.end_time, e.room_name, e.url, et.title, et.subtitle, e.abstract, e.description, e.feedback_url,
-        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
-        e.track_id, t.name AS track_name, t.type AS track_type
-        FROM events e
-        JOIN events_titles et ON e.id = et.`rowid`
-        JOIN days d ON e.day_index = d.`index`
-        JOIN tracks t ON e.track_id = t.id
-        LEFT JOIN events_persons ep ON e.id = ep.event_id
-        LEFT JOIN persons p ON ep.person_id = p.`rowid`
-        WHERE e.day_index = :day AND e.track_id = :track
-        GROUP BY e.id
-        ORDER BY e.start_time ASC""")
+    @Query("SELECT * FROM events_view WHERE day_index = :day AND track_id = :track ORDER BY start_time ASC")
     abstract suspend fun getEventsWithoutBookmarkStatus(day: Day, track: Track): List<Event>
 
     /**
      * Returns events starting in the specified interval, ordered by ascending start time.
      */
-    @Query("""SELECT e.id, e.start_time, e.start_time_offset, e.end_time, e.room_name, e.url, et.title, et.subtitle, e.abstract, e.description, e.feedback_url,
-        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
-        e.track_id, t.name AS track_name, t.type AS track_type, b.event_id IS NOT NULL AS is_bookmarked
-        FROM events e
-        JOIN events_titles et ON e.id = et.`rowid`
-        JOIN days d ON e.day_index = d.`index`
-        JOIN tracks t ON e.track_id = t.id
-        LEFT JOIN events_persons ep ON e.id = ep.event_id
-        LEFT JOIN persons p ON ep.person_id = p.`rowid`
-        LEFT JOIN bookmarks b ON e.id = b.event_id
-        WHERE e.start_time BETWEEN :minStartTime AND :maxStartTime
-        GROUP BY e.id
-        ORDER BY e.start_time ASC""")
+    @Query("""SELECT ev.*, b.event_id IS NOT NULL AS is_bookmarked
+        FROM events_view ev
+        LEFT JOIN bookmarks b ON ev.id = b.event_id
+        WHERE ev.start_time BETWEEN :minStartTime AND :maxStartTime
+        ORDER BY ev.start_time ASC""")
     @TypeConverters(NonNullInstantTypeConverters::class)
     abstract fun getEventsWithStartTime(minStartTime: Instant, maxStartTime: Instant): PagingSource<Int, StatusEvent>
 
     /**
      * Returns events in progress at the specified time, ordered by descending start time.
      */
-    @Query("""SELECT e.id, e.start_time, e.start_time_offset, e.end_time, e.room_name, e.url, et.title, et.subtitle, e.abstract, e.description, e.feedback_url,
-        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
-        e.track_id, t.name AS track_name, t.type AS track_type, b.event_id IS NOT NULL AS is_bookmarked
-        FROM events e
-        JOIN events_titles et ON e.id = et.`rowid`
-        JOIN days d ON e.day_index = d.`index`
-        JOIN tracks t ON e.track_id = t.id
-        LEFT JOIN events_persons ep ON e.id = ep.event_id
-        LEFT JOIN persons p ON ep.person_id = p.`rowid`
-        LEFT JOIN bookmarks b ON e.id = b.event_id
-        WHERE e.start_time <= :time AND :time < e.end_time
-        GROUP BY e.id
-        ORDER BY e.start_time DESC""")
+    @Query("""SELECT ev.*, b.event_id IS NOT NULL AS is_bookmarked
+        FROM events_view ev
+        LEFT JOIN bookmarks b ON ev.id = b.event_id
+        WHERE ev.start_time <= :time AND :time < ev.end_time
+        ORDER BY ev.start_time DESC""")
     @TypeConverters(NonNullInstantTypeConverters::class)
     abstract fun getEventsInProgress(time: Instant): PagingSource<Int, StatusEvent>
 
     /**
      * Returns the events presented by the specified person.
      */
-    @Query("""SELECT e.id , e.start_time, e.start_time_offset, e.end_time, e.room_name, e.url, et.title, et.subtitle, e.abstract, e.description, e.feedback_url,
-        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
-        e.track_id, t.name AS track_name, t.type AS track_type, b.event_id IS NOT NULL AS is_bookmarked
-        FROM events e JOIN events_titles et ON e.id = et.`rowid`
-        JOIN days d ON e.day_index = d.`index`
-        JOIN tracks t ON e.track_id = t.id
-        LEFT JOIN events_persons ep ON e.id = ep.event_id
-        LEFT JOIN persons p ON ep.person_id = p.`rowid`
-        LEFT JOIN bookmarks b ON e.id = b.event_id
-        JOIN events_persons ep2 ON e.id = ep2.event_id
+    @Query("""SELECT ev.*, b.event_id IS NOT NULL AS is_bookmarked
+        FROM events_view ev
+        LEFT JOIN bookmarks b ON ev.id = b.event_id
+        JOIN events_persons ep2 ON ev.id = ep2.event_id
         WHERE ep2.person_id = :person
-        GROUP BY e.id
-        ORDER BY e.start_time ASC""")
+        ORDER BY ev.start_time ASC""")
     abstract fun getEvents(person: Person): PagingSource<Int, StatusEvent>
 
     /**
@@ -398,17 +338,10 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
      * We need to use an union of 3 sub-queries because a "match" condition can not be
      * accompanied by other conditions in a "where" statement.
      */
-    @Query("""SELECT e.id, e.start_time, e.start_time_offset, e.end_time, e.room_name, e.url, et.title, et.subtitle, e.abstract, e.description, e.feedback_url,
-        GROUP_CONCAT(p.name, ', ') AS persons, e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
-        e.track_id, t.name AS track_name, t.type AS track_type, b.event_id IS NOT NULL AS is_bookmarked
-        FROM events e
-        JOIN events_titles et ON e.id = et.`rowid`
-        JOIN days d ON e.day_index = d.`index`
-        JOIN tracks t ON e.track_id = t.id
-        LEFT JOIN events_persons ep ON e.id = ep.event_id
-        LEFT JOIN persons p ON ep.person_id = p.`rowid`
-        LEFT JOIN bookmarks b ON e.id = b.event_id
-        WHERE e.id IN (
+    @Query("""SELECT ev.*, b.event_id IS NOT NULL AS is_bookmarked
+        FROM events_view ev
+        LEFT JOIN bookmarks b ON ev.id = b.event_id
+        WHERE ev.id IN (
             SELECT `rowid`
             FROM events_titles
             WHERE events_titles MATCH :query || '*'
@@ -423,8 +356,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
             JOIN persons p ON ep.person_id = p.`rowid`
             WHERE p.name MATCH :query || '*'
         )
-        GROUP BY e.id
-        ORDER BY e.start_time ASC""")
+        ORDER BY ev.start_time ASC""")
     abstract fun getSearchResults(query: String): PagingSource<Int, StatusEvent>
 
     /**

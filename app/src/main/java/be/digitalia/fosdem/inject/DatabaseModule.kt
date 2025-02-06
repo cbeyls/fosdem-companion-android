@@ -92,13 +92,28 @@ object DatabaseModule {
                 dataStore.edit { it.clear() }
             }
         }
+        val migration7to8 = Migration(7, 8) { db ->
+            db.execSQL(
+                """CREATE VIEW `events_view` AS SELECT e.id, e.start_time, e.start_time_offset, e.end_time, e.room_name, e.url,
+        et.title, et.subtitle, e.abstract, e.description, e.feedback_url, GROUP_CONCAT(p.name, ', ') AS persons,
+        e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
+        e.track_id, t.name AS track_name, t.type AS track_type
+        FROM events e
+        JOIN events_titles et ON e.id = et.`rowid`
+        JOIN days d ON e.day_index = d.`index`
+        JOIN tracks t ON e.track_id = t.id
+        LEFT JOIN events_persons ep ON e.id = ep.event_id
+        LEFT JOIN persons p ON ep.person_id = p.`rowid`
+        GROUP BY e.id"""
+            )
+        }
 
         val onDatabaseOpen = CompletableDeferred<Unit>()
 
         return Room.databaseBuilder(context, AppDatabase::class.java, DB_FILE)
             .setQueryExecutor(Dispatchers.IO.asExecutor())
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-            .addMigrations(migration3to5, migration5to6, migration6to7)
+            .addMigrations(migration3to5, migration5to6, migration6to7, migration7to8)
             .fallbackToDestructiveMigration()
             .addCallback(object : RoomDatabase.Callback() {
                 override fun onOpen(db: SupportSQLiteDatabase) {

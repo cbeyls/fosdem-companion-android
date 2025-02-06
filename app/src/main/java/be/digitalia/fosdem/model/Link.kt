@@ -6,7 +6,12 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 
-@Entity(tableName = "links", indices = [Index(value = ["event_id"], name = "link_event_id_idx")])
+@Entity(
+    tableName = "links",
+    indices = [
+        Index(value = ["event_id"], name = "link_event_id_idx")
+    ]
+)
 @Parcelize
 data class Link(
         @PrimaryKey(autoGenerate = true)
