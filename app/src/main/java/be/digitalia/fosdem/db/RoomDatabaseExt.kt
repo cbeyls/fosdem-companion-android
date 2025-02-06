@@ -3,18 +3,23 @@ package be.digitalia.fosdem.db
 import androidx.room.RoomDatabase
 import androidx.room.invalidationTrackerFlow
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.shareIn
 
-fun RoomDatabase.createVersionFlow(scope: CoroutineScope, vararg tables: String): StateFlow<Int> {
-    val versionFlow = MutableStateFlow(0)
-    scope.launch {
-        invalidationTrackerFlow(tables = tables, emitInitialState = false).collect {
-            versionFlow.update { it + 1 }
+fun RoomDatabase.createVersionFlow(scope: CoroutineScope, vararg tables: String): Flow<Int> {
+    return flow {
+        var version = 0
+        invalidationTrackerFlow(*tables).collect {
+            emit(version++)
         }
     }
-    return versionFlow.asStateFlow()
+        .conflate()
+        .shareIn(
+            scope = scope,
+            started = SharingStarted.Eagerly,
+            replay = 1,
+        )
 }
