@@ -17,7 +17,7 @@ android {
         versionCode = 2100229
         versionName = "2.2.9"
         // Supported languages
-        resourceConfigurations += "en"
+        androidResources.localeFilters += "en"
         vectorDrawables {
             useSupportLibrary = true
         }
