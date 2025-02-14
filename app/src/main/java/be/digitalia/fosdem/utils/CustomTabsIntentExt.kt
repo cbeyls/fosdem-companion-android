@@ -7,16 +7,21 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
+import com.google.android.material.R as MaterialR
 
 @SuppressLint("PrivateResource")
-fun CustomTabsIntent.Builder.configureToolbarColors(context: Context,
-                                                    @ColorRes toolbarColorResId: Int): CustomTabsIntent.Builder {
+fun CustomTabsIntent.Builder.configureColorSchemes(
+    context: Context,
+    @ColorRes toolbarColorResId: Int
+): CustomTabsIntent.Builder {
     val defaultColorSchemeParams = CustomTabColorSchemeParams.Builder()
-            .setToolbarColor(ContextCompat.getColor(context, toolbarColorResId))
-            .build()
+        .setToolbarColor(ContextCompat.getColor(context, toolbarColorResId))
+        .setNavigationBarColor(ContextCompat.getColor(context, MaterialR.color.design_default_color_background))
+        .build()
     val darkColorSchemeParams = CustomTabColorSchemeParams.Builder()
-            .setToolbarColor(ContextCompat.getColor(context, com.google.android.material.R.color.design_dark_default_color_surface))
-            .build()
+        .setToolbarColor(ContextCompat.getColor(context, MaterialR.color.design_dark_default_color_surface))
+        .setNavigationBarColor(ContextCompat.getColor(context, MaterialR.color.design_dark_default_color_background))
+        .build()
 
     // Request the browser tab to follow the app theme setting
     val colorScheme = when (AppCompatDelegate.getDefaultNightMode()) {
@@ -26,6 +31,6 @@ fun CustomTabsIntent.Builder.configureToolbarColors(context: Context,
     }
 
     return setDefaultColorSchemeParams(defaultColorSchemeParams)
-            .setColorSchemeParams(CustomTabsIntent.COLOR_SCHEME_DARK, darkColorSchemeParams)
-            .setColorScheme(colorScheme)
+        .setColorSchemeParams(CustomTabsIntent.COLOR_SCHEME_DARK, darkColorSchemeParams)
+        .setColorScheme(colorScheme)
 }

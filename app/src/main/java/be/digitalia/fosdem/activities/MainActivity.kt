@@ -37,7 +37,7 @@ import be.digitalia.fosdem.fragments.TracksFragment
 import be.digitalia.fosdem.model.DownloadScheduleResult
 import be.digitalia.fosdem.model.LoadingState
 import be.digitalia.fosdem.utils.awaitCloseDrawer
-import be.digitalia.fosdem.utils.configureToolbarColors
+import be.digitalia.fosdem.utils.configureColorSchemes
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.utils.toLocalDateTime
 import com.google.android.material.navigation.NavigationView
@@ -53,6 +53,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Named
+import com.google.android.material.R as MaterialR
 
 /**
  * Main entry point of the application. Allows to switch between section fragments and update the database.
@@ -233,7 +234,7 @@ class MainActivity : AppCompatActivity(R.layout.main) {
     private fun updateActionBar(section: Section, menuItem: MenuItem) {
         title = menuItem.title
         ViewCompat.setTranslationZ(holder.contentView,
-                if (section.extendsAppBar) resources.getDimension(com.google.android.material.R.dimen.design_appbar_elevation) else 0f)
+                if (section.extendsAppBar) resources.getDimension(MaterialR.dimen.design_appbar_elevation) else 0f)
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
@@ -316,7 +317,7 @@ class MainActivity : AppCompatActivity(R.layout.main) {
     private fun launchUrl(url: String) {
         try {
             CustomTabsIntent.Builder()
-                .configureToolbarColors(this, R.color.light_color_primary)
+                .configureColorSchemes(this, R.color.light_color_primary)
                 .setShowTitle(true)
                 .build()
                 .launchUrl(this, url.toUri())

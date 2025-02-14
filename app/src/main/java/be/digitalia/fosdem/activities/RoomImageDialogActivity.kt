@@ -17,7 +17,7 @@ import androidx.lifecycle.LifecycleOwner
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.api.FosdemUrls
-import be.digitalia.fosdem.utils.configureToolbarColors
+import be.digitalia.fosdem.utils.configureColorSchemes
 import be.digitalia.fosdem.utils.invertImageColors
 import be.digitalia.fosdem.utils.isLightTheme
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
@@ -77,7 +77,7 @@ class RoomImageDialogActivity : AppCompatActivity(R.layout.dialog_room_image) {
                             val localNavigationUrl = FosdemUrls.getLocalNavigationToLocation(roomName.toRoomSlug())
                             try {
                                 CustomTabsIntent.Builder()
-                                        .configureToolbarColors(context, R.color.light_color_primary)
+                                        .configureColorSchemes(context, R.color.light_color_primary)
                                         .setShowTitle(true)
                                         .build()
                                         .launchUrl(context, localNavigationUrl.toUri())

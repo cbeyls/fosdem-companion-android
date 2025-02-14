@@ -47,7 +47,7 @@ import be.digitalia.fosdem.model.RoomStatus
 import be.digitalia.fosdem.settings.UserSettingsProvider
 import be.digitalia.fosdem.utils.ClickableArrowKeyMovementMethod
 import be.digitalia.fosdem.utils.DateUtils
-import be.digitalia.fosdem.utils.configureToolbarColors
+import be.digitalia.fosdem.utils.configureColorSchemes
 import be.digitalia.fosdem.utils.getParcelableCompat
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.utils.parseHtml
@@ -397,7 +397,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
         private fun openEventUrl(context: Context, event: Event, url: String) {
             try {
                 CustomTabsIntent.Builder()
-                    .configureToolbarColors(context, event.track.type.appBarColorResId)
+                    .configureColorSchemes(context, event.track.type.appBarColorResId)
                     .setShowTitle(true)
                     .setStartAnimations(context, R.anim.slide_in_right, R.anim.slide_out_left)
                     .setExitAnimations(context, R.anim.slide_in_left, R.anim.slide_out_right)

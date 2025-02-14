@@ -14,7 +14,7 @@ import be.digitalia.fosdem.R
 import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.fragments.PersonInfoListFragment
 import be.digitalia.fosdem.model.Person
-import be.digitalia.fosdem.utils.configureToolbarColors
+import be.digitalia.fosdem.utils.configureColorSchemes
 import be.digitalia.fosdem.utils.getParcelableExtraCompat
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
@@ -56,7 +56,7 @@ class PersonInfoActivity : AppCompatActivity(R.layout.person_info) {
                 withStarted {
                     try {
                         CustomTabsIntent.Builder()
-                            .configureToolbarColors(context, R.color.light_color_primary)
+                            .configureColorSchemes(context, R.color.light_color_primary)
                             .setStartAnimations(context, R.anim.slide_in_right, R.anim.slide_out_left)
                             .setExitAnimations(context, R.anim.slide_in_left, R.anim.slide_out_right)
                             .build()

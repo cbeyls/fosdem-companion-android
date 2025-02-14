@@ -14,7 +14,7 @@ import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.api.FosdemUrls
-import be.digitalia.fosdem.utils.configureToolbarColors
+import be.digitalia.fosdem.utils.configureColorSchemes
 import be.digitalia.fosdem.utils.invertImageColors
 import be.digitalia.fosdem.utils.isLightTheme
 
@@ -63,7 +63,7 @@ class MapFragment : Fragment(R.layout.fragment_map) {
         try {
             val context = requireContext()
             CustomTabsIntent.Builder()
-                    .configureToolbarColors(context, R.color.light_color_primary)
+                    .configureColorSchemes(context, R.color.light_color_primary)
                     .setShowTitle(true)
                     .build()
                     .launchUrl(context, FosdemUrls.localNavigation.toUri())
