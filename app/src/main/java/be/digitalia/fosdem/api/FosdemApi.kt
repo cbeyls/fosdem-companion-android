@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okio.buffer
 import javax.inject.Inject
 import javax.inject.Provider
@@ -81,7 +82,7 @@ class FosdemApi @Inject constructor(
             when (response) {
                 is HttpClient.Response.NotModified -> DownloadScheduleResult.UpToDate    // Nothing parsed, the result is up-to-date
                 is HttpClient.Response.Success -> {
-                    val result = with (Dispatchers.IO) {
+                    val result = withContext(Dispatchers.IO) {
                         val httpResponse = response.body
                         val length = httpResponse.contentLength
                         val source = if (length > 0L) {
