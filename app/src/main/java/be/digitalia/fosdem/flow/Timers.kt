@@ -1,6 +1,5 @@
 package be.digitalia.fosdem.flow
 
-import be.digitalia.fosdem.utils.ElapsedRealTimeSource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,7 +22,7 @@ fun tickerFlow(period: Duration): Flow<Unit> = flow {
  */
 fun SharedFlowContext.synchronizedTickerFlow(
     period: Duration,
-    timeSource: TimeSource = ElapsedRealTimeSource
+    timeSource: TimeSource
 ): Flow<Unit> {
     return flow {
         var nextEmissionTimeMark: TimeMark? = null

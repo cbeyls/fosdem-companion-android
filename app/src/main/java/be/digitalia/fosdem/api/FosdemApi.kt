@@ -1,6 +1,5 @@
 package be.digitalia.fosdem.api
 
-import android.os.SystemClock
 import androidx.annotation.MainThread
 import be.digitalia.fosdem.alarms.AppAlarmManager
 import be.digitalia.fosdem.api.network.HttpClient
@@ -32,11 +31,15 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okio.buffer
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
 import kotlin.math.pow
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeMark
+import kotlin.time.TimeSource
 
 /**
  * Main API entry point.
@@ -48,7 +51,8 @@ class FosdemApi @Inject constructor(
     private val httpClient: HttpClient,
     private val scheduleParserProvider: Provider<ScheduleParser>,
     private val scheduleDao: ScheduleDao,
-    private val alarmManager: AppAlarmManager
+    private val alarmManager: AppAlarmManager,
+    private val timeSource: TimeSource
 ) {
     private var downloadJob: Job? = null
     private val _downloadScheduleState =
@@ -146,15 +150,14 @@ class FosdemApi @Inject constructor(
      * Builds a stateful cold Flow which loads and refreshes the Room statuses during the event.
      */
     private fun buildLiveRoomStatusesFlow(): Flow<Map<String, RoomStatus>> {
-        var nextRefreshTime = 0L
-        var expirationTime = Long.MAX_VALUE
+        var nextRefreshTime: TimeMark? = null
+        var expirationTime: TimeMark? = null
         var retryAttempt = 0
 
         return flow {
-            var now = SystemClock.elapsedRealtime()
-            var nextRefreshDelay = nextRefreshTime - now
+            var nextRefreshDelay = nextRefreshTime?.let { -it.elapsedNow() } ?: Duration.ZERO
 
-            if (now > expirationTime) {
+            if (expirationTime?.hasPassedNow() == true) {
                 // When the data expires, replace it with an empty value
                 emit(emptyMap())
             }
@@ -162,13 +165,14 @@ class FosdemApi @Inject constructor(
             while (true) {
                 delay(nextRefreshDelay)
 
+                var now: TimeMark
                 nextRefreshDelay = try {
                     val response = httpClient.get(FosdemUrls.rooms) { httpResponse ->
                         httpResponse.body.use {
                             RoomStatusesParser().parse(it)
                         }
                     }
-                    now = SystemClock.elapsedRealtime()
+                    now = timeSource.markNow()
 
                     retryAttempt = 0
                     expirationTime = now + ROOM_STATUS_EXPIRATION_DELAY
@@ -177,16 +181,19 @@ class FosdemApi @Inject constructor(
                 } catch (e: CancellationException) {
                     throw e
                 } catch (_: Exception) {
-                    now = SystemClock.elapsedRealtime()
+                    now = timeSource.markNow()
 
-                    if (now > expirationTime) {
+                    if (expirationTime?.hasPassedNow() == true) {
                         emit(emptyMap())
                     }
 
                     // Use exponential backoff for retries
-                    val multiplier = 2.0.pow(retryAttempt).toLong()
+                    val multiplier = 2.0.pow(retryAttempt)
                     retryAttempt++
-                    (ROOM_STATUS_FIRST_RETRY_DELAY * multiplier).coerceAtMost(ROOM_STATUS_REFRESH_DELAY)
+                    (ROOM_STATUS_FIRST_RETRY_DELAY * multiplier).let {
+                        // Avoid using use minOf() or coerceAtMost() which cause boxing of value class Duration
+                        if (it > ROOM_STATUS_REFRESH_DELAY) ROOM_STATUS_REFRESH_DELAY else it
+                    }
                 }
 
                 nextRefreshTime = now + nextRefreshDelay
@@ -195,8 +202,8 @@ class FosdemApi @Inject constructor(
     }
 
     companion object {
-        private val ROOM_STATUS_REFRESH_DELAY = TimeUnit.SECONDS.toMillis(90L)
-        private val ROOM_STATUS_FIRST_RETRY_DELAY = TimeUnit.SECONDS.toMillis(30L)
-        private val ROOM_STATUS_EXPIRATION_DELAY = TimeUnit.MINUTES.toMillis(6L)
+        private val ROOM_STATUS_REFRESH_DELAY = 90.seconds
+        private val ROOM_STATUS_FIRST_RETRY_DELAY = 30.seconds
+        private val ROOM_STATUS_EXPIRATION_DELAY = 6.minutes
     }
 }
