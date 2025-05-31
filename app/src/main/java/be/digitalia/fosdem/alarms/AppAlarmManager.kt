@@ -84,7 +84,7 @@ class AppAlarmManager @Inject constructor(
         }
         BackgroundWorkScope.launch {
             // Skip initial values and only act on changes
-            userSettingsProvider.notificationsDelayInMillis.drop(1).collect {
+            userSettingsProvider.notificationsDelay.drop(1).collect {
                 if (isNotificationsEnabled()) {
                     updateAlarms()
                 }
@@ -118,7 +118,7 @@ class AppAlarmManager @Inject constructor(
         if (alarmInfos.isEmpty() || !isNotificationsEnabled()) return
 
         queueMutex.withLock {
-            val delay = userSettingsProvider.notificationsDelayInMillis.first()
+            val delay = userSettingsProvider.notificationsDelay.first()
             val now = System.currentTimeMillis()
             var isFirstAlarm = true
             for ((eventId, startTime) in alarmInfos) {
@@ -133,7 +133,7 @@ class AppAlarmManager @Inject constructor(
                     }
                     AlarmManagerCompat.setExactAndAllowWhileIdle(
                         alarmManager, AlarmManager.RTC_WAKEUP,
-                        startTime.toEpochMilli() - delay, getAlarmPendingIntent(eventId)
+                        (startTime - delay).toEpochMilli(), getAlarmPendingIntent(eventId)
                     )
                 }
             }
@@ -162,13 +162,13 @@ class AppAlarmManager @Inject constructor(
     private suspend fun updateAlarms() {
         queueMutex.withLock {
             // Create/update all alarms
-            val delay = userSettingsProvider.notificationsDelayInMillis.first()
+            val delay = userSettingsProvider.notificationsDelay.first()
             val now = System.currentTimeMillis()
             var hasAlarms = false
             for (info in bookmarksDao.getBookmarksAlarmInfo(Instant.EPOCH)) {
                 val startTime = info.startTime
                 val notificationTime =
-                    if (startTime == null) -1L else startTime.toEpochMilli() - delay
+                    if (startTime == null) -1L else (startTime - delay).toEpochMilli()
                 val pi = getAlarmPendingIntent(info.eventId)
                 if (notificationTime < now) {
                     // Cancel pending alarms that are now scheduled in the past, if any
