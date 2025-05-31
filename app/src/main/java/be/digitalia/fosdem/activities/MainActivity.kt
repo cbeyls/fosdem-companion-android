@@ -321,7 +321,7 @@ class MainActivity : AppCompatActivity(R.layout.main) {
                 .setShowTitle(true)
                 .build()
                 .launchUrl(this, url.toUri())
-        } catch (ignore: ActivityNotFoundException) {
+        } catch (_: ActivityNotFoundException) {
         }
     }
 

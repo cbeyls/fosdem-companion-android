@@ -296,7 +296,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
 
         try {
             startActivity(intent)
-        } catch (e: ActivityNotFoundException) {
+        } catch (_: ActivityNotFoundException) {
             Snackbar.make(requireView(), R.string.calendar_not_found, Snackbar.LENGTH_LONG).show()
         }
     }
@@ -403,7 +403,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
                     .setExitAnimations(context, R.anim.slide_in_left, R.anim.slide_out_right)
                     .build()
                     .launchUrl(context, url.toUri())
-            } catch (ignore: ActivityNotFoundException) {
+            } catch (_: ActivityNotFoundException) {
             }
         }
     }

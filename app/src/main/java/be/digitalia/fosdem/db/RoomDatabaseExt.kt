@@ -1,7 +1,6 @@
 package be.digitalia.fosdem.db
 
 import androidx.room.RoomDatabase
-import androidx.room.invalidationTrackerFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -12,7 +11,7 @@ import kotlinx.coroutines.flow.shareIn
 fun RoomDatabase.createVersionFlow(scope: CoroutineScope, vararg tables: String): Flow<Int> {
     return flow {
         var version = 0
-        invalidationTrackerFlow(*tables).collect {
+        invalidationTracker.createFlow(*tables).collect {
             emit(version++)
         }
     }

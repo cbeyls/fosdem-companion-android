@@ -208,7 +208,7 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview) {
                 }
             } catch (e: CancellationException) {
                 throw e
-            } catch (ignore: Exception) {
+            } catch (_: Exception) {
                 withStarted {
                     ImportBookmarksErrorDialogFragment().show(
                         parentFragmentManager,

@@ -55,7 +55,7 @@ class MapFragment : Fragment(R.layout.fragment_map) {
 
         try {
             startActivity(intent)
-        } catch (ignore: ActivityNotFoundException) {
+        } catch (_: ActivityNotFoundException) {
         }
     }
 
@@ -67,7 +67,7 @@ class MapFragment : Fragment(R.layout.fragment_map) {
                     .setShowTitle(true)
                     .build()
                     .launchUrl(context, FosdemUrls.localNavigation.toUri())
-        } catch (ignore: ActivityNotFoundException) {
+        } catch (_: ActivityNotFoundException) {
         }
     }
 

@@ -118,12 +118,12 @@ class BookmarksExportProvider : ContentProvider() {
                     )
                 } catch (e: CancellationException) {
                     throw e
-                } catch (ignore: Exception) {
+                } catch (_: Exception) {
                     // Swallow exception
                 }
             }
             pipe[0]
-        } catch (e: IOException) {
+        } catch (_: IOException) {
             throw FileNotFoundException("Could not open pipe")
         }
     }
