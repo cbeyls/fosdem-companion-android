@@ -192,7 +192,7 @@ class FosdemApi @Inject constructor(
                     val multiplier = 2.0.pow(retryAttempt)
                     retryAttempt++
                     (ROOM_STATUS_FIRST_RETRY_DELAY * multiplier).let {
-                        // Avoid using use minOf() or coerceAtMost() which cause boxing of value class Duration
+                        // Avoid using minOf() or coerceAtMost() which cause boxing of inline class Duration
                         if (it > ROOM_STATUS_REFRESH_DELAY) ROOM_STATUS_REFRESH_DELAY else it
                     }
                 }

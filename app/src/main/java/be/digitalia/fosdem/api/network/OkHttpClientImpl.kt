@@ -7,7 +7,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
-import okhttp3.internal.closeQuietly
 import okio.BufferedSource
 import java.io.IOException
 import java.net.HttpURLConnection
@@ -43,7 +42,7 @@ class OkHttpClientImpl @Inject constructor(
                     // This block is invoked on OkHttp's network thread
                     val body = response.body
                     if (!response.isSuccessful) {
-                        body?.closeQuietly()
+                        body?.close()
                         if (lastModified != null && response.code == HttpURLConnection.HTTP_NOT_MODIFIED) {
                             // Cached result is still valid; return an empty response
                             continuation.resume(Response.NotModified)
