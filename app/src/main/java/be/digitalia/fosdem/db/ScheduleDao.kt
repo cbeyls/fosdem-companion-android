@@ -1,6 +1,5 @@
 package be.digitalia.fosdem.db
 
-import androidx.annotation.WorkerThread
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -11,7 +10,9 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.TypeConverters
-import androidx.room.invalidationTrackerFlow
+import androidx.room.execSQL
+import androidx.room.immediateTransaction
+import androidx.room.useWriterConnection
 import be.digitalia.fosdem.db.converters.NonNullInstantTypeConverters
 import be.digitalia.fosdem.db.entities.EventEntity
 import be.digitalia.fosdem.db.entities.EventTitles
@@ -37,7 +38,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.runBlocking
 import java.time.Instant
 
 @Dao
@@ -92,25 +92,22 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
      * @param schedule The schedule data, including the events stream.
      * @return The number of events processed.
      */
-    @WorkerThread
-    fun storeSchedule(schedule: Schedule, lastModifiedTag: String?): Int {
+    suspend fun storeSchedule(schedule: Schedule, lastModifiedTag: String?): Int {
         val totalEvents = try {
             storeScheduleInternal(schedule.events, lastModifiedTag)
-        } catch (ese: EmptyScheduleException) {
+        } catch (_: EmptyScheduleException) {
             0
         }
         if (totalEvents > 0) { // Set last update time and server's last modified tag
             val now = Instant.now()
-            runBlocking {
-                appDatabase.dataStore.edit { prefs ->
-                    prefs.clear()
-                    prefs[CONFERENCE_ID_PREF_KEY] = schedule.conferenceId
-                    prefs[CONFERENCE_TITLE_PREF_KEY] = schedule.conferenceTitle
-                    prefs[BASE_URL_PREF_KEY] = schedule.baseUrl
-                    prefs[LATEST_UPDATE_TIME_PREF_KEY] = now.toEpochMilli()
-                    if (lastModifiedTag != null) {
-                        prefs[LAST_MODIFIED_TAG_PREF_KEY] = lastModifiedTag
-                    }
+            appDatabase.dataStore.edit { prefs ->
+                prefs.clear()
+                prefs[CONFERENCE_ID_PREF_KEY] = schedule.conferenceId
+                prefs[CONFERENCE_TITLE_PREF_KEY] = schedule.conferenceTitle
+                prefs[BASE_URL_PREF_KEY] = schedule.baseUrl
+                prefs[LATEST_UPDATE_TIME_PREF_KEY] = now.toEpochMilli()
+                if (lastModifiedTag != null) {
+                    prefs[LAST_MODIFIED_TAG_PREF_KEY] = lastModifiedTag
                 }
             }
         }
@@ -118,7 +115,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     }
 
     @Transaction
-    protected open fun storeScheduleInternal(events: Sequence<DetailedEvent>, lastModifiedTag: String?): Int {
+    protected open suspend fun storeScheduleInternal(events: Sequence<DetailedEvent>, lastModifiedTag: String?): Int {
         // 1: Delete the previous schedule
         clearSchedule()
 
@@ -170,7 +167,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
                     subTitle = event.subTitle
                 )
                 insertEvent(eventEntity, eventTitles)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // Duplicate event: skip
                 continue
             }
@@ -205,47 +202,47 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     }
 
     @Insert
-    protected abstract fun insertTrack(track: Track)
+    protected abstract suspend fun insertTrack(track: Track)
 
     @Insert
-    protected abstract fun insertEvent(eventEntity: EventEntity, eventTitles: EventTitles)
+    protected abstract suspend fun insertEvent(eventEntity: EventEntity, eventTitles: EventTitles)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    protected abstract fun insertPersons(persons: List<Person>)
+    protected abstract suspend fun insertPersons(persons: List<Person>)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    protected abstract fun insertEventsToPersons(eventsToPersons: List<EventToPerson>)
+    protected abstract suspend fun insertEventsToPersons(eventsToPersons: List<EventToPerson>)
 
     @Insert
-    protected abstract fun insertAttachments(attachments: List<Attachment>)
+    protected abstract suspend fun insertAttachments(attachments: List<Attachment>)
 
     @Insert
-    protected abstract fun insertLinks(links: List<Link>)
+    protected abstract suspend fun insertLinks(links: List<Link>)
 
     @Insert
-    protected abstract fun insertDays(days: Collection<Day>)
+    protected abstract suspend fun insertDays(days: Collection<Day>)
 
     @Query("DELETE FROM bookmarks WHERE event_id < :minEventId")
-    protected abstract fun purgeOutdatedBookmarks(minEventId: Long)
+    protected abstract suspend fun purgeOutdatedBookmarks(minEventId: Long)
 
-    @WorkerThread
-    @Transaction
-    open fun clearSchedule() {
-        with(appDatabase.openHelper.writableDatabase) {
-            execSQL("DELETE FROM events")
-            execSQL("DELETE FROM events_titles")
-            execSQL("DELETE FROM persons")
-            execSQL("DELETE FROM events_persons")
-            execSQL("DELETE FROM attachments")
-            execSQL("DELETE FROM links")
-            execSQL("DELETE FROM tracks")
-            execSQL("DELETE FROM days")
+    suspend fun clearSchedule() {
+        appDatabase.useWriterConnection { transactor ->
+            transactor.immediateTransaction {
+                execSQL("DELETE FROM events")
+                execSQL("DELETE FROM events_titles")
+                execSQL("DELETE FROM persons")
+                execSQL("DELETE FROM events_persons")
+                execSQL("DELETE FROM attachments")
+                execSQL("DELETE FROM links")
+                execSQL("DELETE FROM tracks")
+                execSQL("DELETE FROM days")
+            }
         }
     }
 
     // Cache days
     @OptIn(ExperimentalCoroutinesApi::class)
-    val days: Flow<List<Day>> = appDatabase.invalidationTrackerFlow(Day.TABLE_NAME)
+    val days: Flow<List<Day>> = appDatabase.invalidationTracker.createFlow(Day.TABLE_NAME)
         .mapLatest { getDaysInternal() }
         .stateIn(
             scope = BackgroundWorkScope,

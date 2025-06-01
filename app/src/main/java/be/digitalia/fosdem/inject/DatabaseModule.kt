@@ -1,7 +1,6 @@
 package be.digitalia.fosdem.inject
 
 import android.content.Context
-import androidx.annotation.WorkerThread
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
@@ -10,7 +9,9 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.driver.AndroidSQLiteDriver
+import androidx.sqlite.execSQL
 import be.digitalia.fosdem.db.AppDatabase
 import be.digitalia.fosdem.db.BookmarksDao
 import be.digitalia.fosdem.db.ScheduleDao
@@ -29,8 +30,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import java.util.concurrent.Executors
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -54,8 +55,8 @@ object DatabaseModule {
         @ApplicationContext context: Context,
         @Named("Database") dataStore: DataStore<Preferences>
     ): AppDatabase {
-        val migration3to5 = Migration(3, 5) { db ->
-            with(db) {
+        val migration3to5 = object : Migration(3, 5) {
+            override fun migrate(connection: SQLiteConnection) = with(connection) {
                 // Create table attachments
                 execSQL("CREATE TABLE IF NOT EXISTS ${Attachment.TABLE_NAME} (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `event_id` INTEGER NOT NULL, `url` TEXT NOT NULL, `description` TEXT)")
                 execSQL("CREATE INDEX IF NOT EXISTS `attachment_event_id_idx` ON ${Attachment.TABLE_NAME} (`event_id`)")
@@ -65,11 +66,13 @@ object DatabaseModule {
                 execSQL("CREATE TABLE IF NOT EXISTS ${Day.TABLE_NAME} (`index` INTEGER NOT NULL, `date` INTEGER NOT NULL, `start_time` INTEGER NOT NULL, `end_time` INTEGER NOT NULL, PRIMARY KEY(`index`))")
             }
         }
-        val migration5to6 = Migration(5, 6) {
-            // empty because it's identical to migration6to7
+        val migration5to6 = object : Migration(5, 6) {
+            override fun migrate(connection: SQLiteConnection) {
+                // empty because it's identical to migration6to7
+            }
         }
-        val migration6to7 = Migration(6, 7) { db ->
-            with(db) {
+        val migration6to7 = object : Migration(6, 7) {
+            override fun migrate(connection: SQLiteConnection) = with(connection) {
                 // Clear schedule (but keep bookmarks)
                 execSQL("DELETE FROM ${EventTitles.TABLE_NAME}")
                 execSQL("DELETE FROM ${Person.TABLE_NAME}")
@@ -86,14 +89,16 @@ object DatabaseModule {
                 execSQL("CREATE INDEX IF NOT EXISTS `event_start_time_idx` ON ${EventEntity.TABLE_NAME} (`start_time`)")
                 execSQL("CREATE INDEX IF NOT EXISTS `event_end_time_idx` ON ${EventEntity.TABLE_NAME} (`end_time`)")
                 execSQL("CREATE INDEX IF NOT EXISTS `event_track_id_idx` ON ${EventEntity.TABLE_NAME} (`track_id`)")
-            }
-            runBlocking {
-                dataStore.edit { it.clear() }
+                runBlocking {
+                    dataStore.edit { it.clear() }
+                }
+                Unit
             }
         }
-        val migration7to8 = Migration(7, 8) { db ->
-            db.execSQL(
-                """CREATE VIEW `events_view` AS SELECT e.id, e.start_time, e.start_time_offset, e.end_time, e.room_name, e.url,
+        val migration7to8 = object : Migration(7, 8) {
+            override fun migrate(connection: SQLiteConnection) = with(connection) {
+                connection.execSQL(
+                    """CREATE VIEW `events_view` AS SELECT e.id, e.start_time, e.start_time_offset, e.end_time, e.room_name, e.url,
         et.title, et.subtitle, e.abstract, e.description, e.feedback_url, GROUP_CONCAT(p.name, ', ') AS persons,
         e.day_index, d.date AS day_date, d.start_time AS day_start_time, d.end_time AS day_end_time,
         e.track_id, t.name AS track_name, t.type AS track_type
@@ -104,24 +109,25 @@ object DatabaseModule {
         LEFT JOIN events_persons ep ON e.id = ep.event_id
         LEFT JOIN persons p ON ep.person_id = p.`rowid`
         GROUP BY e.id"""
-            )
+                )
+            }
         }
 
         val onDatabaseOpen = CompletableDeferred<Unit>()
 
         return Room.databaseBuilder(context, AppDatabase::class.java, DB_FILE)
             // TRUNCATE journal mode uses a single database connection
-            .setQueryExecutor(Executors.newSingleThreadExecutor())
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .addMigrations(migration3to5, migration5to6, migration6to7, migration7to8)
-            .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigration(true)
+            .setDriver(AndroidSQLiteDriver())
+            .setQueryCoroutineContext(Dispatchers.IO)
             .addCallback(object : RoomDatabase.Callback() {
-                override fun onOpen(db: SupportSQLiteDatabase) {
+                override fun onOpen(db: SQLiteConnection) {
                     onDatabaseOpen.complete(Unit)
                 }
 
-                @WorkerThread
-                override fun onDestructiveMigration(db: SupportSQLiteDatabase) {
+                override fun onDestructiveMigration(db: SQLiteConnection) {
                     runBlocking {
                         dataStore.edit { it.clear() }
                     }

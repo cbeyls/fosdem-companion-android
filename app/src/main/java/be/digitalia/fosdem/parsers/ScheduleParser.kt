@@ -147,7 +147,7 @@ class ScheduleParser @Inject constructor() : Parser<Schedule> {
                     "track" -> trackName = parser.nextText()
                     "type" -> try {
                         trackType = enumValueOf(parser.nextText())
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         // trackType will be "other"
                     }
                     "abstract" -> abstractText = parser.nextText()

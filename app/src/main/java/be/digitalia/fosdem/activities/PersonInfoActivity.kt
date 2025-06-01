@@ -61,7 +61,7 @@ class PersonInfoActivity : AppCompatActivity(R.layout.person_info) {
                             .setExitAnimations(context, R.anim.slide_in_left, R.anim.slide_out_right)
                             .build()
                             .launchUrl(context, url.toUri())
-                    } catch (ignore: ActivityNotFoundException) {
+                    } catch (_: ActivityNotFoundException) {
                     }
                 }
             }

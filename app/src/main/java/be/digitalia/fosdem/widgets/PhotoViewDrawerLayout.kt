@@ -21,7 +21,7 @@ class PhotoViewDrawerLayout : DrawerLayout {
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         return try {
             super.onInterceptTouchEvent(ev)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }

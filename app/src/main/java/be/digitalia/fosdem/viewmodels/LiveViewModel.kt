@@ -24,13 +24,17 @@ import java.time.Duration
 import java.time.Instant
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.TimeSource
 
 @HiltViewModel
-class LiveViewModel @Inject constructor(scheduleDao: ScheduleDao) : ViewModel() {
+class LiveViewModel @Inject constructor(
+    scheduleDao: ScheduleDao,
+    timeSource: TimeSource
+) : ViewModel() {
 
     // Share a single ticker providing the time to ensure both lists are synchronized
     private val ticker: Flow<Instant> = stateFlow(viewModelScope, null) {
-        synchronizedTickerFlow(REFRESH_PERIOD)
+        synchronizedTickerFlow(REFRESH_PERIOD, timeSource)
             .map { Instant.now() }
     }.filterNotNull()
 

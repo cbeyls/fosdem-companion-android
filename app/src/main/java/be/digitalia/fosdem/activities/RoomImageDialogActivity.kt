@@ -81,7 +81,7 @@ class RoomImageDialogActivity : AppCompatActivity(R.layout.dialog_room_image) {
                                         .setShowTitle(true)
                                         .build()
                                         .launchUrl(context, localNavigationUrl.toUri())
-                            } catch (ignore: ActivityNotFoundException) {
+                            } catch (_: ActivityNotFoundException) {
                             }
                             true
                         }

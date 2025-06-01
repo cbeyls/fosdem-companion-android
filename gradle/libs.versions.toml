@@ -1,28 +1,28 @@
 [versions]
-androidGradlePlugin = "8.8.1"
-androidx-activity = "1.10.0"
+androidGradlePlugin = "8.10.1"
+androidx-activity = "1.10.1"
 androidx-appcompat = "1.7.0"
 androidx-browser = "1.8.0"
-androidx-coordinatorlayout = "1.2.0"
-androidx-core = "1.15.0"
-androidx-datastore = "1.1.2"
+androidx-coordinatorlayout = "1.3.0"
+androidx-core = "1.16.0"
+androidx-datastore = "1.1.7"
 androidx-drawerlayout = "1.2.0"
-androidx-fragment = "1.8.6"
-androidx-lifecycle = "2.8.7"
+androidx-fragment = "1.8.7"
+androidx-lifecycle = "2.9.0"
 androidx-paging = "3.3.6"
 androidx-preference = "1.2.1"
 androidx-recyclerview = "1.4.0"
-androidx-room = "2.6.1"
+androidx-room = "2.7.1"
 androidx-viewpager2 = "1.1.0"
-desugarJdkLibs = "2.1.4"
-hilt = "2.55"
-kotlin = "2.1.10"
-kotlinx-coroutines = "1.10.1"
-ksp = "2.1.10-1.0.30"
+desugarJdkLibs = "2.1.5"
+hilt = "2.56.2"
+kotlin = "2.1.21"
+kotlinx-coroutines = "1.10.2"
+ksp = "2.1.21-2.0.1"
 material = "1.12.0"
 moshi = "1.15.2"
 okhttp = "4.12.0"
-okio = "3.10.2"
+okio = "3.12.0"
 photoview = "2.3.0"
 
 [plugins]
@@ -41,14 +41,14 @@ androidx-core =  { group = "androidx.core", name = "core-ktx", version.ref = "an
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidx-datastore" }
 androidx-drawerlayout =  { group = "androidx.drawerlayout", name = "drawerlayout", version.ref = "androidx-drawerlayout" }
 androidx-fragment = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "androidx-fragment" }
-androidx-lifecycle-runtime = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
-androidx-lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "androidx-lifecycle" }
-androidx-paging-runtime = { group = "androidx.paging", name = "paging-runtime-ktx", version.ref = "androidx-paging" }
+androidx-lifecycle-runtime = { group = "androidx.lifecycle", name = "lifecycle-runtime", version.ref = "androidx-lifecycle" }
+androidx-lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
+androidx-paging-runtime = { group = "androidx.paging", name = "paging-runtime", version.ref = "androidx-paging" }
 androidx-preference = { group = "androidx.preference", name = "preference-ktx", version.ref = "androidx-preference" }
 androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "androidx-recyclerview" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "androidx-room" }
 androidx-room-paging = { group = "androidx.room", name = "room-paging", version.ref = "androidx-room" }
-androidx-room-runtime = { group = "androidx.room", name = "room-ktx", version.ref = "androidx-room" }
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "androidx-room" }
 androidx-viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "androidx-viewpager2" }
 desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugarJdkLibs" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }

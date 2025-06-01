@@ -23,7 +23,7 @@ class RoomStatusesParser : Parser<Map<String, RoomStatus>> {
                         val stateValue = reader.nextInt()
                         try {
                             roomStatus = RoomStatus.entries[stateValue]
-                        } catch (e: Exception) {
+                        } catch (_: Exception) {
                             // Swallow and ignore that room
                         }
                     }

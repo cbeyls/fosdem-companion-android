@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.SharedPreferences
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -15,8 +16,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import java.time.Duration
 import java.time.ZoneId
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -52,9 +53,9 @@ class UserSettingsProvider @Inject constructor(
         get() = sharedPreferences.getBooleanAsFlow(PreferenceKeys.NOTIFICATIONS_ENABLED)
 
     fun updateNotificationsEnabled(notificationsEnabled: Boolean) {
-        sharedPreferences.edit()
-            .putBoolean(PreferenceKeys.NOTIFICATIONS_ENABLED, notificationsEnabled)
-            .apply()
+        sharedPreferences.edit {
+            putBoolean(PreferenceKeys.NOTIFICATIONS_ENABLED, notificationsEnabled)
+        }
     }
 
     val isNotificationsVibrationEnabled: Flow<Boolean>
@@ -63,10 +64,9 @@ class UserSettingsProvider @Inject constructor(
     val isNotificationsLedEnabled: Flow<Boolean>
         get() = sharedPreferences.getBooleanAsFlow(PreferenceKeys.NOTIFICATIONS_LED)
 
-    val notificationsDelayInMillis: Flow<Long>
+    val notificationsDelay: Flow<Duration>
         get() = sharedPreferences.getStringAsFlow(PreferenceKeys.NOTIFICATIONS_DELAY)
-            .map {
-                // Convert from minutes to milliseconds
-                TimeUnit.MINUTES.toMillis(it?.toLong() ?: 0L)
+            .map { stringDelayInMinutes ->
+                stringDelayInMinutes?.let { Duration.ofMinutes(it.toLong()) } ?: Duration.ZERO
             }
 }

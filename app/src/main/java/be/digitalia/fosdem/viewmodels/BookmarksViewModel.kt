@@ -33,13 +33,15 @@ import okio.source
 import java.time.Instant
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.TimeSource
 
 @HiltViewModel
 class BookmarksViewModel @Inject constructor(
     private val bookmarksDao: BookmarksDao,
     private val scheduleDao: ScheduleDao,
     private val alarmManager: AppAlarmManager,
-    private val application: Application
+    private val application: Application,
+    private val timeSource: TimeSource
 ) : ViewModel() {
 
     private val hidePastEventsStateFlow = MutableStateFlow<Boolean?>(null)
@@ -49,7 +51,7 @@ class BookmarksViewModel @Inject constructor(
         hidePastEventsStateFlow.filterNotNull().flatMapLatest { hidePastEvents ->
             if (hidePastEvents) {
                 // Refresh upcoming bookmarks every 2 minutes
-                synchronizedTickerFlow(REFRESH_PERIOD)
+                synchronizedTickerFlow(REFRESH_PERIOD, timeSource)
                     .flatMapLatest {
                         getObservableBookmarks(Instant.now())
                     }
