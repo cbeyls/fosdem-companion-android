@@ -23,10 +23,10 @@ data class Track(
         val type: Type
 ) : Parcelable {
 
-    enum class Type(@StringRes @get:StringRes val nameResId: Int,
-                    @ColorRes @get:ColorRes val appBarColorResId: Int,
-                    @ColorRes @get:ColorRes val statusBarColorResId: Int,
-                    @ColorRes @get:ColorRes val textColorResId: Int) {
+    enum class Type(@param:StringRes @get:StringRes val nameResId: Int,
+                    @param:ColorRes @get:ColorRes val appBarColorResId: Int,
+                    @param:ColorRes @get:ColorRes val statusBarColorResId: Int,
+                    @param:ColorRes @get:ColorRes val textColorResId: Int) {
 
         other(R.string.track_type_other,
                 R.color.track_type_other, R.color.track_type_other_dark, R.color.track_type_other_text),

@@ -113,7 +113,7 @@ class BookmarksAdapter(context: Context, private val multiChoiceHelper: MultiCho
     }
 
     class ViewHolder(itemView: View, helper: MultiChoiceHelper,
-                     private val timeFormatter: DateTimeFormatter, @ColorInt private val errorColor: Int)
+                     private val timeFormatter: DateTimeFormatter, @param:ColorInt private val errorColor: Int)
         : MultiChoiceHelper.ViewHolder(itemView, helper), View.OnClickListener {
         private val title: TextView = itemView.findViewById(R.id.title)
         private val persons: TextView = itemView.findViewById(R.id.persons)

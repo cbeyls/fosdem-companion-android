@@ -123,11 +123,11 @@ object DatabaseModule {
             .setDriver(AndroidSQLiteDriver())
             .setQueryCoroutineContext(Dispatchers.IO)
             .addCallback(object : RoomDatabase.Callback() {
-                override fun onOpen(db: SQLiteConnection) {
+                override fun onOpen(connection: SQLiteConnection) {
                     onDatabaseOpen.complete(Unit)
                 }
 
-                override fun onDestructiveMigration(db: SQLiteConnection) {
+                override fun onDestructiveMigration(connection: SQLiteConnection) {
                     runBlocking {
                         dataStore.edit { it.clear() }
                     }

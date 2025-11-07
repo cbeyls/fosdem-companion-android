@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "be.digitalia.fosdem"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "be.digitalia.fosdem"

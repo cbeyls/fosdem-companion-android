@@ -51,7 +51,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class AppAlarmManager @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val userSettingsProvider: UserSettingsProvider,
     private val bookmarksDao: BookmarksDao,
     private val scheduleDao: ScheduleDao

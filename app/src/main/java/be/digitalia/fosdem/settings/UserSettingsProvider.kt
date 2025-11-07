@@ -25,7 +25,7 @@ import javax.inject.Singleton
 @Singleton
 class UserSettingsProvider @Inject constructor(
     @ApplicationContext context: Context,
-    @Named("UserSettings") private val sharedPreferences: SharedPreferences
+    @param:Named("UserSettings") private val sharedPreferences: SharedPreferences
 ) {
     private val deviceZoneIdFlow: StateFlow<ZoneId> by lazy(LazyThreadSafetyMode.NONE) {
         val zoneIdFlow = MutableStateFlow(ZoneId.systemDefault())

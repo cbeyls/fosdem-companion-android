@@ -1,5 +1,6 @@
 package be.digitalia.fosdem.api
 
+import android.util.Log
 import androidx.annotation.MainThread
 import be.digitalia.fosdem.alarms.AppAlarmManager
 import be.digitalia.fosdem.api.network.HttpClient
@@ -78,8 +79,7 @@ class FosdemApi @Inject constructor(
     private suspend fun downloadScheduleInternal() {
         _downloadScheduleState.value = LoadingState.Loading()
         val res = try {
-            val response = httpClient.get(FosdemUrls.schedule, scheduleDao.lastModifiedTag.first())
-            when (response) {
+            when (val response = httpClient.get(FosdemUrls.schedule, scheduleDao.lastModifiedTag.first())) {
                 is HttpClient.Response.NotModified -> DownloadScheduleResult.UpToDate    // Nothing parsed, the result is up-to-date
                 is HttpClient.Response.Success -> {
                     val result = withContext(Dispatchers.IO) {
@@ -105,7 +105,10 @@ class FosdemApi @Inject constructor(
                     DownloadScheduleResult.Success(result)
                 }
             }
-        } catch (_: Exception) {
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.e(TAG, "Error while attempting to download the new schedule", e)
             DownloadScheduleResult.Error
         }
         _downloadScheduleState.value = LoadingState.Idle(res)
@@ -203,6 +206,7 @@ class FosdemApi @Inject constructor(
     }
 
     companion object {
+        private const val TAG = "FosdemApi"
         private val ROOM_STATUS_REFRESH_DELAY = 90.seconds
         private val ROOM_STATUS_FIRST_RETRY_DELAY = 30.seconds
         private val ROOM_STATUS_EXPIRATION_DELAY = 6.minutes

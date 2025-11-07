@@ -27,7 +27,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 sealed class LiveListFragment(
-    @StringRes private val emptyTextResId: Int,
+    @param:StringRes private val emptyTextResId: Int,
     private val dataSourceProvider: (LiveViewModel) -> Flow<PagingData<StatusEvent>>
 ) : Fragment(R.layout.recyclerview) {
 

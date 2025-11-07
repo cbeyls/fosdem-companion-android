@@ -116,7 +116,7 @@ class TrackScheduleAdapter(context: Context, private val clickListener: (Event) 
 
     class ViewHolder(
         itemView: View, private val timeFormatter: DateTimeFormatter,
-        @DrawableRes private val activatedBackgroundResId: Int, private val clickListener: (Event) -> Unit
+        @param:DrawableRes private val activatedBackgroundResId: Int, private val clickListener: (Event) -> Unit
     ) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
         private val time: TextView = itemView.findViewById(R.id.time)
         private val title: TextView = itemView.findViewById(R.id.title)

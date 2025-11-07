@@ -42,7 +42,7 @@ class OkHttpClientImpl @Inject constructor(
                     // This block is invoked on OkHttp's network thread
                     val body = response.body
                     if (!response.isSuccessful) {
-                        body?.close()
+                        body.close()
                         if (lastModified != null && response.code == HttpURLConnection.HTTP_NOT_MODIFIED) {
                             // Cached result is still valid; return an empty response
                             continuation.resume(Response.NotModified)
@@ -51,7 +51,6 @@ class OkHttpClientImpl @Inject constructor(
                         }
                     } else {
                         try {
-                            checkNotNull(body) { "Unexpected empty response body" }
                             val httpResponse = object : HttpResponse {
                                 override val body: BufferedSource
                                     get() = body.source()

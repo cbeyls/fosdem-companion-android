@@ -64,7 +64,7 @@ import com.google.android.material.R as MaterialR
 class MainActivity : AppCompatActivity(R.layout.main) {
 
     private enum class Section(val fragmentClass: Class<out Fragment>,
-                               @IdRes @get:IdRes val menuItemId: Int,
+                               @param:IdRes @get:IdRes val menuItemId: Int,
                                val extendsAppBar: Boolean,
                                val keep: Boolean) {
         TRACKS(TracksFragment::class.java, R.id.menu_tracks, true, true),
