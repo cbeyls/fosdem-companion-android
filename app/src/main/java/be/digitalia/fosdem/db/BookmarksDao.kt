@@ -4,8 +4,9 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Transaction
+import androidx.room.Transactor.SQLiteTransactionType
 import androidx.room.TypeConverters
+import androidx.room.useWriterConnection
 import be.digitalia.fosdem.db.converters.NonNullInstantTypeConverters
 import be.digitalia.fosdem.db.entities.Bookmark
 import be.digitalia.fosdem.db.entities.EventEntity
@@ -16,7 +17,7 @@ import kotlinx.coroutines.flow.Flow
 import java.time.Instant
 
 @Dao
-abstract class BookmarksDao(appDatabase: AppDatabase) {
+abstract class BookmarksDao(private val appDatabase: AppDatabase) {
     val version: Flow<Int> = appDatabase.createVersionFlow(
         BackgroundWorkScope,
         EventEntity.TABLE_NAME,
@@ -52,15 +53,16 @@ abstract class BookmarksDao(appDatabase: AppDatabase) {
         return if (ids[0] != -1L) AlarmInfo(event.id, event.startTime) else null
     }
 
-    @Transaction
-    open suspend fun addBookmarks(eventIds: LongArray): List<AlarmInfo> {
-        // Get AlarmInfos first to filter out non-existing items
-        val alarmInfos = getAlarmInfos(eventIds)
-        alarmInfos.isNotEmpty() || return emptyList()
+    suspend fun addBookmarks(eventIds: LongArray): List<AlarmInfo> = appDatabase.useWriterConnection { transactor ->
+        transactor.withTransaction(SQLiteTransactionType.EXCLUSIVE) {
+            // Get AlarmInfos first to filter out non-existing items
+            val alarmInfos = getAlarmInfos(eventIds)
+            alarmInfos.isNotEmpty() || return@withTransaction emptyList()
 
-        val ids = addBookmarksInternal(alarmInfos.map { Bookmark(it.eventId) })
-        // Filter out items that were already in bookmarks
-        return alarmInfos.filterIndexed { index, _ -> ids[index] != -1L }
+            val ids = addBookmarksInternal(alarmInfos.map { Bookmark(it.eventId) })
+            // Filter out items that were already in bookmarks
+            alarmInfos.filterIndexed { index, _ -> ids[index] != -1L }
+        }
     }
 
     @Query("""SELECT id as event_id, start_time

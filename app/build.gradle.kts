@@ -14,7 +14,7 @@ android {
 
     defaultConfig {
         applicationId = "be.digitalia.fosdem"
-        minSdk = 21
+        minSdk = 23
         targetSdk = 34
         versionCode = 2100229
         versionName = "2.2.9"

@@ -8,7 +8,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Transaction
+import androidx.room.Transactor.SQLiteTransactionType
 import androidx.room.TypeConverters
 import androidx.room.execSQL
 import androidx.room.immediateTransaction
@@ -94,7 +94,11 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
      */
     suspend fun storeSchedule(schedule: Schedule, lastModifiedTag: String?): Int {
         val totalEvents = try {
-            storeScheduleInternal(schedule.events, lastModifiedTag)
+            appDatabase.useWriterConnection { transactor ->
+                transactor.withTransaction(SQLiteTransactionType.EXCLUSIVE) {
+                    storeScheduleInternal(schedule.events, lastModifiedTag)
+                }
+            }
         } catch (_: EmptyScheduleException) {
             0
         }
@@ -114,8 +118,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         return totalEvents
     }
 
-    @Transaction
-    protected open suspend fun storeScheduleInternal(events: Sequence<DetailedEvent>, lastModifiedTag: String?): Int {
+    protected suspend fun storeScheduleInternal(events: Sequence<DetailedEvent>, lastModifiedTag: String?): Int {
         // 1: Delete the previous schedule
         clearSchedule()
 
