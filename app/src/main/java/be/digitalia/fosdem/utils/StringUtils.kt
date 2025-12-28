@@ -2,7 +2,6 @@ package be.digitalia.fosdem.utils
 
 import android.content.res.Resources
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.text.Editable
 import android.text.Html.ImageGetter
@@ -10,6 +9,7 @@ import android.text.Html.TagHandler
 import android.text.style.BulletSpan
 import android.text.style.LeadingMarginSpan
 import androidx.collection.CircularIntArray
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.text.HtmlCompat
 import androidx.core.text.parseAsHtml
 import androidx.core.text.set
@@ -152,7 +152,7 @@ fun roomNameToResourceName(roomName: String): String {
 
 object EmptyImageGetter : ImageGetter {
     override fun getDrawable(source: String?): Drawable {
-        return ColorDrawable(Color.TRANSPARENT).apply {
+        return Color.TRANSPARENT.toDrawable().apply {
             setBounds(0, 0, 0, 0)
         }
     }
