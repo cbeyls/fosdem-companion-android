@@ -17,7 +17,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.edit
 import androidx.core.net.toUri
-import androidx.core.view.ViewCompat
 import androidx.core.view.isInvisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -233,8 +232,11 @@ class MainActivity : AppCompatActivity(R.layout.main) {
     @SuppressLint("PrivateResource")
     private fun updateActionBar(section: Section, menuItem: MenuItem) {
         title = menuItem.title
-        ViewCompat.setTranslationZ(holder.contentView,
-                if (section.extendsAppBar) resources.getDimension(MaterialR.dimen.design_appbar_elevation) else 0f)
+        holder.contentView.translationZ = if (section.extendsAppBar) {
+            resources.getDimension(MaterialR.dimen.design_appbar_elevation)
+        } else {
+            0f
+        }
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {

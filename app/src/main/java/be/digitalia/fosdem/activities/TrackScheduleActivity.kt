@@ -7,7 +7,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
@@ -58,10 +57,10 @@ class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule), MenuHo
         title = "$track, $day"
         val trackType = track.type
         if (isLightTheme) {
-            window.statusBarColor = ContextCompat.getColor(this, trackType.statusBarColorResId)
+            window.statusBarColor = getColor(trackType.statusBarColorResId)
             val trackAppBarColor = ContextCompat.getColorStateList(this, trackType.appBarColorResId)!!
             setTaskColorPrimary(trackAppBarColor.defaultColor)
-            ViewCompat.setBackgroundTintList(toolbar, trackAppBarColor)
+            toolbar.setBackgroundTintList(trackAppBarColor)
         } else {
             val trackTextColor = ContextCompat.getColorStateList(this, trackType.textColorResId)!!
             toolbar.setTitleTextColor(trackTextColor)

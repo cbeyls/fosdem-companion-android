@@ -9,7 +9,6 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.browser.customtabs.CustomTabsIntent
-import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.text.set
 import androidx.core.view.isVisible
@@ -94,7 +93,7 @@ class RoomImageDialogActivity : AppCompatActivity(R.layout.dialog_room_image) {
                     api.roomStatuses.collect { statuses ->
                         toolbar.subtitle = statuses[roomName]?.let { roomStatus ->
                             SpannableString(context.getString(roomStatus.nameResId)).apply {
-                                this[0, length] = ForegroundColorSpan(ContextCompat.getColor(context, roomStatus.colorResId))
+                                this[0, length] = ForegroundColorSpan(context.getColor(roomStatus.colorResId))
                             }
                         }
                     }

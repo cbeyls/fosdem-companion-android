@@ -2,12 +2,12 @@ package be.digitalia.fosdem.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageButton
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -82,10 +82,10 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
         title = "$track, $day"
         val trackType = track.type
         if (isLightTheme) {
-            window.statusBarColor = ContextCompat.getColor(this, trackType.statusBarColorResId)
+            window.statusBarColor = getColor(trackType.statusBarColorResId)
             val trackAppBarColor = ContextCompat.getColorStateList(this, trackType.appBarColorResId)!!
             setTaskColorPrimary(trackAppBarColor.defaultColor)
-            ViewCompat.setBackgroundTintList(findViewById(R.id.appbar), trackAppBarColor)
+            findViewById<View>(R.id.appbar).setBackgroundTintList(trackAppBarColor)
         } else {
             val trackTextColor = ContextCompat.getColorStateList(this, trackType.textColorResId)!!
             toolbar.setTitleTextColor(trackTextColor)

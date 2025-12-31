@@ -14,11 +14,9 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.provider.Settings
 import androidx.annotation.RequiresApi
-import androidx.core.app.AlarmManagerCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
-import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import androidx.core.net.toUri
 import androidx.core.text.buildSpannedString
@@ -131,9 +129,10 @@ class AppAlarmManager @Inject constructor(
                         }
                         isFirstAlarm = false
                     }
-                    AlarmManagerCompat.setExactAndAllowWhileIdle(
-                        alarmManager, AlarmManager.RTC_WAKEUP,
-                        (startTime - delay).toEpochMilli(), getAlarmPendingIntent(eventId)
+                    alarmManager.setExactAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        (startTime - delay).toEpochMilli(),
+                        getAlarmPendingIntent(eventId)
                     )
                 }
             }
@@ -174,9 +173,7 @@ class AppAlarmManager @Inject constructor(
                     // Cancel pending alarms that are now scheduled in the past, if any
                     alarmManager.cancel(pi)
                 } else {
-                    AlarmManagerCompat.setExactAndAllowWhileIdle(
-                        alarmManager, AlarmManager.RTC_WAKEUP, notificationTime, pi
-                    )
+                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, notificationTime, pi)
                     hasAlarms = true
                 }
             }
@@ -257,7 +254,7 @@ class AppAlarmManager @Inject constructor(
             }
         }
 
-        val notificationColor = ContextCompat.getColor(context, R.color.light_color_primary)
+        val notificationColor = context.getColor(R.color.light_color_primary)
 
         val notificationBuilder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL)
             .setSmallIcon(R.drawable.ic_stat_fosdem)
@@ -331,7 +328,7 @@ class AppAlarmManager @Inject constructor(
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
                 setShowBadge(false)
-                lightColor = ContextCompat.getColor(context, R.color.light_color_primary)
+                lightColor = context.getColor(R.color.light_color_primary)
                 enableVibration(true)
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             }

@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -130,8 +129,7 @@ class TrackScheduleAdapter(context: Context, private val clickListener: (Event) 
             if (activatedBackgroundResId != 0) {
                 // Compose a new background drawable by combining the existing one with the activated background
                 val existingBackground = itemView.background
-                val activatedBackground =
-                    ContextCompat.getDrawable(itemView.context, activatedBackgroundResId)
+                val activatedBackground = itemView.context.getDrawable(activatedBackgroundResId)
                 val newBackground = if (existingBackground == null) {
                     activatedBackground
                 } else {
