@@ -96,7 +96,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         val totalEvents = try {
             appDatabase.useWriterConnection { transactor ->
                 transactor.withTransaction(SQLiteTransactionType.EXCLUSIVE) {
-                    storeScheduleInternal(schedule.events, lastModifiedTag)
+                    storeEvents(schedule.events)
                 }
             }
         } catch (_: EmptyScheduleException) {
@@ -118,7 +118,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         return totalEvents
     }
 
-    protected suspend fun storeScheduleInternal(events: Sequence<DetailedEvent>, lastModifiedTag: String?): Int {
+    private suspend fun storeEvents(events: Sequence<DetailedEvent>): Int {
         // 1: Delete the previous schedule
         clearSchedule()
 

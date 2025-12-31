@@ -53,7 +53,7 @@ fun String.remove(remove: Char): String {
     return if (remove !in this) {
         this
     } else {
-        filterNot { it == remove }
+        filterNotTo(StringBuilder(length - 1)) { it == remove }.toString()
     }
 }
 
@@ -96,13 +96,18 @@ private val Char.isRemovable: Boolean
  */
 fun String.toSlug(): String {
     return remove('\'')
-            .removeDiacritics()
-            .replace("ß", "ss")
-            .replace('ø', 'o')
-            .replace('ð', 'd')
-            .trimNonAlpha()
-            .replaceNonAlphaGroups('_')
-            .lowercase(Locale.ROOT)
+        .remove('/')
+        .trimNonAlpha()
+        .replaceNonAlphaGroups('_')
+        .lowercase()
+        .replace("æ", "ae")
+        .replace('б', 'b')
+        .replace('ð', 'd')
+        .replace('г', 'g')
+        .replace("ß", "ss")
+        .replace('ø', 'o')
+        .replace('о', 'o')
+        .removeDiacritics()
 }
 
 /**
@@ -110,10 +115,10 @@ fun String.toSlug(): String {
  */
 fun String.toRoomSlug(): String {
     return remove('.')
-        .removeDiacritics()
         .trimNonAlpha()
         .replaceNonAlphaGroups('_')
-        .lowercase(Locale.ROOT)
+        .lowercase()
+        .removeDiacritics()
 }
 
 fun String.stripHtml(): String {

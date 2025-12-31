@@ -96,7 +96,7 @@ object DatabaseModule {
             }
         }
         val migration7to8 = object : Migration(7, 8) {
-            override fun migrate(connection: SQLiteConnection) = with(connection) {
+            override fun migrate(connection: SQLiteConnection) {
                 connection.execSQL(
                     """CREATE VIEW `events_view` AS SELECT e.id, e.start_time, e.start_time_offset, e.end_time, e.room_name, e.url,
         et.title, et.subtitle, e.abstract, e.description, e.feedback_url, GROUP_CONCAT(p.name, ', ') AS persons,
