@@ -13,10 +13,10 @@ import kotlinx.parcelize.Parcelize
 @Entity(tableName = Person.TABLE_NAME)
 @Parcelize
 data class Person(
-        @PrimaryKey
-        @ColumnInfo(name = "rowid")
-        val id: Long,
-        val name: String?
+    @PrimaryKey
+    @ColumnInfo(name = "rowid")
+    val id: Long,
+    val name: String?
 ) : Parcelable {
 
     fun getUrl(baseUrl: String): String? {

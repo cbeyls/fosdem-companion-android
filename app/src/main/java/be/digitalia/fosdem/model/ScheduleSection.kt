@@ -10,6 +10,10 @@ sealed interface ScheduleSection {
         val baseUrl: String
     ) : ScheduleSection
 
+    class Persons(
+        val persons: Sequence<PersonDetails>
+    ): ScheduleSection
+
     class Day(
         val day: be.digitalia.fosdem.model.Day,
         val events: Sequence<DetailedEvent>
