@@ -7,7 +7,7 @@ import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.EventDetails
 import be.digitalia.fosdem.model.Link
 import be.digitalia.fosdem.model.Person
-import be.digitalia.fosdem.model.Schedule
+import be.digitalia.fosdem.model.ScheduleSection
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.isEndDocument
 import be.digitalia.fosdem.utils.isNextEndTag
@@ -28,88 +28,88 @@ import javax.inject.Inject
  *
  * @author Christophe Beyls
  */
-class ScheduleParser @Inject constructor() : Parser<Schedule> {
+class ScheduleParser @Inject constructor() : Parser<Sequence<ScheduleSection>> {
 
-    override fun parse(source: BufferedSource): Schedule {
+    override fun parse(source: BufferedSource): Sequence<ScheduleSection> {
         val parser: XmlPullParser = xmlPullParserFactory.newPullParser().apply {
             setInput(source.inputStream(), null)
         }
 
         while (!parser.isEndDocument) {
             if (parser.isStartTag("schedule")) {
-                while (!parser.isNextEndTag("schedule")) {
-                    if (parser.isStartTag) {
-                        if (parser.name == "conference") {
-                            var conferenceId: String? = null
-                            var conferenceTitle: String? = null
-                            var baseUrl: String? = null
-
-                            while (!parser.isNextEndTag("conference")) {
-                                if (parser.isStartTag) {
-                                    when (parser.name) {
-                                        "acronym" -> conferenceId = parser.nextText()
-                                        "title" -> conferenceTitle = parser.nextText()
-                                        "base_url" -> baseUrl = parser.nextText()
-                                        else -> parser.skipToEndTag()
-                                    }
-                                }
-                            }
-
-                            return Schedule(
-                                conferenceId = checkNotNull(conferenceId) { "Missing conference acronym" },
-                                conferenceTitle = checkNotNull(conferenceTitle) { "Missing conference title" },
-                                baseUrl = checkNotNull(baseUrl) { "Missing conference base_url" },
-                                events = parseEvents(parser)
-                            )
-                        } else {
-                            parser.skipToEndTag()
-                        }
-                    }
-                }
+                return parseSchedule(parser)
             }
             parser.next()
         }
 
-        throw IllegalStateException("Missing conference node")
+        throw IllegalStateException("Missing root schedule node")
     }
 
-    private fun parseEvents(parser: XmlPullParser): Sequence<DetailedEvent> = sequence {
+    private fun parseSchedule(parser: XmlPullParser): Sequence<ScheduleSection> = sequence {
+        while (!parser.isNextEndTag("schedule")) {
+            if (parser.isStartTag) {
+                when (parser.name) {
+                    "conference" -> yield(parseConference(parser))
+                    "day" -> yield(parseDay(parser))
+                    else -> parser.skipToEndTag()
+                }
+            }
+        }
+
+        // After the root schedule node, skip to the end of the document if not already there
         while (!parser.isEndDocument) {
-            while (!parser.isNextEndTag("schedule")) {
-                if (parser.isStartTag) {
-                    if (parser.name == "day") {
-                        val day = Day(
-                            index = parser.getAttributeValue(null, "index")!!.toInt(),
-                            date = LocalDate.parse(
-                                parser.getAttributeValue(null, "date")
-                            ),
-                            startTime = OffsetDateTime.parse(
-                                parser.getAttributeValue(null, "start")
-                            ).toInstant(),
-                            endTime = OffsetDateTime.parse(
-                                parser.getAttributeValue(null, "end")
-                            ).toInstant()
-                        )
+            parser.next()
+        }
+    }
 
-                        while (!parser.isNextEndTag("day")) {
-                            if (parser.isStartTag("room")) {
-                                val roomName: String? =
-                                    parser.getAttributeValue(null, "name")
+    private fun parseConference(parser: XmlPullParser): ScheduleSection.Conference {
+        var conferenceId: String? = null
+        var conferenceTitle: String? = null
+        var baseUrl: String? = null
 
-                                while (!parser.isNextEndTag("room")) {
-                                    if (parser.isStartTag("event")) {
-                                        yield(parseEvent(parser, day, roomName))
-                                    }
-                                }
+        while (!parser.isNextEndTag("conference")) {
+            if (parser.isStartTag) {
+                when (parser.name) {
+                    "acronym" -> conferenceId = parser.nextText()
+                    "title" -> conferenceTitle = parser.nextText()
+                    "base_url" -> baseUrl = parser.nextText()
+                    else -> parser.skipToEndTag()
+                }
+            }
+        }
+
+        return ScheduleSection.Conference(
+            conferenceId = checkNotNull(conferenceId) { "Missing conference acronym" },
+            conferenceTitle = checkNotNull(conferenceTitle) { "Missing conference title" },
+            baseUrl = checkNotNull(baseUrl) { "Missing conference base_url" }
+        )
+    }
+
+    private fun parseDay(parser: XmlPullParser): ScheduleSection.Day {
+        val day = Day(
+            index = parser.getAttributeValue(null, "index")!!.toInt(),
+            date = LocalDate.parse(parser.getAttributeValue(null, "date")),
+            startTime = OffsetDateTime.parse(parser.getAttributeValue(null, "start"))
+                .toInstant(),
+            endTime = OffsetDateTime.parse(parser.getAttributeValue(null, "end"))
+                .toInstant()
+        )
+        return ScheduleSection.Day(
+            day = day,
+            events = sequence {
+                while (!parser.isNextEndTag("day")) {
+                    if (parser.isStartTag("room")) {
+                        val roomName: String? = parser.getAttributeValue(null, "name")
+
+                        while (!parser.isNextEndTag("room")) {
+                            if (parser.isStartTag("event")) {
+                                yield(parseEvent(parser, day, roomName))
                             }
                         }
-                    } else {
-                        parser.skipToEndTag()
                     }
                 }
             }
-            parser.next()
-        }
+        )
     }
 
     private fun parseEvent(parser: XmlPullParser, day: Day, roomName: String?): DetailedEvent {
@@ -147,7 +147,7 @@ class ScheduleParser @Inject constructor() : Parser<Schedule> {
                     "track" -> trackName = parser.nextText()
                     "type" -> try {
                         trackType = enumValueOf(parser.nextText())
-                    } catch (_: Exception) {
+                    } catch (_: IllegalArgumentException) {
                         // trackType will be "other"
                     }
                     "abstract" -> abstractText = parser.nextText()
@@ -156,8 +156,8 @@ class ScheduleParser @Inject constructor() : Parser<Schedule> {
                     "persons" -> while (!parser.isNextEndTag("persons")) {
                         if (parser.isStartTag("person")) {
                             val person = Person(
-                                    id = parser.getAttributeValue(null, "id")!!.toLong(),
-                                    name = parser.nextText()!!
+                                id = parser.getAttributeValue(null, "id")!!.toLong(),
+                                name = parser.nextText()!!
                             )
                             persons += person
                         }
