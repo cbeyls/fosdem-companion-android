@@ -19,10 +19,12 @@ import be.digitalia.fosdem.db.entities.EventTitles
 import be.digitalia.fosdem.db.entities.EventToPerson
 import be.digitalia.fosdem.model.Attachment
 import be.digitalia.fosdem.model.Day
+import be.digitalia.fosdem.model.DetailedEvent
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.EventDetails
 import be.digitalia.fosdem.model.Link
 import be.digitalia.fosdem.model.Person
+import be.digitalia.fosdem.model.PersonDetails
 import be.digitalia.fosdem.model.ScheduleSection
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.model.Track
@@ -107,8 +109,9 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
                     for (section in schedule) {
                         when (section) {
                             is ScheduleSection.Conference -> conferenceSection = section
+                            is ScheduleSection.Persons -> storePersonDetails(section.persons)
                             is ScheduleSection.Day -> {
-                                val result = storeDay(section, tracksByName)
+                                val result = storeDay(section.day, section.events, tracksByName)
                                 totalEvents += result.totalEvents
                                 minEventId = minOf(minEventId, result.minEventId)
                             }
@@ -144,22 +147,27 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         }
     }
 
+    private suspend fun storePersonDetails(persons: Sequence<PersonDetails>) {
+        for (person in persons) {
+            insertPersonDetails(person)
+        }
+    }
+
     private class DayResult(
         val totalEvents: Int,
         val minEventId: Long
     )
 
     private suspend fun storeDay(
-        daySection: ScheduleSection.Day,
+        day: Day,
+        dayEvents: Sequence<DetailedEvent>,
         tracksByName: MutableMap<String, Track>
     ): DayResult {
-        val day = daySection.day
-
         // 1: Insert the events
         var totalEvents = 0
         var minEventId = Long.MAX_VALUE
 
-        for ((event, details) in daySection.events) {
+        for ((event, details) in dayEvents) {
             // Retrieve or insert Track
             val eventTrack = event.track
             val track = tracksByName.getOrPut(eventTrack.name) {
@@ -228,6 +236,9 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     protected abstract suspend fun insertPersons(persons: List<Person>)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    protected abstract suspend fun insertPersonDetails(person: PersonDetails)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     protected abstract suspend fun insertEventsToPersons(eventsToPersons: List<EventToPerson>)
@@ -382,6 +393,12 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         FROM persons
         ORDER BY name COLLATE NOCASE""")
     abstract fun getPersons(): PagingSource<Int, Person>
+
+    /**
+     * Returns the details of the given person, if available.
+     */
+    @Query("SELECT * FROM person_details WHERE `rowid` = :person")
+    abstract suspend fun getPersonDetails(person: Person): PersonDetails?
 
     suspend fun getEventDetails(event: Event): EventDetails {
         // Load persons, attachments and links in parallel

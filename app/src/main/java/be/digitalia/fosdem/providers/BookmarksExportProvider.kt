@@ -20,9 +20,9 @@ import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.ical.ICalendarWriter
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.utils.BackgroundWorkScope
+import be.digitalia.fosdem.utils.remove
 import be.digitalia.fosdem.utils.stripHtml
 import be.digitalia.fosdem.utils.toLocalDateTime
-import be.digitalia.fosdem.utils.toSlug
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -178,15 +178,15 @@ class BookmarksExportProvider : ContentProvider() {
             write("X-ALT-DESC", description)
         }
         write("CLASS", "PUBLIC")
-        write("CATEGORIES", event.track.name)
         write("URL", event.url)
         write("LOCATION", event.roomName)
 
         if (event.personsSummary != null && baseUrl != null) {
             for (name in event.personsSummary.split(", ")) {
-                val key = "ATTENDEE;ROLE=REQ-PARTICIPANT;CUTYPE=INDIVIDUAL;CN=\"$name\""
-                val url = FosdemUrls.getPerson(baseUrl, name.toSlug())
-                write(key, url)
+                val escapedName = name.remove('"')
+                val key = "ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=CHAIR;PARTSTAT=ACCEPTED;CN=\"$escapedName\""
+                val uri = FosdemUrls.getPersonUri(baseUrl, name)
+                write(key, uri)
             }
         }
 

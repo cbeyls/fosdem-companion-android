@@ -92,25 +92,6 @@ private val Char.isRemovable: Boolean
     }
 
 /**
- * Transforms a name to a slug identifier to be used in a FOSDEM URL.
- */
-fun String.toSlug(): String {
-    return remove('\'')
-        .remove('/')
-        .trimNonAlpha()
-        .replaceNonAlphaGroups('_')
-        .lowercase()
-        .replace("æ", "ae")
-        .replace('б', 'b')
-        .replace('ð', 'd')
-        .replace('г', 'g')
-        .replace("ß", "ss")
-        .replace('ø', 'o')
-        .replace('о', 'o')
-        .removeDiacritics()
-}
-
-/**
  * Generates a slug from a FOSDEM room name.
  */
 fun String.toRoomSlug(): String {

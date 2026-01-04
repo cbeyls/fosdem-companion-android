@@ -15,10 +15,11 @@ import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.Link
 import be.digitalia.fosdem.model.Person
+import be.digitalia.fosdem.model.PersonDetails
 import be.digitalia.fosdem.model.Track
 
 @Database(
-    entities = [EventEntity::class, EventTitles::class, Person::class, EventToPerson::class,
+    entities = [EventEntity::class, EventTitles::class, Person::class, PersonDetails::class, EventToPerson::class,
         Attachment::class, Link::class, Track::class, Day::class, Bookmark::class],
     views = [Event::class],
     version = AppDatabase.VERSION,
@@ -35,6 +36,6 @@ abstract class AppDatabase : RoomDatabase() {
 
     companion object {
         // Expose the database version to allow detecting migrations
-        const val VERSION = 8
+        const val VERSION = 9
     }
 }

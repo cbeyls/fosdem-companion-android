@@ -7,6 +7,7 @@ import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.EventDetails
 import be.digitalia.fosdem.model.Link
 import be.digitalia.fosdem.model.Person
+import be.digitalia.fosdem.model.PersonDetails
 import be.digitalia.fosdem.model.ScheduleSection
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.isEndDocument
@@ -50,6 +51,7 @@ class ScheduleParser @Inject constructor() : Parser<Sequence<ScheduleSection>> {
             if (parser.isStartTag) {
                 when (parser.name) {
                     "conference" -> yield(parseConference(parser))
+                    "persons" -> yield(parsePersons(parser))
                     "day" -> yield(parseDay(parser))
                     else -> parser.skipToEndTag()
                 }
@@ -84,6 +86,35 @@ class ScheduleParser @Inject constructor() : Parser<Sequence<ScheduleSection>> {
             baseUrl = checkNotNull(baseUrl) { "Missing conference base_url" }
         )
     }
+
+    private fun parsePersons(parser: XmlPullParser) = ScheduleSection.Persons(
+        persons = sequence {
+            while (!parser.isNextEndTag("persons")) {
+                if (parser.isStartTag("person")) {
+                    val id = parser.getAttributeValue(null, "id")!!.toLong()
+                    var slug: String? = null
+                    var biography: String? = null
+
+                    while (!parser.isNextEndTag("person")) {
+                        if (parser.isStartTag) {
+                            when (parser.name) {
+                                "slug" -> slug = parser.nextText().takeIf { it.isNotEmpty() }
+                                "biography" -> biography = parser.nextText()
+                                else -> parser.skipToEndTag()
+                            }
+                        }
+                    }
+                    yield(
+                        PersonDetails(
+                            id = id,
+                            slug = slug,
+                            biography = biography
+                        )
+                    )
+                }
+            }
+        }
+    )
 
     private fun parseDay(parser: XmlPullParser): ScheduleSection.Day {
         val day = Day(
@@ -157,7 +188,7 @@ class ScheduleParser @Inject constructor() : Parser<Sequence<ScheduleSection>> {
                         if (parser.isStartTag("person")) {
                             val person = Person(
                                 id = parser.getAttributeValue(null, "id")!!.toLong(),
-                                name = parser.nextText()!!
+                                name = parser.nextText()
                             )
                             persons += person
                         }

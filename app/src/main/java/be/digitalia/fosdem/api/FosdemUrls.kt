@@ -1,5 +1,7 @@
 package be.digitalia.fosdem.api
 
+import java.net.URLEncoder
+
 /**
  * This class contains all FOSDEM Urls
  *
@@ -15,6 +17,10 @@ object FosdemUrls {
 
     fun getPerson(baseUrl: String, slug: String): String {
         return "${baseUrl}speaker/$slug/"
+    }
+
+    fun getPersonUri(baseUrl: String, name: String): String {
+        return "${baseUrl}speakers/#" + URLEncoder.encode(name, Charsets.UTF_8.toString())
     }
 
     fun getLocalNavigationToLocation(locationSlug: String): String {

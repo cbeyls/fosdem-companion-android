@@ -23,6 +23,7 @@ import be.digitalia.fosdem.model.Attachment
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Link
 import be.digitalia.fosdem.model.Person
+import be.digitalia.fosdem.model.PersonDetails
 import be.digitalia.fosdem.model.Track
 import dagger.Module
 import dagger.Provides
@@ -112,13 +113,18 @@ object DatabaseModule {
                 )
             }
         }
+        val migration8to9 = object : Migration(8, 9) {
+            override fun migrate(connection: SQLiteConnection) {
+                connection.execSQL("CREATE TABLE IF NOT EXISTS ${PersonDetails.TABLE_NAME} (`rowid` INTEGER NOT NULL, `slug` TEXT, `biography` TEXT, PRIMARY KEY(`rowid`))")
+            }
+        }
 
         val onDatabaseOpen = CompletableDeferred<Unit>()
 
         return Room.databaseBuilder(context, AppDatabase::class.java, DB_FILE)
             // TRUNCATE journal mode uses a single database connection
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-            .addMigrations(migration3to5, migration5to6, migration6to7, migration7to8)
+            .addMigrations(migration3to5, migration5to6, migration6to7, migration7to8, migration8to9)
             .fallbackToDestructiveMigration(true)
             .setDriver(AndroidSQLiteDriver())
             .setQueryCoroutineContext(Dispatchers.IO)

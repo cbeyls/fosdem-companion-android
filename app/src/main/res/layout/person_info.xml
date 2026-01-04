@@ -52,10 +52,12 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/person_info_fab_margin_end"
         android:contentDescription="@string/more_info"
+        android:visibility="gone"
         app:fabSize="auto"
         app:layout_anchor="@+id/appbar"
         app:layout_anchorGravity="bottom|end"
         app:srcCompat="@drawable/ic_info_white_24dp"
-        app:tint="?attr/colorOnSecondary" />
+        app:tint="?attr/colorOnSecondary"
+        tools:visibility="visible" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
