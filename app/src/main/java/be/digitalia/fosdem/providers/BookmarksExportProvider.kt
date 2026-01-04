@@ -178,7 +178,6 @@ class BookmarksExportProvider : ContentProvider() {
             write("X-ALT-DESC", description)
         }
         write("CLASS", "PUBLIC")
-        write("CATEGORIES", event.track.name)
         write("URL", event.url)
         write("LOCATION", event.roomName)
 
