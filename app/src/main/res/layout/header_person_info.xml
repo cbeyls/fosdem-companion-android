@@ -1,5 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/Header"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:layout_marginTop="12dp"
-    android:text="@string/talks_header" />
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/biography"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:saveEnabled="false"
+        android:textAppearance="?textAppearanceBody1"
+        android:textIsSelectable="true"
+        android:visibility="gone"
+        tools:text="This is the speaker bio."
+        tools:visibility="visible" />
+
+    <TextView
+        style="@style/Header"
+        android:text="@string/talks_header" />
+
+</LinearLayout>

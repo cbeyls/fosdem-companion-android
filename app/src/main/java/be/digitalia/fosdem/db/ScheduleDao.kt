@@ -394,6 +394,12 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         ORDER BY name COLLATE NOCASE""")
     abstract fun getPersons(): PagingSource<Int, Person>
 
+    /**
+     * Returns the details of the given person, if available.
+     */
+    @Query("SELECT * FROM person_details WHERE `rowid` = :person")
+    abstract suspend fun getPersonDetails(person: Person): PersonDetails?
+
     suspend fun getEventDetails(event: Event): EventDetails {
         // Load persons, attachments and links in parallel
         return coroutineScope {
