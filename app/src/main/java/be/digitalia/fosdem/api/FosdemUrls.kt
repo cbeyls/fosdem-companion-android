@@ -20,7 +20,7 @@ object FosdemUrls {
     }
 
     fun getPersonUri(baseUrl: String, name: String): String {
-        return "${baseUrl}speaker/#" + URLEncoder.encode(name, Charsets.UTF_8.toString())
+        return "${baseUrl}speakers/#" + URLEncoder.encode(name, Charsets.UTF_8.toString())
     }
 
     fun getLocalNavigationToLocation(locationSlug: String): String {
