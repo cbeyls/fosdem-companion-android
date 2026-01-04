@@ -2,6 +2,7 @@ package be.digitalia.fosdem.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageButton
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -60,7 +61,7 @@ class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule), MenuHo
             window.statusBarColor = getColor(trackType.statusBarColorResId)
             val trackAppBarColor = ContextCompat.getColorStateList(this, trackType.appBarColorResId)!!
             setTaskColorPrimary(trackAppBarColor.defaultColor)
-            toolbar.setBackgroundTintList(trackAppBarColor)
+            findViewById<View>(R.id.appbar).setBackgroundTintList(trackAppBarColor)
         } else {
             val trackTextColor = ContextCompat.getColorStateList(this, trackType.textColorResId)!!
             toolbar.setTitleTextColor(trackTextColor)

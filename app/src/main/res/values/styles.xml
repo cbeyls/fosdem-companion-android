@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Main theme -->
 
@@ -15,7 +15,7 @@
         <item name="colorScheduleTimeBackground">@color/schedule_time_background</item>
         <item name="colorScheduleTimeForeground">?android:textColorPrimary</item>
 
-        <item name="actionBarTheme">@style/ThemeOverlay.App.ActionBar</item>
+        <item name="appBarLayoutStyle">@style/Widget.App.AppBarLayout</item>
         <item name="toolbarStyle">@style/Widget.App.Toolbar</item>
         <item name="tabStyle">@style/Widget.MaterialComponents.TabLayout.PrimarySurface</item>
         <item name="recyclerViewStyle">@style/RecyclerView</item>
@@ -44,15 +44,13 @@
         <item name="colorScheduleTimeForeground">?android:textColorPrimaryInverse</item>
     </style>
 
+    <style name="Widget.App.AppBarLayout" parent="Widget.MaterialComponents.AppBarLayout.PrimarySurface">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.ActionBar</item>
+    </style>
+
     <style name="ThemeOverlay.App.ActionBar" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
 
     <style name="Widget.App.Toolbar" parent="Widget.MaterialComponents.Toolbar">
-        <item name="popupTheme">?actionBarPopupTheme</item>
-    </style>
-
-    <style name="Widget.App.Toolbar.PrimarySurface" parent="Widget.MaterialComponents.Toolbar.PrimarySurface">
-        <item name="android:elevation" tools:ignore="NewApi,PrivateResource">@dimen/design_appbar_elevation</item>
-        <item name="android:theme">?actionBarTheme</item>
         <item name="popupTheme">?actionBarPopupTheme</item>
     </style>
 

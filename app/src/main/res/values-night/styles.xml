@@ -3,10 +3,6 @@
 
     <!-- Main theme -->
 
-    <style name="ThemeOverlay.App.ActionBar" parent="ThemeOverlay.MaterialComponents.ActionBar.Surface">
-        <!-- ColorStateLists referencing attribute themes are not supported by ActionBarDrawerToggle and SearchView in API <23 -->
-        <item name="colorControlNormal">@color/on_surface_emphasis_medium</item>
-        <item name="searchViewStyle">@style/Widget.AppCompat.SearchView.ActionBar</item>
-    </style>
+    <style name="ThemeOverlay.App.ActionBar" parent="ThemeOverlay.MaterialComponents.ActionBar.Surface" />
 
 </resources>
