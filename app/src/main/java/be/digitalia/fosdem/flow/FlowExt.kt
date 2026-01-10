@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.SharingCommand
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -31,6 +32,7 @@ value class SharedFlowContext(private val subscriptionCount: StateFlow<Int>) {
                     SharingCommand.STOP_AND_RESET_REPLAY_CACHE -> emptyFlow()
                 }
             }
+            .buffer(0)
     }
 }
 
@@ -74,4 +76,5 @@ fun <T> SharedFlowContext.versionedResourceFlow(
         .flowWhileShared(SharingStarted.WhileSubscribed())
         .distinctUntilChanged()
         .mapLatest(producer)
+        .buffer(0)
 }
