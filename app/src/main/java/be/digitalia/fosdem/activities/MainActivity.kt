@@ -20,6 +20,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.edit
 import androidx.core.net.toUri
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isInvisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -188,7 +190,7 @@ class MainActivity : AppCompatActivity(R.layout.main) {
         }
 
         // Setup Main menu
-        val navigationView: NavigationView = findViewById(R.id.nav_view)
+        val navigationView: NavigationView = drawerLayout.findViewById(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener { menuItem: MenuItem ->
             lifecycleScope.launch {
                 try {
@@ -196,22 +198,39 @@ class MainActivity : AppCompatActivity(R.layout.main) {
                     withStarted {
                         handleNavigationMenuItem(menuItem)
                     }
-                } catch (e: CancellationException) {
+                } catch (_: CancellationException) {
                     // reset the menu to the current selection
                     navigationView.setCheckedItem(currentSection.menuItemId)
                 }
             }
             true
         }
-
-        // Latest update date, below the list
-        val latestUpdateTextView: TextView = navigationView.findViewById(R.id.latest_update)
+        val navigationLogoView = navigationView.inflateHeaderView(R.layout.navigation_logo)
+        ViewCompat.setOnApplyWindowInsetsListener(navigationLogoView) { v, insets ->
+            // Consume top insets as padding to shift the logo down and ignore bottom insets
+            val padding =
+                insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+            if (padding.top > 0) {
+                v.setPadding(0, padding.top, 0, 0)
+            }
+            WindowInsetsCompat.CONSUMED
+        }
+        // Latest update time, as second header below the logo
+        val latestUpdateTextView = navigationView.inflateHeaderView(R.layout.navigation_latest_update) as TextView
         lifecycleScope.launch {
             scheduleDao.latestUpdateTime.collect { time ->
                 val timeString = time?.toLocalDateTime(ZoneId.systemDefault())?.format(latestUpdateDateTimeFormatter)
                         ?: getString(R.string.never)
                 latestUpdateTextView.text = getString(R.string.last_update, timeString)
             }
+        }
+
+        // Dispatch window insets manually because DrawerLayout built-in insets logic is based on deprecated code
+        val coordinatorLayout: View = drawerLayout.findViewById(R.id.coordinator)
+        ViewCompat.setOnApplyWindowInsetsListener(drawerLayout) { _, insets ->
+            ViewCompat.dispatchApplyWindowInsets(coordinatorLayout, insets)
+            ViewCompat.dispatchApplyWindowInsets(navigationView, insets)
+            WindowInsetsCompat.CONSUMED
         }
 
         holder = ViewHolder(contentView, drawerLayout, navigationView)

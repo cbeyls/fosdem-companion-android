@@ -5,19 +5,22 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     tools:context=".activities.MainActivity">
 
     <!-- Main content view -->
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordinator"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true"
+            app:statusBarForeground="?colorPrimaryDark">
 
             <FrameLayout
                 android:layout_width="match_parent"
@@ -59,23 +62,6 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        app:headerLayout="@layout/navigation_header"
-        app:menu="@menu/main_navigation">
-
-        <TextView
-            android:id="@+id/latest_update"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/main_menu_footer_height"
-            android:layout_gravity="bottom"
-            android:background="?colorControlHighlight"
-            android:ellipsize="start"
-            android:gravity="center"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
-            android:singleLine="true"
-            android:textAppearance="?textAppearanceCaption"
-            tools:text="DB last updated: 1 jan. 2015 13:37:00" />
-
-    </com.google.android.material.navigation.NavigationView>
+        app:menu="@menu/main_navigation" />
 
 </be.digitalia.fosdem.widgets.PhotoViewDrawerLayout>

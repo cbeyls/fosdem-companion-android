@@ -3,7 +3,6 @@
 
     <dimen name="main_menu_header_margin_vertical">24dp</dimen>
     <dimen name="main_menu_padding">16dp</dimen>
-    <dimen name="main_menu_footer_height">32dp</dimen>
     <dimen name="list_item_padding">8dp</dimen>
     <dimen name="content_margin">16dp</dimen>
     <dimen name="schedule_column_width">360dp</dimen>
