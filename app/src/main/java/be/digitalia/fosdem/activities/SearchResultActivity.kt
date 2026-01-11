@@ -2,9 +2,12 @@ package be.digitalia.fosdem.activities
 
 import android.app.SearchManager
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isGone
@@ -15,6 +18,8 @@ import androidx.lifecycle.lifecycleScope
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.SearchResultListFragment
 import be.digitalia.fosdem.utils.ActivityUtils
+import be.digitalia.fosdem.utils.consumeHorizontalWindowInsetsAsPadding
+import be.digitalia.fosdem.utils.rootView
 import be.digitalia.fosdem.utils.trimNonAlpha
 import be.digitalia.fosdem.viewmodels.SearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,7 +38,11 @@ class SearchResultActivity : AppCompatActivity(R.layout.search_result) {
     private lateinit var searchEditText: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT)
+        )
         super.onCreate(savedInstanceState)
+        rootView.consumeHorizontalWindowInsetsAsPadding()
         ActivityUtils.overrideActivityTransition(
             this,
             ActivityUtils.OVERRIDE_TRANSITION_OPEN,

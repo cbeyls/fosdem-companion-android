@@ -23,11 +23,6 @@
 
     <style name="AppTheme" parent="Base.AppTheme" />
 
-    <style name="AppTheme.TranslucentStatusBar">
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-    </style>
-
     <style name="AlertDialogTheme" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>

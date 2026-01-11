@@ -1,11 +1,14 @@
 package be.digitalia.fosdem.activities
 
 import android.content.ActivityNotFoundException
+import android.graphics.Color
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.widget.ImageView
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.browser.customtabs.CustomTabsIntent
@@ -17,9 +20,11 @@ import be.digitalia.fosdem.R
 import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.api.FosdemUrls
 import be.digitalia.fosdem.utils.configureColorSchemes
+import be.digitalia.fosdem.utils.consumeHorizontalWindowInsetsAsPadding
 import be.digitalia.fosdem.utils.invertImageColors
 import be.digitalia.fosdem.utils.isLightTheme
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
+import be.digitalia.fosdem.utils.rootView
 import be.digitalia.fosdem.utils.toRoomSlug
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -37,7 +42,11 @@ class RoomImageDialogActivity : AppCompatActivity(R.layout.dialog_room_image) {
     lateinit var api: FosdemApi
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT)
+        )
         super.onCreate(savedInstanceState)
+        rootView.consumeHorizontalWindowInsetsAsPadding()
         val intent = intent
         val roomName = intent.getStringExtra(EXTRA_ROOM_NAME)!!
         val imageResId = intent.getIntExtra(EXTRA_ROOM_IMAGE_RESOURCE_ID, 0)
