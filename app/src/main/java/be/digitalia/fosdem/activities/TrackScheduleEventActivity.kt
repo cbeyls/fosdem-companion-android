@@ -3,7 +3,6 @@ package be.digitalia.fosdem.activities
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.view.View
 import android.widget.ImageButton
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
@@ -36,6 +35,7 @@ import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel
 import be.digitalia.fosdem.viewmodels.TrackScheduleEventViewModel
 import be.digitalia.fosdem.widgets.ContentLoadingViewMediator
 import be.digitalia.fosdem.widgets.setupBookmarkStatus
+import com.google.android.material.appbar.AppBarLayout
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.withCreationCallback
 import kotlinx.coroutines.launch
@@ -91,10 +91,12 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
         title = "$track, $day"
         val trackType = track.type
         if (isLightTheme) {
-            window.statusBarColor = getColor(trackType.statusBarColorResId)
             val trackAppBarColor = ContextCompat.getColorStateList(this, trackType.appBarColorResId)!!
             setTaskColorPrimary(trackAppBarColor.defaultColor)
-            findViewById<View>(R.id.appbar).setBackgroundTintList(trackAppBarColor)
+            findViewById<AppBarLayout>(R.id.appbar).apply {
+                backgroundTintList = trackAppBarColor
+                statusBarForeground = getDrawable(trackType.statusBarColorResId)
+            }
         } else {
             val trackTextColor = ContextCompat.getColorStateList(this, trackType.textColorResId)!!
             toolbar.setTitleTextColor(trackTextColor)
