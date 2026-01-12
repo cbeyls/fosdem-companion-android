@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.Animatable
+import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.Menu
@@ -225,12 +226,16 @@ class MainActivity : AppCompatActivity(R.layout.main) {
             }
         }
 
-        // Dispatch window insets manually because DrawerLayout built-in insets logic is based on deprecated code
-        val coordinatorLayout: View = drawerLayout.findViewById(R.id.coordinator)
-        ViewCompat.setOnApplyWindowInsetsListener(drawerLayout) { _, insets ->
-            ViewCompat.dispatchApplyWindowInsets(coordinatorLayout, insets)
-            ViewCompat.dispatchApplyWindowInsets(navigationView, insets)
-            WindowInsetsCompat.CONSUMED
+        // Dispatch window insets manually to DrawerLayout children because DrawerLayout custom insets logic
+        // (enabled with fitsSystemWindows) is based on deprecated code.
+        // Starting with API 30, the framework will properly dispatch the original insets to all sibling child views.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            val coordinatorLayout: View = drawerLayout.findViewById(R.id.coordinator)
+            ViewCompat.setOnApplyWindowInsetsListener(drawerLayout) { _, insets ->
+                ViewCompat.dispatchApplyWindowInsets(coordinatorLayout, insets)
+                ViewCompat.dispatchApplyWindowInsets(navigationView, insets)
+                WindowInsetsCompat.CONSUMED
+            }
         }
 
         holder = ViewHolder(contentView, drawerLayout, navigationView)
