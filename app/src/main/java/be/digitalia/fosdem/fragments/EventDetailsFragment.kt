@@ -98,7 +98,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
                 isVisible = url != null
                 intent = url?.let { createShareChooserIntent(event.title.orEmpty(), url) }
             }
-            menu.findItem(R.id.submit_feedback)?.setVisible(event.feedbackUrl != null)
+            menu.findItem(R.id.submit_feedback)?.isVisible = event.feedbackUrl != null
         }
 
         private fun createShareChooserIntent(title: String, url: String): Intent {

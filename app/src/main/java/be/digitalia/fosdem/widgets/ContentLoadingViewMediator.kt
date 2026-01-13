@@ -12,7 +12,7 @@ import androidx.core.view.isVisible
  *
  * @author Christophe Beyls
  */
-class ContentLoadingViewMediator(private val view: View) {
+class ContentLoadingViewMediator(val view: View) {
 
     init {
         view.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {

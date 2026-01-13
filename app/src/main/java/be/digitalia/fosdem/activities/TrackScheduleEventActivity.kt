@@ -2,6 +2,7 @@ package be.digitalia.fosdem.activities
 
 import android.content.Intent
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.widget.ImageButton
 import androidx.activity.SystemBarStyle
@@ -10,6 +11,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -70,10 +73,23 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
         )
         super.onCreate(savedInstanceState)
         rootView.consumeHorizontalWindowInsetsAsPadding()
-        setSupportActionBar(findViewById(R.id.bottom_appbar))
+        val bottomAppBar: Toolbar = findViewById(R.id.bottom_appbar)
+        setSupportActionBar(bottomAppBar)
 
         val progress = ContentLoadingViewMediator(findViewById(R.id.progress))
         val pager: ViewPager2 = findViewById(R.id.pager)
+        // Shift the main content up according to insets, since it's covered by the bottom navigation
+        ViewCompat.setOnApplyWindowInsetsListener(pager) { v, insets ->
+            val padding = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+            v.setPadding(padding.left, 0, padding.right, padding.bottom)
+            // Since older Android versions don't dispatch insets to siblings once consumed, do it manually
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                ViewCompat.dispatchApplyWindowInsets(bottomAppBar, insets)
+            }
+            WindowInsetsCompat.CONSUMED
+        }
         pager.recyclerView.enforceSingleScrollDirection()
         val adapter = TrackScheduleEventAdapter(this)
 

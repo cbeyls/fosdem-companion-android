@@ -12,6 +12,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import androidx.viewpager2.widget.WindowInsetsApplier
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.utils.enforceSingleScrollDirection
@@ -48,6 +49,7 @@ class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvi
         val holder = ViewHolder(view).apply {
             pager.apply {
                 offscreenPageLimit = 1
+                WindowInsetsApplier.install(this)
                 recyclerView.enforceSingleScrollDirection()
             }
         }

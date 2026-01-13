@@ -11,6 +11,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
@@ -55,6 +57,18 @@ class EventDetailsActivity : AppCompatActivity(R.layout.single_event) {
         super.onCreate(savedInstanceState)
         rootView.consumeHorizontalWindowInsetsAsPadding()
         setSupportActionBar(findViewById(R.id.bottom_appbar))
+
+        // Shift the main content up according to insets, since it's covered by the bottom navigation
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.content)) { v, insets ->
+            val padding = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+            v.setPadding(padding.left, 0, padding.right, padding.bottom)
+            // Note: we don't need to manually dispatch the insets to siblings in older Android versions
+            // because the content view is a FragmentContainerView which always returns the original insets,
+            // even if we return CONSUMED here.
+            WindowInsetsCompat.CONSUMED
+        }
 
         findViewById<ImageButton>(R.id.fab).setupBookmarkStatus(bookmarkStatusViewModel, this)
 

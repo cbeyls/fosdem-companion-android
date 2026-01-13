@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import androidx.viewpager2.widget.WindowInsetsApplier
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.utils.enforceSingleScrollDirection
 import be.digitalia.fosdem.utils.recyclerView
@@ -30,6 +31,7 @@ class LiveFragment : Fragment(R.layout.fragment_live), RecycledViewPoolProvider 
             pager.apply {
                 adapter = pagerAdapter
                 offscreenPageLimit = 1
+                WindowInsetsApplier.install(this)
                 recyclerView.enforceSingleScrollDirection()
             }
 
