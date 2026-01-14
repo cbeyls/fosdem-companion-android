@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.Color
 import android.graphics.drawable.Animatable
 import android.os.Build
 import android.os.Bundle
@@ -13,8 +12,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.annotation.IdRes
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -46,6 +43,7 @@ import be.digitalia.fosdem.utils.configureColorSchemes
 import be.digitalia.fosdem.utils.consumeHorizontalWindowInsetsAsPadding
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.utils.rootView
+import be.digitalia.fosdem.utils.setupEdgeToEdge
 import be.digitalia.fosdem.utils.toLocalDateTime
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.progressindicator.BaseProgressIndicator
@@ -110,9 +108,7 @@ class MainActivity : AppCompatActivity(R.layout.main) {
 
     @SuppressLint("WrongConstant")
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT)
-        )
+        setupEdgeToEdge()
         super.onCreate(savedInstanceState)
         rootView.consumeHorizontalWindowInsetsAsPadding()
         setSupportActionBar(findViewById(R.id.toolbar))

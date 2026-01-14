@@ -1,11 +1,8 @@
 package be.digitalia.fosdem.activities
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.widget.ImageButton
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -28,6 +25,7 @@ import be.digitalia.fosdem.utils.isLightTheme
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.utils.rootView
 import be.digitalia.fosdem.utils.setTaskColorPrimary
+import be.digitalia.fosdem.utils.setupEdgeToEdge
 import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel
 import be.digitalia.fosdem.viewmodels.TrackScheduleViewModel
 import be.digitalia.fosdem.widgets.setupBookmarkStatus
@@ -48,9 +46,7 @@ class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule), MenuHo
     override val menuHostMediator = MenuHostMediator(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT)
-        )
+        setupEdgeToEdge()
         super.onCreate(savedInstanceState)
         rootView.consumeHorizontalWindowInsetsAsPadding()
         val toolbar: Toolbar = findViewById(R.id.toolbar)

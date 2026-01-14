@@ -2,12 +2,9 @@ package be.digitalia.fosdem.activities
 
 import android.app.SearchManager
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isGone
@@ -17,9 +14,11 @@ import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.SearchResultListFragment
-import be.digitalia.fosdem.utils.ActivityUtils
+import be.digitalia.fosdem.utils.ActivityTransitionOverrideType
 import be.digitalia.fosdem.utils.consumeHorizontalWindowInsetsAsPadding
+import be.digitalia.fosdem.utils.overrideActivityTransitionCompat
 import be.digitalia.fosdem.utils.rootView
+import be.digitalia.fosdem.utils.setupEdgeToEdge
 import be.digitalia.fosdem.utils.trimNonAlpha
 import be.digitalia.fosdem.viewmodels.SearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -38,22 +37,18 @@ class SearchResultActivity : AppCompatActivity(R.layout.search_result) {
     private lateinit var searchEditText: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT)
-        )
+        setupEdgeToEdge()
         super.onCreate(savedInstanceState)
         rootView.consumeHorizontalWindowInsetsAsPadding()
-        ActivityUtils.overrideActivityTransition(
-            this,
-            ActivityUtils.OVERRIDE_TRANSITION_OPEN,
-            R.anim.fade_in,
-            R.anim.fade_out
+        overrideActivityTransitionCompat(
+            overrideType = ActivityTransitionOverrideType.OPEN,
+            enterAnim = R.anim.fade_in,
+            exitAnim = R.anim.fade_out
         )
-        ActivityUtils.overrideActivityTransition(
-            this,
-            ActivityUtils.OVERRIDE_TRANSITION_CLOSE,
-            R.anim.fade_in,
-            R.anim.fade_out
+        overrideActivityTransitionCompat(
+            overrideType = ActivityTransitionOverrideType.CLOSE,
+            enterAnim = R.anim.fade_in,
+            exitAnim = R.anim.fade_out
         )
         setSupportActionBar(findViewById(R.id.toolbar))
 

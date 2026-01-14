@@ -1,9 +1,6 @@
 package be.digitalia.fosdem.activities
 
-import android.graphics.Color
 import android.os.Bundle
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
@@ -11,15 +8,14 @@ import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.ExternalBookmarksListFragment
 import be.digitalia.fosdem.utils.consumeHorizontalWindowInsetsAsPadding
 import be.digitalia.fosdem.utils.rootView
+import be.digitalia.fosdem.utils.setupEdgeToEdge
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class ExternalBookmarksActivity : AppCompatActivity(R.layout.content) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT)
-        )
+        setupEdgeToEdge()
         super.onCreate(savedInstanceState)
         rootView.consumeHorizontalWindowInsetsAsPadding()
         setSupportActionBar(findViewById(R.id.toolbar))

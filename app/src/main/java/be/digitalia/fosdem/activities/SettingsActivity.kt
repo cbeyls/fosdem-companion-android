@@ -1,38 +1,33 @@
 package be.digitalia.fosdem.activities
 
-import android.graphics.Color
 import android.os.Bundle
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.SettingsFragment
-import be.digitalia.fosdem.utils.ActivityUtils
+import be.digitalia.fosdem.utils.ActivityTransitionOverrideType
 import be.digitalia.fosdem.utils.consumeHorizontalWindowInsetsAsPadding
+import be.digitalia.fosdem.utils.overrideActivityTransitionCompat
 import be.digitalia.fosdem.utils.rootView
+import be.digitalia.fosdem.utils.setupEdgeToEdge
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class SettingsActivity : AppCompatActivity(R.layout.content) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT)
-        )
+        setupEdgeToEdge()
         super.onCreate(savedInstanceState)
         rootView.consumeHorizontalWindowInsetsAsPadding()
-        ActivityUtils.overrideActivityTransition(
-            this,
-            ActivityUtils.OVERRIDE_TRANSITION_OPEN,
-            R.anim.slide_in_right,
-            R.anim.partial_zoom_out
+        overrideActivityTransitionCompat(
+            overrideType = ActivityTransitionOverrideType.OPEN,
+            enterAnim = R.anim.slide_in_right,
+            exitAnim = R.anim.partial_zoom_out
         )
-        ActivityUtils.overrideActivityTransition(
-            this,
-            ActivityUtils.OVERRIDE_TRANSITION_CLOSE,
-            R.anim.partial_zoom_in,
-            R.anim.slide_out_right
+        overrideActivityTransitionCompat(
+            overrideType = ActivityTransitionOverrideType.CLOSE,
+            enterAnim = R.anim.partial_zoom_in,
+            exitAnim = R.anim.slide_out_right
         )
         setSupportActionBar(findViewById(R.id.toolbar))
 

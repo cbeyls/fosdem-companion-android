@@ -1,9 +1,6 @@
 package be.digitalia.fosdem.activities
 
-import android.graphics.Color
 import android.os.Bundle
-import androidx.activity.SystemBarStyle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
@@ -13,6 +10,7 @@ import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.utils.consumeHorizontalWindowInsetsAsPadding
 import be.digitalia.fosdem.utils.getParcelableExtraCompat
 import be.digitalia.fosdem.utils.rootView
+import be.digitalia.fosdem.utils.setupEdgeToEdge
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -20,9 +18,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class PersonInfoActivity : AppCompatActivity(R.layout.person_info), FabOwner {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT)
-        )
+        setupEdgeToEdge()
         super.onCreate(savedInstanceState)
         rootView.consumeHorizontalWindowInsetsAsPadding()
         setSupportActionBar(findViewById(R.id.toolbar))
