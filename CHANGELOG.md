@@ -1,6 +1,17 @@
 Change Log
 ==========
 
+## Version 2.3.0
+
+_2026-01-16_
+
+- Feature: edge-to-edge display on all Android versions
+- Feature: added speaker biographies
+- Enhancement: links to speaker info web pages are now retrieved from the schedule data
+- Updated campus map image to 2026 version
+- Upgrade libraries, Kotlin, Gradle plugin and build tools to their latest versions
+- Change min SDK version to 23 (Android 6) and target SDK version to 36 (Android 16).
+
 ## Version 2.2.9
 
 _2025-01-23_
