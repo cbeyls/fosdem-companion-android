@@ -56,11 +56,11 @@ class PersonInfoListFragment : Fragment(R.layout.recyclerview) {
 
         val headerAdapter = HeaderAdapter()
         val eventsAdapter = EventsAdapter(view.context)
-        val holder = RecyclerViewViewHolder(view).apply {
+        val holder = RecyclerViewViewHolder(
+            view = view,
+            contentPadding = resources.getDimensionPixelSize(R.dimen.content_margin)
+        ).apply {
             recyclerView.apply {
-                val contentMargin = resources.getDimensionPixelSize(R.dimen.content_margin)
-                setPadding(contentMargin, contentMargin, contentMargin, contentMargin)
-                clipToPadding = false
                 scrollBarStyle = View.SCROLLBARS_OUTSIDE_OVERLAY
                 layoutManager = LinearLayoutManager(context)
             }

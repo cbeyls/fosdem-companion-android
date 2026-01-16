@@ -1,13 +1,15 @@
 package be.digitalia.fosdem.activities
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
-import android.view.View
 import android.widget.ImageButton
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -21,16 +23,20 @@ import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.MenuHostMediator
+import be.digitalia.fosdem.utils.consumeHorizontalWindowInsetsAsPadding
 import be.digitalia.fosdem.utils.enforceSingleScrollDirection
 import be.digitalia.fosdem.utils.getParcelableExtraCompat
 import be.digitalia.fosdem.utils.instantiate
 import be.digitalia.fosdem.utils.isLightTheme
 import be.digitalia.fosdem.utils.recyclerView
+import be.digitalia.fosdem.utils.rootView
 import be.digitalia.fosdem.utils.setTaskColorPrimary
+import be.digitalia.fosdem.utils.setupEdgeToEdge
 import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel
 import be.digitalia.fosdem.viewmodels.TrackScheduleEventViewModel
 import be.digitalia.fosdem.widgets.ContentLoadingViewMediator
 import be.digitalia.fosdem.widgets.setupBookmarkStatus
+import com.google.android.material.appbar.AppBarLayout
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.withCreationCallback
 import kotlinx.coroutines.launch
@@ -60,11 +66,26 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
     override val menuHostMediator = MenuHostMediator(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setupEdgeToEdge(isNavigationBarScrimEnabled = false)
         super.onCreate(savedInstanceState)
-        setSupportActionBar(findViewById(R.id.bottom_appbar))
+        rootView.consumeHorizontalWindowInsetsAsPadding()
+        val bottomAppBar: Toolbar = findViewById(R.id.bottom_appbar)
+        setSupportActionBar(bottomAppBar)
 
         val progress = ContentLoadingViewMediator(findViewById(R.id.progress))
         val pager: ViewPager2 = findViewById(R.id.pager)
+        // Shift the main content up according to insets, since it's covered by the bottom navigation
+        ViewCompat.setOnApplyWindowInsetsListener(pager) { v, insets ->
+            val padding = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+            v.setPadding(padding.left, 0, padding.right, padding.bottom)
+            // Since older Android versions don't dispatch insets to siblings once consumed, do it manually
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                ViewCompat.dispatchApplyWindowInsets(bottomAppBar, insets)
+            }
+            WindowInsetsCompat.CONSUMED
+        }
         pager.recyclerView.enforceSingleScrollDirection()
         val adapter = TrackScheduleEventAdapter(this)
 
@@ -82,10 +103,12 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
         title = "$track, $day"
         val trackType = track.type
         if (isLightTheme) {
-            window.statusBarColor = getColor(trackType.statusBarColorResId)
             val trackAppBarColor = ContextCompat.getColorStateList(this, trackType.appBarColorResId)!!
             setTaskColorPrimary(trackAppBarColor.defaultColor)
-            findViewById<View>(R.id.appbar).setBackgroundTintList(trackAppBarColor)
+            findViewById<AppBarLayout>(R.id.appbar).apply {
+                backgroundTintList = trackAppBarColor
+                statusBarForeground = getDrawable(trackType.statusBarColorResId)
+            }
         } else {
             val trackTextColor = ContextCompat.getColorStateList(this, trackType.textColorResId)!!
             toolbar.setTitleTextColor(trackTextColor)

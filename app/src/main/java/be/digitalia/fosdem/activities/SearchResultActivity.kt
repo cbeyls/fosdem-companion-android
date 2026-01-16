@@ -14,7 +14,11 @@ import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.SearchResultListFragment
-import be.digitalia.fosdem.utils.ActivityUtils
+import be.digitalia.fosdem.utils.ActivityTransitionOverrideType
+import be.digitalia.fosdem.utils.consumeHorizontalWindowInsetsAsPadding
+import be.digitalia.fosdem.utils.overrideActivityTransitionCompat
+import be.digitalia.fosdem.utils.rootView
+import be.digitalia.fosdem.utils.setupEdgeToEdge
 import be.digitalia.fosdem.utils.trimNonAlpha
 import be.digitalia.fosdem.viewmodels.SearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,18 +37,18 @@ class SearchResultActivity : AppCompatActivity(R.layout.search_result) {
     private lateinit var searchEditText: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setupEdgeToEdge()
         super.onCreate(savedInstanceState)
-        ActivityUtils.overrideActivityTransition(
-            this,
-            ActivityUtils.OVERRIDE_TRANSITION_OPEN,
-            R.anim.fade_in,
-            R.anim.fade_out
+        rootView.consumeHorizontalWindowInsetsAsPadding()
+        overrideActivityTransitionCompat(
+            overrideType = ActivityTransitionOverrideType.OPEN,
+            enterAnim = R.anim.fade_in,
+            exitAnim = R.anim.fade_out
         )
-        ActivityUtils.overrideActivityTransition(
-            this,
-            ActivityUtils.OVERRIDE_TRANSITION_CLOSE,
-            R.anim.fade_in,
-            R.anim.fade_out
+        overrideActivityTransitionCompat(
+            overrideType = ActivityTransitionOverrideType.CLOSE,
+            enterAnim = R.anim.fade_in,
+            exitAnim = R.anim.fade_out
         )
         setSupportActionBar(findViewById(R.id.toolbar))
 

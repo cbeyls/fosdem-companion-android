@@ -8,6 +8,7 @@
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipToPadding="false"
         android:scrollbars="none"
         app:fastScrollEnabled="true"
         app:fastScrollHorizontalThumbDrawable="@drawable/fastscroll_thumb_material"
@@ -19,8 +20,8 @@
         android:id="@android:id/empty"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:padding="16dp" />
+        android:layout_margin="16dp"
+        android:gravity="center" />
 
     <ProgressBar
         android:id="@android:id/progress"

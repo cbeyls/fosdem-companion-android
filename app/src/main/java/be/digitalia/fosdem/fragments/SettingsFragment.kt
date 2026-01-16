@@ -8,16 +8,22 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
 import androidx.core.text.method.LinkMovementMethodCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.DialogFragment
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.TwoStatePreference
+import androidx.recyclerview.widget.RecyclerView
 import be.digitalia.fosdem.BuildConfig
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.alarms.AppAlarmManager
@@ -81,6 +87,29 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
         setupAboutDialog()
         populateVersion()
+    }
+
+    override fun onCreateRecyclerView(
+        inflater: LayoutInflater,
+        parent: ViewGroup,
+        savedInstanceState: Bundle?
+    ): RecyclerView = super.onCreateRecyclerView(inflater, parent, savedInstanceState).also { recyclerView ->
+        // Handle WindowInsets
+        recyclerView.clipToPadding = false
+        val initialPaddingLeft = recyclerView.paddingLeft
+        val initialPaddingRight = recyclerView.paddingRight
+        val initialPaddingBottom = recyclerView.paddingTop
+        ViewCompat.setOnApplyWindowInsetsListener(recyclerView) { v, insets ->
+            val padding = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+            v.updatePadding(
+                left = initialPaddingLeft + padding.left,
+                right = initialPaddingRight + padding.right,
+                bottom = initialPaddingBottom + padding.bottom
+            )
+            WindowInsetsCompat.CONSUMED
+        }
     }
 
     private fun setupNotifications() {

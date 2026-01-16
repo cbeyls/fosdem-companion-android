@@ -5,7 +5,6 @@
     android:layout_height="wrap_content"
     android:layout_marginVertical="@dimen/main_menu_header_margin_vertical"
     android:contentDescription="@string/app_name"
-    android:fitsSystemWindows="true"
     android:scaleType="center"
     app:srcCompat="@drawable/fosdem_title"
     app:tint="?colorOnSurface" />

@@ -2,11 +2,13 @@ package be.digitalia.fosdem.fragments
 
 import android.view.View
 import android.widget.TextView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import be.digitalia.fosdem.widgets.ContentLoadingViewMediator
 
-class RecyclerViewViewHolder(view: View) {
+class RecyclerViewViewHolder(view: View, contentPadding: Int = 0) {
     val recyclerView: RecyclerView = view.findViewById(android.R.id.list)
     private val emptyView: View = view.findViewById(android.R.id.empty)
     private val progress = ContentLoadingViewMediator(view.findViewById(android.R.id.progress))
@@ -26,7 +28,37 @@ class RecyclerViewViewHolder(view: View) {
     }
 
     init {
-        recyclerView.setHasFixedSize(true)
+        recyclerView.apply {
+            setHasFixedSize(true)
+            setPadding(contentPadding, contentPadding, contentPadding, contentPadding)
+        }
+        // Consume horizontal and bottom insets and apply them to all content views as padding
+        ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
+            val padding = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or
+                        WindowInsetsCompat.Type.displayCutout() or
+                        WindowInsetsCompat.Type.ime()
+            )
+            recyclerView.setPadding(
+                contentPadding + padding.left,
+                contentPadding,
+                contentPadding + padding.right,
+                contentPadding + padding.bottom
+            )
+            emptyView.setPadding(
+                padding.left,
+                0,
+                padding.right,
+                padding.bottom
+            )
+            progress.view.setPadding(
+                padding.left,
+                0,
+                padding.right,
+                padding.bottom
+            )
+            WindowInsetsCompat.CONSUMED
+        }
         progress.isVisible = false
     }
 

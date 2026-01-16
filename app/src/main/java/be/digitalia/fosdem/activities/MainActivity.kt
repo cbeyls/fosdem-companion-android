@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.drawable.Animatable
+import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.Menu
@@ -17,6 +18,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.edit
 import androidx.core.net.toUri
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isInvisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -37,7 +40,10 @@ import be.digitalia.fosdem.model.DownloadScheduleResult
 import be.digitalia.fosdem.model.LoadingState
 import be.digitalia.fosdem.utils.awaitCloseDrawer
 import be.digitalia.fosdem.utils.configureColorSchemes
+import be.digitalia.fosdem.utils.consumeHorizontalWindowInsetsAsPadding
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
+import be.digitalia.fosdem.utils.rootView
+import be.digitalia.fosdem.utils.setupEdgeToEdge
 import be.digitalia.fosdem.utils.toLocalDateTime
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.progressindicator.BaseProgressIndicator
@@ -102,7 +108,9 @@ class MainActivity : AppCompatActivity(R.layout.main) {
 
     @SuppressLint("WrongConstant")
     override fun onCreate(savedInstanceState: Bundle?) {
+        setupEdgeToEdge()
         super.onCreate(savedInstanceState)
+        rootView.consumeHorizontalWindowInsetsAsPadding()
         setSupportActionBar(findViewById(R.id.toolbar))
         val contentView: View = findViewById(R.id.content)
         val progressIndicator: BaseProgressIndicator<*> = findViewById(R.id.progress)
@@ -179,7 +187,7 @@ class MainActivity : AppCompatActivity(R.layout.main) {
         }
 
         // Setup Main menu
-        val navigationView: NavigationView = findViewById(R.id.nav_view)
+        val navigationView: NavigationView = drawerLayout.findViewById(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener { menuItem: MenuItem ->
             lifecycleScope.launch {
                 try {
@@ -187,21 +195,42 @@ class MainActivity : AppCompatActivity(R.layout.main) {
                     withStarted {
                         handleNavigationMenuItem(menuItem)
                     }
-                } catch (e: CancellationException) {
+                } catch (_: CancellationException) {
                     // reset the menu to the current selection
                     navigationView.setCheckedItem(currentSection.menuItemId)
                 }
             }
             true
         }
-
-        // Latest update date, below the list
-        val latestUpdateTextView: TextView = navigationView.findViewById(R.id.latest_update)
+        val navigationLogoView = navigationView.inflateHeaderView(R.layout.navigation_logo)
+        ViewCompat.setOnApplyWindowInsetsListener(navigationLogoView) { v, insets ->
+            // Consume top insets as padding to shift the logo down and ignore bottom insets
+            val padding =
+                insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+            if (padding.top > 0) {
+                v.setPadding(0, padding.top, 0, 0)
+            }
+            WindowInsetsCompat.CONSUMED
+        }
+        // Latest update time, as second header below the logo
+        val latestUpdateTextView = navigationView.inflateHeaderView(R.layout.navigation_latest_update) as TextView
         lifecycleScope.launch {
             scheduleDao.latestUpdateTime.collect { time ->
                 val timeString = time?.toLocalDateTime(ZoneId.systemDefault())?.format(latestUpdateDateTimeFormatter)
                         ?: getString(R.string.never)
                 latestUpdateTextView.text = getString(R.string.last_update, timeString)
+            }
+        }
+
+        // Dispatch window insets manually to DrawerLayout children because DrawerLayout custom insets logic
+        // (enabled with fitsSystemWindows) is based on deprecated code.
+        // Starting with API 30, the framework will properly dispatch the original insets to all sibling child views.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            val coordinatorLayout: View = drawerLayout.findViewById(R.id.coordinator)
+            ViewCompat.setOnApplyWindowInsetsListener(drawerLayout) { _, insets ->
+                ViewCompat.dispatchApplyWindowInsets(coordinatorLayout, insets)
+                ViewCompat.dispatchApplyWindowInsets(navigationView, insets)
+                WindowInsetsCompat.CONSUMED
             }
         }
 
