@@ -44,6 +44,8 @@ android {
                         "kotlin-tooling-metadata.json",
                         "kotlin/**",
                         "META-INF/*.version",
+                        "META-INF/androidx/**",
+                        "META-INF/native-image/**",
                         "META-INF/versions/**",
                         "META-INF/NOTICE.md"
                     )
