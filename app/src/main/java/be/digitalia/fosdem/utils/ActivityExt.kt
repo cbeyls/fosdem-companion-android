@@ -3,10 +3,12 @@ package be.digitalia.fosdem.utils
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.AnimRes
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 
@@ -37,6 +39,9 @@ fun ComponentActivity.overrideActivityTransitionCompat(
         }
     }
 }
+
+val AppCompatActivity.rootView: View
+    get() = findViewById(android.R.id.content)
 
 private val DefaultLightScrim = Color.argb(0xe6, 0xFF, 0xFF, 0xFF)
 private val DefaultDarkScrim = Color.argb(0x80, 0x1b, 0x1b, 0x1b)

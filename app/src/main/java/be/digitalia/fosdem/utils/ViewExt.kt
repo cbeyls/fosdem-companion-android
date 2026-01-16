@@ -1,12 +1,8 @@
 package be.digitalia.fosdem.utils
 
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-
-val AppCompatActivity.rootView: View
-    get() = findViewById(android.R.id.content)
 
 /**
  * To be applied to the root view to consume horizontal insets as padding
