@@ -31,6 +31,7 @@ import be.digitalia.fosdem.R
 import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.api.FosdemUrls
 import be.digitalia.fosdem.db.ScheduleDao
+import be.digitalia.fosdem.fragments.BookmarksCalendarFragment
 import be.digitalia.fosdem.fragments.BookmarksListFragment
 import be.digitalia.fosdem.fragments.LiveFragment
 import be.digitalia.fosdem.fragments.MapFragment
@@ -74,6 +75,7 @@ class MainActivity : AppCompatActivity(R.layout.main) {
                                val keep: Boolean) {
         TRACKS(TracksFragment::class.java, R.id.menu_tracks, true, true),
         BOOKMARKS(BookmarksListFragment::class.java, R.id.menu_bookmarks, false, true),
+        BOOKMARKS_CALENDAR(BookmarksCalendarFragment::class.java, R.id.menu_bookmarks_calendar, true, true),
         LIVE(LiveFragment::class.java, R.id.menu_live, true, false),
         SPEAKERS(PersonsListFragment::class.java, R.id.menu_speakers, false, false),
         MAP(MapFragment::class.java, R.id.menu_map, false, false);

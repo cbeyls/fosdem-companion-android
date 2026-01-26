@@ -255,6 +255,9 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     @Query("DELETE FROM bookmarks WHERE event_id < :minEventId")
     protected abstract suspend fun purgeOutdatedBookmarks(minEventId: Long)
 
+    @Query("SELECT DISTINCT room_name FROM events WHERE room_name IS NOT NULL")
+    abstract suspend fun getDistinctRoomNames(): List<String>
+
     suspend fun clearSchedule() {
         appDatabase.useWriterConnection { transactor ->
             transactor.immediateTransaction {

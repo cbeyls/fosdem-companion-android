@@ -16,4 +16,11 @@
     <dimen name="detail_fab_margin_end">20dp</dimen>
     <dimen name="person_info_fab_margin_end">16dp</dimen>
 
+    <!-- Calendar view -->
+    <dimen name="calendar_hour_height">120dp</dimen>
+    <dimen name="calendar_time_column_width">56dp</dimen>
+    <dimen name="calendar_event_min_height">24dp</dimen>
+    <dimen name="calendar_event_padding">2dp</dimen>
+    <dimen name="calendar_event_corner_radius">4dp</dimen>
+
 </resources>
