@@ -19,8 +19,10 @@ import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.BookmarksCalendarViewModel
 import be.digitalia.fosdem.widgets.CalendarDayView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import java.time.Instant
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -74,6 +76,12 @@ class BookmarksCalendarDayFragment : Fragment(R.layout.fragment_bookmarks_calend
                 viewModel.bookmarksByDay.filterNotNull().collect { bookmarksByDay ->
                     val dayBookmarks = bookmarksByDay[day.index] ?: emptyList()
                     calendarDayView.events = dayBookmarks
+                }
+            }
+            launch {
+                while (true) {
+                    calendarDayView.currentTime = Instant.now()
+                    delay(60_000L)
                 }
             }
         }

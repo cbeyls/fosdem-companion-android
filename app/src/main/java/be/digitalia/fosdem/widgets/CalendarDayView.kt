@@ -19,6 +19,7 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.customview.widget.ExploreByTouchHelper
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.model.Event
+import java.time.Instant
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -41,13 +42,24 @@ class CalendarDayView @JvmOverloads constructor(
         const val DEFAULT_START_HOUR = 8
         const val DEFAULT_END_HOUR = 24
         const val PADDING_MINUTES = 30
+        const val PAST_EVENT_ALPHA = 100 // out of 255
     }
 
     private data class EventLayout(
         val event: Event,
         val rect: RectF,
-        val backgroundColor: Int
+        val backgroundColor: Int,
+        val isPast: Boolean
     )
+
+    var currentTime: Instant? = null
+        set(value) {
+            if (field != value) {
+                field = value
+                layoutEvents()
+                invalidate()
+            }
+        }
 
     var timeZoneOverride: ZoneId? = null
         set(value) {
@@ -269,7 +281,8 @@ class CalendarDayView @JvmOverloads constructor(
                 val right = left + columnWidth - 2 * eventPadding
 
                 val backgroundColor = roomColorProvider?.invoke(event.roomName ?: "") ?: DEFAULT_COLOR
-                layouts.add(EventLayout(event, RectF(left, top, right, bottom), backgroundColor))
+                val isPast = currentTime != null && event.endTime != null && event.endTime <= currentTime
+                layouts.add(EventLayout(event, RectF(left, top, right, bottom), backgroundColor, isPast))
             }
         }
 
@@ -315,13 +328,18 @@ class CalendarDayView @JvmOverloads constructor(
         for (layout in eventLayouts) {
             val rect = layout.rect
             val event = layout.event
+            val alpha = if (layout.isPast) PAST_EVENT_ALPHA else 255
 
             // Draw event background
             eventPaint.color = layout.backgroundColor
+            eventPaint.alpha = alpha
             canvas.drawRoundRect(rect, eventCornerRadius, eventCornerRadius, eventPaint)
 
             // Draw event border
+            val savedBorderAlpha = eventBorderPaint.alpha
+            eventBorderPaint.alpha = savedBorderAlpha * alpha / 255
             canvas.drawRoundRect(rect, eventCornerRadius, eventCornerRadius, eventBorderPaint)
+            eventBorderPaint.alpha = savedBorderAlpha
 
             // Draw event content
             val textPadding = 4 * resources.displayMetrics.density
@@ -329,17 +347,23 @@ class CalendarDayView @JvmOverloads constructor(
             val availableTextWidth = rect.width() - 2 * textPadding
 
             // Draw title
+            val savedTitleAlpha = eventTitlePaint.alpha
+            eventTitlePaint.alpha = savedTitleAlpha * alpha / 255
             val titleY = rect.top + eventTitlePaint.textSize + textPadding
             val title = event.title ?: ""
             val ellipsizedTitle = ellipsizeText(title, eventTitlePaint, availableTextWidth)
             canvas.drawText(ellipsizedTitle, textX, min(titleY, rect.bottom - textPadding), eventTitlePaint)
+            eventTitlePaint.alpha = savedTitleAlpha
 
             // Draw room name if there's space
             val roomY = titleY + eventRoomPaint.textSize + 2 * resources.displayMetrics.density
             if (roomY < rect.bottom - textPadding) {
+                val savedRoomAlpha = eventRoomPaint.alpha
+                eventRoomPaint.alpha = savedRoomAlpha * alpha / 255
                 val roomName = event.roomName ?: ""
                 val ellipsizedRoom = ellipsizeText(roomName, eventRoomPaint, availableTextWidth)
                 canvas.drawText(ellipsizedRoom, textX, roomY, eventRoomPaint)
+                eventRoomPaint.alpha = savedRoomAlpha
             }
         }
     }
