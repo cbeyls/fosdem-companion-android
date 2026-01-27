@@ -109,6 +109,9 @@ class CalendarDayView @JvmOverloads constructor(
     private val gridPaint: Paint
     private val hourTextPaint: Paint
     private val eventBorderPaint: Paint
+    private val currentTimeLinePaint: Paint
+    private val currentTimeCirclePaint: Paint
+    private val currentTimeCircleRadius: Float
 
     init {
         // Get theme colors
@@ -135,6 +138,18 @@ class CalendarDayView @JvmOverloads constructor(
             color = (textColorPrimary and 0x00FFFFFF) or 0x60000000  // Theme color with alpha
             strokeWidth = 1f * resources.displayMetrics.density
         }
+
+        val gridColor = gridPaint.color
+        val density = resources.displayMetrics.density
+        currentTimeLinePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = gridColor
+            strokeWidth = 2f * density
+        }
+        currentTimeCirclePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = gridColor
+            style = Paint.Style.FILL
+        }
+        currentTimeCircleRadius = 4f * density
 
         hourHeight = resources.getDimension(R.dimen.calendar_hour_height)
         timeColumnWidth = resources.getDimension(R.dimen.calendar_time_column_width)
@@ -299,6 +314,7 @@ class CalendarDayView @JvmOverloads constructor(
         super.onDraw(canvas)
         drawTimeGrid(canvas)
         drawEvents(canvas)
+        drawCurrentTimeLine(canvas)
     }
 
     private fun drawTimeGrid(canvas: Canvas) {
@@ -366,6 +382,21 @@ class CalendarDayView @JvmOverloads constructor(
                 eventRoomPaint.alpha = savedRoomAlpha
             }
         }
+    }
+
+    private fun drawCurrentTimeLine(canvas: Canvas) {
+        val now = currentTime ?: return
+        val zone = timeZoneOverride ?: ZoneId.systemDefault()
+        val localTime = now.atZone(zone).toLocalTime()
+        val minutes = (localTime.hour - startHour) * 60 + localTime.minute
+        if (minutes < 0 || minutes > totalHours * 60) return
+
+        val y = paddingTop + minutes * hourHeight / 60f
+        val leftMargin = paddingLeft + timeColumnWidth
+        val rightEdge = width.toFloat() - paddingRight
+
+        canvas.drawCircle(leftMargin, y, currentTimeCircleRadius, currentTimeCirclePaint)
+        canvas.drawLine(leftMargin, y, rightEdge, y, currentTimeLinePaint)
     }
 
     private fun ellipsizeText(text: String, paint: Paint, maxWidth: Float): String {
