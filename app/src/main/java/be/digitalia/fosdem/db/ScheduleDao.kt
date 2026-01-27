@@ -17,6 +17,7 @@ import be.digitalia.fosdem.db.converters.NonNullInstantTypeConverters
 import be.digitalia.fosdem.db.entities.EventEntity
 import be.digitalia.fosdem.db.entities.EventTitles
 import be.digitalia.fosdem.db.entities.EventToPerson
+import be.digitalia.fosdem.db.entities.RoomColor
 import be.digitalia.fosdem.model.Attachment
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.DetailedEvent
@@ -123,8 +124,9 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
                         throw EmptyScheduleException()
                     }
 
-                    // 3: Purge outdated bookmarks
+                    // 3: Purge outdated bookmarks and room colors
                     purgeOutdatedBookmarks(minEventId)
+                    purgeOutdatedRoomColors()
 
                     // 4: Store the conference data
                     checkNotNull(conferenceSection) { "Missing conference data" }
@@ -255,8 +257,14 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     @Query("DELETE FROM bookmarks WHERE event_id < :minEventId")
     protected abstract suspend fun purgeOutdatedBookmarks(minEventId: Long)
 
-    @Query("SELECT DISTINCT room_name FROM events WHERE room_name IS NOT NULL")
-    abstract suspend fun getDistinctRoomNames(): List<String>
+    @Query("DELETE FROM room_colors WHERE room_name NOT IN (SELECT DISTINCT room_name FROM events WHERE room_name IS NOT NULL)")
+    protected abstract suspend fun purgeOutdatedRoomColors()
+
+    @Query("SELECT * FROM room_colors")
+    abstract suspend fun getAllRoomColors(): List<RoomColor>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun insertRoomColor(roomColor: RoomColor)
 
     suspend fun clearSchedule() {
         appDatabase.useWriterConnection { transactor ->

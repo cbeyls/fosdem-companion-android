@@ -103,7 +103,7 @@ class FosdemApi @Inject constructor(
                             scheduleDao.storeSchedule(schedule, httpResponse.lastModified)
                         }
                     }
-                    roomColorManager.retainOnly(scheduleDao.getDistinctRoomNames().toSet())
+                    roomColorManager.reloadCache()
                     alarmManager.onScheduleRefreshed()
                     DownloadScheduleResult.Success(result)
                 }

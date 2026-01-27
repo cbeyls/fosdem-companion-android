@@ -1,10 +1,10 @@
 package be.digitalia.fosdem.settings
 
-import android.content.SharedPreferences
-import androidx.core.content.edit
 import androidx.core.graphics.ColorUtils
+import be.digitalia.fosdem.db.ScheduleDao
+import be.digitalia.fosdem.db.entities.RoomColor
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
-import javax.inject.Named
 import javax.inject.Singleton
 
 /**
@@ -13,10 +13,9 @@ import javax.inject.Singleton
  */
 @Singleton
 class RoomColorManager @Inject constructor(
-    @param:Named("UIState") private val preferences: SharedPreferences
+    private val scheduleDao: ScheduleDao
 ) {
     private companion object {
-        const val KEY_PREFIX = "room_color_"
         const val SATURATION = 0.65f
         const val LIGHTNESS = 0.45f
     }
@@ -25,12 +24,15 @@ class RoomColorManager @Inject constructor(
     private val roomHues = mutableMapOf<String, Float>()
 
     init {
-        // Load existing mappings from preferences
-        preferences.all.forEach { (key, value) ->
-            if (key.startsWith(KEY_PREFIX) && value is Float) {
-                val roomName = key.removePrefix(KEY_PREFIX)
-                roomHues[roomName] = value
-            }
+        // Load existing mappings from database
+        runBlocking {
+            loadRoomHues()
+        }
+    }
+
+    private suspend fun loadRoomHues() {
+        for (roomColor in scheduleDao.getAllRoomColors()) {
+            roomHues[roomColor.roomName] = roomColor.hue
         }
     }
 
@@ -42,8 +44,8 @@ class RoomColorManager @Inject constructor(
     fun getColorForRoom(roomName: String): Int {
         val hue = roomHues.getOrPut(roomName) {
             val newHue = findOptimalHue()
-            preferences.edit {
-                putFloat(KEY_PREFIX + roomName, newHue)
+            runBlocking {
+                scheduleDao.insertRoomColor(RoomColor(roomName, newHue))
             }
             newHue
         }
@@ -51,19 +53,12 @@ class RoomColorManager @Inject constructor(
     }
 
     /**
-     * Removes color mappings for rooms not in [roomNames], keeping existing colors stable.
+     * Reloads the in-memory cache from the database.
+     * Should be called after a schedule refresh that may have purged stale room colors.
      */
-    fun retainOnly(roomNames: Set<String>) {
-        val staleRooms = roomHues.keys - roomNames
-        if (staleRooms.isEmpty()) return
-        for (room in staleRooms) {
-            roomHues.remove(room)
-        }
-        preferences.edit {
-            for (room in staleRooms) {
-                remove(KEY_PREFIX + room)
-            }
-        }
+    suspend fun reloadCache() {
+        roomHues.clear()
+        loadRoomHues()
     }
 
     /**
