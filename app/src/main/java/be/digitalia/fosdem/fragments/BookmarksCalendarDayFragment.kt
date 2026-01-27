@@ -91,6 +91,7 @@ class BookmarksCalendarDayFragment : Fragment(R.layout.fragment_bookmarks_calend
         val intent = Intent(requireContext(), EventDetailsActivity::class.java)
             .setData("${event.id}".toUri())
             .putExtra(EventDetailsActivity.EXTRA_EVENT, event)
+            .putExtra(EventDetailsActivity.EXTRA_NAVIGATE_UP_TO_CALLER, true)
         startActivity(intent)
     }
 
