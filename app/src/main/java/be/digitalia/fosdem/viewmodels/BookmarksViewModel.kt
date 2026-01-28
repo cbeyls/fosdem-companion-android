@@ -30,6 +30,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.buffer
 import okio.source
+import be.digitalia.fosdem.utils.AppTimeSource
 import java.time.Instant
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.minutes
@@ -50,11 +51,14 @@ class BookmarksViewModel @Inject constructor(
     val bookmarks: StateFlow<List<Event>?> = stateFlow(viewModelScope, null) {
         hidePastEventsStateFlow.filterNotNull().flatMapLatest { hidePastEvents ->
             if (hidePastEvents) {
-                // Refresh upcoming bookmarks every 2 minutes
-                synchronizedTickerFlow(REFRESH_PERIOD, timeSource)
-                    .flatMapLatest {
-                        getObservableBookmarks(Instant.now())
-                    }
+                // Restart when debug clock offset changes
+                AppTimeSource.offsetFlow.flatMapLatest {
+                    // Refresh upcoming bookmarks every 2 minutes
+                    synchronizedTickerFlow(REFRESH_PERIOD, timeSource)
+                        .flatMapLatest {
+                            getObservableBookmarks(AppTimeSource.now())
+                        }
+                }
             } else {
                 getObservableBookmarks(Instant.EPOCH)
             }

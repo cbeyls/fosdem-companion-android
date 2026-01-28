@@ -12,6 +12,10 @@
             android:icon="@drawable/ic_bookmark_white_24dp"
             android:title="@string/menu_bookmarks" />
         <item
+            android:id="@+id/menu_bookmarks_calendar"
+            android:icon="@drawable/ic_calendar_white_24dp"
+            android:title="@string/menu_bookmarks_calendar" />
+        <item
             android:id="@+id/menu_live"
             android:icon="@drawable/ic_play_circle_outline_white_24dp"
             android:title="@string/menu_live" />

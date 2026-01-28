@@ -17,6 +17,7 @@ import be.digitalia.fosdem.db.converters.NonNullInstantTypeConverters
 import be.digitalia.fosdem.db.entities.EventEntity
 import be.digitalia.fosdem.db.entities.EventTitles
 import be.digitalia.fosdem.db.entities.EventToPerson
+import be.digitalia.fosdem.db.entities.RoomColor
 import be.digitalia.fosdem.model.Attachment
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.DetailedEvent
@@ -29,6 +30,7 @@ import be.digitalia.fosdem.model.ScheduleSection
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.BackgroundWorkScope
+import be.digitalia.fosdem.utils.AppTimeSource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -123,8 +125,9 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
                         throw EmptyScheduleException()
                     }
 
-                    // 3: Purge outdated bookmarks
+                    // 3: Purge outdated bookmarks and room colors
                     purgeOutdatedBookmarks(minEventId)
+                    purgeOutdatedRoomColors()
 
                     // 4: Store the conference data
                     checkNotNull(conferenceSection) { "Missing conference data" }
@@ -133,7 +136,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
                         prefs[CONFERENCE_ID_PREF_KEY] = conferenceSection.conferenceId
                         prefs[CONFERENCE_TITLE_PREF_KEY] = conferenceSection.conferenceTitle
                         prefs[BASE_URL_PREF_KEY] = conferenceSection.baseUrl
-                        prefs[LATEST_UPDATE_TIME_PREF_KEY] = System.currentTimeMillis()
+                        prefs[LATEST_UPDATE_TIME_PREF_KEY] = AppTimeSource.currentTimeMillis()
                         if (lastModifiedTag != null) {
                             prefs[LAST_MODIFIED_TAG_PREF_KEY] = lastModifiedTag
                         }
@@ -254,6 +257,15 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
 
     @Query("DELETE FROM bookmarks WHERE event_id < :minEventId")
     protected abstract suspend fun purgeOutdatedBookmarks(minEventId: Long)
+
+    @Query("DELETE FROM room_colors WHERE room_name NOT IN (SELECT DISTINCT room_name FROM events WHERE room_name IS NOT NULL)")
+    protected abstract suspend fun purgeOutdatedRoomColors()
+
+    @Query("SELECT * FROM room_colors")
+    abstract suspend fun getAllRoomColors(): List<RoomColor>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract suspend fun insertRoomColor(roomColor: RoomColor)
 
     suspend fun clearSchedule() {
         appDatabase.useWriterConnection { transactor ->
