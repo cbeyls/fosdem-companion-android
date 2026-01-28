@@ -52,7 +52,9 @@ androidx-viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", vers
 desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugarJdkLibs" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
+kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", "name" = "kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinx-coroutines" }
+ksp-gradle-plugin = { group = "com.google.devtools.ksp", "name" = "symbol-processing-gradle-plugin", version.ref = "ksp" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 moshi = { group = "com.squareup.moshi", name = "moshi", version.ref = "moshi" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }

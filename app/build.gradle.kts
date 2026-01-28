@@ -70,12 +70,6 @@ android {
     }
 }
 
-kotlin {
-    compilerOptions {
-        languageVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_3
-    }
-}
-
 fun patchDesugarConfig(config: Property<String>) {
     val defaultConfig = config as org.gradle.api.internal.provider.DefaultProperty<String>
     val patchedDesugarConfig = defaultConfig.provider.map {
