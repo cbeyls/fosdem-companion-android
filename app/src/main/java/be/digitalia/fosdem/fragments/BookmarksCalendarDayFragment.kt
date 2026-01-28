@@ -80,7 +80,8 @@ class BookmarksCalendarDayFragment : Fragment(R.layout.fragment_bookmarks_calend
             }
             launch {
                 while (true) {
-                    calendarDayView.currentTime = Instant.now()
+                    val now = Instant.now()
+                    calendarDayView.currentTime = if (day.date == now.atZone(java.time.ZoneId.systemDefault()).toLocalDate()) now else null
                     delay(60_000L)
                 }
             }
