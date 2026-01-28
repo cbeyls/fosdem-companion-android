@@ -19,9 +19,13 @@ import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.BookmarksCalendarViewModel
 import be.digitalia.fosdem.widgets.CalendarDayView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import be.digitalia.fosdem.utils.DebugClock
 import java.time.Instant
 import javax.inject.Inject
 
@@ -78,11 +82,18 @@ class BookmarksCalendarDayFragment : Fragment(R.layout.fragment_bookmarks_calend
                     calendarDayView.events = dayBookmarks
                 }
             }
+            @OptIn(ExperimentalCoroutinesApi::class)
             launch {
-                while (true) {
-                    val now = Instant.now()
-                    calendarDayView.currentTime = if (day.date == now.atZone(java.time.ZoneId.systemDefault()).toLocalDate()) now else null
-                    delay(60_000L)
+                DebugClock.offsetFlow.flatMapLatest {
+                    flow {
+                        while (true) {
+                            emit(DebugClock.now())
+                            delay(60_000L)
+                        }
+                    }
+                }.collect { now ->
+                    calendarDayView.currentTime = now
+                    calendarDayView.showCurrentTimeIndicator = day.date == now.atZone(java.time.ZoneId.systemDefault()).toLocalDate()
                 }
             }
         }

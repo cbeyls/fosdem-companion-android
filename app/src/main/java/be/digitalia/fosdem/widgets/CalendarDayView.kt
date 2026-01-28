@@ -43,6 +43,8 @@ class CalendarDayView @JvmOverloads constructor(
         const val DEFAULT_END_HOUR = 24
         const val PADDING_MINUTES = 30
         const val PAST_EVENT_ALPHA = 100 // out of 255
+        // FOSDEM is always in Brussels
+        val CONFERENCE_ZONE: ZoneId = ZoneId.of("Europe/Brussels")
     }
 
     private data class EventLayout(
@@ -57,6 +59,14 @@ class CalendarDayView @JvmOverloads constructor(
             if (field != value) {
                 field = value
                 layoutEvents()
+                invalidate()
+            }
+        }
+
+    var showCurrentTimeIndicator: Boolean = false
+        set(value) {
+            if (field != value) {
+                field = value
                 invalidate()
             }
         }
@@ -296,7 +306,8 @@ class CalendarDayView @JvmOverloads constructor(
                 val right = left + columnWidth - 2 * eventPadding
 
                 val backgroundColor = roomColorProvider?.invoke(event.roomName ?: "") ?: DEFAULT_COLOR
-                val isPast = currentTime != null && event.endTime != null && event.endTime <= currentTime
+                val now = currentTime
+                val isPast = now != null && event.endTime != null && event.endTime < now
                 layouts.add(EventLayout(event, RectF(left, top, right, bottom), backgroundColor, isPast))
             }
         }
@@ -385,8 +396,9 @@ class CalendarDayView @JvmOverloads constructor(
     }
 
     private fun drawCurrentTimeLine(canvas: Canvas) {
+        if (!showCurrentTimeIndicator) return
         val now = currentTime ?: return
-        val zone = timeZoneOverride ?: ZoneId.systemDefault()
+        val zone = timeZoneOverride ?: CONFERENCE_ZONE
         val localTime = now.atZone(zone).toLocalTime()
         val minutes = (localTime.hour - startHour) * 60 + localTime.minute
         if (minutes < 0 || minutes > totalHours * 60) return

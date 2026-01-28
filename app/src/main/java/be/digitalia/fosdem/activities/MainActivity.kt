@@ -33,12 +33,14 @@ import be.digitalia.fosdem.api.FosdemUrls
 import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.fragments.BookmarksCalendarFragment
 import be.digitalia.fosdem.fragments.BookmarksListFragment
+import be.digitalia.fosdem.fragments.DebugTimeTravelDialogFragment
 import be.digitalia.fosdem.fragments.LiveFragment
 import be.digitalia.fosdem.fragments.MapFragment
 import be.digitalia.fosdem.fragments.PersonsListFragment
 import be.digitalia.fosdem.fragments.TracksFragment
 import be.digitalia.fosdem.model.DownloadScheduleResult
 import be.digitalia.fosdem.model.LoadingState
+import be.digitalia.fosdem.utils.DebugClock
 import be.digitalia.fosdem.utils.awaitCloseDrawer
 import be.digitalia.fosdem.utils.configureColorSchemes
 import be.digitalia.fosdem.utils.consumeHorizontalWindowInsetsAsPadding
@@ -236,6 +238,11 @@ class MainActivity : AppCompatActivity(R.layout.main) {
             }
         }
 
+        if (BuildConfig.DEBUG) {
+            val debugGroup = navigationView.menu.addSubMenu("Debug")
+            debugGroup.add(Menu.NONE, MENU_DEBUG_TIME_TRAVEL, Menu.NONE, "Time Travel")
+        }
+
         holder = ViewHolder(contentView, drawerLayout, navigationView)
 
         if (savedInstanceState == null) {
@@ -251,7 +258,7 @@ class MainActivity : AppCompatActivity(R.layout.main) {
         }
     }
 
-    private fun downloadSchedule(now: Instant = Instant.now()) {
+    private fun downloadSchedule(now: Instant = DebugClock.now()) {
         preferences.edit {
             putInt(LATEST_UPDATE_ATTEMPT_VERSION_PREF_KEY, scheduleDao.databaseVersion)
             putLong(LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY, now.toEpochMilli())
@@ -298,7 +305,7 @@ class MainActivity : AppCompatActivity(R.layout.main) {
 
         // Scheduled database update
         lifecycleScope.launch {
-            val now = Instant.now()
+            val now = DebugClock.now()
             val latestUpdateTime = scheduleDao.latestUpdateTime.first()
             if (latestUpdateTime == null || now > latestUpdateTime + DATABASE_VALIDITY_DURATION) {
                 val latestAttemptVersion = preferences.getInt(LATEST_UPDATE_ATTEMPT_VERSION_PREF_KEY, 0)
@@ -378,6 +385,11 @@ class MainActivity : AppCompatActivity(R.layout.main) {
                 }
 
                 R.id.menu_volunteer -> launchUrl(FosdemUrls.volunteer)
+
+                MENU_DEBUG_TIME_TRAVEL -> {
+                    DebugTimeTravelDialogFragment()
+                        .show(supportFragmentManager, "time_travel")
+                }
             }
         }
     }
@@ -417,5 +429,6 @@ class MainActivity : AppCompatActivity(R.layout.main) {
         private const val LATEST_UPDATE_ATTEMPT_VERSION_PREF_KEY = "latest_update_attempt_version"
         private const val LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY = "latest_update_attempt_time"
         private const val LATEST_UPDATE_DATE_TIME_FORMAT = "d MMM yyyy kk:mm:ss"
+        private const val MENU_DEBUG_TIME_TRAVEL = 0xDEB06
     }
 }

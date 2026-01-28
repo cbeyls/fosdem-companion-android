@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import be.digitalia.fosdem.utils.DebugClock
 import java.time.Instant
 import kotlin.time.Duration.Companion.minutes
 
@@ -41,14 +42,17 @@ class TrackScheduleListViewModel @AssistedInject constructor(
      */
     @OptIn(ExperimentalCoroutinesApi::class)
     val currentTime: Flow<Instant?> =
-        // Auto refresh during the day passed as argument
-        schedulerFlow(
-            day.startTime.toEpochMilli(), day.endTime.toEpochMilli()
-        ).flatMapLatest { isOn ->
-            if (isOn) {
-                tickerFlow(TIME_REFRESH_PERIOD).map { Instant.now() }
-            } else {
-                flowOf(null)
+        // Restart when debug clock offset changes
+        DebugClock.offsetFlow.flatMapLatest {
+            // Auto refresh during the day passed as argument
+            schedulerFlow(
+                day.startTime.toEpochMilli(), day.endTime.toEpochMilli()
+            ).flatMapLatest { isOn ->
+                if (isOn) {
+                    tickerFlow(TIME_REFRESH_PERIOD).map { DebugClock.now() }
+                } else {
+                    flowOf(null)
+                }
             }
         }
 
