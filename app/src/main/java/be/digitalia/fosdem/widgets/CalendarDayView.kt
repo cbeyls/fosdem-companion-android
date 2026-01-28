@@ -139,7 +139,7 @@ class CalendarDayView @JvmOverloads constructor(
 
         hourTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = textColorSecondary
-            textSize = 12f * resources.displayMetrics.scaledDensity
+            textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12f, resources.displayMetrics)
             textAlign = Paint.Align.RIGHT
         }
 
@@ -172,13 +172,13 @@ class CalendarDayView @JvmOverloads constructor(
 
     private val eventTitlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = 0xFFFFFFFF.toInt()
-        textSize = 12f * resources.displayMetrics.scaledDensity
+        textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12f, resources.displayMetrics)
         typeface = Typeface.DEFAULT_BOLD
     }
 
     private val eventRoomPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = 0xDDFFFFFF.toInt()
-        textSize = 11f * resources.displayMetrics.scaledDensity
+        textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 11f, resources.displayMetrics)
     }
 
     private var eventLayouts: List<EventLayout> = emptyList()
@@ -461,6 +461,7 @@ class CalendarDayView @JvmOverloads constructor(
 
         private val timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
         private val tempRect = Rect()
+        private val screenLocation = IntArray(2)
 
         override fun getVirtualViewAt(x: Float, y: Float): Int {
             for (i in eventLayouts.indices.reversed()) {
@@ -485,7 +486,9 @@ class CalendarDayView @JvmOverloads constructor(
             val event = layout.event
 
             layout.rect.round(tempRect)
-            node.setBoundsInParent(tempRect)
+            getLocationOnScreen(screenLocation)
+            tempRect.offset(screenLocation[0], screenLocation[1])
+            node.setBoundsInScreen(tempRect)
 
             val title = event.title ?: ""
             val room = event.roomName ?: ""
