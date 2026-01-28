@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 import java.time.Duration
 import java.time.Instant
 
-object DebugClock {
+object AppTimeSource {
     private val _offsetFlow = MutableStateFlow<Duration?>(null)
 
     /** Observable offset. Collectors restart their time logic on each change. */

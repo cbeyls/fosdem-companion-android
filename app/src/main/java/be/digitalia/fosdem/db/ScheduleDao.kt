@@ -30,7 +30,7 @@ import be.digitalia.fosdem.model.ScheduleSection
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.BackgroundWorkScope
-import be.digitalia.fosdem.utils.DebugClock
+import be.digitalia.fosdem.utils.AppTimeSource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -136,7 +136,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
                         prefs[CONFERENCE_ID_PREF_KEY] = conferenceSection.conferenceId
                         prefs[CONFERENCE_TITLE_PREF_KEY] = conferenceSection.conferenceTitle
                         prefs[BASE_URL_PREF_KEY] = conferenceSection.baseUrl
-                        prefs[LATEST_UPDATE_TIME_PREF_KEY] = DebugClock.currentTimeMillis()
+                        prefs[LATEST_UPDATE_TIME_PREF_KEY] = AppTimeSource.currentTimeMillis()
                         if (lastModifiedTag != null) {
                             prefs[LAST_MODIFIED_TAG_PREF_KEY] = lastModifiedTag
                         }

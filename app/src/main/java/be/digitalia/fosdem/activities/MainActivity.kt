@@ -40,7 +40,7 @@ import be.digitalia.fosdem.fragments.PersonsListFragment
 import be.digitalia.fosdem.fragments.TracksFragment
 import be.digitalia.fosdem.model.DownloadScheduleResult
 import be.digitalia.fosdem.model.LoadingState
-import be.digitalia.fosdem.utils.DebugClock
+import be.digitalia.fosdem.utils.AppTimeSource
 import be.digitalia.fosdem.utils.awaitCloseDrawer
 import be.digitalia.fosdem.utils.configureColorSchemes
 import be.digitalia.fosdem.utils.consumeHorizontalWindowInsetsAsPadding
@@ -258,7 +258,7 @@ class MainActivity : AppCompatActivity(R.layout.main) {
         }
     }
 
-    private fun downloadSchedule(now: Instant = DebugClock.now()) {
+    private fun downloadSchedule(now: Instant = AppTimeSource.now()) {
         preferences.edit {
             putInt(LATEST_UPDATE_ATTEMPT_VERSION_PREF_KEY, scheduleDao.databaseVersion)
             putLong(LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY, now.toEpochMilli())
@@ -305,7 +305,7 @@ class MainActivity : AppCompatActivity(R.layout.main) {
 
         // Scheduled database update
         lifecycleScope.launch {
-            val now = DebugClock.now()
+            val now = AppTimeSource.now()
             val latestUpdateTime = scheduleDao.latestUpdateTime.first()
             if (latestUpdateTime == null || now > latestUpdateTime + DATABASE_VALIDITY_DURATION) {
                 val latestAttemptVersion = preferences.getInt(LATEST_UPDATE_ATTEMPT_VERSION_PREF_KEY, 0)

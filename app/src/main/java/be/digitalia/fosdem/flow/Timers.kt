@@ -4,7 +4,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flow
-import be.digitalia.fosdem.utils.DebugClock
+import be.digitalia.fosdem.utils.AppTimeSource
 import java.util.Arrays
 import kotlin.time.Duration
 import kotlin.time.TimeMark
@@ -48,7 +48,7 @@ fun SharedFlowContext.synchronizedTickerFlow(
  */
 fun schedulerFlow(vararg startEndTimestamps: Long): Flow<Boolean> {
     return flow {
-        var now = DebugClock.currentTimeMillis()
+        var now = AppTimeSource.currentTimeMillis()
         var pos = Arrays.binarySearch(startEndTimestamps, now)
         while (true) {
             val size = startEndTimestamps.size
@@ -64,7 +64,7 @@ fun schedulerFlow(vararg startEndTimestamps: Long): Flow<Boolean> {
                 break
             }
             // Readjust current time after suspending emit()
-            delay(startEndTimestamps[pos] - DebugClock.currentTimeMillis())
+            delay(startEndTimestamps[pos] - AppTimeSource.currentTimeMillis())
             now = startEndTimestamps[pos]
         }
     }

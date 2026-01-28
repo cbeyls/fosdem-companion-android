@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import be.digitalia.fosdem.utils.DebugClock
+import be.digitalia.fosdem.utils.AppTimeSource
 import java.time.Duration
 import java.time.Instant
 import javax.inject.Inject
@@ -36,9 +36,9 @@ class LiveViewModel @Inject constructor(
     // Share a single ticker providing the time to ensure both lists are synchronized
     @OptIn(ExperimentalCoroutinesApi::class)
     private val ticker: Flow<Instant> = stateFlow(viewModelScope, null) {
-        DebugClock.offsetFlow.flatMapLatest {
+        AppTimeSource.offsetFlow.flatMapLatest {
             synchronizedTickerFlow(REFRESH_PERIOD, timeSource)
-                .map { DebugClock.now() }
+                .map { AppTimeSource.now() }
         }
     }.filterNotNull()
 

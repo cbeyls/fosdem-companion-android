@@ -32,7 +32,7 @@ import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.receivers.AlarmReceiver
 import be.digitalia.fosdem.settings.UserSettingsProvider
 import be.digitalia.fosdem.utils.BackgroundWorkScope
-import be.digitalia.fosdem.utils.DebugClock
+import be.digitalia.fosdem.utils.AppTimeSource
 import be.digitalia.fosdem.utils.roomNameToResourceName
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.collectIndexed
@@ -118,7 +118,7 @@ class AppAlarmManager @Inject constructor(
 
         queueMutex.withLock {
             val delay = userSettingsProvider.notificationsDelay.first()
-            val now = DebugClock.currentTimeMillis()
+            val now = AppTimeSource.currentTimeMillis()
             var isFirstAlarm = true
             for ((eventId, startTime) in alarmInfos) {
                 // Only schedule future events. If they start before the delay, the alarm will go off immediately
@@ -163,7 +163,7 @@ class AppAlarmManager @Inject constructor(
         queueMutex.withLock {
             // Create/update all alarms
             val delay = userSettingsProvider.notificationsDelay.first()
-            val now = DebugClock.currentTimeMillis()
+            val now = AppTimeSource.currentTimeMillis()
             var hasAlarms = false
             for (info in bookmarksDao.getBookmarksAlarmInfo(Instant.EPOCH)) {
                 val startTime = info.startTime
@@ -189,7 +189,7 @@ class AppAlarmManager @Inject constructor(
         queueMutex.withLock {
             if (cancelExistingAlarms) {
                 // Cancel alarms of every bookmark in the future
-                for (info in bookmarksDao.getBookmarksAlarmInfo(DebugClock.now())) {
+                for (info in bookmarksDao.getBookmarksAlarmInfo(AppTimeSource.now())) {
                     alarmManager.cancel(getAlarmPendingIntent(info.eventId))
                 }
             }
@@ -260,7 +260,7 @@ class AppAlarmManager @Inject constructor(
         val notificationBuilder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL)
             .setSmallIcon(R.drawable.ic_stat_fosdem)
             .setColor(notificationColor)
-            .setWhen(event.startTime?.toEpochMilli() ?: DebugClock.currentTimeMillis())
+            .setWhen(event.startTime?.toEpochMilli() ?: AppTimeSource.currentTimeMillis())
             .setContentTitle(event.title)
             .setContentText(contentText)
             .setStyle(NotificationCompat.BigTextStyle().bigText(bigText).setSummaryText(trackName))

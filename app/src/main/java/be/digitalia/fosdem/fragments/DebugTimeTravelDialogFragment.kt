@@ -11,7 +11,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.settings.UserSettingsProvider
-import be.digitalia.fosdem.utils.DebugClock
+import be.digitalia.fosdem.utils.AppTimeSource
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -54,7 +54,7 @@ class DebugTimeTravelDialogFragment : DialogFragment() {
             .setView(layout)
             .setPositiveButton("Set", null) // null to prevent auto-dismiss
             .setNeutralButton("Reset") { _, _ ->
-                DebugClock.offset = null
+                AppTimeSource.offset = null
             }
             .setNegativeButton(android.R.string.cancel, null)
             .create()
@@ -84,7 +84,7 @@ class DebugTimeTravelDialogFragment : DialogFragment() {
                             .atTime(selectedTime)
                             .atZone(zone)
                             .toInstant()
-                        DebugClock.offset = Duration.between(Instant.now(), desiredInstant)
+                        AppTimeSource.offset = Duration.between(Instant.now(), desiredInstant)
                         dismiss()
                     }
                 }

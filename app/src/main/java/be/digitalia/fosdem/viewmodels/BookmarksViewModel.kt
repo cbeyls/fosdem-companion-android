@@ -30,7 +30,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.buffer
 import okio.source
-import be.digitalia.fosdem.utils.DebugClock
+import be.digitalia.fosdem.utils.AppTimeSource
 import java.time.Instant
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.minutes
@@ -52,11 +52,11 @@ class BookmarksViewModel @Inject constructor(
         hidePastEventsStateFlow.filterNotNull().flatMapLatest { hidePastEvents ->
             if (hidePastEvents) {
                 // Restart when debug clock offset changes
-                DebugClock.offsetFlow.flatMapLatest {
+                AppTimeSource.offsetFlow.flatMapLatest {
                     // Refresh upcoming bookmarks every 2 minutes
                     synchronizedTickerFlow(REFRESH_PERIOD, timeSource)
                         .flatMapLatest {
-                            getObservableBookmarks(DebugClock.now())
+                            getObservableBookmarks(AppTimeSource.now())
                         }
                 }
             } else {

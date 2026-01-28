@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import be.digitalia.fosdem.utils.DebugClock
+import be.digitalia.fosdem.utils.AppTimeSource
 import java.time.Instant
 import javax.inject.Inject
 
@@ -84,10 +84,10 @@ class BookmarksCalendarDayFragment : Fragment(R.layout.fragment_bookmarks_calend
             }
             @OptIn(ExperimentalCoroutinesApi::class)
             launch {
-                DebugClock.offsetFlow.flatMapLatest {
+                AppTimeSource.offsetFlow.flatMapLatest {
                     flow {
                         while (true) {
-                            emit(DebugClock.now())
+                            emit(AppTimeSource.now())
                             delay(60_000L)
                         }
                     }
