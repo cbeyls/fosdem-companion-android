@@ -18,6 +18,7 @@ import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.db.entities.EventEntity
 import be.digitalia.fosdem.db.entities.EventTitles
 import be.digitalia.fosdem.db.entities.EventToPerson
+import be.digitalia.fosdem.db.entities.RoomColor
 import be.digitalia.fosdem.flow.DeferredReadDataStore
 import be.digitalia.fosdem.model.Attachment
 import be.digitalia.fosdem.model.Day
@@ -118,13 +119,18 @@ object DatabaseModule {
                 connection.execSQL("CREATE TABLE IF NOT EXISTS ${PersonDetails.TABLE_NAME} (`rowid` INTEGER NOT NULL, `slug` TEXT, `biography` TEXT, PRIMARY KEY(`rowid`))")
             }
         }
+        val migration9to10 = object : Migration(9, 10) {
+            override fun migrate(connection: SQLiteConnection) {
+                connection.execSQL("CREATE TABLE IF NOT EXISTS ${RoomColor.TABLE_NAME} (room_name TEXT NOT NULL, hue REAL NOT NULL, PRIMARY KEY(room_name))")
+            }
+        }
 
         val onDatabaseOpen = CompletableDeferred<Unit>()
 
         return Room.databaseBuilder(context, AppDatabase::class.java, DB_FILE)
             // TRUNCATE journal mode uses a single database connection
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-            .addMigrations(migration3to5, migration5to6, migration6to7, migration7to8, migration8to9)
+            .addMigrations(migration3to5, migration5to6, migration6to7, migration7to8, migration8to9, migration9to10)
             .fallbackToDestructiveMigration(true)
             .setDriver(AndroidSQLiteDriver())
             .setQueryCoroutineContext(Dispatchers.IO)

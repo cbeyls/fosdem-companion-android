@@ -131,6 +131,14 @@ class EventDetailsActivity : AppCompatActivity(R.layout.single_event) {
         bookmarkStatusViewModel.event = event
     }
 
+    override fun onSupportNavigateUp(): Boolean {
+        if (intent.getBooleanExtra(EXTRA_NAVIGATE_UP_TO_CALLER, false)) {
+            finish()
+            return true
+        }
+        return super.onSupportNavigateUp()
+    }
+
     override fun getSupportParentActivityIntent(): Intent? {
         val event = bookmarkStatusViewModel.event ?: return null
         // Navigate up to the track associated with this event
@@ -151,5 +159,6 @@ class EventDetailsActivity : AppCompatActivity(R.layout.single_event) {
 
     companion object {
         const val EXTRA_EVENT = "event"
+        const val EXTRA_NAVIGATE_UP_TO_CALLER = "navigate_up_to_caller"
     }
 }

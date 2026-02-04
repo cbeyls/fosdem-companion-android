@@ -12,6 +12,7 @@ import be.digitalia.fosdem.model.LoadingState
 import be.digitalia.fosdem.model.RoomStatus
 import be.digitalia.fosdem.parsers.RoomStatusesParser
 import be.digitalia.fosdem.parsers.ScheduleParser
+import be.digitalia.fosdem.settings.RoomColorManager
 import be.digitalia.fosdem.utils.BackgroundWorkScope
 import be.digitalia.fosdem.utils.ByteCountSource
 import kotlinx.coroutines.CancellationException
@@ -54,6 +55,7 @@ class FosdemApi @Inject constructor(
     private val scheduleParserProvider: Provider<ScheduleParser>,
     private val scheduleDao: ScheduleDao,
     private val alarmManager: AppAlarmManager,
+    private val roomColorManager: RoomColorManager,
     private val timeSource: TimeSource
 ) {
     private var downloadJob: Job? = null
@@ -101,6 +103,7 @@ class FosdemApi @Inject constructor(
                             scheduleDao.storeSchedule(schedule, httpResponse.lastModified)
                         }
                     }
+                    roomColorManager.reloadCache()
                     alarmManager.onScheduleRefreshed()
                     DownloadScheduleResult.Success(result)
                 }
