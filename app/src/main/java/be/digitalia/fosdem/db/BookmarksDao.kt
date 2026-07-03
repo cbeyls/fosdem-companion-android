@@ -5,8 +5,7 @@ import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
-import androidx.room3.Transactor.SQLiteTransactionType
-import androidx.room3.useWriterConnection
+import androidx.room3.withWriteTransaction
 import be.digitalia.fosdem.db.converters.NonNullInstantTypeConverters
 import be.digitalia.fosdem.db.entities.Bookmark
 import be.digitalia.fosdem.db.entities.EventEntity
@@ -53,16 +52,14 @@ abstract class BookmarksDao(private val appDatabase: AppDatabase) {
         return if (ids[0] != -1L) AlarmInfo(event.id, event.startTime) else null
     }
 
-    suspend fun addBookmarks(eventIds: LongArray): List<AlarmInfo> = appDatabase.useWriterConnection { transactor ->
-        transactor.withTransaction(SQLiteTransactionType.EXCLUSIVE) {
-            // Get AlarmInfos first to filter out non-existing items
-            val alarmInfos = getAlarmInfos(eventIds)
-            alarmInfos.isNotEmpty() || return@withTransaction emptyList()
+    suspend fun addBookmarks(eventIds: LongArray): List<AlarmInfo> = appDatabase.withWriteTransaction {
+        // Get AlarmInfos first to filter out non-existing items
+        val alarmInfos = getAlarmInfos(eventIds)
+        alarmInfos.isNotEmpty() || return@withWriteTransaction emptyList()
 
-            val ids = addBookmarksInternal(alarmInfos.map { Bookmark(it.eventId) })
-            // Filter out items that were already in bookmarks
-            alarmInfos.filterIndexed { index, _ -> ids[index] != -1L }
-        }
+        val ids = addBookmarksInternal(alarmInfos.map { Bookmark(it.eventId) })
+        // Filter out items that were already in bookmarks
+        alarmInfos.filterIndexed { index, _ -> ids[index] != -1L }
     }
 
     @Query("""SELECT id as event_id, start_time
