@@ -1,10 +1,10 @@
 package be.digitalia.fosdem.model
 
 import android.os.Parcelable
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
+import androidx.room3.ColumnInfo
+import androidx.room3.ColumnTypeConverters
+import androidx.room3.Entity
+import androidx.room3.PrimaryKey
 import be.digitalia.fosdem.db.converters.NonNullInstantTypeConverters
 import be.digitalia.fosdem.db.converters.NonNullLocalDateTypeConverters
 import be.digitalia.fosdem.utils.InstantParceler
@@ -21,13 +21,13 @@ import java.util.Locale
 data class Day(
     @PrimaryKey
     val index: Int,
-    @field:TypeConverters(NonNullLocalDateTypeConverters::class)
+    @field:ColumnTypeConverters(NonNullLocalDateTypeConverters::class)
     val date: @WriteWith<LocalDateParceler> LocalDate,
     @ColumnInfo(name = "start_time")
-    @field:TypeConverters(NonNullInstantTypeConverters::class)
+    @field:ColumnTypeConverters(NonNullInstantTypeConverters::class)
     val startTime: @WriteWith<InstantParceler> Instant,
     @ColumnInfo(name = "end_time")
-    @field:TypeConverters(NonNullInstantTypeConverters::class)
+    @field:ColumnTypeConverters(NonNullInstantTypeConverters::class)
     val endTime: @WriteWith<InstantParceler> Instant
 ) : Comparable<Day>, Parcelable {
 

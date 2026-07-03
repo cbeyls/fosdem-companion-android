@@ -1,12 +1,12 @@
 package be.digitalia.fosdem.db
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.Transactor.SQLiteTransactionType
-import androidx.room.TypeConverters
-import androidx.room.useWriterConnection
+import androidx.room3.ColumnTypeConverters
+import androidx.room3.Dao
+import androidx.room3.Insert
+import androidx.room3.OnConflictStrategy
+import androidx.room3.Query
+import androidx.room3.Transactor.SQLiteTransactionType
+import androidx.room3.useWriterConnection
 import be.digitalia.fosdem.db.converters.NonNullInstantTypeConverters
 import be.digitalia.fosdem.db.entities.Bookmark
 import be.digitalia.fosdem.db.entities.EventEntity
@@ -34,7 +34,7 @@ abstract class BookmarksDao(private val appDatabase: AppDatabase) {
         JOIN events_view ev ON b.event_id = ev.id
         WHERE ev.end_time > :minEndTime
         ORDER BY ev.start_time ASC""")
-    @TypeConverters(NonNullInstantTypeConverters::class)
+    @ColumnTypeConverters(NonNullInstantTypeConverters::class)
     abstract suspend fun getBookmarks(minEndTime: Instant = Instant.EPOCH): List<Event>
 
     @Query("""SELECT b.event_id, e.start_time
@@ -42,7 +42,7 @@ abstract class BookmarksDao(private val appDatabase: AppDatabase) {
         JOIN events e ON b.event_id = e.id
         WHERE e.start_time > :minStartTime
         ORDER BY e.start_time ASC""")
-    @TypeConverters(NonNullInstantTypeConverters::class)
+    @ColumnTypeConverters(NonNullInstantTypeConverters::class)
     abstract suspend fun getBookmarksAlarmInfo(minStartTime: Instant): List<AlarmInfo>
 
     @Query("SELECT COUNT(*) FROM bookmarks WHERE event_id = :event")

@@ -1,21 +1,21 @@
 package be.digitalia.fosdem.db.converters
 
-import androidx.room.TypeConverter
+import androidx.room3.ColumnTypeConverter
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.model.Track
 
 object GlobalTypeConverters {
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromDay(day: Day): Long = day.index.toLong()
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromTrack(track: Track): Long = track.id
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromPerson(person: Person): Long = person.id
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromEvent(event: Event): Long = event.id
 }

@@ -1,10 +1,10 @@
 package be.digitalia.fosdem.db.entities
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.Index
-import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
+import androidx.room3.ColumnInfo
+import androidx.room3.ColumnTypeConverters
+import androidx.room3.Entity
+import androidx.room3.Index
+import androidx.room3.PrimaryKey
 import be.digitalia.fosdem.db.converters.NullableInstantTypeConverters
 import be.digitalia.fosdem.db.converters.NullableZoneOffsetTypeConverters
 import java.time.Instant
@@ -25,13 +25,13 @@ class EventEntity(
         @ColumnInfo(name = "day_index")
         val dayIndex: Int,
         @ColumnInfo(name = "start_time")
-        @field:TypeConverters(NullableInstantTypeConverters::class)
+        @field:ColumnTypeConverters(NullableInstantTypeConverters::class)
         val startTime: Instant?,
         @ColumnInfo(name = "start_time_offset")
-        @field:TypeConverters(NullableZoneOffsetTypeConverters::class)
+        @field:ColumnTypeConverters(NullableZoneOffsetTypeConverters::class)
         val startTimeOffset: ZoneOffset?,
         @ColumnInfo(name = "end_time")
-        @field:TypeConverters(NullableInstantTypeConverters::class)
+        @field:ColumnTypeConverters(NullableInstantTypeConverters::class)
         val endTime: Instant?,
         @ColumnInfo(name = "room_name")
         val roomName: String?,

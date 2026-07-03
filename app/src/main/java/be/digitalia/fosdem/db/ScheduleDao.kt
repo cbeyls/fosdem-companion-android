@@ -4,15 +4,15 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.paging.PagingSource
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.Transactor.SQLiteTransactionType
-import androidx.room.TypeConverters
-import androidx.room.execSQL
-import androidx.room.immediateTransaction
-import androidx.room.useWriterConnection
+import androidx.room3.ColumnTypeConverters
+import androidx.room3.Dao
+import androidx.room3.Insert
+import androidx.room3.OnConflictStrategy
+import androidx.room3.Query
+import androidx.room3.Transactor.SQLiteTransactionType
+import androidx.room3.executeSQL
+import androidx.room3.useWriterConnection
+import androidx.room3.withWriteTransaction
 import be.digitalia.fosdem.db.converters.NonNullInstantTypeConverters
 import be.digitalia.fosdem.db.entities.EventEntity
 import be.digitalia.fosdem.db.entities.EventTitles
@@ -256,17 +256,15 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     protected abstract suspend fun purgeOutdatedBookmarks(minEventId: Long)
 
     suspend fun clearSchedule() {
-        appDatabase.useWriterConnection { transactor ->
-            transactor.immediateTransaction {
-                execSQL("DELETE FROM events")
-                execSQL("DELETE FROM events_titles")
-                execSQL("DELETE FROM persons")
-                execSQL("DELETE FROM events_persons")
-                execSQL("DELETE FROM attachments")
-                execSQL("DELETE FROM links")
-                execSQL("DELETE FROM tracks")
-                execSQL("DELETE FROM days")
-            }
+        appDatabase.withWriteTransaction {
+            executeSQL("DELETE FROM events")
+            executeSQL("DELETE FROM events_titles")
+            executeSQL("DELETE FROM persons")
+            executeSQL("DELETE FROM events_persons")
+            executeSQL("DELETE FROM attachments")
+            executeSQL("DELETE FROM links")
+            executeSQL("DELETE FROM tracks")
+            executeSQL("DELETE FROM days")
         }
     }
 
@@ -335,7 +333,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         LEFT JOIN bookmarks b ON ev.id = b.event_id
         WHERE ev.start_time BETWEEN :minStartTime AND :maxStartTime
         ORDER BY ev.start_time ASC""")
-    @TypeConverters(NonNullInstantTypeConverters::class)
+    @ColumnTypeConverters(NonNullInstantTypeConverters::class)
     abstract fun getEventsWithStartTime(minStartTime: Instant, maxStartTime: Instant): PagingSource<Int, StatusEvent>
 
     /**
@@ -346,7 +344,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         LEFT JOIN bookmarks b ON ev.id = b.event_id
         WHERE ev.start_time <= :time AND :time < ev.end_time
         ORDER BY ev.start_time DESC""")
-    @TypeConverters(NonNullInstantTypeConverters::class)
+    @ColumnTypeConverters(NonNullInstantTypeConverters::class)
     abstract fun getEventsInProgress(time: Instant): PagingSource<Int, StatusEvent>
 
     /**

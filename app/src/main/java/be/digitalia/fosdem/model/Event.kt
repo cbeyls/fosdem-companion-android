@@ -1,10 +1,10 @@
 package be.digitalia.fosdem.model
 
 import android.os.Parcelable
-import androidx.room.ColumnInfo
-import androidx.room.DatabaseView
-import androidx.room.Embedded
-import androidx.room.TypeConverters
+import androidx.room3.ColumnInfo
+import androidx.room3.ColumnTypeConverters
+import androidx.room3.DatabaseView
+import androidx.room3.Embedded
 import be.digitalia.fosdem.db.converters.NullableInstantTypeConverters
 import be.digitalia.fosdem.db.converters.NullableZoneOffsetTypeConverters
 import be.digitalia.fosdem.utils.InstantParceler
@@ -37,13 +37,13 @@ data class Event(
         @Embedded(prefix = "day_")
         val day: Day,
         @ColumnInfo(name = "start_time")
-        @field:TypeConverters(NullableInstantTypeConverters::class)
+        @field:ColumnTypeConverters(NullableInstantTypeConverters::class)
         val startTime: @WriteWith<InstantParceler> Instant? = null,
         @ColumnInfo(name = "start_time_offset")
-        @field:TypeConverters(NullableZoneOffsetTypeConverters::class)
+        @field:ColumnTypeConverters(NullableZoneOffsetTypeConverters::class)
         val startTimeOffset: @WriteWith<ZoneOffsetParceler> ZoneOffset? = null,
         @ColumnInfo(name = "end_time")
-        @field:TypeConverters(NullableInstantTypeConverters::class)
+        @field:ColumnTypeConverters(NullableInstantTypeConverters::class)
         val endTime: @WriteWith<InstantParceler> Instant? = null,
         @ColumnInfo(name = "room_name")
         val roomName: String?,

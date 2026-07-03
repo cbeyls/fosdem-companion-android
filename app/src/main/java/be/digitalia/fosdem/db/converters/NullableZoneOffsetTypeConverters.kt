@@ -1,12 +1,12 @@
 package be.digitalia.fosdem.db.converters
 
-import androidx.room.TypeConverter
+import androidx.room3.ColumnTypeConverter
 import java.time.ZoneOffset
 
 object NullableZoneOffsetTypeConverters {
-    @TypeConverter
+    @ColumnTypeConverter
     fun toZoneOffset(value: Int?): ZoneOffset? = value?.let { ZoneOffset.ofTotalSeconds(it) }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromZoneOffset(value: ZoneOffset?): Int? = value?.totalSeconds
 }
