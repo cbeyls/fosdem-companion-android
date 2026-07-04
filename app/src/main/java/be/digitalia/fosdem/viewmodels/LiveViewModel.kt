@@ -12,6 +12,7 @@ import be.digitalia.fosdem.flow.countSubscriptionsFlow
 import be.digitalia.fosdem.flow.stateFlow
 import be.digitalia.fosdem.flow.synchronizedTickerFlow
 import be.digitalia.fosdem.model.StatusEvent
+import be.digitalia.fosdem.paging.toAutoCloseable
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -54,10 +55,12 @@ class LiveViewModel @Inject constructor(
 
     val nextEvents: Flow<PagingData<StatusEvent>> = createLiveEventsHotFlow { now ->
         scheduleDao.getEventsWithStartTime(now, now + NEXT_EVENTS_INTERVAL)
+            .also { addCloseable("next_events", it.toAutoCloseable()) }
     }
 
     val eventsInProgress: Flow<PagingData<StatusEvent>> = createLiveEventsHotFlow { now ->
         scheduleDao.getEventsInProgress(now)
+            .also { addCloseable("events_in_progress", it.toAutoCloseable()) }
     }
 
     companion object {

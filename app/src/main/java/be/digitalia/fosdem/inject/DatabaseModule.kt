@@ -6,9 +6,9 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStoreFile
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.room.migration.Migration
+import androidx.room3.Room
+import androidx.room3.RoomDatabase
+import androidx.room3.migration.Migration
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.sqlite.execSQL
@@ -32,7 +32,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -57,7 +56,7 @@ object DatabaseModule {
         @Named("Database") dataStore: DataStore<Preferences>
     ): AppDatabase {
         val migration3to5 = object : Migration(3, 5) {
-            override fun migrate(connection: SQLiteConnection) = with(connection) {
+            override suspend fun migrate(connection: SQLiteConnection) = with(connection) {
                 // Create table attachments
                 execSQL("CREATE TABLE IF NOT EXISTS ${Attachment.TABLE_NAME} (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `event_id` INTEGER NOT NULL, `url` TEXT NOT NULL, `description` TEXT)")
                 execSQL("CREATE INDEX IF NOT EXISTS `attachment_event_id_idx` ON ${Attachment.TABLE_NAME} (`event_id`)")
@@ -68,12 +67,12 @@ object DatabaseModule {
             }
         }
         val migration5to6 = object : Migration(5, 6) {
-            override fun migrate(connection: SQLiteConnection) {
+            override suspend fun migrate(connection: SQLiteConnection) {
                 // empty because it's identical to migration6to7
             }
         }
         val migration6to7 = object : Migration(6, 7) {
-            override fun migrate(connection: SQLiteConnection) = with(connection) {
+            override suspend fun migrate(connection: SQLiteConnection) = with(connection) {
                 // Clear schedule (but keep bookmarks)
                 execSQL("DELETE FROM ${EventTitles.TABLE_NAME}")
                 execSQL("DELETE FROM ${Person.TABLE_NAME}")
@@ -90,14 +89,12 @@ object DatabaseModule {
                 execSQL("CREATE INDEX IF NOT EXISTS `event_start_time_idx` ON ${EventEntity.TABLE_NAME} (`start_time`)")
                 execSQL("CREATE INDEX IF NOT EXISTS `event_end_time_idx` ON ${EventEntity.TABLE_NAME} (`end_time`)")
                 execSQL("CREATE INDEX IF NOT EXISTS `event_track_id_idx` ON ${EventEntity.TABLE_NAME} (`track_id`)")
-                runBlocking {
-                    dataStore.edit { it.clear() }
-                }
+                dataStore.edit { it.clear() }
                 Unit
             }
         }
         val migration7to8 = object : Migration(7, 8) {
-            override fun migrate(connection: SQLiteConnection) {
+            override suspend fun migrate(connection: SQLiteConnection) {
                 connection.execSQL(
                     """CREATE VIEW `events_view` AS SELECT e.id, e.start_time, e.start_time_offset, e.end_time, e.room_name, e.url,
         et.title, et.subtitle, e.abstract, e.description, e.feedback_url, GROUP_CONCAT(p.name, ', ') AS persons,
@@ -114,7 +111,7 @@ object DatabaseModule {
             }
         }
         val migration8to9 = object : Migration(8, 9) {
-            override fun migrate(connection: SQLiteConnection) {
+            override suspend fun migrate(connection: SQLiteConnection) {
                 connection.execSQL("CREATE TABLE IF NOT EXISTS ${PersonDetails.TABLE_NAME} (`rowid` INTEGER NOT NULL, `slug` TEXT, `biography` TEXT, PRIMARY KEY(`rowid`))")
             }
         }
@@ -129,14 +126,12 @@ object DatabaseModule {
             .setDriver(AndroidSQLiteDriver())
             .setQueryCoroutineContext(Dispatchers.IO)
             .addCallback(object : RoomDatabase.Callback() {
-                override fun onOpen(connection: SQLiteConnection) {
+                override suspend fun onOpen(connection: SQLiteConnection) {
                     onDatabaseOpen.complete(Unit)
                 }
 
-                override fun onDestructiveMigration(connection: SQLiteConnection) {
-                    runBlocking {
-                        dataStore.edit { it.clear() }
-                    }
+                override suspend fun onDestructiveMigration(connection: SQLiteConnection) {
+                    dataStore.edit { it.clear() }
                 }
             })
             .build()

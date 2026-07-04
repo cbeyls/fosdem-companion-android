@@ -3,6 +3,7 @@ package be.digitalia.fosdem.flow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
 
 @JvmInline
 value class SharedFlowContext(private val subscriptionCount: StateFlow<Int>) {
@@ -41,6 +43,7 @@ inline fun <T> stateFlow(
     initialValue: T,
     producer: SharedFlowContext.() -> Flow<T>
 ): StateFlow<T> {
+    SupervisorJob().children.count()
     val state = MutableStateFlow(initialValue)
     producer(SharedFlowContext(state.subscriptionCount)).launchIn(scope, state)
     return state.asStateFlow()

@@ -2,9 +2,11 @@ package be.digitalia.fosdem.db
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.room.Database
-import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
+import androidx.room3.ColumnTypeConverters
+import androidx.room3.DaoReturnTypeConverters
+import androidx.room3.Database
+import androidx.room3.RoomDatabase
+import androidx.room3.paging.PagingSourceDaoReturnTypeConverter
 import be.digitalia.fosdem.db.converters.GlobalTypeConverters
 import be.digitalia.fosdem.db.entities.Bookmark
 import be.digitalia.fosdem.db.entities.EventEntity
@@ -25,7 +27,8 @@ import be.digitalia.fosdem.model.Track
     version = AppDatabase.VERSION,
     exportSchema = false
 )
-@TypeConverters(GlobalTypeConverters::class)
+@DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
+@ColumnTypeConverters(GlobalTypeConverters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract val scheduleDao: ScheduleDao

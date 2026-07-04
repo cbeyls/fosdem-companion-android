@@ -1,12 +1,11 @@
 package be.digitalia.fosdem.db
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.Transactor.SQLiteTransactionType
-import androidx.room.TypeConverters
-import androidx.room.useWriterConnection
+import androidx.room3.ColumnTypeConverters
+import androidx.room3.Dao
+import androidx.room3.Insert
+import androidx.room3.OnConflictStrategy
+import androidx.room3.Query
+import androidx.room3.withWriteTransaction
 import be.digitalia.fosdem.db.converters.NonNullInstantTypeConverters
 import be.digitalia.fosdem.db.entities.Bookmark
 import be.digitalia.fosdem.db.entities.EventEntity
@@ -34,7 +33,7 @@ abstract class BookmarksDao(private val appDatabase: AppDatabase) {
         JOIN events_view ev ON b.event_id = ev.id
         WHERE ev.end_time > :minEndTime
         ORDER BY ev.start_time ASC""")
-    @TypeConverters(NonNullInstantTypeConverters::class)
+    @ColumnTypeConverters(NonNullInstantTypeConverters::class)
     abstract suspend fun getBookmarks(minEndTime: Instant = Instant.EPOCH): List<Event>
 
     @Query("""SELECT b.event_id, e.start_time
@@ -42,7 +41,7 @@ abstract class BookmarksDao(private val appDatabase: AppDatabase) {
         JOIN events e ON b.event_id = e.id
         WHERE e.start_time > :minStartTime
         ORDER BY e.start_time ASC""")
-    @TypeConverters(NonNullInstantTypeConverters::class)
+    @ColumnTypeConverters(NonNullInstantTypeConverters::class)
     abstract suspend fun getBookmarksAlarmInfo(minStartTime: Instant): List<AlarmInfo>
 
     @Query("SELECT COUNT(*) FROM bookmarks WHERE event_id = :event")
@@ -53,16 +52,14 @@ abstract class BookmarksDao(private val appDatabase: AppDatabase) {
         return if (ids[0] != -1L) AlarmInfo(event.id, event.startTime) else null
     }
 
-    suspend fun addBookmarks(eventIds: LongArray): List<AlarmInfo> = appDatabase.useWriterConnection { transactor ->
-        transactor.withTransaction(SQLiteTransactionType.EXCLUSIVE) {
-            // Get AlarmInfos first to filter out non-existing items
-            val alarmInfos = getAlarmInfos(eventIds)
-            alarmInfos.isNotEmpty() || return@withTransaction emptyList()
+    suspend fun addBookmarks(eventIds: LongArray): List<AlarmInfo> = appDatabase.withWriteTransaction {
+        // Get AlarmInfos first to filter out non-existing items
+        val alarmInfos = getAlarmInfos(eventIds)
+        alarmInfos.isNotEmpty() || return@withWriteTransaction emptyList()
 
-            val ids = addBookmarksInternal(alarmInfos.map { Bookmark(it.eventId) })
-            // Filter out items that were already in bookmarks
-            alarmInfos.filterIndexed { index, _ -> ids[index] != -1L }
-        }
+        val ids = addBookmarksInternal(alarmInfos.map { Bookmark(it.eventId) })
+        // Filter out items that were already in bookmarks
+        alarmInfos.filterIndexed { index, _ -> ids[index] != -1L }
     }
 
     @Query("""SELECT id as event_id, start_time

@@ -1,7 +1,7 @@
 package be.digitalia.fosdem.model
 
-import androidx.room.ColumnInfo
-import androidx.room.Embedded
+import androidx.room3.ColumnInfo
+import androidx.room3.Embedded
 
 data class StatusEvent(
         @Embedded

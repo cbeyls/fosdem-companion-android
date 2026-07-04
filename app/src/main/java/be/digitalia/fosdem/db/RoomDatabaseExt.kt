@@ -1,6 +1,6 @@
 package be.digitalia.fosdem.db
 
-import androidx.room.RoomDatabase
+import androidx.room3.RoomDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted

@@ -4,15 +4,13 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.paging.PagingSource
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.Transactor.SQLiteTransactionType
-import androidx.room.TypeConverters
-import androidx.room.execSQL
-import androidx.room.immediateTransaction
-import androidx.room.useWriterConnection
+import androidx.room3.ColumnTypeConverters
+import androidx.room3.Dao
+import androidx.room3.Insert
+import androidx.room3.OnConflictStrategy
+import androidx.room3.Query
+import androidx.room3.executeSQL
+import androidx.room3.withWriteTransaction
 import be.digitalia.fosdem.db.converters.NonNullInstantTypeConverters
 import be.digitalia.fosdem.db.entities.EventEntity
 import be.digitalia.fosdem.db.entities.EventTitles
@@ -95,52 +93,50 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
      */
     suspend fun storeSchedule(schedule: Sequence<ScheduleSection>, lastModifiedTag: String?): Int {
         return try {
-            appDatabase.useWriterConnection { transactor ->
-                transactor.withTransaction(SQLiteTransactionType.EXCLUSIVE) {
-                    var totalEvents = 0
-                    var minEventId = Long.MAX_VALUE
-                    var conferenceSection: ScheduleSection.Conference? = null
+            appDatabase.withWriteTransaction {
+                var totalEvents = 0
+                var minEventId = Long.MAX_VALUE
+                var conferenceSection: ScheduleSection.Conference? = null
 
-                    // 1: Delete the previous schedule
-                    clearSchedule()
+                // 1: Delete the previous schedule
+                clearSchedule()
 
-                    // 2: Store the main schedule data
-                    val tracksByName = mutableMapOf<String, Track>()
-                    for (section in schedule) {
-                        when (section) {
-                            is ScheduleSection.Conference -> conferenceSection = section
-                            is ScheduleSection.Persons -> storePersonDetails(section.persons)
-                            is ScheduleSection.Day -> {
-                                val result = storeDay(section.day, section.events, tracksByName)
-                                totalEvents += result.totalEvents
-                                minEventId = minOf(minEventId, result.minEventId)
-                            }
+                // 2: Store the main schedule data
+                val tracksByName = mutableMapOf<String, Track>()
+                for (section in schedule) {
+                    when (section) {
+                        is ScheduleSection.Conference -> conferenceSection = section
+                        is ScheduleSection.Persons -> storePersonDetails(section.persons)
+                        is ScheduleSection.Day -> {
+                            val result = storeDay(section.day, section.events, tracksByName)
+                            totalEvents += result.totalEvents
+                            minEventId = minOf(minEventId, result.minEventId)
                         }
                     }
-
-                    if (totalEvents == 0) {
-                        // Trigger a transaction rollback but don't report an error
-                        throw EmptyScheduleException()
-                    }
-
-                    // 3: Purge outdated bookmarks
-                    purgeOutdatedBookmarks(minEventId)
-
-                    // 4: Store the conference data
-                    checkNotNull(conferenceSection) { "Missing conference data" }
-                    appDatabase.dataStore.edit { prefs ->
-                        prefs.clear()
-                        prefs[CONFERENCE_ID_PREF_KEY] = conferenceSection.conferenceId
-                        prefs[CONFERENCE_TITLE_PREF_KEY] = conferenceSection.conferenceTitle
-                        prefs[BASE_URL_PREF_KEY] = conferenceSection.baseUrl
-                        prefs[LATEST_UPDATE_TIME_PREF_KEY] = System.currentTimeMillis()
-                        if (lastModifiedTag != null) {
-                            prefs[LAST_MODIFIED_TAG_PREF_KEY] = lastModifiedTag
-                        }
-                    }
-
-                    totalEvents
                 }
+
+                if (totalEvents == 0) {
+                    // Trigger a transaction rollback but don't report an error
+                    throw EmptyScheduleException()
+                }
+
+                // 3: Purge outdated bookmarks
+                purgeOutdatedBookmarks(minEventId)
+
+                // 4: Store the conference data
+                checkNotNull(conferenceSection) { "Missing conference data" }
+                appDatabase.dataStore.edit { prefs ->
+                    prefs.clear()
+                    prefs[CONFERENCE_ID_PREF_KEY] = conferenceSection.conferenceId
+                    prefs[CONFERENCE_TITLE_PREF_KEY] = conferenceSection.conferenceTitle
+                    prefs[BASE_URL_PREF_KEY] = conferenceSection.baseUrl
+                    prefs[LATEST_UPDATE_TIME_PREF_KEY] = System.currentTimeMillis()
+                    if (lastModifiedTag != null) {
+                        prefs[LAST_MODIFIED_TAG_PREF_KEY] = lastModifiedTag
+                    }
+                }
+
+                totalEvents
             }
         } catch (_: EmptyScheduleException) {
             0
@@ -256,17 +252,15 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
     protected abstract suspend fun purgeOutdatedBookmarks(minEventId: Long)
 
     suspend fun clearSchedule() {
-        appDatabase.useWriterConnection { transactor ->
-            transactor.immediateTransaction {
-                execSQL("DELETE FROM events")
-                execSQL("DELETE FROM events_titles")
-                execSQL("DELETE FROM persons")
-                execSQL("DELETE FROM events_persons")
-                execSQL("DELETE FROM attachments")
-                execSQL("DELETE FROM links")
-                execSQL("DELETE FROM tracks")
-                execSQL("DELETE FROM days")
-            }
+        appDatabase.withWriteTransaction {
+            executeSQL("DELETE FROM events")
+            executeSQL("DELETE FROM events_titles")
+            executeSQL("DELETE FROM persons")
+            executeSQL("DELETE FROM events_persons")
+            executeSQL("DELETE FROM attachments")
+            executeSQL("DELETE FROM links")
+            executeSQL("DELETE FROM tracks")
+            executeSQL("DELETE FROM days")
         }
     }
 
@@ -335,7 +329,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         LEFT JOIN bookmarks b ON ev.id = b.event_id
         WHERE ev.start_time BETWEEN :minStartTime AND :maxStartTime
         ORDER BY ev.start_time ASC""")
-    @TypeConverters(NonNullInstantTypeConverters::class)
+    @ColumnTypeConverters(NonNullInstantTypeConverters::class)
     abstract fun getEventsWithStartTime(minStartTime: Instant, maxStartTime: Instant): PagingSource<Int, StatusEvent>
 
     /**
@@ -346,7 +340,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
         LEFT JOIN bookmarks b ON ev.id = b.event_id
         WHERE ev.start_time <= :time AND :time < ev.end_time
         ORDER BY ev.start_time DESC""")
-    @TypeConverters(NonNullInstantTypeConverters::class)
+    @ColumnTypeConverters(NonNullInstantTypeConverters::class)
     abstract fun getEventsInProgress(time: Instant): PagingSource<Int, StatusEvent>
 
     /**
