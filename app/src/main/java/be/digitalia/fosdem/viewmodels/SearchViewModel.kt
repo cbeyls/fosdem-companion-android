@@ -10,6 +10,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.model.StatusEvent
+import be.digitalia.fosdem.paging.toAutoCloseable
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -34,6 +35,7 @@ class SearchViewModel @Inject constructor(scheduleDao: ScheduleDao) : ViewModel(
         if (queryState is QueryState.Valid) {
             Pager(PagingConfig(20)) {
                 scheduleDao.getSearchResults(queryState.query)
+                    .also { addCloseable("results", it.toAutoCloseable()) }
             }.flow
         } else {
             flowOf(PagingData.empty(EMPTY_REFRESH_LOAD_STATES))

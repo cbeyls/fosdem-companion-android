@@ -12,6 +12,7 @@ import be.digitalia.fosdem.flow.stateFlow
 import be.digitalia.fosdem.flow.versionedResourceFlow
 import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.model.StatusEvent
+import be.digitalia.fosdem.paging.toAutoCloseable
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -42,6 +43,7 @@ class PersonInfoViewModel @AssistedInject constructor(
 
     val events: Flow<PagingData<StatusEvent>> = Pager(PagingConfig(20)) {
         scheduleDao.getEvents(person)
+            .also { addCloseable("events", it.toAutoCloseable()) }
     }.flow.cachedIn(viewModelScope)
 
     data class PersonInfo(

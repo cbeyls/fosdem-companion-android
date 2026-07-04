@@ -10,6 +10,7 @@ import be.digitalia.fosdem.alarms.AppAlarmManager
 import be.digitalia.fosdem.db.BookmarksDao
 import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.model.StatusEvent
+import be.digitalia.fosdem.paging.toAutoCloseable
 import be.digitalia.fosdem.utils.BackgroundWorkScope
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -29,6 +30,7 @@ class ExternalBookmarksViewModel @AssistedInject constructor(
     val bookmarks: Flow<PagingData<StatusEvent>> =
         Pager(PagingConfig(20)) {
             scheduleDao.getEvents(bookmarkIds)
+                .also { addCloseable("bookmarks", it.toAutoCloseable()) }
         }.flow.cachedIn(viewModelScope)
 
     fun addAll() {
