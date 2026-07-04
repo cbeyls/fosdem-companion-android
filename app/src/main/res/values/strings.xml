@@ -19,6 +19,7 @@
     <!-- Main menu -->
     <string name="menu_tracks">Tracks</string>
     <string name="menu_bookmarks">Bookmarks</string>
+    <string name="menu_bookmarks_calendar">Bookmarks (calendar)</string>
     <string name="menu_live">Live</string>
     <string name="menu_speakers">Speakers</string>
     <string name="menu_map">Map</string>
