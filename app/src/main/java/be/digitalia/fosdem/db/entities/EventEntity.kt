@@ -7,8 +7,8 @@ import androidx.room3.Index
 import androidx.room3.PrimaryKey
 import be.digitalia.fosdem.db.converters.NullableInstantTypeConverters
 import be.digitalia.fosdem.db.converters.NullableZoneOffsetTypeConverters
-import java.time.Instant
 import java.time.ZoneOffset
+import kotlin.time.Instant
 
 @Entity(
     tableName = EventEntity.TABLE_NAME,

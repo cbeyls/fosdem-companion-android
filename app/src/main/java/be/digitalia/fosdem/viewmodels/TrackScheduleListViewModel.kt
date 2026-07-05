@@ -20,14 +20,16 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import java.time.Instant
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 
 @HiltViewModel(assistedFactory = TrackScheduleListViewModel.Factory::class)
 class TrackScheduleListViewModel @AssistedInject constructor(
     scheduleDao: ScheduleDao,
+    clock: Clock,
     @Assisted day: Day,
-    @Assisted track: Track
+    @Assisted track: Track,
 ) : ViewModel() {
 
     val schedule: Flow<List<StatusEvent>> = stateFlow(viewModelScope, null) {
@@ -37,20 +39,19 @@ class TrackScheduleListViewModel @AssistedInject constructor(
     }.filterNotNull()
 
     /**
-     * @return The current time during the target day, or null outside of the target day.
+     * @return The current time during the target day, or null outside the target day.
      */
     @OptIn(ExperimentalCoroutinesApi::class)
     val currentTime: Flow<Instant?> =
         // Auto refresh during the day passed as argument
-        schedulerFlow(
-            day.startTime.toEpochMilli(), day.endTime.toEpochMilli()
-        ).flatMapLatest { isOn ->
-            if (isOn) {
-                tickerFlow(TIME_REFRESH_PERIOD).map { Instant.now() }
-            } else {
-                flowOf(null)
+        schedulerFlow(listOf(day.startTime, day.endTime), clock)
+            .flatMapLatest { isOn ->
+                if (isOn) {
+                    tickerFlow(TIME_REFRESH_PERIOD).map { clock.now() }
+                } else {
+                    flowOf(null)
+                }
             }
-        }
 
     @AssistedFactory
     interface Factory {

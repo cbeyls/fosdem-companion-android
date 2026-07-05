@@ -17,12 +17,16 @@ import be.digitalia.fosdem.utils.skipToEndTag
 import be.digitalia.fosdem.utils.xmlPullParserFactory
 import okio.BufferedSource
 import org.xmlpull.v1.XmlPullParser
-import java.time.Duration
-import java.time.Instant
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import javax.inject.Inject
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
+import kotlin.time.toKotlinInstant
 
 /**
  * Main parser for FOSDEM schedule data in pretalx XML format.
@@ -121,9 +125,11 @@ class ScheduleParser @Inject constructor() : Parser<Sequence<ScheduleSection>> {
             index = parser.getAttributeValue(null, "index")!!.toInt(),
             date = LocalDate.parse(parser.getAttributeValue(null, "date")),
             startTime = OffsetDateTime.parse(parser.getAttributeValue(null, "start"))
-                .toInstant(),
+                .toInstant()
+                .toKotlinInstant(),
             endTime = OffsetDateTime.parse(parser.getAttributeValue(null, "end"))
                 .toInstant()
+                .toKotlinInstant()
         )
         return ScheduleSection.Day(
             day = day,
@@ -167,7 +173,7 @@ class ScheduleParser @Inject constructor() : Parser<Sequence<ScheduleSection>> {
                         val dateTimeString = parser.nextText()
                         if (!dateTimeString.isNullOrEmpty()) {
                             val dateTime = OffsetDateTime.parse(dateTimeString)
-                            startTime = dateTime.toInstant()
+                            startTime = dateTime.toInstant().toKotlinInstant()
                             startTimeOffset = dateTime.offset
                         }
                     }
@@ -230,7 +236,7 @@ class ScheduleParser @Inject constructor() : Parser<Sequence<ScheduleSection>> {
         }
 
         val endTime = if (startTime != null && !duration.isNullOrEmpty()) {
-            startTime + Duration.ofSeconds(parseTimeAsSeconds(duration))
+            startTime + parseTimeAsDuration(duration)
         } else null
 
         val event = Event(
@@ -258,21 +264,18 @@ class ScheduleParser @Inject constructor() : Parser<Sequence<ScheduleSection>> {
     }
 
     /**
-     * Return the total number of seconds of a string in the "hh:mm" or "hh:mm:ss" format,
+     * Return the duration of a string in the "hh:mm" or "hh:mm:ss" format,
      * without allocating heap memory.
      *
      * @param time string in the "hh:mm" or "hh:mm:ss" format
      */
-    private fun parseTimeAsSeconds(time: String): Long {
-        // hours
-        var result = time[0].digitToInt() * 10 + time[1].digitToInt()
-        // minutes
-        result = result * 60 + time[3].digitToInt() * 10 + time[4].digitToInt()
-        // seconds
-        result *= 60
-        if (time.length >= 8) {
-            result += time[6].digitToInt() * 10 + time[7].digitToInt()
+    private fun parseTimeAsDuration(time: String): Duration {
+        val hoursMinutes = (time[0].digitToInt() * 10 + time[1].digitToInt()).hours +
+            (time[3].digitToInt() * 10 + time[4].digitToInt()).minutes
+
+        if (time.length < 8) {
+            return hoursMinutes
         }
-        return result.toLong()
+        return hoursMinutes + (time[6].digitToInt() * 10 + time[7].digitToInt()).seconds
     }
 }

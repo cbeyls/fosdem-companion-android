@@ -7,7 +7,7 @@ import be.digitalia.fosdem.db.converters.NullableInstantTypeConverters
 import be.digitalia.fosdem.utils.InstantParceler
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.WriteWith
-import java.time.Instant
+import kotlin.time.Instant
 
 @Parcelize
 data class AlarmInfo(

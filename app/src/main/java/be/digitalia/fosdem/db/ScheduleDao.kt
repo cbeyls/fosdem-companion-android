@@ -37,7 +37,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
-import java.time.Instant
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 @Dao
 abstract class ScheduleDao(private val appDatabase: AppDatabase) {
@@ -73,7 +74,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
      * @return The latest update time, or null if not available.
      */
     val latestUpdateTime: Flow<Instant?> = appDatabase.dataStore.data.map { prefs ->
-        prefs[LATEST_UPDATE_TIME_PREF_KEY]?.let { Instant.ofEpochMilli(it) }
+        prefs[LATEST_UPDATE_TIME_PREF_KEY]?.let { Instant.fromEpochMilliseconds(it) }
     }
 
     /**
@@ -91,7 +92,11 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
      * @param schedule The streaming schedule data split in multiple sections.
      * @return The number of events processed. If 0, no data or metadata will be inserted.
      */
-    suspend fun storeSchedule(schedule: Sequence<ScheduleSection>, lastModifiedTag: String?): Int {
+    suspend fun storeSchedule(
+        schedule: Sequence<ScheduleSection>,
+        clock: Clock,
+        lastModifiedTag: String?
+    ): Int {
         return try {
             appDatabase.withWriteTransaction {
                 var totalEvents = 0
@@ -130,7 +135,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
                     prefs[CONFERENCE_ID_PREF_KEY] = conferenceSection.conferenceId
                     prefs[CONFERENCE_TITLE_PREF_KEY] = conferenceSection.conferenceTitle
                     prefs[BASE_URL_PREF_KEY] = conferenceSection.baseUrl
-                    prefs[LATEST_UPDATE_TIME_PREF_KEY] = System.currentTimeMillis()
+                    prefs[LATEST_UPDATE_TIME_PREF_KEY] = clock.now().toEpochMilliseconds()
                     if (lastModifiedTag != null) {
                         prefs[LAST_MODIFIED_TAG_PREF_KEY] = lastModifiedTag
                     }
@@ -356,7 +361,7 @@ abstract class ScheduleDao(private val appDatabase: AppDatabase) {
 
     /**
      * Search through matching titles, subtitles, track names, person names.
-     * We need to use an union of 3 sub-queries because a "match" condition can not be
+     * We need to use a union of 3 sub-queries because a "match" condition can not be
      * accompanied by other conditions in a "where" statement.
      */
     @Query("""SELECT ev.*, b.event_id IS NOT NULL AS is_bookmarked

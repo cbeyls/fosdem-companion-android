@@ -52,12 +52,13 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.time.Duration
-import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Named
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Instant
 import com.google.android.material.R as MaterialR
 
 /**
@@ -85,9 +86,11 @@ class MainActivity : AppCompatActivity(R.layout.main) {
         }
     }
 
-    private class ViewHolder(val contentView: View,
-                             val drawerLayout: DrawerLayout,
-                             val navigationView: NavigationView)
+    private class ViewHolder(
+        val contentView: View,
+        val drawerLayout: DrawerLayout,
+        val navigationView: NavigationView
+    )
 
     @Inject
     @Named("UIState")
@@ -98,6 +101,9 @@ class MainActivity : AppCompatActivity(R.layout.main) {
 
     @Inject
     lateinit var scheduleDao: ScheduleDao
+
+    @Inject
+    lateinit var clock: Clock
 
     private val latestUpdateDateTimeFormatter = DateTimeFormatter.ofPattern(LATEST_UPDATE_DATE_TIME_FORMAT)
 
@@ -249,10 +255,10 @@ class MainActivity : AppCompatActivity(R.layout.main) {
         }
     }
 
-    private fun downloadSchedule(now: Instant = Instant.now()) {
+    private fun downloadSchedule(now: Instant = clock.now()) {
         preferences.edit {
             putInt(LATEST_UPDATE_ATTEMPT_VERSION_PREF_KEY, scheduleDao.databaseVersion)
-            putLong(LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY, now.toEpochMilli())
+            putLong(LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY, now.toEpochMilliseconds())
         }
 
         api.downloadSchedule()
@@ -296,11 +302,11 @@ class MainActivity : AppCompatActivity(R.layout.main) {
 
         // Scheduled database update
         lifecycleScope.launch {
-            val now = Instant.now()
+            val now = clock.now()
             val latestUpdateTime = scheduleDao.latestUpdateTime.first()
             if (latestUpdateTime == null || now > latestUpdateTime + DATABASE_VALIDITY_DURATION) {
                 val latestAttemptVersion = preferences.getInt(LATEST_UPDATE_ATTEMPT_VERSION_PREF_KEY, 0)
-                val latestAttemptTime = Instant.ofEpochMilli(
+                val latestAttemptTime = Instant.fromEpochMilliseconds(
                     preferences.getLong(LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY, 0L)
                 )
                 if (latestAttemptVersion != scheduleDao.databaseVersion || now > latestAttemptTime + AUTO_UPDATE_SNOOZE_DURATION) {
@@ -410,8 +416,8 @@ class MainActivity : AppCompatActivity(R.layout.main) {
         const val ACTION_SHORTCUT_LIVE = "${BuildConfig.APPLICATION_ID}.intent.action.SHORTCUT_LIVE"
 
         private const val ERROR_MESSAGE_DISPLAY_DURATION = 5000
-        private val DATABASE_VALIDITY_DURATION = Duration.ofDays(1L)
-        private val AUTO_UPDATE_SNOOZE_DURATION = Duration.ofDays(1L)
+        private val DATABASE_VALIDITY_DURATION = 1.days
+        private val AUTO_UPDATE_SNOOZE_DURATION = 1.days
         private const val LATEST_UPDATE_ATTEMPT_VERSION_PREF_KEY = "latest_update_attempt_version"
         private const val LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY = "latest_update_attempt_time"
         private const val LATEST_UPDATE_DATE_TIME_FORMAT = "d MMM yyyy kk:mm:ss"

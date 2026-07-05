@@ -290,8 +290,8 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
                 description = "$speakersLabel: $personsSummary\n\n$description"
             }
             putExtra(CalendarContract.Events.DESCRIPTION, description)
-            event.startTime?.let { putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, it.toEpochMilli()) }
-            event.endTime?.let { putExtra(CalendarContract.EXTRA_EVENT_END_TIME, it.toEpochMilli()) }
+            event.startTime?.let { putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, it.toEpochMilliseconds()) }
+            event.endTime?.let { putExtra(CalendarContract.EXTRA_EVENT_END_TIME, it.toEpochMilliseconds()) }
         }
 
         try {

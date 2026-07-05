@@ -37,6 +37,7 @@ import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
 import kotlin.math.pow
+import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -54,7 +55,8 @@ class FosdemApi @Inject constructor(
     private val scheduleParserProvider: Provider<ScheduleParser>,
     private val scheduleDao: ScheduleDao,
     private val alarmManager: AppAlarmManager,
-    private val timeSource: TimeSource
+    private val timeSource: TimeSource,
+    private val clock: Clock,
 ) {
     private var downloadJob: Job? = null
     private val _downloadScheduleState =
@@ -98,7 +100,7 @@ class FosdemApi @Inject constructor(
 
                         source.use {
                             val schedule = scheduleParserProvider.get().parse(source)
-                            scheduleDao.storeSchedule(schedule, httpResponse.lastModified)
+                            scheduleDao.storeSchedule(schedule, clock, httpResponse.lastModified)
                         }
                     }
                     alarmManager.onScheduleRefreshed()
@@ -129,13 +131,13 @@ class FosdemApi @Inject constructor(
             // The room statuses will only be loaded when the event is live.
             // Use the days from the database to determine it.
             val scheduler = scheduleDao.days.flatMapLatest { days ->
-                val startEndTimestamps = LongArray(days.size * 2)
-                var index = 0
-                for (day in days) {
-                    startEndTimestamps[index++] = day.startTime.toEpochMilli()
-                    startEndTimestamps[index++] = day.endTime.toEpochMilli()
+                val startEndTimestamps = buildList(days.size * 2) {
+                    for (day in days) {
+                        add(day.startTime)
+                        add(day.endTime)
+                    }
                 }
-                schedulerFlow(*startEndTimestamps)
+                schedulerFlow(startEndTimestamps, clock)
                     .flowWhileShared(SharingStarted.WhileSubscribed())
             }
             scheduler.distinctUntilChanged().flatMapLatest { isLive ->

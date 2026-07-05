@@ -11,11 +11,12 @@ import be.digitalia.fosdem.utils.InstantParceler
 import be.digitalia.fosdem.utils.ZoneOffsetParceler
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.WriteWith
-import java.time.Duration
-import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
+import kotlin.time.Duration
+import kotlin.time.Instant
+import kotlin.time.toJavaInstant
 
 @DatabaseView(
     value = """SELECT e.id, e.start_time, e.start_time_offset, e.end_time, e.room_name, e.url,
@@ -65,14 +66,14 @@ data class Event(
     fun startTime(zoneOverride: ZoneId?): LocalDateTime? {
         val zone = zoneOverride ?: startTimeOffset
         return if (startTime != null && zone != null)
-            LocalDateTime.ofInstant(startTime, zone)
+            LocalDateTime.ofInstant(startTime.toJavaInstant(), zone)
         else null
     }
 
     fun endTime(zoneOverride: ZoneId?): LocalDateTime? {
         val zone = zoneOverride ?: startTimeOffset
         return if (endTime != null && zone != null)
-            LocalDateTime.ofInstant(endTime, zone)
+            LocalDateTime.ofInstant(endTime.toJavaInstant(), zone)
         else null
     }
 
@@ -84,7 +85,7 @@ data class Event(
         get() = if (startTime == null || endTime == null) {
             Duration.ZERO
         } else {
-            Duration.between(startTime, endTime)
+            endTime - startTime
         }
 
     override fun toString(): String = title.orEmpty()

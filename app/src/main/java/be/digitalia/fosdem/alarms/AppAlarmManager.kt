@@ -40,9 +40,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 /**
  * This class monitors incoming broadcasts and bookmarks and settings changes to dispatch background alarm update work.
@@ -52,7 +53,8 @@ class AppAlarmManager @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val userSettingsProvider: UserSettingsProvider,
     private val bookmarksDao: BookmarksDao,
-    private val scheduleDao: ScheduleDao
+    private val scheduleDao: ScheduleDao,
+    private val clock: Clock,
 ) {
     private val alarmManager: AlarmManager by lazy(LazyThreadSafetyMode.NONE) {
         requireNotNull(context.getSystemService())
@@ -117,11 +119,11 @@ class AppAlarmManager @Inject constructor(
 
         queueMutex.withLock {
             val delay = userSettingsProvider.notificationsDelay.first()
-            val now = System.currentTimeMillis()
+            val now = clock.now()
             var isFirstAlarm = true
             for ((eventId, startTime) in alarmInfos) {
                 // Only schedule future events. If they start before the delay, the alarm will go off immediately
-                if (startTime != null && startTime.toEpochMilli() >= now) {
+                if (startTime != null && startTime >= now) {
                     if (isFirstAlarm) {
                         setAlarmReceiverEnabled(true)
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -131,7 +133,7 @@ class AppAlarmManager @Inject constructor(
                     }
                     alarmManager.setExactAndAllowWhileIdle(
                         AlarmManager.RTC_WAKEUP,
-                        (startTime - delay).toEpochMilli(),
+                        (startTime - delay).toEpochMilliseconds(),
                         getAlarmPendingIntent(eventId)
                     )
                 }
@@ -162,18 +164,22 @@ class AppAlarmManager @Inject constructor(
         queueMutex.withLock {
             // Create/update all alarms
             val delay = userSettingsProvider.notificationsDelay.first()
-            val now = System.currentTimeMillis()
+            val now = clock.now()
             var hasAlarms = false
-            for (info in bookmarksDao.getBookmarksAlarmInfo(Instant.EPOCH)) {
+            for (info in bookmarksDao.getBookmarksAlarmInfo(BookmarksDao.EPOCH)) {
                 val startTime = info.startTime
                 val notificationTime =
-                    if (startTime == null) -1L else (startTime - delay).toEpochMilli()
+                    if (startTime == null) Instant.DISTANT_PAST else startTime - delay
                 val pi = getAlarmPendingIntent(info.eventId)
                 if (notificationTime < now) {
                     // Cancel pending alarms that are now scheduled in the past, if any
                     alarmManager.cancel(pi)
                 } else {
-                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, notificationTime, pi)
+                    alarmManager.setExactAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        notificationTime.toEpochMilliseconds(),
+                        pi
+                    )
                     hasAlarms = true
                 }
             }
@@ -188,7 +194,7 @@ class AppAlarmManager @Inject constructor(
         queueMutex.withLock {
             if (cancelExistingAlarms) {
                 // Cancel alarms of every bookmark in the future
-                for (info in bookmarksDao.getBookmarksAlarmInfo(Instant.now())) {
+                for (info in bookmarksDao.getBookmarksAlarmInfo(clock.now())) {
                     alarmManager.cancel(getAlarmPendingIntent(info.eventId))
                 }
             }
@@ -259,7 +265,7 @@ class AppAlarmManager @Inject constructor(
         val notificationBuilder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL)
             .setSmallIcon(R.drawable.ic_stat_fosdem)
             .setColor(notificationColor)
-            .setWhen(event.startTime?.toEpochMilli() ?: System.currentTimeMillis())
+            .setWhen((event.startTime ?: clock.now()).toEpochMilliseconds())
             .setContentTitle(event.title)
             .setContentText(contentText)
             .setStyle(NotificationCompat.BigTextStyle().bigText(bigText).setSummaryText(trackName))
@@ -284,7 +290,7 @@ class AppAlarmManager @Inject constructor(
             val roomImageResId = context.resources.getIdentifier(
                 roomNameToResourceName(roomName), "drawable", context.packageName
             )
-            // The room name is the unique Id of a RoomImageDialogActivity
+            // The room name is the unique id of a RoomImageDialogActivity
             val mapIntent = Intent(context, RoomImageDialogActivity::class.java)
                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 .setData(roomName.toUri())

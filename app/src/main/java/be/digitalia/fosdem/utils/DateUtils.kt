@@ -3,10 +3,11 @@ package be.digitalia.fosdem.utils
 import android.content.Context
 import android.text.format.DateFormat
 import androidx.core.os.ConfigurationCompat
-import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import kotlin.time.Instant
+import kotlin.time.toJavaInstant
 
 object DateUtils {
     fun getTimeFormatter(context: Context): DateTimeFormatter {
@@ -18,5 +19,5 @@ object DateUtils {
 }
 
 fun Instant.toLocalDateTime(zoneId: ZoneId): LocalDateTime {
-    return LocalDateTime.ofInstant(this, zoneId)
+    return LocalDateTime.ofInstant(toJavaInstant(), zoneId)
 }
