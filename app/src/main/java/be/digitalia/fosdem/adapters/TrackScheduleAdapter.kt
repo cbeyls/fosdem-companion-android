@@ -17,9 +17,9 @@ import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.utils.DateUtils
 import be.digitalia.fosdem.utils.asyncDifferConfig
-import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import kotlin.time.Instant
 
 class TrackScheduleAdapter(context: Context, private val clickListener: (Event) -> Unit) :
     ListAdapter<StatusEvent, TrackScheduleAdapter.ViewHolder>(asyncDifferConfig(EventsAdapter.DIFF_CALLBACK)) {

@@ -21,22 +21,24 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import java.time.Duration
-import java.time.Instant
 import javax.inject.Inject
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 import kotlin.time.TimeSource
 
 @HiltViewModel
 class LiveViewModel @Inject constructor(
     scheduleDao: ScheduleDao,
-    timeSource: TimeSource
+    timeSource: TimeSource,
+    clock: Clock,
 ) : ViewModel() {
 
     // Share a single ticker providing the time to ensure both lists are synchronized
     private val ticker: Flow<Instant> = stateFlow(viewModelScope, null) {
         synchronizedTickerFlow(REFRESH_PERIOD, timeSource)
-            .map { Instant.now() }
+            .map { clock.now() }
     }.filterNotNull()
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -65,6 +67,6 @@ class LiveViewModel @Inject constructor(
 
     companion object {
         private val REFRESH_PERIOD = 1.minutes
-        private val NEXT_EVENTS_INTERVAL = Duration.ofHours(1L)
+        private val NEXT_EVENTS_INTERVAL = 1.hours
     }
 }

@@ -2,9 +2,9 @@ package be.digitalia.fosdem.utils
 
 import android.os.Parcel
 import kotlinx.parcelize.Parceler
-import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
+import kotlin.time.Instant
 
 object InstantParceler : Parceler<Instant?> {
 
@@ -14,15 +14,15 @@ object InstantParceler : Parceler<Instant?> {
             return null
         }
         val epochSecond = parcel.readLong()
-        return Instant.ofEpochSecond(epochSecond, nanoAdjustment.toLong())
+        return Instant.fromEpochSeconds(epochSecond, nanoAdjustment)
     }
 
     override fun Instant?.write(parcel: Parcel, flags: Int) {
         if (this == null) {
             parcel.writeInt(Int.MIN_VALUE)
         } else {
-            parcel.writeInt(nano)
-            parcel.writeLong(epochSecond)
+            parcel.writeInt(nanosecondsOfSecond)
+            parcel.writeLong(epochSeconds)
         }
     }
 }

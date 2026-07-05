@@ -16,11 +16,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import java.time.Duration
 import java.time.ZoneId
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
 @Singleton
 class UserSettingsProvider @Inject constructor(
@@ -67,6 +68,6 @@ class UserSettingsProvider @Inject constructor(
     val notificationsDelay: Flow<Duration>
         get() = sharedPreferences.getStringAsFlow(PreferenceKeys.NOTIFICATIONS_DELAY)
             .map { stringDelayInMinutes ->
-                stringDelayInMinutes?.let { Duration.ofMinutes(it.toLong()) } ?: Duration.ZERO
+                stringDelayInMinutes?.toLong()?.minutes ?: Duration.ZERO
             }
 }

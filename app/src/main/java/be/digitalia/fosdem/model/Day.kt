@@ -11,10 +11,10 @@ import be.digitalia.fosdem.utils.InstantParceler
 import be.digitalia.fosdem.utils.LocalDateParceler
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.WriteWith
-import java.time.Instant
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlin.time.Instant
 
 @Entity(tableName = Day.TABLE_NAME)
 @Parcelize

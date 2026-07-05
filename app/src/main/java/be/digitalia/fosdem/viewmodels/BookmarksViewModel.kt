@@ -30,9 +30,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.buffer
 import okio.source
-import java.time.Instant
 import javax.inject.Inject
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 import kotlin.time.TimeSource
 
 @HiltViewModel
@@ -41,7 +42,8 @@ class BookmarksViewModel @Inject constructor(
     private val scheduleDao: ScheduleDao,
     private val alarmManager: AppAlarmManager,
     private val application: Application,
-    private val timeSource: TimeSource
+    timeSource: TimeSource,
+    clock: Clock,
 ) : ViewModel() {
 
     private val hidePastEventsStateFlow = MutableStateFlow<Boolean?>(null)
@@ -53,10 +55,10 @@ class BookmarksViewModel @Inject constructor(
                 // Refresh upcoming bookmarks every 2 minutes
                 synchronizedTickerFlow(REFRESH_PERIOD, timeSource)
                     .flatMapLatest {
-                        getObservableBookmarks(Instant.now())
+                        getObservableBookmarks(clock.now())
                     }
             } else {
-                getObservableBookmarks(Instant.EPOCH)
+                getObservableBookmarks(BookmarksDao.EPOCH)
             }
         }
     }

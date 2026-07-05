@@ -1,12 +1,12 @@
 package be.digitalia.fosdem.db.converters
 
 import androidx.room3.ColumnTypeConverter
-import java.time.Instant
+import kotlin.time.Instant
 
 object NonNullInstantTypeConverters {
     @ColumnTypeConverter
-    fun toInstant(value: Long): Instant = Instant.ofEpochSecond(value)
+    fun toInstant(value: Long): Instant = Instant.fromEpochSeconds(value)
 
     @ColumnTypeConverter
-    fun fromInstant(value: Instant): Long = value.epochSecond
+    fun fromInstant(value: Instant): Long = value.epochSeconds
 }

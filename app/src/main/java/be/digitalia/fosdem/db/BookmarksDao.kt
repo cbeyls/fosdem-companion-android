@@ -13,7 +13,7 @@ import be.digitalia.fosdem.model.AlarmInfo
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.utils.BackgroundWorkScope
 import kotlinx.coroutines.flow.Flow
-import java.time.Instant
+import kotlin.time.Instant
 
 @Dao
 abstract class BookmarksDao(private val appDatabase: AppDatabase) {
@@ -34,7 +34,7 @@ abstract class BookmarksDao(private val appDatabase: AppDatabase) {
         WHERE ev.end_time > :minEndTime
         ORDER BY ev.start_time ASC""")
     @ColumnTypeConverters(NonNullInstantTypeConverters::class)
-    abstract suspend fun getBookmarks(minEndTime: Instant = Instant.EPOCH): List<Event>
+    abstract suspend fun getBookmarks(minEndTime: Instant = EPOCH): List<Event>
 
     @Query("""SELECT b.event_id, e.start_time
         FROM bookmarks b
@@ -73,4 +73,8 @@ abstract class BookmarksDao(private val appDatabase: AppDatabase) {
 
     @Query("DELETE FROM bookmarks WHERE event_id IN (:eventIds)")
     abstract suspend fun removeBookmarks(eventIds: LongArray): Int
+
+    companion object {
+        val EPOCH = Instant.fromEpochSeconds(0L)
+    }
 }

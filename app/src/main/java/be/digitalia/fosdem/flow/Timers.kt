@@ -4,8 +4,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flow
-import java.util.Arrays
+import kotlin.time.Clock
 import kotlin.time.Duration
+import kotlin.time.Instant
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource
 
@@ -22,7 +23,7 @@ fun tickerFlow(period: Duration): Flow<Unit> = flow {
  */
 fun SharedFlowContext.synchronizedTickerFlow(
     period: Duration,
-    timeSource: TimeSource
+    timeSource: TimeSource = TimeSource.Monotonic
 ): Flow<Unit> {
     return flow {
         var nextEmissionTimeMark: TimeMark? = null
@@ -42,13 +43,17 @@ fun SharedFlowContext.synchronizedTickerFlow(
 /**
  * Builds a Flow whose value is true during scheduled periods.
  *
- * @param startEndTimestamps a list of timestamps in milliseconds, sorted in chronological order.
- * Odd and even values represent beginnings and ends of periods, respectively.
+ * @param startEndTimestamps a list of timestamps sorted in chronological order
+ * @param clock the reference clock
+ * Odd and even positioned values represent beginnings and ends of periods, respectively.
  */
-fun schedulerFlow(vararg startEndTimestamps: Long): Flow<Boolean> {
+fun schedulerFlow(
+    startEndTimestamps: List<Instant>,
+    clock: Clock = Clock.System
+): Flow<Boolean> {
     return flow {
-        var now = System.currentTimeMillis()
-        var pos = Arrays.binarySearch(startEndTimestamps, now)
+        var now = clock.now()
+        var pos = startEndTimestamps.binarySearch(now)
         while (true) {
             val size = startEndTimestamps.size
             if (pos >= 0) {
@@ -63,7 +68,7 @@ fun schedulerFlow(vararg startEndTimestamps: Long): Flow<Boolean> {
                 break
             }
             // Readjust current time after suspending emit()
-            delay(startEndTimestamps[pos] - System.currentTimeMillis())
+            delay(startEndTimestamps[pos] - clock.now())
             now = startEndTimestamps[pos]
         }
     }
