@@ -124,8 +124,12 @@ class ScheduleParser @Inject constructor() : Parser<Sequence<ScheduleSection>> {
         val day = Day(
             index = parser.getAttributeValue(null, "index")!!.toInt(),
             date = LocalDate.parse(parser.getAttributeValue(null, "date")),
-            startTime = Instant.parse(parser.getAttributeValue(null, "start")),
-            endTime = Instant.parse(parser.getAttributeValue(null, "end"))
+            startTime = OffsetDateTime.parse(parser.getAttributeValue(null, "start"))
+                .toInstant()
+                .toKotlinInstant(),
+            endTime = OffsetDateTime.parse(parser.getAttributeValue(null, "end"))
+                .toInstant()
+                .toKotlinInstant()
         )
         return ScheduleSection.Day(
             day = day,
