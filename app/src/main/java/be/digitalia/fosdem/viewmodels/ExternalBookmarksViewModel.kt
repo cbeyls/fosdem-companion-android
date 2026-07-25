@@ -11,13 +11,14 @@ import be.digitalia.fosdem.db.BookmarksDao
 import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.paging.toAutoCloseable
-import be.digitalia.fosdem.utils.BackgroundWorkScope
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @HiltViewModel(assistedFactory = ExternalBookmarksViewModel.Factory::class)
 class ExternalBookmarksViewModel @AssistedInject constructor(
@@ -34,9 +35,11 @@ class ExternalBookmarksViewModel @AssistedInject constructor(
         }.flow.cachedIn(viewModelScope)
 
     fun addAll() {
-        BackgroundWorkScope.launch {
-            bookmarksDao.addBookmarks(bookmarkIds).let { alarmInfos ->
-                alarmManager.onBookmarksAdded(alarmInfos)
+        viewModelScope.launch {
+            withContext(NonCancellable) {
+                bookmarksDao.addBookmarks(bookmarkIds).let { alarmInfos ->
+                    alarmManager.onBookmarksAdded(alarmInfos)
+                }
             }
         }
     }

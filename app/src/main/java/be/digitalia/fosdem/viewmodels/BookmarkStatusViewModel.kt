@@ -8,14 +8,15 @@ import be.digitalia.fosdem.flow.stateFlow
 import be.digitalia.fosdem.flow.versionedResourceFlow
 import be.digitalia.fosdem.model.BookmarkStatus
 import be.digitalia.fosdem.model.Event
-import be.digitalia.fosdem.utils.BackgroundWorkScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -62,17 +63,21 @@ class BookmarkStatusViewModel @Inject constructor(
 
     private fun removeBookmark(event: Event) {
         val eventIds = longArrayOf(event.id)
-        BackgroundWorkScope.launch {
-            if (bookmarksDao.removeBookmarks(eventIds) > 0) {
-                alarmManager.onBookmarksRemoved(eventIds)
+        viewModelScope.launch {
+            withContext(NonCancellable) {
+                if (bookmarksDao.removeBookmarks(eventIds) > 0) {
+                    alarmManager.onBookmarksRemoved(eventIds)
+                }
             }
         }
     }
 
     private fun addBookmark(event: Event) {
-        BackgroundWorkScope.launch {
-            bookmarksDao.addBookmark(event)?.let { alarmInfo ->
-                alarmManager.onBookmarksAdded(listOf(alarmInfo))
+        viewModelScope.launch {
+            withContext(NonCancellable) {
+                bookmarksDao.addBookmark(event)?.let { alarmInfo ->
+                    alarmManager.onBookmarksAdded(listOf(alarmInfo))
+                }
             }
         }
     }
