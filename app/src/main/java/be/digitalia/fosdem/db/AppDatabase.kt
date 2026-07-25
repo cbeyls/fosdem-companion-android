@@ -1,5 +1,6 @@
 package be.digitalia.fosdem.db
 
+import android.annotation.SuppressLint
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.room3.ColumnTypeConverters
@@ -19,6 +20,11 @@ import be.digitalia.fosdem.model.Link
 import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.model.PersonDetails
 import be.digitalia.fosdem.model.Track
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.shareIn
 
 @Database(
     entities = [EventEntity::class, EventTitles::class, Person::class, PersonDetails::class, EventToPerson::class,
@@ -36,6 +42,22 @@ abstract class AppDatabase : RoomDatabase() {
 
     // Manually injected fields, used by Daos
     lateinit var dataStore: DataStore<Preferences>
+
+    @SuppressLint("RestrictedApi")
+    fun createVersionFlow(vararg tables: String): Flow<Int> {
+        return flow {
+            var version = 0
+            invalidationTracker.createFlow(*tables).collect {
+                emit(version++)
+            }
+        }
+            .conflate()
+            .shareIn(
+                scope = getCoroutineScope(),
+                started = SharingStarted.Eagerly,
+                replay = 1,
+            )
+    }
 
     companion object {
         // Expose the database version to allow detecting migrations

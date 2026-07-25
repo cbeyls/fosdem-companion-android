@@ -42,8 +42,7 @@ import kotlin.time.Instant
 
 @Dao
 abstract class ScheduleDao(private val appDatabase: AppDatabase) {
-    val version: Flow<Int> =
-        appDatabase.createVersionFlow(BackgroundWorkScope, EventEntity.TABLE_NAME)
+    val version: Flow<Int> = appDatabase.createVersionFlow(EventEntity.TABLE_NAME)
     val bookmarksVersion: Flow<Int>
         get() = appDatabase.bookmarksDao.version
     val databaseVersion
