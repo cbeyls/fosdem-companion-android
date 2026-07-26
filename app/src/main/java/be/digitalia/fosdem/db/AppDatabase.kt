@@ -22,9 +22,9 @@ import be.digitalia.fosdem.model.PersonDetails
 import be.digitalia.fosdem.model.Track
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.stateIn
 
 @Database(
     entities = [EventEntity::class, EventTitles::class, Person::class, PersonDetails::class, EventToPerson::class,
@@ -51,12 +51,12 @@ abstract class AppDatabase : RoomDatabase() {
                 emit(version++)
             }
         }
-            .conflate()
-            .shareIn(
+            .stateIn(
                 scope = getCoroutineScope(),
                 started = SharingStarted.Eagerly,
-                replay = 1,
+                initialValue = null,
             )
+            .filterNotNull()
     }
 
     companion object {
