@@ -30,8 +30,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -116,7 +116,7 @@ object DatabaseModule {
             }
         }
 
-        val onDatabaseOpen = CompletableDeferred<Unit>()
+        val onDatabaseOpen = Job()
 
         return Room.databaseBuilder(context, AppDatabase::class.java, DB_FILE)
             // TRUNCATE journal mode uses a single database connection
@@ -127,7 +127,7 @@ object DatabaseModule {
             .setQueryCoroutineContext(Dispatchers.IO)
             .addCallback(object : RoomDatabase.Callback() {
                 override suspend fun onOpen(connection: SQLiteConnection) {
-                    onDatabaseOpen.complete(Unit)
+                    onDatabaseOpen.complete()
                 }
 
                 override suspend fun onDestructiveMigration(connection: SQLiteConnection) {
