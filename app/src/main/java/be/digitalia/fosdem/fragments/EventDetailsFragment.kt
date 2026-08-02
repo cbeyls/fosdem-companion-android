@@ -302,7 +302,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
     }
 
     private fun showEventDetails(holder: ViewHolder, eventDetails: EventDetails) {
-        holder.run {
+        with(holder) {
             val (persons, attachments, links) = eventDetails
 
             // 1. Persons
