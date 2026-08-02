@@ -2,6 +2,8 @@
 <resources>
 
     <!-- Constants -->
+    <color name="default_light_background">#ffffff</color>
+    <color name="default_dark_background">#121212</color>
     <color name="shortcut_background">#f5f5f5</color>
     <color name="on_surface_emphasis_medium">#99ffffff</color>
     <color name="light_color_primary">#a91991</color>

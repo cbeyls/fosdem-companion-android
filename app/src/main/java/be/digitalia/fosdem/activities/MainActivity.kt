@@ -59,7 +59,6 @@ import javax.inject.Named
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
-import com.google.android.material.R as MaterialR
 
 /**
  * Main entry point of the application. Allows to switch between section fragments and update the database.
@@ -268,7 +267,7 @@ class MainActivity : AppCompatActivity(R.layout.main) {
     private fun updateActionBar(section: Section, menuItem: MenuItem) {
         title = menuItem.title
         holder.contentView.translationZ = if (section.extendsAppBar) {
-            resources.getDimension(MaterialR.dimen.design_appbar_elevation)
+            resources.getDimension(R.dimen.appbar_elevation)
         } else {
             0f
         }
