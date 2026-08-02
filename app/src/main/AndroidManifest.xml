@@ -34,7 +34,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".activities.MainActivity"
+            android:name=".activities.HomeActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -52,7 +52,7 @@
         <activity
             android:name=".activities.TrackScheduleActivity"
             android:exported="false"
-            android:parentActivityName=".activities.MainActivity" />
+            android:parentActivityName=".activities.HomeActivity" />
         <activity
             android:name=".activities.TrackScheduleEventActivity"
             android:exported="false"
@@ -82,7 +82,7 @@
             android:name=".activities.ExternalBookmarksActivity"
             android:exported="true"
             android:label="@string/external_bookmarks_title"
-            android:parentActivityName=".activities.MainActivity" />
+            android:parentActivityName=".activities.HomeActivity" />
         <!-- Clearing the Task Affinity allows this dialog activity to be displayed without bringing to front the main application with it. -->
         <activity
             android:name=".activities.RoomImageDialogActivity"

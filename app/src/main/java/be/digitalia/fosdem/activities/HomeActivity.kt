@@ -58,7 +58,7 @@ import java.time.format.DateTimeFormatter
  * @author Christophe Beyls
  */
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(R.layout.main) {
+class HomeActivity : AppCompatActivity(R.layout.home) {
 
     private enum class Section(val fragmentClass: Class<out Fragment>,
                                @param:IdRes @get:IdRes val menuItemId: Int,
