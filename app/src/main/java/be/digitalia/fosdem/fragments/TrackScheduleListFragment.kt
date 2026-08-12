@@ -14,9 +14,9 @@ import be.digitalia.fosdem.activities.TrackScheduleEventActivity
 import be.digitalia.fosdem.adapters.TrackScheduleAdapter
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Track
-import be.digitalia.fosdem.settings.UserSettingsProvider
 import be.digitalia.fosdem.utils.getParcelableCompat
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
+import be.digitalia.fosdem.viewmodels.EventMetadataProvider
 import be.digitalia.fosdem.viewmodels.TrackScheduleListViewModel
 import be.digitalia.fosdem.viewmodels.TrackScheduleViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,7 +28,8 @@ import javax.inject.Inject
 class TrackScheduleListFragment : Fragment(R.layout.recyclerview) {
 
     @Inject
-    lateinit var userSettingsProvider: UserSettingsProvider
+    lateinit var eventMetadataProvider: EventMetadataProvider
+
     private val viewModel: TrackScheduleListViewModel by viewModels(extrasProducer = {
         defaultViewModelCreationExtras.withCreationCallback<TrackScheduleListViewModel.Factory> { factory ->
             val args = requireArguments()
@@ -88,8 +89,8 @@ class TrackScheduleListFragment : Fragment(R.layout.recyclerview) {
 
         viewLifecycleOwner.launchAndRepeatOnLifecycle {
             launch {
-                userSettingsProvider.timeZoneMode.collect { mode ->
-                    adapter.timeZoneOverride = mode.override
+                eventMetadataProvider.timeZoneOverride.collect { override ->
+                    adapter.timeZoneOverride = override
                 }
             }
 

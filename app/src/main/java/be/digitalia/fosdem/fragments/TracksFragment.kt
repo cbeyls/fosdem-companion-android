@@ -1,14 +1,10 @@
 package be.digitalia.fosdem.fragments
 
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
-import androidx.core.content.edit
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -24,8 +20,6 @@ import be.digitalia.fosdem.viewmodels.TracksViewModel
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
-import javax.inject.Named
 
 @AndroidEntryPoint
 class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvider {
@@ -36,10 +30,6 @@ class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvi
         val pager: ViewPager2 = view.findViewById(R.id.pager)
         val tabs: TabLayout = view.findViewById(R.id.tabs)
     }
-
-    @Inject
-    @Named("UIState")
-    lateinit var preferences: SharedPreferences
 
     private val viewModel: TracksViewModel by viewModels()
 
@@ -55,46 +45,37 @@ class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvi
         }
         val daysAdapter = DaysAdapter(this)
 
-        var savedCurrentPage = if (savedInstanceState == null) {
-            // Restore the current page from preferences
-            preferences.getInt(TRACKS_CURRENT_PAGE_PREF_KEY, -1)
-        } else -1
-
         viewLifecycleOwner.launchAndRepeatOnLifecycle {
-            viewModel.days.collect { days ->
-                holder.run {
-                    daysAdapter.days = days
+            try {
+                viewModel.state.collect { state ->
+                    with(holder) {
+                        daysAdapter.days = state.days
 
-                    if (days.isEmpty()) {
-                        contentView.isVisible = false
-                        emptyView.isVisible = true
-                    } else {
-                        contentView.isVisible = true
-                        emptyView.isVisible = false
-                        if (pager.adapter == null) {
-                            pager.adapter = daysAdapter
-                            TabLayoutMediator(tabs, pager) { tab, position -> tab.text = daysAdapter.getPageTitle(position) }.attach()
+                        if (state.days.isEmpty()) {
+                            contentView.isVisible = false
+                            emptyView.isVisible = true
+                        } else {
+                            contentView.isVisible = true
+                            emptyView.isVisible = false
+                            if (pager.adapter == null) {
+                                pager.adapter = daysAdapter
+                                pager.setCurrentItem(state.initialPage, false)
+                                TabLayoutMediator(tabs, pager) { tab, position ->
+                                    tab.text = daysAdapter.getPageTitle(position)
+                                }.attach()
+                            }
                         }
-                        if (savedCurrentPage != -1) {
-                            pager.setCurrentItem(savedCurrentPage.coerceAtMost(days.size - 1), false)
-                            savedCurrentPage = -1
-                        }
+                    }
+                }
+            } finally {
+                // Will be executed when the coroutine block is canceled in onStop()
+                with(holder.pager) {
+                    if (adapter != null) {
+                        viewModel.saveCurrentPage(currentItem)
                     }
                 }
             }
         }
-
-        viewLifecycleOwner.lifecycle.addObserver(LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_STOP) {
-                // Save the current page to preferences if it has changed
-                val page = holder.pager.currentItem
-                if (preferences.getInt(TRACKS_CURRENT_PAGE_PREF_KEY, -1) != page) {
-                    preferences.edit {
-                        putInt(TRACKS_CURRENT_PAGE_PREF_KEY, page)
-                    }
-                }
-            }
-        })
     }
 
     override val recycledViewPool by viewLifecycleLazy {
@@ -126,9 +107,5 @@ class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvi
         }
 
         fun getPageTitle(position: Int) = days[position].toString()
-    }
-
-    companion object {
-        private const val TRACKS_CURRENT_PAGE_PREF_KEY = "tracks_current_page"
     }
 }

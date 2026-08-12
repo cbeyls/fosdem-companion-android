@@ -68,7 +68,7 @@ class FosdemApi @Inject constructor(
      * The result will be notified through downloadScheduleState StateFlow.
      */
     @MainThread
-    fun downloadSchedule(): Job {
+    fun startDownloadSchedule(): Job {
         // Returns the download job in progress, if any
         return downloadJob ?: BackgroundWorkScope.launch {
             downloadScheduleInternal()
@@ -119,7 +119,7 @@ class FosdemApi @Inject constructor(
     val downloadScheduleState: StateFlow<LoadingState<DownloadScheduleResult>> =
         _downloadScheduleState.asStateFlow()
 
-    fun downloadScheduleResultConsumed() {
+    fun consumeDownloadScheduleResult() {
         _downloadScheduleState.update { state ->
             if (state is LoadingState.Idle) LoadingState.Idle() else state
         }

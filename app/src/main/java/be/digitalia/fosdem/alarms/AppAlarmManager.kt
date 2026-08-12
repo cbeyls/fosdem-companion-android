@@ -23,7 +23,7 @@ import androidx.core.text.buildSpannedString
 import androidx.core.text.italic
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.EventDetailsActivity
-import be.digitalia.fosdem.activities.MainActivity
+import be.digitalia.fosdem.activities.HomeActivity
 import be.digitalia.fosdem.activities.RoomImageDialogActivity
 import be.digitalia.fosdem.db.BookmarksDao
 import be.digitalia.fosdem.db.ScheduleDao
@@ -226,7 +226,7 @@ class AppAlarmManager @Inject constructor(
     private suspend fun buildNotification(event: Event): Notification {
         val eventPendingIntent = TaskStackBuilder
             .create(context)
-            .addNextIntent(Intent(context, MainActivity::class.java))
+            .addNextIntent(Intent(context, HomeActivity::class.java))
             .addNextIntent(
                 Intent(context, EventDetailsActivity::class.java)
                     .setData(event.id.toString().toUri())

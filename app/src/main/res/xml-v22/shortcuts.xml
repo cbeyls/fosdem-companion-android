@@ -8,7 +8,7 @@
         android:shortcutShortLabel="@string/menu_bookmarks">
         <intent
             android:action="be.digitalia.fosdem.intent.action.SHORTCUT_BOOKMARKS"
-            android:targetClass="be.digitalia.fosdem.activities.MainActivity"
+            android:targetClass="be.digitalia.fosdem.activities.HomeActivity"
             android:targetPackage="be.digitalia.fosdem"/>
     </shortcut>
 
@@ -19,7 +19,7 @@
         android:shortcutShortLabel="@string/menu_live">
         <intent
             android:action="be.digitalia.fosdem.intent.action.SHORTCUT_LIVE"
-            android:targetClass="be.digitalia.fosdem.activities.MainActivity"
+            android:targetClass="be.digitalia.fosdem.activities.HomeActivity"
             android:targetPackage="be.digitalia.fosdem"/>
     </shortcut>
 

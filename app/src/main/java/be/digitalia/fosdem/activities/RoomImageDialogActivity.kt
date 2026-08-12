@@ -14,13 +14,13 @@ import androidx.core.text.set
 import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
 import be.digitalia.fosdem.R
-import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.api.FosdemUrls
 import be.digitalia.fosdem.utils.configureColorSchemes
 import be.digitalia.fosdem.utils.invertImageColors
 import be.digitalia.fosdem.utils.isLightTheme
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.utils.toRoomSlug
+import be.digitalia.fosdem.viewmodels.EventMetadataProvider
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -34,7 +34,7 @@ import javax.inject.Inject
 class RoomImageDialogActivity : AppCompatActivity(R.layout.dialog_room_image) {
 
     @Inject
-    lateinit var api: FosdemApi
+    lateinit var eventMetadataProvider: EventMetadataProvider
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,14 +57,19 @@ class RoomImageDialogActivity : AppCompatActivity(R.layout.dialog_room_image) {
             findViewById<View>(R.id.room_image_placeholder).isVisible = true
         }
 
-        configureToolbar(api, this, findViewById(R.id.toolbar), roomName)
+        configureToolbar(eventMetadataProvider, this, findViewById(R.id.toolbar), roomName)
     }
 
     companion object {
         const val EXTRA_ROOM_NAME = "roomName"
         const val EXTRA_ROOM_IMAGE_RESOURCE_ID = "imageResId"
 
-        fun configureToolbar(api: FosdemApi, owner: LifecycleOwner, toolbar: Toolbar, roomName: String) {
+        fun configureToolbar(
+            eventMetadataProvider: EventMetadataProvider,
+            owner: LifecycleOwner,
+            toolbar: Toolbar,
+            roomName: String
+        ) {
             toolbar.title = roomName
             if (roomName.isNotEmpty()) {
                 val context = toolbar.context
@@ -90,7 +95,7 @@ class RoomImageDialogActivity : AppCompatActivity(R.layout.dialog_room_image) {
 
                 owner.launchAndRepeatOnLifecycle {
                     // Display the room status as subtitle
-                    api.roomStatuses.collect { statuses ->
+                    eventMetadataProvider.roomStatuses.collect { statuses ->
                         toolbar.subtitle = statuses[roomName]?.let { roomStatus ->
                             SpannableString(context.getString(roomStatus.nameResId)).apply {
                                 this[0, length] = ForegroundColorSpan(context.getColor(roomStatus.colorResId))

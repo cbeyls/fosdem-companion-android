@@ -12,10 +12,9 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.adapters.EventsAdapter
-import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.model.StatusEvent
-import be.digitalia.fosdem.settings.UserSettingsProvider
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
+import be.digitalia.fosdem.viewmodels.EventMetadataProvider
 import be.digitalia.fosdem.viewmodels.LiveViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.Flow
@@ -32,9 +31,8 @@ sealed class LiveListFragment(
 ) : Fragment(R.layout.recyclerview) {
 
     @Inject
-    lateinit var userSettingsProvider: UserSettingsProvider
-    @Inject
-    lateinit var api: FosdemApi
+    lateinit var eventMetadataProvider: EventMetadataProvider
+
     private val viewModel: LiveViewModel by viewModels({ requireParentFragment() })
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -73,12 +71,12 @@ sealed class LiveListFragment(
 
         viewLifecycleOwner.launchAndRepeatOnLifecycle {
             launch {
-                userSettingsProvider.timeZoneMode.collect { mode ->
-                    adapter.timeZoneOverride = mode.override
+                eventMetadataProvider.timeZoneOverride.collect { override ->
+                    adapter.timeZoneOverride = override
                 }
             }
             launch {
-                api.roomStatuses.collect { statuses ->
+                eventMetadataProvider.roomStatuses.collect { statuses ->
                     adapter.roomStatuses = statuses
                 }
             }

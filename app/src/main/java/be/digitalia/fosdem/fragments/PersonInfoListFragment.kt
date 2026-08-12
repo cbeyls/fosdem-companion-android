@@ -20,14 +20,13 @@ import androidx.recyclerview.widget.RecyclerView
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.FabOwner
 import be.digitalia.fosdem.adapters.EventsAdapter
-import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.model.Person
-import be.digitalia.fosdem.settings.UserSettingsProvider
 import be.digitalia.fosdem.utils.ClickableArrowKeyMovementMethod
 import be.digitalia.fosdem.utils.configureColorSchemes
 import be.digitalia.fosdem.utils.getParcelableCompat
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.utils.parseHtml
+import be.digitalia.fosdem.viewmodels.EventMetadataProvider
 import be.digitalia.fosdem.viewmodels.PersonInfoViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
@@ -41,9 +40,8 @@ import javax.inject.Inject
 class PersonInfoListFragment : Fragment(R.layout.recyclerview) {
 
     @Inject
-    lateinit var userSettingsProvider: UserSettingsProvider
-    @Inject
-    lateinit var api: FosdemApi
+    lateinit var eventMetadataProvider: EventMetadataProvider
+
     private val viewModel: PersonInfoViewModel by viewModels(extrasProducer = {
         defaultViewModelCreationExtras.withCreationCallback<PersonInfoViewModel.Factory> { factory ->
             val person: Person = requireArguments().getParcelableCompat(ARG_PERSON)!!
@@ -89,12 +87,12 @@ class PersonInfoListFragment : Fragment(R.layout.recyclerview) {
                 }
             }
             launch {
-                userSettingsProvider.timeZoneMode.collect { mode ->
-                    eventsAdapter.timeZoneOverride = mode.override
+                eventMetadataProvider.timeZoneOverride.collect { override ->
+                    eventsAdapter.timeZoneOverride = override
                 }
             }
             launch {
-                api.roomStatuses.collect { statuses ->
+                eventMetadataProvider.roomStatuses.collect { statuses ->
                     eventsAdapter.roomStatuses = statuses
                 }
             }

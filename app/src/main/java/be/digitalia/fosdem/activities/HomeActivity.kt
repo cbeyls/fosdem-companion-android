@@ -3,7 +3,6 @@ package be.digitalia.fosdem.activities
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.content.SharedPreferences
 import android.graphics.drawable.Animatable
 import android.os.Build
 import android.os.Bundle
@@ -12,11 +11,11 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.annotation.IdRes
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
-import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -28,9 +27,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.withStarted
 import be.digitalia.fosdem.BuildConfig
 import be.digitalia.fosdem.R
-import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.api.FosdemUrls
-import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.fragments.BookmarksListFragment
 import be.digitalia.fosdem.fragments.LiveFragment
 import be.digitalia.fosdem.fragments.MapFragment
@@ -45,20 +42,15 @@ import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.utils.rootView
 import be.digitalia.fosdem.utils.setupEdgeToEdge
 import be.digitalia.fosdem.utils.toLocalDateTime
+import be.digitalia.fosdem.viewmodels.HomeViewModel
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.progressindicator.BaseProgressIndicator
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import javax.inject.Inject
-import javax.inject.Named
-import kotlin.time.Clock
-import kotlin.time.Duration.Companion.days
-import kotlin.time.Instant
 
 /**
  * Main entry point of the application. Allows to switch between section fragments and update the database.
@@ -66,7 +58,7 @@ import kotlin.time.Instant
  * @author Christophe Beyls
  */
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(R.layout.main) {
+class HomeActivity : AppCompatActivity(R.layout.home) {
 
     private enum class Section(val fragmentClass: Class<out Fragment>,
                                @param:IdRes @get:IdRes val menuItemId: Int,
@@ -91,18 +83,7 @@ class MainActivity : AppCompatActivity(R.layout.main) {
         val navigationView: NavigationView
     )
 
-    @Inject
-    @Named("UIState")
-    lateinit var preferences: SharedPreferences
-
-    @Inject
-    lateinit var api: FosdemApi
-
-    @Inject
-    lateinit var scheduleDao: ScheduleDao
-
-    @Inject
-    lateinit var clock: Clock
+    private val viewModel: HomeViewModel by viewModels()
 
     private val latestUpdateDateTimeFormatter = DateTimeFormatter.ofPattern(LATEST_UPDATE_DATE_TIME_FORMAT)
 
@@ -122,7 +103,12 @@ class MainActivity : AppCompatActivity(R.layout.main) {
 
         // Monitor the schedule download
         launchAndRepeatOnLifecycle {
-            api.downloadScheduleState.collect { state ->
+            // Check auto download every time the screen becomes visible
+            launch {
+                viewModel.startDownloadScheduleIfStale()
+            }
+
+            viewModel.downloadScheduleState.collect { state ->
                 when (state) {
                     is LoadingState.Loading -> {
                         with(progressIndicator) {
@@ -148,7 +134,7 @@ class MainActivity : AppCompatActivity(R.layout.main) {
                             val snackbar = when (result) {
                                 is DownloadScheduleResult.Error -> {
                                     Snackbar.make(contentView, R.string.schedule_loading_error, ERROR_MESSAGE_DISPLAY_DURATION)
-                                        .setAction(R.string.schedule_loading_retry_action) { downloadSchedule() }
+                                        .setAction(R.string.schedule_loading_retry_action) { viewModel.startDownloadSchedule() }
                                 }
                                 is DownloadScheduleResult.UpToDate -> {
                                     Snackbar.make(contentView, R.string.events_download_up_to_date, Snackbar.LENGTH_LONG)
@@ -165,7 +151,7 @@ class MainActivity : AppCompatActivity(R.layout.main) {
                             }
                             snackbar.addCallback(object : Snackbar.Callback() {
                                 override fun onDismissed(transientBottomBar: Snackbar, event: Int) {
-                                    api.downloadScheduleResultConsumed()
+                                    viewModel.consumeDownloadScheduleResult()
                                 }
                             }).show()
                         }
@@ -220,7 +206,7 @@ class MainActivity : AppCompatActivity(R.layout.main) {
         // Latest update time, as second header below the logo
         val latestUpdateTextView = navigationView.inflateHeaderView(R.layout.navigation_latest_update) as TextView
         lifecycleScope.launch {
-            scheduleDao.latestUpdateTime.collect { time ->
+            viewModel.latestUpdateTime.collect { time ->
                 val timeString = time?.toLocalDateTime(ZoneId.systemDefault())?.format(latestUpdateDateTimeFormatter)
                         ?: getString(R.string.never)
                 latestUpdateTextView.text = getString(R.string.last_update, timeString)
@@ -252,15 +238,6 @@ class MainActivity : AppCompatActivity(R.layout.main) {
                 supportFragmentManager.commit { add(R.id.content, section.fragmentClass, null, section.name) }
             }
         }
-    }
-
-    private fun downloadSchedule(now: Instant = clock.now()) {
-        preferences.edit {
-            putInt(LATEST_UPDATE_ATTEMPT_VERSION_PREF_KEY, scheduleDao.databaseVersion)
-            putLong(LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY, now.toEpochMilliseconds())
-        }
-
-        api.downloadSchedule()
     }
 
     @SuppressLint("PrivateResource")
@@ -296,26 +273,6 @@ class MainActivity : AppCompatActivity(R.layout.main) {
         return handled || super.dispatchKeyEvent(event)
     }
 
-    override fun onStart() {
-        super.onStart()
-
-        // Scheduled database update
-        lifecycleScope.launch {
-            val now = clock.now()
-            val latestUpdateTime = scheduleDao.latestUpdateTime.first()
-            if (latestUpdateTime == null || now > latestUpdateTime + DATABASE_VALIDITY_DURATION) {
-                val latestAttemptVersion = preferences.getInt(LATEST_UPDATE_ATTEMPT_VERSION_PREF_KEY, 0)
-                val latestAttemptTime = Instant.fromEpochMilliseconds(
-                    preferences.getLong(LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY, 0L)
-                )
-                if (latestAttemptVersion != scheduleDao.databaseVersion || now > latestAttemptTime + AUTO_UPDATE_SNOOZE_DURATION) {
-                    // Try to update immediately. If it fails, the user gets a message and a retry button.
-                    downloadSchedule(now)
-                }
-            }
-        }
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         super.onCreateOptionsMenu(menu)
         menuInflater.inflate(R.menu.main, menu)
@@ -341,7 +298,7 @@ class MainActivity : AppCompatActivity(R.layout.main) {
                     item.icon = icon
                     icon.start()
                 }
-                downloadSchedule()
+                viewModel.startDownloadSchedule()
                 true
             }
             else -> false
@@ -370,9 +327,7 @@ class MainActivity : AppCompatActivity(R.layout.main) {
             when (menuItemId) {
                 R.id.menu_stands -> {
                     lifecycleScope.launch {
-                        val year = scheduleDao.getYear()
-                        val url = if (year != null) FosdemUrls.getStands(year) else FosdemUrls.stands
-                        launchUrl(url)
+                        launchUrl(viewModel.getStandsUrl())
                     }
                 }
 
@@ -415,10 +370,6 @@ class MainActivity : AppCompatActivity(R.layout.main) {
         const val ACTION_SHORTCUT_LIVE = "${BuildConfig.APPLICATION_ID}.intent.action.SHORTCUT_LIVE"
 
         private const val ERROR_MESSAGE_DISPLAY_DURATION = 5000
-        private val DATABASE_VALIDITY_DURATION = 1.days
-        private val AUTO_UPDATE_SNOOZE_DURATION = 1.days
-        private const val LATEST_UPDATE_ATTEMPT_VERSION_PREF_KEY = "latest_update_attempt_version"
-        private const val LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY = "latest_update_attempt_time"
         private const val LATEST_UPDATE_DATE_TIME_FORMAT = "d MMM yyyy kk:mm:ss"
     }
 }

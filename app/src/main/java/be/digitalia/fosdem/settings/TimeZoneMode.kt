@@ -1,20 +1,13 @@
 package be.digitalia.fosdem.settings
 
-import java.time.ZoneId
-
-sealed interface TimeZoneMode {
-    val override: ZoneId?
-
+enum class TimeZoneMode {
     /**
      * Use the default time zone provided by schedule data.
      */
-    data object Default : TimeZoneMode {
-        override val override: ZoneId?
-            get() = null
-    }
+    DEFAULT,
 
     /**
      * Use the device time zone.
      */
-    data class Device(override val override: ZoneId) : TimeZoneMode
+    DEVICE
 }
