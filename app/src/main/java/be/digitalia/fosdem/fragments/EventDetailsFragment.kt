@@ -37,14 +37,12 @@ import androidx.lifecycle.withStarted
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.MenuHostMediatorOwner
 import be.digitalia.fosdem.activities.PersonInfoActivity
-import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.model.Building
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.EventDetails
 import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.model.Resource
 import be.digitalia.fosdem.model.RoomStatus
-import be.digitalia.fosdem.settings.UserSettingsProvider
 import be.digitalia.fosdem.utils.ClickableArrowKeyMovementMethod
 import be.digitalia.fosdem.utils.DateUtils
 import be.digitalia.fosdem.utils.configureColorSchemes
@@ -54,6 +52,7 @@ import be.digitalia.fosdem.utils.parseHtml
 import be.digitalia.fosdem.utils.roomNameToResourceName
 import be.digitalia.fosdem.utils.stripHtml
 import be.digitalia.fosdem.viewmodels.EventDetailsViewModel
+import be.digitalia.fosdem.viewmodels.EventMetadataProvider
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.withCreationCallback
@@ -77,9 +76,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
     }
 
     @Inject
-    lateinit var userSettingsProvider: UserSettingsProvider
-    @Inject
-    lateinit var api: FosdemApi
+    lateinit var eventMetadataProvider: EventMetadataProvider
 
     private val viewModel: EventDetailsViewModel by viewModels(extrasProducer = {
         defaultViewModelCreationExtras.withCreationCallback<EventDetailsViewModel.Factory> { factory ->
@@ -235,15 +232,15 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
         val roomName = event.roomName
         viewLifecycleOwner.launchAndRepeatOnLifecycle {
             launch {
-                userSettingsProvider.timeZoneMode.collect { mode ->
-                    bindTime(holder.timeTextView, timeFormatter, mode.override)
+                eventMetadataProvider.timeZoneOverride.collect { override ->
+                    bindTime(holder.timeTextView, timeFormatter, override)
                 }
             }
 
             // Live room status
             if (!roomName.isNullOrEmpty()) {
                 launch {
-                    api.roomStatuses.collect { statuses ->
+                    eventMetadataProvider.roomStatuses.collect { statuses ->
                         bindRoomStatus(holder.roomStatusTextView, statuses[roomName])
                     }
                 }

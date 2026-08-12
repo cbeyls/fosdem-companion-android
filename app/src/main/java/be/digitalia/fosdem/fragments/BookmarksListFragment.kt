@@ -22,11 +22,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.ExternalBookmarksActivity
 import be.digitalia.fosdem.adapters.BookmarksAdapter
-import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.providers.BookmarksExportProvider
-import be.digitalia.fosdem.settings.UserSettingsProvider
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.BookmarksViewModel
+import be.digitalia.fosdem.viewmodels.EventMetadataProvider
 import be.digitalia.fosdem.widgets.MultiChoiceHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
@@ -44,9 +43,7 @@ import javax.inject.Inject
 class BookmarksListFragment : Fragment(R.layout.recyclerview) {
 
     @Inject
-    lateinit var userSettingsProvider: UserSettingsProvider
-    @Inject
-    lateinit var api: FosdemApi
+    lateinit var eventMetadataProvider: EventMetadataProvider
 
     private val viewModel: BookmarksViewModel by viewModels()
     private val multiChoiceHelper: MultiChoiceHelper by lazy(LazyThreadSafetyMode.NONE) {
@@ -170,12 +167,12 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview) {
 
         viewLifecycleOwner.launchAndRepeatOnLifecycle {
             launch {
-                userSettingsProvider.timeZoneMode.collect { mode ->
-                    adapter.timeZoneOverride = mode.override
+                eventMetadataProvider.timeZoneOverride.collect { override ->
+                    adapter.timeZoneOverride = override
                 }
             }
             launch {
-                api.roomStatuses.collect { statuses ->
+                eventMetadataProvider.roomStatuses.collect { statuses ->
                     adapter.roomStatuses = statuses
                 }
             }

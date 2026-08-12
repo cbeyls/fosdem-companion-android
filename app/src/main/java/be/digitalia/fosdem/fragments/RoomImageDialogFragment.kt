@@ -12,9 +12,9 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.RoomImageDialogActivity
-import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.utils.invertImageColors
 import be.digitalia.fosdem.utils.isLightTheme
+import be.digitalia.fosdem.viewmodels.EventMetadataProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -23,7 +23,7 @@ import javax.inject.Inject
 class RoomImageDialogFragment : DialogFragment() {
 
     @Inject
-    lateinit var api: FosdemApi
+    lateinit var eventMetadataProvider: EventMetadataProvider
 
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -48,7 +48,7 @@ class RoomImageDialogFragment : DialogFragment() {
         }
 
         RoomImageDialogActivity.configureToolbar(
-            api,
+            eventMetadataProvider,
             this,
             contentView.findViewById(R.id.toolbar),
             args.getString(ARG_ROOM_NAME)!!
