@@ -29,6 +29,7 @@ class TrackScheduleListFragment : Fragment(R.layout.recyclerview) {
 
     @Inject
     lateinit var userSettingsProvider: UserSettingsProvider
+
     private val viewModel: TrackScheduleListViewModel by viewModels(extrasProducer = {
         defaultViewModelCreationExtras.withCreationCallback<TrackScheduleListViewModel.Factory> { factory ->
             val args = requireArguments()

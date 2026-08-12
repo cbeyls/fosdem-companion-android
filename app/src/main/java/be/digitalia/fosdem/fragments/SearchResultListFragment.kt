@@ -27,6 +27,7 @@ class SearchResultListFragment : Fragment(R.layout.recyclerview) {
     lateinit var userSettingsProvider: UserSettingsProvider
     @Inject
     lateinit var api: FosdemApi
+
     private val viewModel: SearchViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

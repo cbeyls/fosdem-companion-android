@@ -37,6 +37,7 @@ class ExternalBookmarksListFragment : Fragment(R.layout.recyclerview) {
     lateinit var userSettingsProvider: UserSettingsProvider
     @Inject
     lateinit var api: FosdemApi
+
     private val viewModel: ExternalBookmarksViewModel by viewModels(extrasProducer = {
         defaultViewModelCreationExtras.withCreationCallback<ExternalBookmarksViewModel.Factory> { factory ->
             val bookmarkIds = requireArguments().getLongArray(ARG_BOOKMARK_IDS)!!

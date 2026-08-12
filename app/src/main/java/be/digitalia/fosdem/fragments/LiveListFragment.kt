@@ -35,6 +35,7 @@ sealed class LiveListFragment(
     lateinit var userSettingsProvider: UserSettingsProvider
     @Inject
     lateinit var api: FosdemApi
+
     private val viewModel: LiveViewModel by viewModels({ requireParentFragment() })
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

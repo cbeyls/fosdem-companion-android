@@ -80,6 +80,7 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
     lateinit var userSettingsProvider: UserSettingsProvider
     @Inject
     lateinit var api: FosdemApi
+
     private val viewModel: EventDetailsViewModel by viewModels(extrasProducer = {
         defaultViewModelCreationExtras.withCreationCallback<EventDetailsViewModel.Factory> { factory ->
             factory.create(event)

@@ -1,7 +1,9 @@
 package be.digitalia.fosdem.viewmodels
 
 import android.app.Application
+import android.content.SharedPreferences
 import android.net.Uri
+import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import be.digitalia.fosdem.BuildConfig
@@ -14,23 +16,22 @@ import be.digitalia.fosdem.flow.synchronizedTickerFlow
 import be.digitalia.fosdem.flow.versionedResourceFlow
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.parsers.ExportedBookmarksParser
+import be.digitalia.fosdem.settings.getBooleanAsFlow
 import be.digitalia.fosdem.utils.BackgroundWorkScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.buffer
 import okio.source
 import javax.inject.Inject
+import javax.inject.Named
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
@@ -44,13 +45,15 @@ class BookmarksViewModel @Inject constructor(
     private val application: Application,
     timeSource: TimeSource,
     clock: Clock,
+    @param:Named("UIState") private val uiStatePreferences: SharedPreferences,
 ) : ViewModel() {
 
-    private val hidePastEventsStateFlow = MutableStateFlow<Boolean?>(null)
+    val hidePastEvents: Flow<Boolean> =
+        uiStatePreferences.getBooleanAsFlow(HIDE_PAST_EVENTS_PREF_KEY)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val bookmarks: StateFlow<List<Event>?> = stateFlow(viewModelScope, null) {
-        hidePastEventsStateFlow.filterNotNull().flatMapLatest { hidePastEvents ->
+        hidePastEvents.flatMapLatest { hidePastEvents ->
             if (hidePastEvents) {
                 // Refresh upcoming bookmarks every 2 minutes
                 synchronizedTickerFlow(REFRESH_PERIOD, timeSource)
@@ -68,18 +71,17 @@ class BookmarksViewModel @Inject constructor(
             bookmarksDao.getBookmarks(minEndTime)
         }
 
-    val isImportExportEnabled: StateFlow<Boolean?> =
-        scheduleDao.latestUpdateTime.map { it != null }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = null
-        )
+    val isImportExportEnabled: Flow<Boolean> =
+        scheduleDao.latestUpdateTime
+            .map { it != null }
+            .distinctUntilChanged()
 
-    var hidePastEvents: Boolean
-        get() = hidePastEventsStateFlow.value == true
-        set(value) {
-            hidePastEventsStateFlow.value = value
+    fun toggleHidePastEvents() {
+        uiStatePreferences.edit {
+            val newValue = !uiStatePreferences.getBoolean(HIDE_PAST_EVENTS_PREF_KEY, false)
+            putBoolean(HIDE_PAST_EVENTS_PREF_KEY, newValue)
         }
+    }
 
     fun removeBookmarks(eventIds: LongArray) {
         BackgroundWorkScope.launch {
@@ -102,5 +104,6 @@ class BookmarksViewModel @Inject constructor(
 
     companion object {
         private val REFRESH_PERIOD = 2.minutes
+        private const val HIDE_PAST_EVENTS_PREF_KEY = "bookmarks_upcoming_only"
     }
 }

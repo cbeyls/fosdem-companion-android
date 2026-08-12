@@ -44,6 +44,7 @@ class PersonInfoListFragment : Fragment(R.layout.recyclerview) {
     lateinit var userSettingsProvider: UserSettingsProvider
     @Inject
     lateinit var api: FosdemApi
+
     private val viewModel: PersonInfoViewModel by viewModels(extrasProducer = {
         defaultViewModelCreationExtras.withCreationCallback<PersonInfoViewModel.Factory> { factory ->
             val person: Person = requireArguments().getParcelableCompat(ARG_PERSON)!!

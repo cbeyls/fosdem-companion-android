@@ -2,7 +2,6 @@ package be.digitalia.fosdem.fragments
 
 import android.app.Dialog
 import android.content.Intent
-import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
@@ -12,7 +11,6 @@ import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
-import androidx.core.content.edit
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
@@ -36,7 +34,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Named
 
 /**
  * Bookmarks list, optionally filterable.
@@ -48,9 +45,6 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview) {
 
     @Inject
     lateinit var userSettingsProvider: UserSettingsProvider
-    @Inject
-    @Named("UIState")
-    lateinit var preferences: SharedPreferences
     @Inject
     lateinit var api: FosdemApi
 
@@ -96,22 +90,26 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview) {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        viewModel.hidePastEvents = preferences.getBoolean(HIDE_PAST_EVENTS_PREF_KEY, false)
-    }
-
     private inner class BookmarksMenuProvider : MenuProvider {
         private var filterMenuItem: MenuItem? = null
         private var hidePastEventsMenuItem: MenuItem? = null
         private var exportMenuItem: MenuItem? = null
         private var importMenuItem: MenuItem? = null
 
+        var hidePastEvents: Boolean = false
+            set(value) {
+                if (field != value) {
+                    field = value
+                    updateMenuItems()
+                }
+            }
+
         var isImportExportEnabled: Boolean = true
             set(value) {
-                field = value
-                updateMenuItems()
+                if (field != value) {
+                    field = value
+                    updateMenuItems()
+                }
             }
 
         override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -125,12 +123,7 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview) {
 
         override fun onMenuItemSelected(menuItem: MenuItem) = when (menuItem.itemId) {
             R.id.hide_past_events -> {
-                val hidePastEvents = !viewModel.hidePastEvents
-                viewModel.hidePastEvents = hidePastEvents
-                updateMenuItems()
-                preferences.edit {
-                    putBoolean(HIDE_PAST_EVENTS_PREF_KEY, hidePastEvents)
-                }
+                viewModel.toggleHidePastEvents()
                 true
             }
             R.id.export_bookmarks -> {
@@ -146,8 +139,12 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview) {
         }
 
         private fun updateMenuItems() {
-            val hidePastEvents = viewModel.hidePastEvents
-            filterMenuItem?.setIcon(if (hidePastEvents) R.drawable.ic_filter_list_selected_white_24dp else R.drawable.ic_filter_list_white_24dp)
+            val filterMenuItemIcon = if (hidePastEvents) {
+                R.drawable.ic_filter_list_selected_white_24dp
+            } else {
+                R.drawable.ic_filter_list_white_24dp
+            }
+            filterMenuItem?.setIcon(filterMenuItemIcon)
             hidePastEventsMenuItem?.isChecked = hidePastEvents
             exportMenuItem?.isEnabled = isImportExportEnabled
             importMenuItem?.isEnabled = isImportExportEnabled
@@ -183,7 +180,12 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview) {
                 }
             }
             launch {
-                viewModel.isImportExportEnabled.filterNotNull().collect { isEnabled ->
+                viewModel.hidePastEvents.collect { hidePastEvents ->
+                    menuProvider.hidePastEvents = hidePastEvents
+                }
+            }
+            launch {
+                viewModel.isImportExportEnabled.collect { isEnabled ->
                     menuProvider.isImportExportEnabled = isEnabled
                 }
             }
@@ -227,9 +229,5 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview) {
                     .setPositiveButton(android.R.string.ok, null)
                     .create()
         }
-    }
-
-    companion object {
-        private const val HIDE_PAST_EVENTS_PREF_KEY = "bookmarks_upcoming_only"
     }
 }
