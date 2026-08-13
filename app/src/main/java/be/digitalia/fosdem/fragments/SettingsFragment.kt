@@ -26,7 +26,7 @@ import androidx.preference.TwoStatePreference
 import androidx.recyclerview.widget.RecyclerView
 import be.digitalia.fosdem.BuildConfig
 import be.digitalia.fosdem.R
-import be.digitalia.fosdem.alarms.AppAlarmManager
+import be.digitalia.fosdem.alarms.AndroidAlarmManager
 import be.digitalia.fosdem.settings.PreferenceKeys
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,7 +36,7 @@ import javax.inject.Inject
 class SettingsFragment : PreferenceFragmentCompat() {
 
     @Inject
-    lateinit var alarmManager: AppAlarmManager
+    lateinit var alarmManager: AndroidAlarmManager
 
     private val requestNotificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { result: Boolean ->
@@ -128,7 +128,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private fun setupNotificationsChannel() {
         findPreference<Preference>(PreferenceKeys.NOTIFICATIONS_CHANNEL)?.onPreferenceClickListener =
             Preference.OnPreferenceClickListener {
-                AppAlarmManager.startChannelNotificationSettingsActivity(requireContext())
+                AndroidAlarmManager.startChannelNotificationSettingsActivity(requireContext())
                 true
             }
     }

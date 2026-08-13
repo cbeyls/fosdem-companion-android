@@ -22,7 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class BookmarkStatusViewModel @Inject constructor(
     private val bookmarksDao: BookmarksDao,
-    private val alarmManager: AppAlarmManager
+    private val alarmManager: AppAlarmManager,
 ) : ViewModel() {
 
     private val eventStateFlow = MutableStateFlow<Event?>(null)

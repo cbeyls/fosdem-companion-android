@@ -1,7 +1,7 @@
 package be.digitalia.fosdem
 
 import android.app.Application
-import be.digitalia.fosdem.alarms.AppAlarmManager
+import be.digitalia.fosdem.alarms.AndroidAlarmManager
 import be.digitalia.fosdem.utils.ThemeManager
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
@@ -15,5 +15,5 @@ class FosdemApplication : Application() {
     lateinit var themeManager: ThemeManager
 
     @Inject
-    lateinit var alarmManager: AppAlarmManager
+    lateinit var alarmManager: AndroidAlarmManager
 }

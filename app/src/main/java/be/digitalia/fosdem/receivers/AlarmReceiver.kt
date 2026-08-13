@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import be.digitalia.fosdem.BuildConfig
-import be.digitalia.fosdem.alarms.AppAlarmManager
+import be.digitalia.fosdem.alarms.AndroidAlarmManager
 import be.digitalia.fosdem.utils.BackgroundWorkScope
 import be.digitalia.fosdem.utils.goAsync
 import dagger.hilt.android.AndroidEntryPoint
@@ -19,7 +19,7 @@ import javax.inject.Inject
 class AlarmReceiver : BroadcastReceiver() {
 
     @Inject
-    lateinit var alarmManager: AppAlarmManager
+    lateinit var alarmManager: AndroidAlarmManager
 
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
