@@ -1,9 +1,11 @@
 package be.digitalia.fosdem.viewmodels
 
 import android.app.Application
-import android.content.SharedPreferences
 import android.net.Uri
-import androidx.core.content.edit
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import be.digitalia.fosdem.BuildConfig
@@ -16,7 +18,6 @@ import be.digitalia.fosdem.flow.synchronizedTickerFlow
 import be.digitalia.fosdem.flow.versionedResourceFlow
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.parsers.ExportedBookmarksParser
-import be.digitalia.fosdem.settings.getBooleanAsFlow
 import be.digitalia.fosdem.utils.BackgroundWorkScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -45,11 +46,11 @@ class BookmarksViewModel @Inject constructor(
     private val application: Application,
     timeSource: TimeSource,
     clock: Clock,
-    @param:Named("UIState") private val uiStatePreferences: SharedPreferences,
+    @param:Named("UIState") private val uiStateDataStore: DataStore<Preferences>,
 ) : ViewModel() {
 
     val hidePastEvents: Flow<Boolean> =
-        uiStatePreferences.getBooleanAsFlow(HIDE_PAST_EVENTS_PREF_KEY)
+        uiStateDataStore.data.map { it[HIDE_PAST_EVENTS_PREF_KEY] ?: false }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val bookmarks: StateFlow<List<Event>?> = stateFlow(viewModelScope, null) {
@@ -77,9 +78,10 @@ class BookmarksViewModel @Inject constructor(
             .distinctUntilChanged()
 
     fun toggleHidePastEvents() {
-        uiStatePreferences.edit {
-            val newValue = !uiStatePreferences.getBoolean(HIDE_PAST_EVENTS_PREF_KEY, false)
-            putBoolean(HIDE_PAST_EVENTS_PREF_KEY, newValue)
+        viewModelScope.launch {
+            uiStateDataStore.edit {
+                it[HIDE_PAST_EVENTS_PREF_KEY] = !(it[HIDE_PAST_EVENTS_PREF_KEY] ?: false)
+            }
         }
     }
 
@@ -104,6 +106,6 @@ class BookmarksViewModel @Inject constructor(
 
     companion object {
         private val REFRESH_PERIOD = 2.minutes
-        private const val HIDE_PAST_EVENTS_PREF_KEY = "bookmarks_upcoming_only"
+        private val HIDE_PAST_EVENTS_PREF_KEY = booleanPreferencesKey("bookmarks_upcoming_only")
     }
 }

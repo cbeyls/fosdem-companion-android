@@ -1,8 +1,12 @@
 package be.digitalia.fosdem.viewmodels
 
-import android.content.SharedPreferences
-import androidx.core.content.edit
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.api.FosdemUrls
 import be.digitalia.fosdem.db.ScheduleDao
@@ -12,6 +16,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.time.Clock
@@ -23,7 +28,7 @@ class HomeViewModel @Inject constructor(
     private val api: FosdemApi,
     private val scheduleDao: ScheduleDao,
     private val clock: Clock,
-    @param:Named("UIState") private val uiStatePreferences: SharedPreferences,
+    @param:Named("UIState") private val uiStateDataStore: DataStore<Preferences>,
 ) : ViewModel() {
 
     val downloadScheduleState: StateFlow<LoadingState<DownloadScheduleResult>>
@@ -38,13 +43,15 @@ class HomeViewModel @Inject constructor(
     }
 
     fun startDownloadSchedule() {
-        startDownloadScheduleInternal(clock.now())
+        viewModelScope.launch {
+            startDownloadScheduleInternal(clock.now())
+        }
     }
 
-    private fun startDownloadScheduleInternal(now: Instant) {
-        uiStatePreferences.edit {
-            putInt(LATEST_UPDATE_ATTEMPT_VERSION_PREF_KEY, scheduleDao.databaseVersion)
-            putLong(LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY, now.toEpochMilliseconds())
+    private suspend fun startDownloadScheduleInternal(now: Instant) {
+        uiStateDataStore.edit {
+            it[LATEST_UPDATE_ATTEMPT_VERSION_PREF_KEY] = scheduleDao.databaseVersion
+            it[LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY] = now.toEpochMilliseconds()
         }
 
         api.startDownloadSchedule()
@@ -57,10 +64,9 @@ class HomeViewModel @Inject constructor(
         val now = clock.now()
         val latestUpdateTime = scheduleDao.latestUpdateTime.first()
         if (latestUpdateTime == null || now > latestUpdateTime + DATABASE_VALIDITY_DURATION) {
-            val latestAttemptVersion = uiStatePreferences.getInt(LATEST_UPDATE_ATTEMPT_VERSION_PREF_KEY, 0)
-            val latestAttemptTime = Instant.fromEpochMilliseconds(
-                uiStatePreferences.getLong(LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY, 0L)
-            )
+            val prefs = uiStateDataStore.data.first()
+            val latestAttemptVersion = prefs[LATEST_UPDATE_ATTEMPT_VERSION_PREF_KEY] ?: 0
+            val latestAttemptTime = Instant.fromEpochMilliseconds(prefs[LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY] ?: 0L)
             val isDatabaseVersionChanged = latestAttemptVersion != scheduleDao.databaseVersion
             if (isDatabaseVersionChanged || now > latestAttemptTime + AUTO_UPDATE_SNOOZE_DURATION) {
                 // Try to update immediately. If it fails, the user gets a message and a retry button.
@@ -78,7 +84,7 @@ class HomeViewModel @Inject constructor(
     companion object {
         private val DATABASE_VALIDITY_DURATION = 1.days
         private val AUTO_UPDATE_SNOOZE_DURATION = 1.days
-        private const val LATEST_UPDATE_ATTEMPT_VERSION_PREF_KEY = "latest_update_attempt_version"
-        private const val LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY = "latest_update_attempt_time"
+        private val LATEST_UPDATE_ATTEMPT_VERSION_PREF_KEY = intPreferencesKey("latest_update_attempt_version")
+        private val LATEST_UPDATE_ATTEMPT_TIME_PREF_KEY = longPreferencesKey("latest_update_attempt_time")
     }
 }

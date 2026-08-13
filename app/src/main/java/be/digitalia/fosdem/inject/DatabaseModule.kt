@@ -18,7 +18,7 @@ import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.db.entities.EventEntity
 import be.digitalia.fosdem.db.entities.EventTitles
 import be.digitalia.fosdem.db.entities.EventToPerson
-import be.digitalia.fosdem.flow.DeferredReadDataStore
+import be.digitalia.fosdem.datastore.DeferredReadDataStore
 import be.digitalia.fosdem.model.Attachment
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Link
@@ -38,14 +38,14 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
-    private const val DB_FILE = "fosdem.sqlite"
-    private const val DB_DATASTORE_FILE = "database"
+    private const val DB_FILE_NAME = "fosdem.sqlite"
+    private const val DB_DATASTORE_FILE_NAME = "database"
 
     @Provides
     @Named("Database")
     fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
         return PreferenceDataStoreFactory.create {
-            context.preferencesDataStoreFile(DB_DATASTORE_FILE)
+            context.preferencesDataStoreFile(DB_DATASTORE_FILE_NAME)
         }
     }
 
@@ -118,7 +118,7 @@ object DatabaseModule {
 
         val onDatabaseOpen = Job()
 
-        return Room.databaseBuilder(context, AppDatabase::class.java, DB_FILE)
+        return Room.databaseBuilder(context, AppDatabase::class.java, DB_FILE_NAME)
             // TRUNCATE journal mode uses a single database connection
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .addMigrations(migration3to5, migration5to6, migration6to7, migration7to8, migration8to9)
