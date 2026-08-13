@@ -84,6 +84,7 @@ class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvi
 
     private class DaysAdapter(fragment: Fragment)
         : FragmentStateAdapter(fragment.childFragmentManager, fragment.viewLifecycleOwner.lifecycle) {
+
         private val fragmentFactory = fragment.childFragmentManager.fragmentFactory
 
         var days: List<Day> = emptyList()

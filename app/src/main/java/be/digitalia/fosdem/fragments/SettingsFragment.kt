@@ -20,6 +20,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.add
+import androidx.fragment.app.commit
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.TwoStatePreference
@@ -136,7 +138,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private fun setupAboutDialog() {
         findPreference<Preference>(PreferenceKeys.ABOUT)?.onPreferenceClickListener =
             Preference.OnPreferenceClickListener {
-                AboutDialogFragment().show(parentFragmentManager, "about")
+                parentFragmentManager.commit {
+                    setReorderingAllowed(true)
+                    add<AboutDialogFragment>("about")
+                }
                 true
             }
     }

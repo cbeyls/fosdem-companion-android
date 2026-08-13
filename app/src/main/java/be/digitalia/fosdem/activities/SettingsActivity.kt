@@ -2,6 +2,7 @@ package be.digitalia.fosdem.activities
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.SettingsFragment
@@ -34,7 +35,7 @@ class SettingsActivity : AppCompatActivity(R.layout.content) {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         if (savedInstanceState == null) {
-            supportFragmentManager.commit { add(R.id.content, SettingsFragment()) }
+            supportFragmentManager.commit { add<SettingsFragment>(R.id.content) }
         }
     }
 

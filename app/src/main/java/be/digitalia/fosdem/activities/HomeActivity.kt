@@ -60,10 +60,12 @@ import java.time.format.DateTimeFormatter
 @AndroidEntryPoint
 class HomeActivity : AppCompatActivity(R.layout.home) {
 
-    private enum class Section(val fragmentClass: Class<out Fragment>,
-                               @param:IdRes @get:IdRes val menuItemId: Int,
-                               val extendsAppBar: Boolean,
-                               val keep: Boolean) {
+    private enum class Section(
+        val fragmentClass: Class<out Fragment>,
+        @param:IdRes @get:IdRes val menuItemId: Int,
+        val extendsAppBar: Boolean,
+        val keep: Boolean
+    ) {
         TRACKS(TracksFragment::class.java, R.id.menu_tracks, true, true),
         BOOKMARKS(BookmarksListFragment::class.java, R.id.menu_bookmarks, false, true),
         LIVE(LiveFragment::class.java, R.id.menu_live, true, false),

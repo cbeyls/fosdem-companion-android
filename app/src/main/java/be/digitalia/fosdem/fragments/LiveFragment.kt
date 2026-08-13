@@ -9,6 +9,7 @@ import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.WindowInsetsApplier
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.utils.enforceSingleScrollDirection
+import be.digitalia.fosdem.utils.instantiate
 import be.digitalia.fosdem.utils.recyclerView
 import be.digitalia.fosdem.utils.viewLifecycleLazy
 import com.google.android.material.tabs.TabLayout
@@ -46,13 +47,14 @@ class LiveFragment : Fragment(R.layout.fragment_live), RecycledViewPoolProvider 
     private class LivePagerAdapter(fragment: Fragment)
         : FragmentStateAdapter(fragment.childFragmentManager, fragment.viewLifecycleOwner.lifecycle) {
 
+        private val fragmentFactory = fragment.childFragmentManager.fragmentFactory
         private val resources = fragment.resources
 
         override fun getItemCount() = 2
 
         override fun createFragment(position: Int): Fragment = when (position) {
-            0 -> NextLiveListFragment()
-            1 -> NowLiveListFragment()
+            0 -> fragmentFactory.instantiate<NextLiveListFragment>()
+            1 -> fragmentFactory.instantiate<NowLiveListFragment>()
             else -> throw IllegalStateException()
         }
 

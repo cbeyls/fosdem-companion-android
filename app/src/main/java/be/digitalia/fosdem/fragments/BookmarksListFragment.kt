@@ -14,6 +14,8 @@ import androidx.appcompat.view.ActionMode
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.add
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.withStarted
@@ -209,10 +211,10 @@ class BookmarksListFragment : Fragment(R.layout.recyclerview) {
                 throw e
             } catch (_: Exception) {
                 withStarted {
-                    ImportBookmarksErrorDialogFragment().show(
-                        parentFragmentManager,
-                        "importBookmarksError"
-                    )
+                    parentFragmentManager.commit {
+                        setReorderingAllowed(true)
+                        add<ImportBookmarksErrorDialogFragment>("importBookmarksError")
+                    }
                 }
             }
         }

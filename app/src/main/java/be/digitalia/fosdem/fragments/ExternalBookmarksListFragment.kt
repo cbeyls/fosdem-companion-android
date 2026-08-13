@@ -9,6 +9,8 @@ import android.view.View
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.add
+import androidx.fragment.app.commit
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
@@ -68,7 +70,10 @@ class ExternalBookmarksListFragment : Fragment(R.layout.recyclerview) {
 
             override fun onMenuItemSelected(menuItem: MenuItem) = when (menuItem.itemId) {
                 R.id.add_all -> {
-                    ConfirmAddAllDialogFragment().show(parentFragmentManager, "confirmAddAll")
+                    parentFragmentManager.commit {
+                        setReorderingAllowed(true)
+                        add<ConfirmAddAllDialogFragment>("confirmAddAll")
+                    }
                     true
                 }
                 else -> false
