@@ -108,7 +108,7 @@ class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule), MenuHo
         if (isTabletLandscape) {
             // Tablet mode: Show event details in the right pane fragment
             launchAndRepeatOnLifecycle {
-                viewModel.selectedEventFlow.collect { event ->
+                viewModel.selectedEvent.collect { event ->
                     val currentFragment = fm.findFragmentById(R.id.event) as EventDetailsFragment?
                     if (event != null) {
                         // Only replace the fragment if the event is different

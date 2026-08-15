@@ -66,7 +66,7 @@ class TrackScheduleListFragment : Fragment(R.layout.recyclerview) {
 
         val adapter = TrackScheduleAdapter(view.context) { event ->
             selectedId = event.id
-            activityViewModel.selectedEvent = event
+            activityViewModel.selectedEvent.value = event
 
             if (!isSelectionEnabled) {
                 // Classic mode: Show event details in a new activity
@@ -109,7 +109,7 @@ class TrackScheduleListFragment : Fragment(R.layout.recyclerview) {
                         }
                     }
 
-                    activityViewModel.selectedEvent =
+                    activityViewModel.selectedEvent.value =
                         if (selectedPosition == -1) null else schedule[selectedPosition].event
 
                     // Ensure the selection is visible
@@ -130,7 +130,7 @@ class TrackScheduleListFragment : Fragment(R.layout.recyclerview) {
 
             if (isSelectionEnabled) {
                 launch {
-                    activityViewModel.selectedEventFlow.collect { event ->
+                    activityViewModel.selectedEvent.collect { event ->
                         adapter.selectedId = event?.id ?: RecyclerView.NO_ID
                     }
                 }
