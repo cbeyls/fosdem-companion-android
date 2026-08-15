@@ -28,16 +28,6 @@ class ICalendarReader(private val source: BufferedSource) : Closeable {
 
     fun hasNext(): Boolean = !source.exhausted()
 
-    fun nextKey(): String {
-        check(state == STATE_BEGIN_KEY)
-        val endPosition = source.indexOf(':'.code.toByte())
-        endPosition >= 0L || throw IOException("Invalid key")
-        val result = source.readUtf8(endPosition)
-        source.skip(1L)
-        state = STATE_BEGIN_VALUE
-        return result
-    }
-
     fun skipKey() {
         check(state == STATE_BEGIN_KEY)
         val endPosition = source.indexOf(':'.code.toByte())

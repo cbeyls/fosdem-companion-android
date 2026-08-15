@@ -153,6 +153,7 @@
     <string name="more_info">More info</string>
 
     <!-- Others -->
+    <string name="action_bar_up_description">Navigate up</string>
     <string name="room_map">Room map</string>
     <string name="directions">Directions to ULB</string>
     <string name="navigation">On-site navigation</string>

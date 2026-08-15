@@ -23,7 +23,7 @@ import java.util.Locale
  */
 
 /**
- * Mirror of the unicode table from 00c0 to 017f without diacritics.
+ * Mirror of the Unicode table from 00c0 to 017f without diacritics.
  */
 private const val tab00c0 = "AAAAAAACEEEEIIII" + "DNOOOOO\u00d7\u00d8UUUUYI\u00df" +
         "aaaaaaaceeeeiiii" + "\u00f0nooooo\u00f7\u00f8uuuuy\u00fey" +

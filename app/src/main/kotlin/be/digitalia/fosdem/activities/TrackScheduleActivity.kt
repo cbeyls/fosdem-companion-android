@@ -7,6 +7,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
@@ -67,7 +68,7 @@ class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule), MenuHo
             setTaskColorPrimary(trackAppBarColor.defaultColor)
             findViewById<AppBarLayout>(R.id.appbar).apply {
                 backgroundTintList = trackAppBarColor
-                statusBarForeground = getDrawable(trackType.statusBarColorResId)
+                statusBarForeground = getColor(trackType.statusBarColorResId).toDrawable()
             }
         } else {
             val trackTextColor = ContextCompat.getColorStateList(this, trackType.textColorResId)!!

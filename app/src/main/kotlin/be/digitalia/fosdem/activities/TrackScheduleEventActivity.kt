@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -94,8 +95,8 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
         } else -1L
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar).apply {
-            setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material)
-            setNavigationContentDescription(androidx.appcompat.R.string.abc_action_bar_up_description)
+            setNavigationIcon(R.drawable.ic_arrow_back_24dp)
+            setNavigationContentDescription(R.string.action_bar_up_description)
             setNavigationOnClickListener { onSupportNavigateUp() }
             title = track.toString()
             subtitle = day.toString()
@@ -107,7 +108,7 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
             setTaskColorPrimary(trackAppBarColor.defaultColor)
             findViewById<AppBarLayout>(R.id.appbar).apply {
                 backgroundTintList = trackAppBarColor
-                statusBarForeground = getDrawable(trackType.statusBarColorResId)
+                statusBarForeground = getColor(trackType.statusBarColorResId).toDrawable()
             }
         } else {
             val trackTextColor = ContextCompat.getColorStateList(this, trackType.textColorResId)!!

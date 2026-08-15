@@ -7,6 +7,7 @@ import java.net.URLEncoder
  *
  * @author Christophe Beyls
  */
+@Suppress("ConstPropertyName")
 object FosdemUrls {
 
     const val schedule = "https://fosdem.org/schedule/xml"

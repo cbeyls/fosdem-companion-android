@@ -17,7 +17,7 @@ class SaveStatePhotoView : PhotoView {
     constructor(context: Context, attr: AttributeSet?) : super(context, attr)
     constructor(context: Context, attr: AttributeSet?, defStyle: Int) : super(context, attr, defStyle)
 
-    override fun onSaveInstanceState(): Parcelable? {
+    override fun onSaveInstanceState(): Parcelable {
         val superState = super.onSaveInstanceState()
         val rect = displayRect
         val overflowWidth = rect.width() - width

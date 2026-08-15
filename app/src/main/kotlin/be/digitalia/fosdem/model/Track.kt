@@ -23,6 +23,7 @@ data class Track(
         val type: Type
 ) : Parcelable {
 
+    @Suppress("EnumEntryName")
     enum class Type(@param:StringRes @get:StringRes val nameResId: Int,
                     @param:ColorRes @get:ColorRes val appBarColorResId: Int,
                     @param:ColorRes @get:ColorRes val statusBarColorResId: Int,

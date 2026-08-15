@@ -72,7 +72,7 @@ class BookmarksExportProvider : ContentProvider() {
 
     override fun getType(uri: Uri) = TYPE
 
-    override fun query(uri: Uri, projection: Array<String>?, selection: String?, selectionArgs: Array<String>?, sortOrder: String?): Cursor? {
+    override fun query(uri: Uri, projection: Array<String>?, selection: String?, selectionArgs: Array<String>?, sortOrder: String?): Cursor {
         val ctx = ContentProviderCompat.requireContext(this)
         val proj = projection ?: COLUMNS
         val cols = arrayOfNulls<String>(proj.size)

@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.add
@@ -109,8 +110,8 @@ class EventDetailsActivity : AppCompatActivity(R.layout.single_event) {
     private fun initEvent(event: Event) {
         // Enable up navigation only after getting the event details
         val toolbar = findViewById<Toolbar>(R.id.toolbar).apply {
-            setNavigationIcon(androidx.appcompat.R.drawable.abc_ic_ab_back_material)
-            setNavigationContentDescription(androidx.appcompat.R.string.abc_action_bar_up_description)
+            setNavigationIcon(R.drawable.ic_arrow_back_24dp)
+            setNavigationContentDescription(R.string.action_bar_up_description)
             setNavigationOnClickListener { onSupportNavigateUp() }
             title = event.track.name
         }
@@ -121,7 +122,7 @@ class EventDetailsActivity : AppCompatActivity(R.layout.single_event) {
             setTaskColorPrimary(trackAppBarColor.defaultColor)
             findViewById<AppBarLayout>(R.id.appbar).apply {
                 backgroundTintList = trackAppBarColor
-                statusBarForeground = getDrawable(trackType.statusBarColorResId)
+                statusBarForeground = getColor(trackType.statusBarColorResId).toDrawable()
             }
         } else {
             val trackTextColor = ContextCompat.getColorStateList(this, trackType.textColorResId)!!

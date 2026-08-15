@@ -26,7 +26,6 @@
         android:layout_height="wrap_content"
         android:gravity="start"
         android:textAlignment="viewStart"
-        android:textAppearance="?attr/textAppearanceListItem"
-        android:textSize="@dimen/abc_text_size_small_material" />
+        android:textAppearance="?attr/textAppearanceListItemSecondary" />
 
 </LinearLayout>

@@ -9,7 +9,7 @@ import androidx.lifecycle.LifecycleOwner
 /**
  * Allows a single MenuProvider to be registered at any given time,
  * as soon as it reaches the RESUMED state.
- * This allows smoother (non blinking) transition of menu items.
+ * This allows smoother (non-blinking) transition of menu items.
  */
 class MenuHostMediator(private val menuHost: MenuHost) {
     private var activeMenuProvider: MenuProvider? = null
