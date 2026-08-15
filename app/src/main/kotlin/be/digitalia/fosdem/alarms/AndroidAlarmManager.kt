@@ -31,26 +31,27 @@ import be.digitalia.fosdem.model.AlarmInfo
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.receivers.AlarmReceiver
 import be.digitalia.fosdem.settings.UserSettingsProvider
-import be.digitalia.fosdem.utils.BackgroundWorkScope
 import be.digitalia.fosdem.utils.roomNameToResourceName
-import dagger.hilt.android.qualifiers.ApplicationContext
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.SingleIn
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.time.Clock
 import kotlin.time.Instant
 
 /**
  * This class monitors incoming broadcasts and bookmarks and settings changes to dispatch background alarm update work.
  */
-@Singleton
-class AndroidAlarmManager @Inject constructor(
-    @param:ApplicationContext private val context: Context,
+@ContributesBinding(AppScope::class)
+@SingleIn(AppScope::class)
+class AndroidAlarmManager(
+    private val context: Context,
     private val userSettingsProvider: UserSettingsProvider,
     private val bookmarksDao: BookmarksDao,
     private val scheduleDao: ScheduleDao,
@@ -63,33 +64,6 @@ class AndroidAlarmManager @Inject constructor(
 
     private suspend fun isNotificationsEnabled(): Boolean {
         return hasNotificationsPermission && canScheduleExactAlarms && userSettingsProvider.isNotificationsEnabled.first()
-    }
-
-    init {
-        BackgroundWorkScope.launch {
-            userSettingsProvider.isNotificationsEnabled.collectIndexed { index, isEnabled ->
-                if (index == 0) {
-                    // On app launch, switch off the preference if we don't have the required permissions
-                    if (isEnabled && (!hasNotificationsPermission || !canScheduleExactAlarms)) {
-                        userSettingsProvider.updateNotificationsEnabled(false)
-                    }
-                } else {
-                    if (isEnabled) {
-                        updateAlarms()
-                    } else {
-                        disableAlarms(true)
-                    }
-                }
-            }
-        }
-        BackgroundWorkScope.launch {
-            // Skip initial values and only act on changes
-            userSettingsProvider.notificationsDelay.drop(1).collect {
-                if (isNotificationsEnabled()) {
-                    updateAlarms()
-                }
-            }
-        }
     }
 
     val hasNotificationsPermission
@@ -105,6 +79,35 @@ class AndroidAlarmManager @Inject constructor(
             updateAlarms()
         } else {
             disableAlarms(false)
+        }
+    }
+
+    override suspend fun monitorUserSettings() {
+        coroutineScope {
+            launch {
+                userSettingsProvider.isNotificationsEnabled.collectIndexed { index, isEnabled ->
+                    if (index == 0) {
+                        // On app launch, switch off the preference if we don't have the required permissions
+                        if (isEnabled && (!hasNotificationsPermission || !canScheduleExactAlarms)) {
+                            userSettingsProvider.updateNotificationsEnabled(false)
+                        }
+                    } else {
+                        if (isEnabled) {
+                            updateAlarms()
+                        } else {
+                            disableAlarms(true)
+                        }
+                    }
+                }
+            }
+            launch {
+                // Skip initial values and only act on changes
+                userSettingsProvider.notificationsDelay.drop(1).collect {
+                    if (isNotificationsEnabled()) {
+                        updateAlarms()
+                    }
+                }
+            }
         }
     }
 

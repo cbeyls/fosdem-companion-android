@@ -1,19 +1,26 @@
 package be.digitalia.fosdem
 
 import android.app.Application
-import be.digitalia.fosdem.alarms.AndroidAlarmManager
-import be.digitalia.fosdem.utils.ThemeManager
-import dagger.hilt.android.HiltAndroidApp
-import javax.inject.Inject
+import be.digitalia.fosdem.inject.AndroidAppGraph
+import be.digitalia.fosdem.utils.BackgroundWorkScope
+import dev.zacsweers.metro.createGraphFactory
+import kotlinx.coroutines.launch
 
-@HiltAndroidApp
 class FosdemApplication : Application() {
 
-    // Injected for automatic initialization on app startup
+    val appGraph: AndroidAppGraph by lazy {
+        createGraphFactory<AndroidAppGraph.Factory>().create(this)
+    }
 
-    @Inject
-    lateinit var themeManager: ThemeManager
+    override fun onCreate() {
+        super.onCreate()
 
-    @Inject
-    lateinit var alarmManager: AndroidAlarmManager
+        val graph = appGraph
+        BackgroundWorkScope.launch {
+            graph.themeManager.monitorUserSettings()
+        }
+        BackgroundWorkScope.launch {
+            graph.alarmManager.monitorUserSettings()
+        }
+    }
 }

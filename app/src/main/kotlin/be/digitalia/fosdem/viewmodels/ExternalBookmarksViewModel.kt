@@ -9,23 +9,28 @@ import androidx.paging.cachedIn
 import be.digitalia.fosdem.alarms.AppAlarmManager
 import be.digitalia.fosdem.db.BookmarksDao
 import be.digitalia.fosdem.db.ScheduleDao
+import be.digitalia.fosdem.inject.CallbackViewModelAssistedFactory
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.paging.toAutoCloseable
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.binding
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactoryKey
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@HiltViewModel(assistedFactory = ExternalBookmarksViewModel.Factory::class)
-class ExternalBookmarksViewModel @AssistedInject constructor(
+@AssistedInject
+class ExternalBookmarksViewModel(
+    @Assisted private val bookmarkIds: LongArray,
     scheduleDao: ScheduleDao,
     private val bookmarksDao: BookmarksDao,
     private val alarmManager: AppAlarmManager,
-    @Assisted private val bookmarkIds: LongArray
 ) : ViewModel() {
 
     val bookmarks: Flow<PagingData<StatusEvent>> =
@@ -45,7 +50,9 @@ class ExternalBookmarksViewModel @AssistedInject constructor(
     }
 
     @AssistedFactory
-    interface Factory {
+    @ContributesIntoMap(AppScope::class, binding = binding<ViewModelAssistedFactory>())
+    @ViewModelAssistedFactoryKey(ExternalBookmarksViewModel::class)
+    fun interface Factory : CallbackViewModelAssistedFactory {
         fun create(bookmarkIds: LongArray): ExternalBookmarksViewModel
     }
 }

@@ -6,11 +6,9 @@ import android.content.IntentFilter
 import androidx.core.content.ContextCompat
 import androidx.core.content.receiveBroadcasts
 import be.digitalia.fosdem.utils.ElapsedRealTimeSource
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.conflate
@@ -19,9 +17,8 @@ import java.time.ZoneId
 import kotlin.time.Clock
 import kotlin.time.TimeSource
 
-@Module
-@InstallIn(SingletonComponent::class)
-object TimeModule {
+@ContributesTo(AppScope::class)
+interface TimeProviders {
     @Provides
     fun provideTimeSource(): TimeSource = ElapsedRealTimeSource
 
@@ -29,7 +26,7 @@ object TimeModule {
     fun provideClock(): Clock = Clock.System
 
     @Provides
-    fun provideDeviceZoneIdFlow(@ApplicationContext context: Context): Flow<ZoneId> {
+    fun provideDeviceZoneIdFlow(context: Context): Flow<ZoneId> {
         return callbackFlow {
             context.receiveBroadcasts(
                 filter = IntentFilter(Intent.ACTION_TIMEZONE_CHANGED),

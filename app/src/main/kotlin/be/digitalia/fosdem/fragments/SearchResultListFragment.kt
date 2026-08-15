@@ -10,20 +10,21 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.adapters.EventsAdapter
+import be.digitalia.fosdem.inject.FragmentKey
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.EventMetadataProvider
 import be.digitalia.fosdem.viewmodels.SearchViewModel
-import dagger.hilt.android.AndroidEntryPoint
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@AndroidEntryPoint
-class SearchResultListFragment : Fragment(R.layout.recyclerview) {
-
-    @Inject
-    lateinit var eventMetadataProvider: EventMetadataProvider
+@ContributesIntoMap(AppScope::class)
+@FragmentKey
+class SearchResultListFragment(
+    private val eventMetadataProvider: EventMetadataProvider
+) : Fragment(R.layout.recyclerview) {
 
     private val viewModel: SearchViewModel by activityViewModels()
 

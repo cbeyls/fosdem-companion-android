@@ -8,17 +8,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.model.Day
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.Named
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Named
 
-@HiltViewModel
-class TracksViewModel @Inject constructor(
+@ContributesIntoMap(AppScope::class)
+@ViewModelKey
+class TracksViewModel(
     scheduleDao: ScheduleDao,
     @param:Named("UIState") private val uiStatePreferences: DataStore<Preferences>,
 ) : ViewModel() {

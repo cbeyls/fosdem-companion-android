@@ -10,20 +10,23 @@ import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.RoomImageDialogActivity
+import be.digitalia.fosdem.inject.FragmentKey
 import be.digitalia.fosdem.utils.invertImageColors
 import be.digitalia.fosdem.utils.isLightTheme
 import be.digitalia.fosdem.viewmodels.EventMetadataProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.binding
 
-@AndroidEntryPoint
-class RoomImageDialogFragment : DialogFragment() {
-
-    @Inject
-    lateinit var eventMetadataProvider: EventMetadataProvider
+@ContributesIntoMap(AppScope::class, binding = binding<Fragment>())
+@FragmentKey
+class RoomImageDialogFragment(
+    private val eventMetadataProvider: EventMetadataProvider
+) : DialogFragment() {
 
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

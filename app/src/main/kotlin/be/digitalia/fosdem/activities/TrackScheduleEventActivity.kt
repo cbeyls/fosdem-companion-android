@@ -14,12 +14,15 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.withStarted
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.EventDetailsFragment
+import be.digitalia.fosdem.inject.setupMetroFragmentFactory
+import be.digitalia.fosdem.inject.withCreationCallback
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.Track
@@ -38,8 +41,7 @@ import be.digitalia.fosdem.viewmodels.TrackScheduleEventViewModel
 import be.digitalia.fosdem.widgets.ContentLoadingViewMediator
 import be.digitalia.fosdem.widgets.setupBookmarkStatus
 import com.google.android.material.appbar.AppBarLayout
-import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.lifecycle.withCreationCallback
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
 
 /**
@@ -47,13 +49,16 @@ import kotlinx.coroutines.launch
  *
  * @author Christophe Beyls
  */
-@AndroidEntryPoint
 class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_event), MenuHostMediatorOwner {
+
+    @Inject
+    override lateinit var defaultViewModelProviderFactory: ViewModelProvider.Factory
+        private set
 
     private val bookmarkStatusViewModel: BookmarkStatusViewModel by viewModels()
     private val viewModel: TrackScheduleEventViewModel by viewModels(extrasProducer = {
-        defaultViewModelCreationExtras.withCreationCallback<TrackScheduleEventViewModel.Factory> { factory ->
-            factory.create(day, track)
+        defaultViewModelCreationExtras.withCreationCallback<TrackScheduleEventViewModel.Factory> {
+            create(day, track)
         }
     })
 
@@ -67,6 +72,7 @@ class TrackScheduleEventActivity : AppCompatActivity(R.layout.track_schedule_eve
     override val menuHostMediator = MenuHostMediator(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setupMetroFragmentFactory().inject(this)
         setupEdgeToEdge(isNavigationBarScrimEnabled = false)
         super.onCreate(savedInstanceState)
         rootView.consumeHorizontalWindowInsetsAsPadding()

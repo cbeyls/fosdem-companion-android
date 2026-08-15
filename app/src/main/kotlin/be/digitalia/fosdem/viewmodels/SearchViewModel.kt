@@ -11,16 +11,18 @@ import androidx.paging.cachedIn
 import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.paging.toAutoCloseable
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import javax.inject.Inject
 
-@HiltViewModel
-class SearchViewModel @Inject constructor(scheduleDao: ScheduleDao) : ViewModel() {
+@ContributesIntoMap(AppScope::class)
+@ViewModelKey
+class SearchViewModel(scheduleDao: ScheduleDao) : ViewModel() {
 
     sealed class QueryState {
         data object Idle : QueryState()

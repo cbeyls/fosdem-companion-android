@@ -4,16 +4,18 @@ import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.model.RoomStatus
 import be.digitalia.fosdem.settings.TimeZoneMode
 import be.digitalia.fosdem.settings.UserSettingsProvider
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import java.time.ZoneId
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class EventMetadataProvider @Inject constructor(
+@Inject
+@SingleIn(AppScope::class)
+class EventMetadataProvider(
     private val deviceZoneIdFlow: @JvmSuppressWildcards Flow<ZoneId>,
     userSettingsProvider: UserSettingsProvider,
     private val api: FosdemApi,

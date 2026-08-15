@@ -15,12 +15,12 @@ import be.digitalia.fosdem.utils.isNextEndTag
 import be.digitalia.fosdem.utils.isStartTag
 import be.digitalia.fosdem.utils.skipToEndTag
 import be.digitalia.fosdem.utils.xmlPullParserFactory
+import dev.zacsweers.metro.Inject
 import okio.BufferedSource
 import org.xmlpull.v1.XmlPullParser
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
-import javax.inject.Inject
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -33,7 +33,8 @@ import kotlin.time.toKotlinInstant
  *
  * @author Christophe Beyls
  */
-class ScheduleParser @Inject constructor() : Parser<Sequence<ScheduleSection>> {
+@Inject
+class ScheduleParser : Parser<Sequence<ScheduleSection>> {
 
     override fun parse(source: BufferedSource): Sequence<ScheduleSection> {
         val parser: XmlPullParser = xmlPullParserFactory.newPullParser().apply {

@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.paging.PagingDataAdapter
@@ -18,16 +19,21 @@ import androidx.recyclerview.widget.RecyclerView
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.PersonInfoActivity
 import be.digitalia.fosdem.adapters.createSimpleItemCallback
+import be.digitalia.fosdem.inject.FragmentKey
 import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.PersonsViewModel
-import dagger.hilt.android.AndroidEntryPoint
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-@AndroidEntryPoint
-class PersonsListFragment : Fragment(R.layout.recyclerview_fastscroll) {
+@ContributesIntoMap(AppScope::class)
+@FragmentKey
+class PersonsListFragment(
+    override val defaultViewModelProviderFactory: ViewModelProvider.Factory
+) : Fragment(R.layout.recyclerview_fastscroll) {
 
     private val viewModel: PersonsViewModel by viewModels()
 

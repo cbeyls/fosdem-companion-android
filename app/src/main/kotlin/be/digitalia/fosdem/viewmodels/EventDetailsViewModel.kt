@@ -3,19 +3,24 @@ package be.digitalia.fosdem.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import be.digitalia.fosdem.db.ScheduleDao
+import be.digitalia.fosdem.inject.CallbackViewModelAssistedFactory
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.EventDetails
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.binding
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactoryKey
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 
-@HiltViewModel(assistedFactory = EventDetailsViewModel.Factory::class)
-class EventDetailsViewModel @AssistedInject constructor(
+@AssistedInject
+class EventDetailsViewModel(
+    @Assisted event: Event,
     scheduleDao: ScheduleDao,
-    @Assisted event: Event
 ) : ViewModel() {
 
     val eventDetails: Deferred<EventDetails> = viewModelScope.async {
@@ -23,7 +28,9 @@ class EventDetailsViewModel @AssistedInject constructor(
     }
 
     @AssistedFactory
-    interface Factory {
+    @ContributesIntoMap(AppScope::class, binding = binding<ViewModelAssistedFactory>())
+    @ViewModelAssistedFactoryKey(EventDetailsViewModel::class)
+    fun interface Factory : CallbackViewModelAssistedFactory {
         fun create(event: Event): EventDetailsViewModel
     }
 }

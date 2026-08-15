@@ -19,7 +19,10 @@ import be.digitalia.fosdem.flow.versionedResourceFlow
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.parsers.ExportedBookmarksParser
 import be.digitalia.fosdem.utils.BackgroundWorkScope
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.Named
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -31,15 +34,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.buffer
 import okio.source
-import javax.inject.Inject
-import javax.inject.Named
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 import kotlin.time.TimeSource
 
-@HiltViewModel
-class BookmarksViewModel @Inject constructor(
+@ContributesIntoMap(AppScope::class)
+@ViewModelKey
+class BookmarksViewModel(
     private val bookmarksDao: BookmarksDao,
     private val scheduleDao: ScheduleDao,
     private val alarmManager: AppAlarmManager,

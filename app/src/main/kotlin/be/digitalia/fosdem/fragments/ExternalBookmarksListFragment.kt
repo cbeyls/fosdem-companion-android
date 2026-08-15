@@ -14,33 +14,36 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.adapters.EventsAdapter
+import be.digitalia.fosdem.inject.FragmentKey
+import be.digitalia.fosdem.inject.withCreationCallback
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.EventMetadataProvider
 import be.digitalia.fosdem.viewmodels.ExternalBookmarksViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.lifecycle.withCreationCallback
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@AndroidEntryPoint
-class ExternalBookmarksListFragment : Fragment(R.layout.recyclerview) {
-
-    @Inject
-    lateinit var eventMetadataProvider: EventMetadataProvider
+@ContributesIntoMap(AppScope::class)
+@FragmentKey
+class ExternalBookmarksListFragment(
+    override val defaultViewModelProviderFactory: ViewModelProvider.Factory,
+    private val eventMetadataProvider: EventMetadataProvider,
+) : Fragment(R.layout.recyclerview) {
 
     private val viewModel: ExternalBookmarksViewModel by viewModels(extrasProducer = {
-        defaultViewModelCreationExtras.withCreationCallback<ExternalBookmarksViewModel.Factory> { factory ->
+        defaultViewModelCreationExtras.withCreationCallback<ExternalBookmarksViewModel.Factory> {
             val bookmarkIds = requireArguments().getLongArray(ARG_BOOKMARK_IDS)!!
-            factory.create(bookmarkIds)
+            create(bookmarkIds)
         }
     })
 

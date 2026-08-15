@@ -10,33 +10,28 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.preference.PreferenceManager
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.datastore.DeferredWriteDataStore
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Named
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import javax.inject.Named
-import javax.inject.Singleton
 
-@Module
-@InstallIn(SingletonComponent::class)
-object PreferencesModule {
-    private const val UI_STATE_DATASTORE_FILE_NAME = "ui_state"
-
+@ContributesTo(AppScope::class)
+interface PreferencesProviders {
     @Provides
     @Named("UserSettings")
-    fun provideUserSettingsSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
+    fun provideUserSettingsSharedPreferences(context: Context): SharedPreferences {
         PreferenceManager.setDefaultValues(context, R.xml.settings, false)
         return PreferenceManager.getDefaultSharedPreferences(context)
     }
 
     @Provides
     @Named("UIState")
-    @Singleton
-    fun provideUIStateDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
+    @SingleIn(AppScope::class)
+    fun provideUIStateDataStore(context: Context): DataStore<Preferences> {
         val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
         val preferencesDataStore = PreferenceDataStoreFactory.create(
             migrations = listOf(
@@ -50,5 +45,9 @@ object PreferencesModule {
             context.preferencesDataStoreFile(UI_STATE_DATASTORE_FILE_NAME)
         }
         return DeferredWriteDataStore(preferencesDataStore, scope)
+    }
+
+    companion object {
+        private const val UI_STATE_DATASTORE_FILE_NAME = "ui_state"
     }
 }

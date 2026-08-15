@@ -13,10 +13,12 @@ import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.fragment.app.commitNow
 import androidx.fragment.app.replace
+import androidx.lifecycle.ViewModelProvider
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.EventDetailsFragment
 import be.digitalia.fosdem.fragments.RoomImageDialogFragment
 import be.digitalia.fosdem.fragments.TrackScheduleListFragment
+import be.digitalia.fosdem.inject.setupMetroFragmentFactory
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.MenuHostMediator
@@ -31,15 +33,18 @@ import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel
 import be.digitalia.fosdem.viewmodels.TrackScheduleViewModel
 import be.digitalia.fosdem.widgets.setupBookmarkStatus
 import com.google.android.material.appbar.AppBarLayout
-import dagger.hilt.android.AndroidEntryPoint
+import dev.zacsweers.metro.Inject
 
 /**
  * Track Schedule container, works in both single pane and dual pane modes.
  *
  * @author Christophe Beyls
  */
-@AndroidEntryPoint
 class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule), MenuHostMediatorOwner {
+
+    @Inject
+    override lateinit var defaultViewModelProviderFactory: ViewModelProvider.Factory
+        private set
 
     private val viewModel: TrackScheduleViewModel by viewModels()
     private val bookmarkStatusViewModel: BookmarkStatusViewModel by viewModels()
@@ -47,6 +52,7 @@ class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule), MenuHo
     override val menuHostMediator = MenuHostMediator(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setupMetroFragmentFactory().inject(this)
         setupEdgeToEdge()
         super.onCreate(savedInstanceState)
         rootView.consumeHorizontalWindowInsetsAsPadding()

@@ -18,15 +18,14 @@ import be.digitalia.fosdem.api.FosdemUrls
 import be.digitalia.fosdem.db.BookmarksDao
 import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.ical.ICalendarWriter
+import be.digitalia.fosdem.inject.appGraph
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.utils.BackgroundWorkScope
 import be.digitalia.fosdem.utils.remove
 import be.digitalia.fosdem.utils.stripHtml
 import be.digitalia.fosdem.utils.toLocalDateTime
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.components.SingletonComponent
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesTo
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -47,32 +46,31 @@ import java.util.Locale
  */
 class BookmarksExportProvider : ContentProvider() {
 
-    // Manual dependency injection
+    private val entryPoint: BookmarksExportProviderEntryPoint
+        get() = ContentProviderCompat.requireContext(this).appGraph as BookmarksExportProviderEntryPoint
 
-    private val scheduleDao: ScheduleDao by lazy {
-        EntryPointAccessors.fromApplication(
-            ContentProviderCompat.requireContext(this),
-            BookmarksExportProviderEntryPoint::class.java
-        ).scheduleDao
-    }
-    private val bookmarksDao: BookmarksDao by lazy {
-        EntryPointAccessors.fromApplication(
-            ContentProviderCompat.requireContext(this),
-            BookmarksExportProviderEntryPoint::class.java
-        ).bookmarksDao
-    }
+    private val scheduleDao: ScheduleDao by lazy { entryPoint.scheduleDao }
+    private val bookmarksDao: BookmarksDao by lazy { entryPoint.bookmarksDao }
 
     override fun onCreate() = true
 
     override fun insert(uri: Uri, values: ContentValues?) = throw UnsupportedOperationException()
 
-    override fun update(uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<String>?) = throw UnsupportedOperationException()
+    override fun update(uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<String>?) =
+        throw UnsupportedOperationException()
 
-    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?) = throw UnsupportedOperationException()
+    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?) =
+        throw UnsupportedOperationException()
 
     override fun getType(uri: Uri) = TYPE
 
-    override fun query(uri: Uri, projection: Array<String>?, selection: String?, selectionArgs: Array<String>?, sortOrder: String?): Cursor {
+    override fun query(
+        uri: Uri,
+        projection: Array<String>?,
+        selection: String?,
+        selectionArgs: Array<String>?,
+        sortOrder: String?
+    ): Cursor {
         val ctx = ContentProviderCompat.requireContext(this)
         val proj = projection ?: COLUMNS
         val cols = arrayOfNulls<String>(proj.size)
@@ -193,8 +191,7 @@ class BookmarksExportProvider : ContentProvider() {
         write("END", "VEVENT")
     }
 
-    @EntryPoint
-    @InstallIn(SingletonComponent::class)
+    @ContributesTo(AppScope::class)
     interface BookmarksExportProviderEntryPoint {
         val scheduleDao: ScheduleDao
         val bookmarksDao: BookmarksDao

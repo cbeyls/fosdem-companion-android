@@ -15,14 +15,14 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.api.FosdemUrls
+import be.digitalia.fosdem.inject.appGraph
 import be.digitalia.fosdem.utils.configureColorSchemes
 import be.digitalia.fosdem.utils.invertImageColors
 import be.digitalia.fosdem.utils.isLightTheme
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.utils.toRoomSlug
 import be.digitalia.fosdem.viewmodels.EventMetadataProvider
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import dev.zacsweers.metro.Inject
 
 /**
  * A special Activity which is displayed like a dialog and shows a room image.
@@ -30,13 +30,13 @@ import javax.inject.Inject
  *
  * @author Christophe Beyls
  */
-@AndroidEntryPoint
 class RoomImageDialogActivity : AppCompatActivity(R.layout.dialog_room_image) {
 
     @Inject
     lateinit var eventMetadataProvider: EventMetadataProvider
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        appGraph.inject(this)
         super.onCreate(savedInstanceState)
         val intent = intent
         val roomName = intent.getStringExtra(EXTRA_ROOM_NAME)!!

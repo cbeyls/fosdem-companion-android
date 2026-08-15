@@ -14,6 +14,9 @@ import be.digitalia.fosdem.parsers.RoomStatusesParser
 import be.digitalia.fosdem.parsers.ScheduleParser
 import be.digitalia.fosdem.utils.BackgroundWorkScope
 import be.digitalia.fosdem.utils.ByteCountSource
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -33,9 +36,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.buffer
-import javax.inject.Inject
-import javax.inject.Provider
-import javax.inject.Singleton
 import kotlin.math.pow
 import kotlin.time.Clock
 import kotlin.time.Duration
@@ -49,10 +49,11 @@ import kotlin.time.TimeSource
  *
  * @author Christophe Beyls
  */
-@Singleton
-class FosdemApi @Inject constructor(
+@Inject
+@SingleIn(AppScope::class)
+class FosdemApi(
     private val httpClient: HttpClient,
-    private val scheduleParserProvider: Provider<ScheduleParser>,
+    private val scheduleParserProvider: () -> ScheduleParser,
     private val scheduleDao: ScheduleDao,
     private val alarmManager: AppAlarmManager,
     private val timeSource: TimeSource,
@@ -99,7 +100,7 @@ class FosdemApi @Inject constructor(
                         }
 
                         source.use {
-                            val schedule = scheduleParserProvider.get().parse(source)
+                            val schedule = scheduleParserProvider().parse(source)
                             scheduleDao.storeSchedule(schedule, clock, httpResponse.lastModified)
                         }
                     }

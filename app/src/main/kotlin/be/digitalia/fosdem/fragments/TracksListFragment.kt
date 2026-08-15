@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,21 +17,26 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.TrackScheduleActivity
+import be.digitalia.fosdem.inject.FragmentKey
+import be.digitalia.fosdem.inject.withCreationCallback
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.asyncDifferConfig
 import be.digitalia.fosdem.utils.getParcelableCompat
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.TracksListViewModel
-import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.lifecycle.withCreationCallback
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
 
-@AndroidEntryPoint
-class TracksListFragment : Fragment(R.layout.recyclerview) {
+@ContributesIntoMap(AppScope::class)
+@FragmentKey
+class TracksListFragment(
+    override val defaultViewModelProviderFactory: ViewModelProvider.Factory
+) : Fragment(R.layout.recyclerview) {
 
     private val viewModel: TracksListViewModel by viewModels(extrasProducer = {
-        defaultViewModelCreationExtras.withCreationCallback<TracksListViewModel.Factory> { factory ->
-            factory.create(day)
+        defaultViewModelCreationExtras.withCreationCallback<TracksListViewModel.Factory> {
+            create(day)
         }
     })
 

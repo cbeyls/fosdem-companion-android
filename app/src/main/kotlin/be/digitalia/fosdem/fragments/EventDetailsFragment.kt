@@ -32,11 +32,14 @@ import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.withStarted
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.MenuHostMediatorOwner
 import be.digitalia.fosdem.activities.PersonInfoActivity
+import be.digitalia.fosdem.inject.FragmentKey
+import be.digitalia.fosdem.inject.withCreationCallback
 import be.digitalia.fosdem.model.Building
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.model.EventDetails
@@ -54,15 +57,18 @@ import be.digitalia.fosdem.utils.stripHtml
 import be.digitalia.fosdem.viewmodels.EventDetailsViewModel
 import be.digitalia.fosdem.viewmodels.EventMetadataProvider
 import com.google.android.material.snackbar.Snackbar
-import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.lifecycle.withCreationCallback
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
 import kotlinx.coroutines.launch
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import javax.inject.Inject
 
-@AndroidEntryPoint
-class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
+@ContributesIntoMap(AppScope::class)
+@FragmentKey
+class EventDetailsFragment(
+    override val defaultViewModelProviderFactory: ViewModelProvider.Factory,
+    private val eventMetadataProvider: EventMetadataProvider,
+) : Fragment(R.layout.fragment_event_details) {
 
     private class ViewHolder(view: View) {
         val personsTextView: TextView = view.findViewById(R.id.persons)
@@ -75,12 +81,9 @@ class EventDetailsFragment : Fragment(R.layout.fragment_event_details) {
         val resourcesFooter: View = view.findViewById(R.id.resources_footer)
     }
 
-    @Inject
-    lateinit var eventMetadataProvider: EventMetadataProvider
-
     private val viewModel: EventDetailsViewModel by viewModels(extrasProducer = {
-        defaultViewModelCreationExtras.withCreationCallback<EventDetailsViewModel.Factory> { factory ->
-            factory.create(event)
+        defaultViewModelCreationExtras.withCreationCallback<EventDetailsViewModel.Factory> {
+            create(event)
         }
     })
 
