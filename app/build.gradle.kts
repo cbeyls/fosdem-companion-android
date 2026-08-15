@@ -42,6 +42,7 @@ android {
                         "kotlin/**",
                         "META-INF/*.version",
                         "META-INF/androidx/**",
+                        "META-INF/dev/zacsweers/metro/**",
                         "META-INF/native-image/**",
                         "META-INF/versions/**",
                         "META-INF/NOTICE.md"
