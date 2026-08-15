@@ -27,7 +27,5 @@ fun <VMF : CallbackViewModelAssistedFactory> CreationExtras.withCreationCallback
 fun <VMF : CallbackViewModelAssistedFactory> MutableCreationExtras.addCreationCallback(
     callback: VMF.(CreationExtras) -> ViewModel
 ): CreationExtras = this.apply {
-    // TODO check if this simpler code works to avoid an extra allocation
-    //this[CREATION_CALLBACK_KEY] = callback as CallbackViewModelAssistedFactory.(CreationExtras) -> ViewModel
-    this[CREATION_CALLBACK_KEY] = { factory, extras -> callback(factory as VMF, extras) }
+    this[CREATION_CALLBACK_KEY] = callback as CallbackViewModelAssistedFactory.(CreationExtras) -> ViewModel
 }
