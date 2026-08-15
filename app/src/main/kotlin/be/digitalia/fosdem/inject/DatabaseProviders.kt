@@ -27,7 +27,6 @@ import be.digitalia.fosdem.model.PersonDetails
 import be.digitalia.fosdem.model.Track
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.Named
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.Dispatchers
@@ -36,7 +35,7 @@ import kotlinx.coroutines.Job
 @ContributesTo(AppScope::class)
 interface DatabaseProviders {
     @Provides
-    @Named("Database")
+    @DatabaseDataStore
     fun provideDataStore(context: Context): DataStore<Preferences> {
         return PreferenceDataStoreFactory.create {
             context.preferencesDataStoreFile(DB_DATASTORE_FILE_NAME)
@@ -47,7 +46,7 @@ interface DatabaseProviders {
     @SingleIn(AppScope::class)
     fun provideAppDatabase(
         context: Context,
-        @Named("Database") dataStore: DataStore<Preferences>
+        @DatabaseDataStore dataStore: DataStore<Preferences>
     ): AppDatabase {
         val migration3to5 = object : Migration(3, 5) {
             override suspend fun migrate(connection: SQLiteConnection) = with(connection) {

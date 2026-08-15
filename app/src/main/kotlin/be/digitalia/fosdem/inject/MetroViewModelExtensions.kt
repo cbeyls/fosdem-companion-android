@@ -26,6 +26,6 @@ fun <VMF : CallbackViewModelAssistedFactory> CreationExtras.withCreationCallback
 @Suppress("UNCHECKED_CAST")
 fun <VMF : CallbackViewModelAssistedFactory> MutableCreationExtras.addCreationCallback(
     callback: VMF.(CreationExtras) -> ViewModel
-): CreationExtras = this.apply {
-    this[CREATION_CALLBACK_KEY] = callback as CallbackViewModelAssistedFactory.(CreationExtras) -> ViewModel
+): CreationExtras = this.also {
+    it[CREATION_CALLBACK_KEY] = callback as CallbackViewModelAssistedFactory.(CreationExtras) -> ViewModel
 }

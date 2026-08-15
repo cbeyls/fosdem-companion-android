@@ -12,7 +12,6 @@ import be.digitalia.fosdem.R
 import be.digitalia.fosdem.datastore.DeferredWriteDataStore
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
-import dev.zacsweers.metro.Named
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineScope
@@ -22,14 +21,13 @@ import kotlinx.coroutines.SupervisorJob
 @ContributesTo(AppScope::class)
 interface PreferencesProviders {
     @Provides
-    @Named("UserSettings")
-    fun provideUserSettingsSharedPreferences(context: Context): SharedPreferences {
+    fun provideSharedPreferences(context: Context): SharedPreferences {
         PreferenceManager.setDefaultValues(context, R.xml.settings, false)
         return PreferenceManager.getDefaultSharedPreferences(context)
     }
 
     @Provides
-    @Named("UIState")
+    @UIStateDataStore
     @SingleIn(AppScope::class)
     fun provideUIStateDataStore(context: Context): DataStore<Preferences> {
         val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())

@@ -16,12 +16,12 @@ import be.digitalia.fosdem.flow.SharedFlowContext
 import be.digitalia.fosdem.flow.stateFlow
 import be.digitalia.fosdem.flow.synchronizedTickerFlow
 import be.digitalia.fosdem.flow.versionedResourceFlow
+import be.digitalia.fosdem.inject.UIStateDataStore
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.parsers.ExportedBookmarksParser
 import be.digitalia.fosdem.utils.BackgroundWorkScope
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoMap
-import dev.zacsweers.metro.Named
 import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -48,7 +48,7 @@ class BookmarksViewModel(
     private val application: Application,
     timeSource: TimeSource,
     clock: Clock,
-    @param:Named("UIState") private val uiStateDataStore: DataStore<Preferences>,
+    @param:UIStateDataStore private val uiStateDataStore: DataStore<Preferences>,
 ) : ViewModel() {
 
     val hidePastEvents: Flow<Boolean> =

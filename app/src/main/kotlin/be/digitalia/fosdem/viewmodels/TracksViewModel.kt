@@ -7,10 +7,10 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import be.digitalia.fosdem.db.ScheduleDao
+import be.digitalia.fosdem.inject.UIStateDataStore
 import be.digitalia.fosdem.model.Day
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoMap
-import dev.zacsweers.metro.Named
 import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 @ViewModelKey
 class TracksViewModel(
     scheduleDao: ScheduleDao,
-    @param:Named("UIState") private val uiStatePreferences: DataStore<Preferences>,
+    @param:UIStateDataStore private val uiStatePreferences: DataStore<Preferences>,
 ) : ViewModel() {
 
     data class TracksState(

@@ -4,7 +4,6 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.Named
 import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -15,7 +14,7 @@ import kotlin.time.Duration.Companion.minutes
 @Inject
 @SingleIn(AppScope::class)
 class UserSettingsProvider(
-    @param:Named("UserSettings") private val sharedPreferences: SharedPreferences
+    private val sharedPreferences: SharedPreferences
 ) {
 
     @OptIn(ExperimentalCoroutinesApi::class)
