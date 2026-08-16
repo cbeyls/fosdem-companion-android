@@ -12,26 +12,25 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.adapters.EventsAdapter
+import be.digitalia.fosdem.inject.FragmentKey
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.EventMetadataProvider
 import be.digitalia.fosdem.viewmodels.LiveViewModel
-import dagger.hilt.android.AndroidEntryPoint
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.binding
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@AndroidEntryPoint
 sealed class LiveListFragment(
+    private val eventMetadataProvider: EventMetadataProvider,
     @param:StringRes private val emptyTextResId: Int,
-    private val dataSourceProvider: (LiveViewModel) -> Flow<PagingData<StatusEvent>>
+    private val dataSourceProvider: (LiveViewModel) -> Flow<PagingData<StatusEvent>>,
 ) : Fragment(R.layout.recyclerview) {
-
-    @Inject
-    lateinit var eventMetadataProvider: EventMetadataProvider
 
     private val viewModel: LiveViewModel by viewModels({ requireParentFragment() })
 
@@ -89,5 +88,24 @@ sealed class LiveListFragment(
     }
 }
 
-class NextLiveListFragment : LiveListFragment(R.string.next_empty, LiveViewModel::nextEvents)
-class NowLiveListFragment : LiveListFragment(R.string.now_empty, LiveViewModel::eventsInProgress)
+@Suppress("UnusedFlow")
+@ContributesIntoMap(AppScope::class, binding = binding<Fragment>())
+@FragmentKey
+class NextLiveListFragment(
+    eventMetadataProvider: EventMetadataProvider
+) : LiveListFragment(
+    eventMetadataProvider = eventMetadataProvider,
+    emptyTextResId = R.string.next_empty,
+    dataSourceProvider = LiveViewModel::nextEvents,
+)
+
+@Suppress("UnusedFlow")
+@ContributesIntoMap(AppScope::class, binding = binding<Fragment>())
+@FragmentKey
+class NowLiveListFragment(
+    eventMetadataProvider: EventMetadataProvider
+) : LiveListFragment(
+    eventMetadataProvider = eventMetadataProvider,
+    emptyTextResId = R.string.now_empty,
+    dataSourceProvider = LiveViewModel::eventsInProgress,
+)

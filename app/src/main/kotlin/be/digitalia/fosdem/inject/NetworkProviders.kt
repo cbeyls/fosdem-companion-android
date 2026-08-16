@@ -1,13 +1,12 @@
 package be.digitalia.fosdem.inject
 
 import android.os.Build
-import be.digitalia.fosdem.api.network.HttpClient
-import be.digitalia.fosdem.api.network.OkHttpClientImpl
 import be.digitalia.fosdem.utils.BackgroundWorkScope
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -17,11 +16,10 @@ import okhttp3.OkHttpClient
 import okhttp3.tls.HandshakeCertificates
 import okhttp3.tls.decodeCertificatePem
 import java.util.concurrent.TimeUnit
-import javax.inject.Singleton
 
-@Module
-@InstallIn(SingletonComponent::class)
-object NetworkModule {
+@BindingContainer
+@ContributesTo(AppScope::class)
+object NetworkProviders {
     private const val DEFAULT_CONNECT_TIMEOUT = 10L
     private const val DEFAULT_READ_TIMEOUT = 10L
 
@@ -58,9 +56,6 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 -----END CERTIFICATE-----"""
 
     @Provides
-    fun provideHttpClient(impl: OkHttpClientImpl): HttpClient = impl
-
-    @Provides
     fun provideOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
             .connectTimeout(DEFAULT_CONNECT_TIMEOUT, TimeUnit.SECONDS)
@@ -84,8 +79,8 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
      * Returns a Call.Factory lazily initialized on a background thread
      */
     @Provides
-    @Singleton
-    fun provideCallFactoryAsync(lazyClient: dagger.Lazy<OkHttpClient>): Deferred<Call.Factory> {
-        return BackgroundWorkScope.async(Dispatchers.IO, CoroutineStart.LAZY) { lazyClient.get() }
+    @SingleIn(AppScope::class)
+    fun provideCallFactoryAsync(lazyClient: Lazy<OkHttpClient>): Deferred<Call.Factory> {
+        return BackgroundWorkScope.async(Dispatchers.IO, CoroutineStart.LAZY) { lazyClient.value }
     }
 }

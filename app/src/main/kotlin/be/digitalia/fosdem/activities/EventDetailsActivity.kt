@@ -13,10 +13,13 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.withStarted
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.EventDetailsFragment
+import be.digitalia.fosdem.inject.setupMetroFragmentFactory
+import be.digitalia.fosdem.inject.withCreationCallback
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.utils.consumeHorizontalWindowInsetsAsPadding
 import be.digitalia.fosdem.utils.getParcelableExtraCompat
@@ -28,8 +31,7 @@ import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel
 import be.digitalia.fosdem.viewmodels.EventViewModel
 import be.digitalia.fosdem.widgets.setupBookmarkStatus
 import com.google.android.material.appbar.AppBarLayout
-import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.lifecycle.withCreationCallback
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
 
 /**
@@ -37,19 +39,23 @@ import kotlinx.coroutines.launch
  *
  * @author Christophe Beyls
  */
-@AndroidEntryPoint
 class EventDetailsActivity : AppCompatActivity(R.layout.single_event) {
+
+    @Inject
+    override lateinit var defaultViewModelProviderFactory: ViewModelProvider.Factory
+        private set
 
     private val bookmarkStatusViewModel: BookmarkStatusViewModel by viewModels()
     private val viewModel: EventViewModel by viewModels(extrasProducer = {
-        defaultViewModelCreationExtras.withCreationCallback<EventViewModel.Factory> { factory ->
+        defaultViewModelCreationExtras.withCreationCallback<EventViewModel.Factory> {
             // Load the event from the DB using its id
             val eventIdString = intent.dataString!!
-            factory.create(eventIdString.toLong())
+            create(eventIdString.toLong())
         }
     })
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setupMetroFragmentFactory().inject(this)
         setupEdgeToEdge(isNavigationBarScrimEnabled = false)
         super.onCreate(savedInstanceState)
         rootView.consumeHorizontalWindowInsetsAsPadding()

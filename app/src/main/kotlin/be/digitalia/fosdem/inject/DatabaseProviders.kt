@@ -12,48 +12,46 @@ import androidx.room3.migration.Migration
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.sqlite.execSQL
+import be.digitalia.fosdem.datastore.DeferredReadDataStore
 import be.digitalia.fosdem.db.AppDatabase
 import be.digitalia.fosdem.db.BookmarksDao
 import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.db.entities.EventEntity
 import be.digitalia.fosdem.db.entities.EventTitles
 import be.digitalia.fosdem.db.entities.EventToPerson
-import be.digitalia.fosdem.datastore.DeferredReadDataStore
 import be.digitalia.fosdem.model.Attachment
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Link
 import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.model.PersonDetails
 import be.digitalia.fosdem.model.Track
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import javax.inject.Named
-import javax.inject.Singleton
 
-@Module
-@InstallIn(SingletonComponent::class)
-object DatabaseModule {
+@BindingContainer
+@ContributesTo(AppScope::class)
+object DatabaseProviders {
     private const val DB_FILE_NAME = "fosdem.sqlite"
     private const val DB_DATASTORE_FILE_NAME = "database"
 
     @Provides
-    @Named("Database")
-    fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
+    @DatabaseDataStore
+    fun provideDataStore(context: Context): DataStore<Preferences> {
         return PreferenceDataStoreFactory.create {
             context.preferencesDataStoreFile(DB_DATASTORE_FILE_NAME)
         }
     }
 
     @Provides
-    @Singleton
+    @SingleIn(AppScope::class)
     fun provideAppDatabase(
-        @ApplicationContext context: Context,
-        @Named("Database") dataStore: DataStore<Preferences>
+        context: Context,
+        @DatabaseDataStore dataStore: DataStore<Preferences>
     ): AppDatabase {
         val migration3to5 = object : Migration(3, 5) {
             override suspend fun migrate(connection: SQLiteConnection) = with(connection) {

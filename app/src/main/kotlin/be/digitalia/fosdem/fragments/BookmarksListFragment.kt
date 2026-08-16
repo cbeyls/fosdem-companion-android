@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.withStarted
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -24,28 +25,30 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.ExternalBookmarksActivity
 import be.digitalia.fosdem.adapters.BookmarksAdapter
+import be.digitalia.fosdem.inject.FragmentKey
 import be.digitalia.fosdem.providers.BookmarksExportProvider
 import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.BookmarksViewModel
 import be.digitalia.fosdem.viewmodels.EventMetadataProvider
 import be.digitalia.fosdem.widgets.MultiChoiceHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import dagger.hilt.android.AndroidEntryPoint
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * Bookmarks list, optionally filterable.
  *
  * @author Christophe Beyls
  */
-@AndroidEntryPoint
-class BookmarksListFragment : Fragment(R.layout.recyclerview) {
-
-    @Inject
-    lateinit var eventMetadataProvider: EventMetadataProvider
+@ContributesIntoMap(AppScope::class)
+@FragmentKey
+class BookmarksListFragment(
+    override val defaultViewModelProviderFactory: ViewModelProvider.Factory,
+    private val eventMetadataProvider: EventMetadataProvider,
+) : Fragment(R.layout.recyclerview) {
 
     private val viewModel: BookmarksViewModel by viewModels()
     private val multiChoiceHelper: MultiChoiceHelper by lazy(LazyThreadSafetyMode.NONE) {

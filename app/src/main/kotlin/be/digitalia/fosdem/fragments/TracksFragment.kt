@@ -5,11 +5,13 @@ import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.WindowInsetsApplier
 import be.digitalia.fosdem.R
+import be.digitalia.fosdem.inject.FragmentKey
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.utils.enforceSingleScrollDirection
 import be.digitalia.fosdem.utils.instantiate
@@ -19,10 +21,15 @@ import be.digitalia.fosdem.utils.viewLifecycleLazy
 import be.digitalia.fosdem.viewmodels.TracksViewModel
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import dagger.hilt.android.AndroidEntryPoint
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.binding
 
-@AndroidEntryPoint
-class TracksFragment : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvider {
+@ContributesIntoMap(AppScope::class, binding = binding<Fragment>())
+@FragmentKey
+class TracksFragment(
+    override val defaultViewModelProviderFactory: ViewModelProvider.Factory
+) : Fragment(R.layout.fragment_tracks), RecycledViewPoolProvider {
 
     private class ViewHolder(view: View) {
         val contentView: View = view.findViewById(R.id.content)

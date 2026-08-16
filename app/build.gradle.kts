@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.metro)
 }
 
 android {
@@ -42,6 +42,7 @@ android {
                         "kotlin/**",
                         "META-INF/*.version",
                         "META-INF/androidx/**",
+                        "META-INF/dev/zacsweers/metro/**",
                         "META-INF/native-image/**",
                         "META-INF/versions/**",
                         "META-INF/NOTICE.md"
@@ -93,8 +94,6 @@ afterEvaluate {
 dependencies {
     coreLibraryDesugaring(libs.desugarJdkLibs)
 
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.core)
     implementation(libs.androidx.activity)
@@ -109,6 +108,7 @@ dependencies {
     implementation(libs.androidx.browser)
     implementation(libs.androidx.lifecycle.runtime)
     implementation(libs.androidx.lifecycle.viewmodel)
+    implementation(libs.metrox.viewmodel)
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.room3.runtime)
     implementation(libs.androidx.room3.paging)

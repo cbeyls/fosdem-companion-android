@@ -13,7 +13,9 @@ import be.digitalia.fosdem.flow.stateFlow
 import be.digitalia.fosdem.flow.synchronizedTickerFlow
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.paging.toAutoCloseable
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -21,15 +23,15 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 import kotlin.time.TimeSource
 
-@HiltViewModel
-class LiveViewModel @Inject constructor(
+@ContributesIntoMap(AppScope::class)
+@ViewModelKey
+class LiveViewModel(
     scheduleDao: ScheduleDao,
     timeSource: TimeSource,
     clock: Clock,

@@ -15,11 +15,11 @@ androidx-recyclerview = "1.4.0"
 androidx-room3 = "3.0.1"
 androidx-viewpager2 = "1.1.0"
 desugarJdkLibs = "2.1.5"
-hilt = "2.60.1"
 kotlin = "2.4.10"
 kotlinx-coroutines = "1.11.0"
 ksp = "2.3.10"
 material = "1.14.0"
+metro = "1.4.2"
 moshi = "1.15.2"
 okhttp = "5.4.0"
 okio = "3.18.1"
@@ -27,9 +27,9 @@ photoview = "2.3.0"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+metro = { id = "dev.zacsweers.metro", version.ref = "metro" }
 
 [libraries]
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "androidx-activity" }
@@ -50,12 +50,11 @@ androidx-room3-paging = { group = "androidx.room3", name = "room3-paging", versi
 androidx-room3-runtime = { group = "androidx.room3", name = "room3-runtime", version.ref = "androidx-room3" }
 androidx-viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "androidx-viewpager2" }
 desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugarJdkLibs" }
-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
-hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", "name" = "kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinx-coroutines" }
 ksp-gradle-plugin = { group = "com.google.devtools.ksp", "name" = "symbol-processing-gradle-plugin", version.ref = "ksp" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+metrox-viewmodel = { group = "dev.zacsweers.metro", name = "metrox-viewmodel", version.ref = "metro" }
 moshi = { group = "com.squareup.moshi", name = "moshi", version.ref = "moshi" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 okhttp-tls = { group = "com.squareup.okhttp3", name = "okhttp-tls", version.ref = "okhttp" }

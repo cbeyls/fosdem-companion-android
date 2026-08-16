@@ -10,21 +10,26 @@ import be.digitalia.fosdem.api.FosdemUrls
 import be.digitalia.fosdem.db.ScheduleDao
 import be.digitalia.fosdem.flow.stateFlow
 import be.digitalia.fosdem.flow.versionedResourceFlow
+import be.digitalia.fosdem.inject.CallbackViewModelAssistedFactory
 import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.model.StatusEvent
 import be.digitalia.fosdem.paging.toAutoCloseable
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.binding
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactoryKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 
-@HiltViewModel(assistedFactory = PersonInfoViewModel.Factory::class)
-class PersonInfoViewModel @AssistedInject constructor(
+@AssistedInject
+class PersonInfoViewModel(
+    @Assisted person: Person,
     scheduleDao: ScheduleDao,
-    @Assisted person: Person
 ) : ViewModel() {
 
     val personInfo: Flow<PersonInfo> = stateFlow(viewModelScope, null) {
@@ -52,7 +57,9 @@ class PersonInfoViewModel @AssistedInject constructor(
     )
 
     @AssistedFactory
-    interface Factory {
+    @ContributesIntoMap(AppScope::class, binding = binding<ViewModelAssistedFactory>())
+    @ViewModelAssistedFactoryKey(PersonInfoViewModel::class)
+    fun interface Factory : CallbackViewModelAssistedFactory {
         fun create(person: Person): PersonInfoViewModel
     }
 }

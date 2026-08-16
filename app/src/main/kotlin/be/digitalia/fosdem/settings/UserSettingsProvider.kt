@@ -2,18 +2,19 @@ package be.digitalia.fosdem.settings
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
-import javax.inject.Named
-import javax.inject.Singleton
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
-@Singleton
-class UserSettingsProvider @Inject constructor(
-    @param:Named("UserSettings") private val sharedPreferences: SharedPreferences
+@Inject
+@SingleIn(AppScope::class)
+class UserSettingsProvider(
+    private val sharedPreferences: SharedPreferences
 ) {
 
     @OptIn(ExperimentalCoroutinesApi::class)

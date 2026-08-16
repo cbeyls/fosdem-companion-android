@@ -2,6 +2,8 @@ package be.digitalia.fosdem.api.network
 
 import be.digitalia.fosdem.api.network.HttpClient.HttpResponse
 import be.digitalia.fosdem.api.network.HttpClient.Response
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Call
@@ -10,7 +12,6 @@ import okhttp3.Request
 import okio.BufferedSource
 import java.io.IOException
 import java.net.HttpURLConnection
-import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -19,8 +20,9 @@ import kotlin.coroutines.resumeWithException
  *
  * @author Christophe Beyls
  */
-class OkHttpClientImpl @Inject constructor(
-    private val deferredCallFactory: @JvmSuppressWildcards Deferred<Call.Factory>
+@ContributesBinding(AppScope::class)
+class OkHttpClientImpl(
+    private val deferredCallFactory: Deferred<Call.Factory>
 ) : HttpClient {
     override suspend fun <T> get(url: String, lastModified: String?, httpResponseParser: (HttpResponse) -> T): Response<T> {
         val requestBuilder = Request.Builder()

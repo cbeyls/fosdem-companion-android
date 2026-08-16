@@ -6,12 +6,15 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.TrackScheduleEventActivity
 import be.digitalia.fosdem.adapters.TrackScheduleAdapter
+import be.digitalia.fosdem.inject.FragmentKey
+import be.digitalia.fosdem.inject.withCreationCallback
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.getParcelableCompat
@@ -19,23 +22,23 @@ import be.digitalia.fosdem.utils.launchAndRepeatOnLifecycle
 import be.digitalia.fosdem.viewmodels.EventMetadataProvider
 import be.digitalia.fosdem.viewmodels.TrackScheduleListViewModel
 import be.digitalia.fosdem.viewmodels.TrackScheduleViewModel
-import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.lifecycle.withCreationCallback
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@AndroidEntryPoint
-class TrackScheduleListFragment : Fragment(R.layout.recyclerview) {
-
-    @Inject
-    lateinit var eventMetadataProvider: EventMetadataProvider
+@ContributesIntoMap(AppScope::class)
+@FragmentKey
+class TrackScheduleListFragment(
+    override val defaultViewModelProviderFactory: ViewModelProvider.Factory,
+    private val eventMetadataProvider: EventMetadataProvider,
+) : Fragment(R.layout.recyclerview) {
 
     private val viewModel: TrackScheduleListViewModel by viewModels(extrasProducer = {
-        defaultViewModelCreationExtras.withCreationCallback<TrackScheduleListViewModel.Factory> { factory ->
+        defaultViewModelCreationExtras.withCreationCallback<TrackScheduleListViewModel.Factory> {
             val args = requireArguments()
             val day: Day = args.getParcelableCompat(ARG_DAY)!!
             val track: Track = args.getParcelableCompat(ARG_TRACK)!!
-            factory.create(day, track)
+            create(day, track)
         }
     })
     private val activityViewModel: TrackScheduleViewModel by activityViewModels()

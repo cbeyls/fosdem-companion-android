@@ -10,33 +10,30 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.preference.PreferenceManager
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.datastore.DeferredWriteDataStore
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
+import dev.zacsweers.metro.ContributesTo
+import dev.zacsweers.metro.Provides
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import javax.inject.Named
-import javax.inject.Singleton
 
-@Module
-@InstallIn(SingletonComponent::class)
-object PreferencesModule {
+@BindingContainer
+@ContributesTo(AppScope::class)
+object PreferencesProviders {
     private const val UI_STATE_DATASTORE_FILE_NAME = "ui_state"
 
     @Provides
-    @Named("UserSettings")
-    fun provideUserSettingsSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
+    fun provideSharedPreferences(context: Context): SharedPreferences {
         PreferenceManager.setDefaultValues(context, R.xml.settings, false)
         return PreferenceManager.getDefaultSharedPreferences(context)
     }
 
     @Provides
-    @Named("UIState")
-    @Singleton
-    fun provideUIStateDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
+    @UIStateDataStore
+    @SingleIn(AppScope::class)
+    fun provideUIStateDataStore(context: Context): DataStore<Preferences> {
         val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
         val preferencesDataStore = PreferenceDataStoreFactory.create(
             migrations = listOf(

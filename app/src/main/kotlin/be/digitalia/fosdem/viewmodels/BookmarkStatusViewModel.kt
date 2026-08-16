@@ -8,7 +8,9 @@ import be.digitalia.fosdem.flow.stateFlow
 import be.digitalia.fosdem.flow.versionedResourceFlow
 import be.digitalia.fosdem.model.BookmarkStatus
 import be.digitalia.fosdem.model.Event
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,10 +19,10 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
-@HiltViewModel
-class BookmarkStatusViewModel @Inject constructor(
+@ContributesIntoMap(AppScope::class)
+@ViewModelKey
+class BookmarkStatusViewModel(
     private val bookmarksDao: BookmarksDao,
     private val alarmManager: AppAlarmManager,
 ) : ViewModel() {

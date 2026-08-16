@@ -12,6 +12,7 @@ import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.ConcatAdapter
@@ -20,6 +21,8 @@ import androidx.recyclerview.widget.RecyclerView
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.activities.FabOwner
 import be.digitalia.fosdem.adapters.EventsAdapter
+import be.digitalia.fosdem.inject.FragmentKey
+import be.digitalia.fosdem.inject.withCreationCallback
 import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.utils.ClickableArrowKeyMovementMethod
 import be.digitalia.fosdem.utils.configureColorSchemes
@@ -29,23 +32,23 @@ import be.digitalia.fosdem.utils.parseHtml
 import be.digitalia.fosdem.viewmodels.EventMetadataProvider
 import be.digitalia.fosdem.viewmodels.PersonInfoViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.lifecycle.withCreationCallback
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@AndroidEntryPoint
-class PersonInfoListFragment : Fragment(R.layout.recyclerview) {
-
-    @Inject
-    lateinit var eventMetadataProvider: EventMetadataProvider
+@ContributesIntoMap(AppScope::class)
+@FragmentKey
+class PersonInfoListFragment(
+    override val defaultViewModelProviderFactory: ViewModelProvider.Factory,
+    private val eventMetadataProvider: EventMetadataProvider,
+) : Fragment(R.layout.recyclerview) {
 
     private val viewModel: PersonInfoViewModel by viewModels(extrasProducer = {
-        defaultViewModelCreationExtras.withCreationCallback<PersonInfoViewModel.Factory> { factory ->
+        defaultViewModelCreationExtras.withCreationCallback<PersonInfoViewModel.Factory> {
             val person: Person = requireArguments().getParcelableCompat(ARG_PERSON)!!
-            factory.create(person)
+            create(person)
         }
     })
 

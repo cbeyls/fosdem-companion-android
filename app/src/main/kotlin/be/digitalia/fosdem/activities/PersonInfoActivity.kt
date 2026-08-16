@@ -4,20 +4,26 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
+import androidx.lifecycle.ViewModelProvider
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.PersonInfoListFragment
+import be.digitalia.fosdem.inject.setupMetroFragmentFactory
 import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.utils.consumeHorizontalWindowInsetsAsPadding
 import be.digitalia.fosdem.utils.getParcelableExtraCompat
 import be.digitalia.fosdem.utils.rootView
 import be.digitalia.fosdem.utils.setupEdgeToEdge
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import dagger.hilt.android.AndroidEntryPoint
+import dev.zacsweers.metro.Inject
 
-@AndroidEntryPoint
 class PersonInfoActivity : AppCompatActivity(R.layout.person_info), FabOwner {
 
+    @Inject
+    override lateinit var defaultViewModelProviderFactory: ViewModelProvider.Factory
+        private set
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        setupMetroFragmentFactory().inject(this)
         setupEdgeToEdge()
         super.onCreate(savedInstanceState)
         rootView.consumeHorizontalWindowInsetsAsPadding()

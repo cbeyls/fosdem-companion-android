@@ -20,6 +20,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.preference.Preference
@@ -29,16 +30,18 @@ import androidx.recyclerview.widget.RecyclerView
 import be.digitalia.fosdem.BuildConfig
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.alarms.AndroidAlarmManager
+import be.digitalia.fosdem.inject.FragmentKey
 import be.digitalia.fosdem.settings.PreferenceKeys
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metro.binding
 
-@AndroidEntryPoint
-class SettingsFragment : PreferenceFragmentCompat() {
-
-    @Inject
-    lateinit var alarmManager: AndroidAlarmManager
+@ContributesIntoMap(AppScope::class, binding = binding<Fragment>())
+@FragmentKey
+class SettingsFragment(
+    private val alarmManager: AndroidAlarmManager
+) : PreferenceFragmentCompat() {
 
     private val requestNotificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { result: Boolean ->

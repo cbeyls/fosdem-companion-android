@@ -23,6 +23,7 @@ import androidx.core.view.isInvisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.withStarted
 import be.digitalia.fosdem.BuildConfig
@@ -33,6 +34,7 @@ import be.digitalia.fosdem.fragments.LiveFragment
 import be.digitalia.fosdem.fragments.MapFragment
 import be.digitalia.fosdem.fragments.PersonsListFragment
 import be.digitalia.fosdem.fragments.TracksFragment
+import be.digitalia.fosdem.inject.setupMetroFragmentFactory
 import be.digitalia.fosdem.model.DownloadScheduleResult
 import be.digitalia.fosdem.model.LoadingState
 import be.digitalia.fosdem.utils.awaitCloseDrawer
@@ -46,7 +48,7 @@ import be.digitalia.fosdem.viewmodels.HomeViewModel
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.progressindicator.BaseProgressIndicator
 import com.google.android.material.snackbar.Snackbar
-import dagger.hilt.android.AndroidEntryPoint
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import java.time.ZoneId
@@ -57,7 +59,6 @@ import java.time.format.DateTimeFormatter
  *
  * @author Christophe Beyls
  */
-@AndroidEntryPoint
 class HomeActivity : AppCompatActivity(R.layout.home) {
 
     private enum class Section(
@@ -85,6 +86,10 @@ class HomeActivity : AppCompatActivity(R.layout.home) {
         val navigationView: NavigationView
     )
 
+    @Inject
+    override lateinit var defaultViewModelProviderFactory: ViewModelProvider.Factory
+        private set
+
     private val viewModel: HomeViewModel by viewModels()
 
     private val latestUpdateDateTimeFormatter = DateTimeFormatter.ofPattern(LATEST_UPDATE_DATE_TIME_FORMAT)
@@ -96,6 +101,7 @@ class HomeActivity : AppCompatActivity(R.layout.home) {
 
     @SuppressLint("WrongConstant")
     override fun onCreate(savedInstanceState: Bundle?) {
+        setupMetroFragmentFactory().inject(this)
         setupEdgeToEdge()
         super.onCreate(savedInstanceState)
         rootView.consumeHorizontalWindowInsetsAsPadding()

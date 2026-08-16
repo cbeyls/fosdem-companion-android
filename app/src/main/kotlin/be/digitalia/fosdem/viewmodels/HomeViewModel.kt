@@ -10,25 +10,27 @@ import androidx.lifecycle.viewModelScope
 import be.digitalia.fosdem.api.FosdemApi
 import be.digitalia.fosdem.api.FosdemUrls
 import be.digitalia.fosdem.db.ScheduleDao
+import be.digitalia.fosdem.inject.UIStateDataStore
 import be.digitalia.fosdem.model.DownloadScheduleResult
 import be.digitalia.fosdem.model.LoadingState
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesIntoMap
+import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import javax.inject.Named
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 
-@HiltViewModel
-class HomeViewModel @Inject constructor(
+@ContributesIntoMap(AppScope::class)
+@ViewModelKey
+class HomeViewModel(
     private val api: FosdemApi,
     private val scheduleDao: ScheduleDao,
     private val clock: Clock,
-    @param:Named("UIState") private val uiStateDataStore: DataStore<Preferences>,
+    @param:UIStateDataStore private val uiStateDataStore: DataStore<Preferences>,
 ) : ViewModel() {
 
     val downloadScheduleState: StateFlow<LoadingState<DownloadScheduleResult>>
