@@ -168,7 +168,8 @@
 \n<small>This application makes use of the following libraries:
 \n- <a href="https://developer.android.com/jetpack">Android Jetpack</a><i> by The Android Open Source Project</i>
 \n- <a href="https://material.io/develop/android">Material Components for Android</a><i> by The Android Open Source Project</i>
-\n- <a href="https://github.com/square/okhttp">OkHttp</a><i> by Square, Inc.</i>
+\n- <a href="https://github.com/ZacSweers/metro">Metro</a><i> by Zac Sweers</i>
+\n- <a href="https://github.com/lysine-dev/okhttp">OkHttp</a><i> by Square, Inc.</i>
 \n- <a href="https://github.com/square/moshi">Moshi</a><i> by Square, Inc.</i>
 \n- <a href="https://github.com/JetBrains/kotlin">Kotlin Standard Library</a><i> by JetBrains s.r.o. and Kotlin Programming Language contributors</i>
 \n- <a href="https://github.com/Kotlin/kotlinx.coroutines">kotlinx.coroutines</a><i> by JetBrains s.r.o.</i>

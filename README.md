@@ -32,7 +32,7 @@ The result apk file will be placed in ```app/build/outputs/apk/```.
 ## Used libraries
 
 * [Android Jetpack](https://developer.android.com/jetpack) by The Android Open Source Project
-* [Dagger Hilt](https://dagger.dev/hilt/) by The Dagger Authors
+* [Metro](https://github.com/ZacSweers/metro) by Zac Sweers
 * [Material Components for Android](https://material.io/develop/android) by The Android Open Source Project
 * [OkHttp](https://github.com/square/okhttp) by Square, Inc.
 * [Moshi](https://github.com/square/moshi) by Square, Inc.
