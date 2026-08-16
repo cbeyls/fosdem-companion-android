@@ -6,16 +6,14 @@ import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isGone
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.SearchResultListFragment
-import be.digitalia.fosdem.inject.setupMetroFragmentFactory
+import be.digitalia.fosdem.inject.appGraph
 import be.digitalia.fosdem.utils.ActivityTransitionOverrideType
 import be.digitalia.fosdem.utils.consumeHorizontalWindowInsetsAsPadding
 import be.digitalia.fosdem.utils.overrideActivityTransitionCompat
@@ -23,7 +21,6 @@ import be.digitalia.fosdem.utils.rootView
 import be.digitalia.fosdem.utils.setupEdgeToEdge
 import be.digitalia.fosdem.utils.trimNonAlpha
 import be.digitalia.fosdem.viewmodels.SearchViewModel
-import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -32,17 +29,13 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.sample
 
-class SearchResultActivity : AppCompatActivity(R.layout.search_result) {
-
-    @Inject
-    override lateinit var defaultViewModelProviderFactory: ViewModelProvider.Factory
-        private set
+class SearchResultActivity : MetroAppCompatActivity(R.layout.search_result) {
 
     private val viewModel: SearchViewModel by viewModels()
     private lateinit var searchEditText: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setupMetroFragmentFactory().inject(this)
+        appGraph.inject(this)
         setupEdgeToEdge()
         super.onCreate(savedInstanceState)
         rootView.consumeHorizontalWindowInsetsAsPadding()

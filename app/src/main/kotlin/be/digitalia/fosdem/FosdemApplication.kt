@@ -2,13 +2,14 @@ package be.digitalia.fosdem
 
 import android.app.Application
 import be.digitalia.fosdem.inject.AndroidAppGraph
+import be.digitalia.fosdem.inject.AndroidAppGraphProvider
 import be.digitalia.fosdem.utils.BackgroundWorkScope
 import dev.zacsweers.metro.createGraphFactory
 import kotlinx.coroutines.launch
 
-class FosdemApplication : Application() {
+class FosdemApplication : Application(), AndroidAppGraphProvider {
 
-    val appGraph: AndroidAppGraph by lazy {
+    override val appGraph: AndroidAppGraph by lazy {
         createGraphFactory<AndroidAppGraph.Factory>().create(this)
     }
 

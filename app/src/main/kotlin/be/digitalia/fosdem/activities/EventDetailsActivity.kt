@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toDrawable
@@ -13,12 +12,11 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.withStarted
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.EventDetailsFragment
-import be.digitalia.fosdem.inject.setupMetroFragmentFactory
+import be.digitalia.fosdem.inject.appGraph
 import be.digitalia.fosdem.inject.withCreationCallback
 import be.digitalia.fosdem.model.Event
 import be.digitalia.fosdem.utils.consumeHorizontalWindowInsetsAsPadding
@@ -31,7 +29,6 @@ import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel
 import be.digitalia.fosdem.viewmodels.EventViewModel
 import be.digitalia.fosdem.widgets.setupBookmarkStatus
 import com.google.android.material.appbar.AppBarLayout
-import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.launch
 
 /**
@@ -39,11 +36,7 @@ import kotlinx.coroutines.launch
  *
  * @author Christophe Beyls
  */
-class EventDetailsActivity : AppCompatActivity(R.layout.single_event) {
-
-    @Inject
-    override lateinit var defaultViewModelProviderFactory: ViewModelProvider.Factory
-        private set
+class EventDetailsActivity : MetroAppCompatActivity(R.layout.single_event) {
 
     private val bookmarkStatusViewModel: BookmarkStatusViewModel by viewModels()
     private val viewModel: EventViewModel by viewModels(extrasProducer = {
@@ -55,7 +48,7 @@ class EventDetailsActivity : AppCompatActivity(R.layout.single_event) {
     })
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setupMetroFragmentFactory().inject(this)
+        appGraph.inject(this)
         setupEdgeToEdge(isNavigationBarScrimEnabled = false)
         super.onCreate(savedInstanceState)
         rootView.consumeHorizontalWindowInsetsAsPadding()

@@ -1,22 +1,21 @@
 package be.digitalia.fosdem.activities
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.SettingsFragment
-import be.digitalia.fosdem.inject.setupMetroFragmentFactory
+import be.digitalia.fosdem.inject.appGraph
 import be.digitalia.fosdem.utils.ActivityTransitionOverrideType
 import be.digitalia.fosdem.utils.consumeHorizontalWindowInsetsAsPadding
 import be.digitalia.fosdem.utils.overrideActivityTransitionCompat
 import be.digitalia.fosdem.utils.rootView
 import be.digitalia.fosdem.utils.setupEdgeToEdge
 
-class SettingsActivity : AppCompatActivity(R.layout.content) {
+class SettingsActivity : MetroAppCompatActivity(R.layout.content) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setupMetroFragmentFactory()
+        appGraph.inject(this)
         setupEdgeToEdge()
         super.onCreate(savedInstanceState)
         rootView.consumeHorizontalWindowInsetsAsPadding()

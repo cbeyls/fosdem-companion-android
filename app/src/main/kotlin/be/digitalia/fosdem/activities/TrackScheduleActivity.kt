@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageButton
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toDrawable
@@ -13,12 +12,11 @@ import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import androidx.fragment.app.commitNow
 import androidx.fragment.app.replace
-import androidx.lifecycle.ViewModelProvider
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.fragments.EventDetailsFragment
 import be.digitalia.fosdem.fragments.RoomImageDialogFragment
 import be.digitalia.fosdem.fragments.TrackScheduleListFragment
-import be.digitalia.fosdem.inject.setupMetroFragmentFactory
+import be.digitalia.fosdem.inject.appGraph
 import be.digitalia.fosdem.model.Day
 import be.digitalia.fosdem.model.Track
 import be.digitalia.fosdem.utils.MenuHostMediator
@@ -33,18 +31,13 @@ import be.digitalia.fosdem.viewmodels.BookmarkStatusViewModel
 import be.digitalia.fosdem.viewmodels.TrackScheduleViewModel
 import be.digitalia.fosdem.widgets.setupBookmarkStatus
 import com.google.android.material.appbar.AppBarLayout
-import dev.zacsweers.metro.Inject
 
 /**
  * Track Schedule container, works in both single pane and dual pane modes.
  *
  * @author Christophe Beyls
  */
-class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule), MenuHostMediatorOwner {
-
-    @Inject
-    override lateinit var defaultViewModelProviderFactory: ViewModelProvider.Factory
-        private set
+class TrackScheduleActivity : MetroAppCompatActivity(R.layout.track_schedule), MenuHostMediatorOwner {
 
     private val viewModel: TrackScheduleViewModel by viewModels()
     private val bookmarkStatusViewModel: BookmarkStatusViewModel by viewModels()
@@ -52,7 +45,7 @@ class TrackScheduleActivity : AppCompatActivity(R.layout.track_schedule), MenuHo
     override val menuHostMediator = MenuHostMediator(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setupMetroFragmentFactory().inject(this)
+        appGraph.inject(this)
         setupEdgeToEdge()
         super.onCreate(savedInstanceState)
         rootView.consumeHorizontalWindowInsetsAsPadding()

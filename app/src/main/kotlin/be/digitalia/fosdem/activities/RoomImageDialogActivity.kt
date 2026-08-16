@@ -6,7 +6,6 @@ import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.widget.ImageView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.net.toUri
@@ -30,7 +29,7 @@ import dev.zacsweers.metro.Inject
  *
  * @author Christophe Beyls
  */
-class RoomImageDialogActivity : AppCompatActivity(R.layout.dialog_room_image) {
+class RoomImageDialogActivity : MetroAppCompatActivity(R.layout.dialog_room_image) {
 
     @Inject
     lateinit var eventMetadataProvider: EventMetadataProvider
