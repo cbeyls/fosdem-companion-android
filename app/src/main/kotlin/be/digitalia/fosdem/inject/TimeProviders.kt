@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.receiveBroadcasts
 import be.digitalia.fosdem.utils.ElapsedRealTimeSource
 import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Provides
 import kotlinx.coroutines.flow.Flow
@@ -17,8 +18,9 @@ import java.time.ZoneId
 import kotlin.time.Clock
 import kotlin.time.TimeSource
 
+@BindingContainer
 @ContributesTo(AppScope::class)
-interface TimeProviders {
+object TimeProviders {
     @Provides
     fun provideTimeSource(): TimeSource = ElapsedRealTimeSource
 

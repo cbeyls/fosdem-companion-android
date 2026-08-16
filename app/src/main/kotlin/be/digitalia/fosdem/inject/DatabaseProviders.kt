@@ -26,14 +26,19 @@ import be.digitalia.fosdem.model.Person
 import be.digitalia.fosdem.model.PersonDetails
 import be.digitalia.fosdem.model.Track
 import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 
+@BindingContainer
 @ContributesTo(AppScope::class)
-interface DatabaseProviders {
+object DatabaseProviders {
+    private const val DB_FILE_NAME = "fosdem.sqlite"
+    private const val DB_DATASTORE_FILE_NAME = "database"
+
     @Provides
     @DatabaseDataStore
     fun provideDataStore(context: Context): DataStore<Preferences> {
@@ -139,9 +144,4 @@ interface DatabaseProviders {
 
     @Provides
     fun provideBookmarksDao(appDatabase: AppDatabase): BookmarksDao = appDatabase.bookmarksDao
-
-    companion object {
-        private const val DB_FILE_NAME = "fosdem.sqlite"
-        private const val DB_DATASTORE_FILE_NAME = "database"
-    }
 }

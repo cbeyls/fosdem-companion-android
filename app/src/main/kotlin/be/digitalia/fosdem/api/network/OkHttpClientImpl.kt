@@ -2,7 +2,8 @@ package be.digitalia.fosdem.api.network
 
 import be.digitalia.fosdem.api.network.HttpClient.HttpResponse
 import be.digitalia.fosdem.api.network.HttpClient.Response
-import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.ContributesBinding
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Call
@@ -19,7 +20,7 @@ import kotlin.coroutines.resumeWithException
  *
  * @author Christophe Beyls
  */
-@Inject
+@ContributesBinding(AppScope::class)
 class OkHttpClientImpl(
     private val deferredCallFactory: Deferred<Call.Factory>
 ) : HttpClient {

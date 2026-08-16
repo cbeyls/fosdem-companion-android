@@ -1,11 +1,9 @@
 package be.digitalia.fosdem.inject
 
 import android.os.Build
-import be.digitalia.fosdem.api.network.HttpClient
-import be.digitalia.fosdem.api.network.OkHttpClientImpl
 import be.digitalia.fosdem.utils.BackgroundWorkScope
 import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.Binds
+import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
@@ -19,45 +17,13 @@ import okhttp3.tls.HandshakeCertificates
 import okhttp3.tls.decodeCertificatePem
 import java.util.concurrent.TimeUnit
 
+@BindingContainer
 @ContributesTo(AppScope::class)
-interface NetworkProviders {
-    @Binds
-    val OkHttpClientImpl.bind: HttpClient
+object NetworkProviders {
+    private const val DEFAULT_CONNECT_TIMEOUT = 10L
+    private const val DEFAULT_READ_TIMEOUT = 10L
 
-    @Provides
-    fun provideOkHttpClient(): OkHttpClient {
-        return OkHttpClient.Builder()
-            .connectTimeout(DEFAULT_CONNECT_TIMEOUT, TimeUnit.SECONDS)
-            .readTimeout(DEFAULT_READ_TIMEOUT, TimeUnit.SECONDS)
-            .apply {
-                // Add support for new Let's encrypt root certificate on API <25
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) {
-                    val clientCertificates = HandshakeCertificates.Builder()
-                        .addTrustedCertificate(ISRG_ROOT_X1_CERTIFICATE.decodeCertificatePem())
-                        .build()
-                    sslSocketFactory(
-                        clientCertificates.sslSocketFactory(),
-                        clientCertificates.trustManager
-                    )
-                }
-            }
-            .build()
-    }
-
-    /**
-     * Returns a Call.Factory lazily initialized on a background thread
-     */
-    @Provides
-    @SingleIn(AppScope::class)
-    fun provideCallFactoryAsync(lazyClient: Lazy<OkHttpClient>): Deferred<Call.Factory> {
-        return BackgroundWorkScope.async(Dispatchers.IO, CoroutineStart.LAZY) { lazyClient.value }
-    }
-
-    companion object {
-        private const val DEFAULT_CONNECT_TIMEOUT = 10L
-        private const val DEFAULT_READ_TIMEOUT = 10L
-
-        private const val ISRG_ROOT_X1_CERTIFICATE = """-----BEGIN CERTIFICATE-----
+    private const val ISRG_ROOT_X1_CERTIFICATE = """-----BEGIN CERTIFICATE-----
 MIIFazCCA1OgAwIBAgIRAIIQz7DSQONZRGPgu2OCiwAwDQYJKoZIhvcNAQELBQAw
 TzELMAkGA1UEBhMCVVMxKTAnBgNVBAoTIEludGVybmV0IFNlY3VyaXR5IFJlc2Vh
 cmNoIEdyb3VwMRUwEwYDVQQDEwxJU1JHIFJvb3QgWDEwHhcNMTUwNjA0MTEwNDM4
@@ -88,5 +54,33 @@ oyi3B43njTOQ5yOf+1CceWxG1bQVs5ZufpsMljq4Ui0/1lvh+wjChP4kqKOJ2qxq
 mRGunUHBcnWEvgJBQl9nJEiU0Zsnvgc/ubhPgXRR4Xq37Z0j4r7g1SgEEzwxA57d
 emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 -----END CERTIFICATE-----"""
+
+    @Provides
+    fun provideOkHttpClient(): OkHttpClient {
+        return OkHttpClient.Builder()
+            .connectTimeout(DEFAULT_CONNECT_TIMEOUT, TimeUnit.SECONDS)
+            .readTimeout(DEFAULT_READ_TIMEOUT, TimeUnit.SECONDS)
+            .apply {
+                // Add support for new Let's encrypt root certificate on API <25
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) {
+                    val clientCertificates = HandshakeCertificates.Builder()
+                        .addTrustedCertificate(ISRG_ROOT_X1_CERTIFICATE.decodeCertificatePem())
+                        .build()
+                    sslSocketFactory(
+                        clientCertificates.sslSocketFactory(),
+                        clientCertificates.trustManager
+                    )
+                }
+            }
+            .build()
+    }
+
+    /**
+     * Returns a Call.Factory lazily initialized on a background thread
+     */
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideCallFactoryAsync(lazyClient: Lazy<OkHttpClient>): Deferred<Call.Factory> {
+        return BackgroundWorkScope.async(Dispatchers.IO, CoroutineStart.LAZY) { lazyClient.value }
     }
 }

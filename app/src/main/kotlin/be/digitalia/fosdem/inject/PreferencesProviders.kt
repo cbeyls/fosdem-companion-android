@@ -11,6 +11,7 @@ import androidx.preference.PreferenceManager
 import be.digitalia.fosdem.R
 import be.digitalia.fosdem.datastore.DeferredWriteDataStore
 import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
@@ -18,8 +19,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 
+@BindingContainer
 @ContributesTo(AppScope::class)
-interface PreferencesProviders {
+object PreferencesProviders {
+    private const val UI_STATE_DATASTORE_FILE_NAME = "ui_state"
+
     @Provides
     fun provideSharedPreferences(context: Context): SharedPreferences {
         PreferenceManager.setDefaultValues(context, R.xml.settings, false)
@@ -43,9 +47,5 @@ interface PreferencesProviders {
             context.preferencesDataStoreFile(UI_STATE_DATASTORE_FILE_NAME)
         }
         return DeferredWriteDataStore(preferencesDataStore, scope)
-    }
-
-    companion object {
-        private const val UI_STATE_DATASTORE_FILE_NAME = "ui_state"
     }
 }
