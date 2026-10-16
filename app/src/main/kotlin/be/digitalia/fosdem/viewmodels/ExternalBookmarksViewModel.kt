@@ -41,7 +41,7 @@ class ExternalBookmarksViewModel(
         }.flow.cachedIn(viewModelScope)
 
     fun addAll() {
-        viewModelScope.launch(start = CoroutineStart.ATOMIC) {
+        viewModelScope.launch(start = CoroutineStart.UNDISPATCHED) {
             withContext(NonCancellable) {
                 bookmarksDao.addBookmarks(bookmarkIds).let { alarmInfos ->
                     alarmManager.onBookmarksAdded(alarmInfos)

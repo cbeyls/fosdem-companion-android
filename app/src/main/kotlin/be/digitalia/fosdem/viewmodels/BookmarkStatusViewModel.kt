@@ -66,7 +66,7 @@ class BookmarkStatusViewModel(
 
     private fun removeBookmark(event: Event) {
         val eventIds = longArrayOf(event.id)
-        viewModelScope.launch(start = CoroutineStart.ATOMIC) {
+        viewModelScope.launch(start = CoroutineStart.UNDISPATCHED) {
             withContext(NonCancellable) {
                 if (bookmarksDao.removeBookmarks(eventIds) > 0) {
                     alarmManager.onBookmarksRemoved(eventIds)
@@ -76,7 +76,7 @@ class BookmarkStatusViewModel(
     }
 
     private fun addBookmark(event: Event) {
-        viewModelScope.launch(start = CoroutineStart.ATOMIC) {
+        viewModelScope.launch(start = CoroutineStart.UNDISPATCHED) {
             withContext(NonCancellable) {
                 bookmarksDao.addBookmark(event)?.let { alarmInfo ->
                     alarmManager.onBookmarksAdded(listOf(alarmInfo))
