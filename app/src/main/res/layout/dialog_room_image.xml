@@ -14,7 +14,7 @@
         android:layout_marginBottom="2dp"
         android:minHeight="56dp" />
 
-    <ImageView
+    <be.digitalia.fosdem.widgets.SaveStatePhotoView
         android:id="@+id/room_image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
